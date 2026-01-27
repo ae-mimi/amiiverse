@@ -90,7 +90,16 @@ collections:
           - {label: "Page Title", name: "title", widget: "string"}
           - {label: "Profile Image", name: "profileImage", widget: "image"}
           - {label: "Profile Name", name: "profileName", widget: "string"}
-          - {label: "Links", name: "links", widget: "list", fields: [{label: "Label", name: "label", widget: "string"}, {label: "URL", name: "url", widget: "string"}]}
+          - label: "Links"
+            name: "links"
+            widget: "list"
+            fields:
+              - label: "Label"
+                name: "label"
+                widget: "string"
+              - label: "URL"
+                name: "url"
+                widget: "string"
 
   - name: "eras"
     label: "Eras"
