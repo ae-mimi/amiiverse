@@ -5,7 +5,7 @@ const eras = defineCollection({
   schema: ({ image }) => z.object({
     name: z.string(),
     slug: z.string(),
-    texture: image().optional(),
+    texture: z.string().optional(),
     bgColor: z.string(),
     textColor: z.string(),
     accentColor: z.string(),
@@ -16,12 +16,12 @@ const eras = defineCollection({
 
 const releases = defineCollection({
   type: 'content',
-  schema: ({ image }) => z.object({
+  schema: () => z.object({
     title: z.string(),
     date: z.date(),
     description: z.string(),
     credits: z.string(),
-    cover: image(),
+    cover: z.string(),
     spotify: z.string().optional(),
     apple: z.string().optional(),
     youtube: z.string().optional(),
@@ -37,9 +37,9 @@ const releases = defineCollection({
 
 const members = defineCollection({
   type: 'content',
-  schema: ({ image }) => z.object({
+  schema: () => z.object({
     name: z.string(),
-    photo: image(),
+    photo: z.string(),
     bio: z.string(),
   }),
 });
