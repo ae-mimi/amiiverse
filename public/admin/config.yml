@@ -1,0 +1,88 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "settings"
+    label: "Site Settings"
+    delete: false
+    files:
+      - name: "general"
+        label: "General Settings"
+        file: "src/data/settings.json"
+        fields:
+          - {label: "Active Era", name: "activeEra", widget: "relation", collection: "eras", search_fields: ["name"], value_field: "slug"}
+          - {label: "Takeover Enabled", name: "takeoverEnabled", widget: "boolean", default: false}
+          - {label: "Facebook", name: "facebook", widget: "string", required: false}
+          - {label: "Instagram", name: "instagram", widget: "string", required: false}
+          - {label: "Twitter", name: "twitter", widget: "string", required: false}
+          - {label: "TikTok", name: "tiktok", widget: "string", required: false}
+          - {label: "Email (Bookings)", name: "bookingsEmail", widget: "string"}
+          - {label: "Email (Partner)", name: "partnerEmail", widget: "string"}
+          - {label: "Featured Release", name: "featuredRelease", widget: "relation", collection: "releases", search_fields: ["title"], value_field: "slug", required: false}
+          - {label: "Mailing List Embed Code", name: "mailingListEmbed", widget: "text", required: false}
+
+  - name: "eras"
+    label: "Eras"
+    folder: "src/content/eras"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Name", name: "name", widget: "string"}
+      - {label: "Slug", name: "slug", widget: "string"}
+      - {label: "Texture Image", name: "texture", widget: "image", required: false}
+      - {label: "Background Color", name: "bgColor", widget: "color"}
+      - {label: "Text Color", name: "textColor", widget: "color"}
+      - {label: "Accent Color", name: "accentColor", widget: "color"}
+      - {label: "Font (Heading)", name: "headingFont", widget: "string", default: "Starbim"}
+      - {label: "Font (Body)", name: "bodyFont", widget: "string", default: "Archivo"}
+
+  - name: "releases"
+    label: "Releases"
+    folder: "src/content/releases"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Release Date", name: "date", widget: "datetime"}
+      - {label: "Short Description", name: "description", widget: "text"}
+      - {label: "Story/Details", name: "body", widget: "markdown"}
+      - {label: "Credits", name: "credits", widget: "markdown"}
+      - {label: "Cover Art", name: "cover", widget: "image"}
+      - {label: "Spotify", name: "spotify", widget: "string", required: false}
+      - {label: "Apple Music", name: "apple", widget: "string", required: false}
+      - {label: "YouTube", name: "youtube", widget: "string", required: false}
+      - {label: "Audiomack", name: "audiomack", widget: "string", required: false}
+      - {label: "Boomplay", name: "boomplay", widget: "string", required: false}
+      - {label: "SoundCloud", name: "soundcloud", widget: "string", required: false}
+      - {label: "Deezer", name: "deezer", widget: "string", required: false}
+      - {label: "Tidal", name: "tidal", widget: "string", required: false}
+      - {label: "Amazon Music", name: "amazon", widget: "string", required: false}
+      - {label: "Era Style", name: "era", widget: "relation", collection: "eras", search_fields: ["name"], value_field: "slug", required: false}
+
+  - name: "members"
+    label: "Members"
+    folder: "src/content/members"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - {label: "Name", name: "name", widget: "string"}
+      - {label: "Photo", name: "photo", widget: "image"}
+      - {label: "Short Bio", name: "bio", widget: "text"}
+
+  - name: "press"
+    label: "Press Assets"
+    delete: false
+    files:
+      - name: "assets"
+        label: "Press Kit Data"
+        file: "src/data/press.json"
+        fields:
+          - {label: "Short Bio", name: "shortBio", widget: "text"}
+          - {label: "Medium Bio", name: "mediumBio", widget: "markdown"}
+          - {label: "Long Bio", name: "longBio", widget: "markdown"}
+          - {label: "Photo Downloads", name: "photos", widget: "list", fields: [{label: "Image", name: "image", widget: "image"}, {label: "Credit", name: "credit", widget: "string"}]}
+          - {label: "EPK PDF Link", name: "epkPdf", widget: "file", required: false}

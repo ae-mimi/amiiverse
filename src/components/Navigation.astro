@@ -1,0 +1,33 @@
+---
+const links = [
+  { label: 'Home', href: '/' },
+  { label: 'Music', href: '/music' },
+  { label: 'About', href: '/about' },
+  { label: 'Press', href: '/press' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Shop', href: '/shop' },
+];
+---
+
+<header class="h-[var(--header-height)] flex items-center justify-between container">
+  <a href="/" class="text-2xl font-bold uppercase tracking-widest font-heading">
+    amii
+  </a>
+  
+  <nav>
+    <ul class="flex gap-6 list-none m-0 p-0">
+      {links.map(link => (
+        <li>
+          <a href={link.href} class="text-sm uppercase tracking-wide hover:underline font-body">
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  
+  <div class="hidden md:block">
+    <!-- Placeholder for theme toggle or join btn -->
+    <a href="/links" class="text-xs border border-current px-3 py-1 rounded-full">Follow</a>
+  </div>
+</header>

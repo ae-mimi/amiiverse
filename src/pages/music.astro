@@ -1,0 +1,56 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const releases = await getCollection("releases");
+const sortedReleases = releases.sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<BaseLayout title="Music | amii">
+    <section class="max-w-5xl mx-auto py-12">
+        <h1 class="text-4xl font-heading mb-12 text-center">Discography</h1>
+
+        {
+            sortedReleases.length === 0 ? (
+                <div class="text-center py-20 text-gray-500">
+                    <p>No releases found yet.</p>
+                    <p class="text-sm mt-2">Check back soon for our debut.</p>
+                </div>
+            ) : (
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    {sortedReleases.map((release) => (
+                        <article class="group">
+                            <a
+                                href={`/releases/${release.slug}`}
+                                class="block overflow-hidden rounded-lg mb-4"
+                            >
+                                <img
+                                    src={release.data.cover.src}
+                                    alt={release.data.title}
+                                    class="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                            </a>
+                            <h2 class="text-2xl font-heading mb-1 decoration-pink-500 group-hover:underline">
+                                {release.data.title}
+                            </h2>
+                            <p class="text-sm opacity-60 mb-2">
+                                {release.data.date.toLocaleDateString()}
+                            </p>
+                            <p class="line-clamp-2 mb-4">
+                                {release.data.description}
+                            </p>
+                            <a
+                                href={`/releases/${release.slug}`}
+                                class="text-sm font-bold uppercase tracking-wider hover:text-pink-500"
+                            >
+                                Listen / Details &rarr;
+                            </a>
+                        </article>
+                    ))}
+                </div>
+            )
+        }
+    </section>
+</BaseLayout>

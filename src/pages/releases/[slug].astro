@@ -1,0 +1,101 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import settings from "../../data/settings.json";
+
+export async function getStaticPaths() {
+    const releases = await getCollection("releases");
+    return releases.map((release) => ({
+        params: { slug: release.slug },
+        props: { release },
+    }));
+}
+
+const { release } = Astro.props;
+const { Content } = await release.render();
+
+const platforms = [
+    { name: "Spotify", url: release.data.spotify, icon: "spotify" },
+    { name: "Apple Music", url: release.data.apple, icon: "apple" },
+    { name: "YouTube", url: release.data.youtube, icon: "youtube" },
+    { name: "SoundCloud", url: release.data.soundcloud, icon: "soundcloud" },
+    { name: "Audiomack", url: release.data.audiomack, icon: "audiomack" },
+    { name: "Boomplay", url: release.data.boomplay, icon: "boomplay" },
+    { name: "Deezer", url: release.data.deezer, icon: "deezer" },
+    { name: "Tidal", url: release.data.tidal, icon: "tidal" },
+    { name: "Amazon", url: release.data.amazon, icon: "amazon" },
+].filter((p) => p.url); // Only show platforms with URLs
+
+// Determine primary embed (First available of Spotify/YouTube/Apple)
+// Logic: If YouTube exists, use it? Or Spotify? Spotify embed is cleaner for audio.
+const embedUrl = release.data.spotify
+    ? `https://open.spotify.com/embed/track/${release.data.spotify.split("/").pop()}?utm_source=generator&theme=0`
+    : release.data.youtube
+      ? `https://www.youtube.com/embed/${release.data.youtube.split("v=")[1]}`
+      : null;
+
+// Note: Real Spotify ID extraction is more complex usually, simplified here.
+---
+
+<BaseLayout
+    title={`${release.data.title} | amii`}
+    description={release.data.description}
+>
+    <article class="py-12 max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 mb-16 items-start">
+            <div class="sticky top-24">
+                <img
+                    src={release.data.cover.src}
+                    alt={release.data.title}
+                    class="w-full aspect-square object-cover shadow-xl rounded-lg mb-8"
+                />
+
+                <div class="flex flex-wrap gap-4 justify-center">
+                    {
+                        platforms.map((platform) => (
+                            <a
+                                href={platform.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn text-sm py-2 px-4"
+                            >
+                                {platform.name}
+                            </a>
+                        ))
+                    }
+                </div>
+            </div>
+
+            <div>
+                <h1 class="text-5xl md:text-7xl font-heading mb-4">
+                    {release.data.title}
+                </h1>
+                <p class="text-xl opacity-60 mb-8">
+                    {release.data.date.toLocaleDateString()}
+                </p>
+
+                <div
+                    class="prose prose-lg dark:prose-invert font-body leading-relaxed mb-12"
+                >
+                    {release.data.description}
+                    <div class="mt-8 border-t border-current pt-8">
+                        <Content />
+                    </div>
+                </div>
+
+                {
+                    release.data.credits && (
+                        <div class="text-sm opacity-70 border-t border-current pt-4">
+                            <h3 class="uppercase tracking-widest mb-2 font-bold">
+                                Credits
+                            </h3>
+                            <div class="markdown-content">
+                                {release.data.credits}
+                            </div>
+                        </div>
+                    )
+                }
+            </div>
+        </div>
+    </article>
+</BaseLayout>

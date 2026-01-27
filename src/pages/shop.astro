@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Shop | amii">
+    <div class="h-[60vh] flex flex-col items-center justify-center text-center">
+        <h1 class="text-6xl font-heading mb-4">Shop</h1>
+        <p class="text-xl mb-8">Official merchandise coming soon.</p>
+
+        <form class="flex gap-2 max-w-sm mx-auto w-full">
+            <input
+                type="email"
+                placeholder="Get notified..."
+                class="flex-grow p-2 border border-current rounded"
+            />
+            <button class="btn">Join</button>
+        </form>
+    </div>
+</BaseLayout>

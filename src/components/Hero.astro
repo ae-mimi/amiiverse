@@ -1,0 +1,51 @@
+---
+interface Props {
+  type?: 'cover' | 'group' | 'video';
+  title?: string;
+  subtitle?: string;
+  link?: string;
+  linkText?: string;
+  image?: string;
+}
+
+const { 
+  type = 'cover', 
+  title = 'amii', 
+  subtitle, 
+  link = '/join', 
+  linkText = 'Join the journey',
+  image = '/placeholder-hero.jpg' 
+} = Astro.props;
+---
+
+<section class="min-h-[70vh] flex flex-col items-center justify-center text-center relative overflow-hidden">
+  {type === 'video' && (
+    <div class="absolute inset-0 bg-black/20 z-10"></div>
+    <video class="absolute inset-0 w-full h-full object-cover -z-10" autoplay loop muted playsinline>
+      <source src="/uploads/hero-loop.mp4" type="video/mp4" />
+    </video>
+  )}
+
+  {type === 'group' && (
+     <div class="absolute inset-0 -z-10">
+        <img src={image} alt="amii group photo" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-black/10"></div>
+     </div>
+  )}
+  
+  <div class="z-20 p-8 max-w-2xl bg-white/10 backdrop-blur-sm rounded-xl">
+    <h1 class="text-6xl md:text-8xl font-heading mb-4 leading-tight">
+      {title}
+    </h1>
+    
+    {subtitle && (
+      <p class="text-xl md:text-2xl font-body mb-8 max-w-lg mx-auto">
+        {subtitle}
+      </p>
+    )}
+    
+    <a href={link} class="btn text-lg px-8 py-3" data-track-category="Hero" data-track-action="Join CTA">
+      {linkText}
+    </a>
+  </div>
+</section>

@@ -1,0 +1,109 @@
+---
+import "../styles/global.css";
+import Navigation from "../components/Navigation.astro";
+import settings from "../data/settings.json";
+
+interface Props {
+    title: string;
+    description?: string;
+    era?: string;
+}
+
+const {
+    title,
+    description = "amii - Official Website",
+    era = settings.activeEra || "base",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-era={era}>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content={description} />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={Astro.url} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta
+            property="og:image"
+            content={new URL("/placeholder-hero.jpg", Astro.url)}
+        />
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={Astro.url} />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+        <meta
+            property="twitter:image"
+            content={new URL("/placeholder-hero.jpg", Astro.url)}
+        />
+
+        <!-- Netlify Identity Widget -->
+        <script
+            is:inline
+            src="https://identity.netlify.com/v1/netlify-identity-widget.js"
+        ></script>
+
+        <!-- Analytics Abstraction -->
+        <script is:inline>
+            window.amiiAnalytics = {
+                track: (category, action, label) => {
+                    console.log(`[Analytics] ${category} - ${action}`, label);
+                    // Placeholder for future GA implementation
+                    // if (window.gtag) window.gtag('event', action, { event_category: category, event_label: label });
+                },
+            };
+
+            // Auto-track elements with data-track attributes
+            document.addEventListener("DOMContentLoaded", () => {
+                document
+                    .querySelectorAll("[data-track-category]")
+                    .forEach((el) => {
+                        el.addEventListener("click", () => {
+                            const category = el.getAttribute(
+                                "data-track-category",
+                            );
+                            const action =
+                                el.getAttribute("data-track-action") || "click";
+                            const label =
+                                el.getAttribute("data-track-label") ||
+                                el.href ||
+                                el.textContent;
+                            window.amiiAnalytics.track(category, action, label);
+                        });
+                    });
+            });
+        </script>
+    </head>
+    <body class="min-h-screen flex flex-col">
+        <Navigation />
+        <main class="flex-grow container py-8">
+            <slot />
+        </main>
+        <footer class="py-6 text-center text-sm opacity-60">
+            <div class="container">
+                &copy; {new Date().getFullYear()} amii. All rights reserved.
+            </div>
+        </footer>
+
+        <script>
+            if (window.netlifyIdentity) {
+                window.netlifyIdentity.on("init", (user) => {
+                    if (!user) {
+                        window.netlifyIdentity.on("login", () => {
+                            document.location.href = "/admin/";
+                        });
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,68 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import settings from "../data/settings.json";
+---
+
+<BaseLayout title="Contact | amii">
+    <section class="max-w-2xl mx-auto py-12 text-center">
+        <h1 class="text-4xl font-heading mb-8">Contact</h1>
+
+        <div class="grid gap-8 mb-16">
+            <div class="p-6 border border-current rounded-lg">
+                <h2 class="text-xl font-heading mb-2">Bookings</h2>
+                <a
+                    href={`mailto:${settings.bookingsEmail}`}
+                    class="text-lg hover:underline">{settings.bookingsEmail}</a
+                >
+            </div>
+
+            <div class="p-6 border border-current rounded-lg">
+                <h2 class="text-xl font-heading mb-2">Partnerships</h2>
+                <a
+                    href={`mailto:${settings.partnerEmail}`}
+                    class="text-lg hover:underline">{settings.partnerEmail}</a
+                >
+            </div>
+        </div>
+
+        <div class="text-left">
+            <h2 class="text-2xl font-heading mb-6 text-center">
+                Fan Mail & Messages
+            </h2>
+            <form
+                name="fanmail"
+                method="POST"
+                data-netlify="true"
+                class="space-y-4"
+            >
+                <div>
+                    <label class="block text-sm uppercase mb-1">Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        class="w-full p-2 border border-300 dark:bg-gray-800 rounded"
+                        required
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm uppercase mb-1">Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        class="w-full p-2 border border-300 dark:bg-gray-800 rounded"
+                        required
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm uppercase mb-1">Message</label>
+                    <textarea
+                        name="message"
+                        rows="5"
+                        class="w-full p-2 border border-300 dark:bg-gray-800 rounded"
+                        required></textarea>
+                </div>
+                <button type="submit" class="btn w-full">Send Message</button>
+            </form>
+        </div>
+    </section>
+</BaseLayout>
