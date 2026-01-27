@@ -7,6 +7,7 @@ interface Props {
   linkText?: string;
   image?: string;
   video?: string;
+  badgeText?: string;
 }
 
 const { 
@@ -16,7 +17,8 @@ const {
   link = '/join', 
   linkText = 'Join the journey',
   image = '/placeholder-hero.jpg',
-  video = '/uploads/hero-loop.mp4'
+  video = '/uploads/hero-loop.mp4',
+  badgeText = 'Coming Soon'
 } = Astro.props;
   // Ensure image path is absolute if it's from uploads
   const safeImage = image.startsWith('http') || image.startsWith('/') ? image : `/${image}`;
@@ -37,12 +39,20 @@ const {
      </div>
   )}
   
-  <div class="hero-content">
-    <h1 class="hero-title font-heading">
-      {title}
-    </h1>
+  <div class={`hero-content ${type === 'video' ? 'minimal' : ''}`}>
+    {type === 'full' && (
+      <div class="release-badge" style="display: inline-block; padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 9999px; margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <span style="font-size: 0.875rem; letter-spacing: 0.05em; text-transform: uppercase;">{badgeText}</span>
+      </div>
+    )}
+
+    {type !== 'full' && (
+      <h1 class="hero-title font-heading" style={type === 'video' ? 'font-size: 3rem;' : ''}>
+        {title}
+      </h1>
+    )}
     
-    {subtitle && (
+    {subtitle && type !== 'full' && type !== 'video' && (
       <p class="font-body opacity-80" style="font-size: 1.5rem; margin-bottom: 2rem;">
         {subtitle}
       </p>
