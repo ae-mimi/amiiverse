@@ -39,6 +39,7 @@ const members = defineCollection({
   schema: () => z.object({
     name: z.string(),
     photo: z.string(),
+    bio: z.string(),
   }),
 });
 
