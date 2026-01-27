@@ -3,6 +3,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getEntry } from "astro:content";
 
 const shopPage = await getEntry("pages", "shop");
+if (!shopPage) {
+    throw new Error("Could not find 'shop' page content");
+}
 const { data } = shopPage;
 ---
 

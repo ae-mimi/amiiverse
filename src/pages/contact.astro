@@ -4,6 +4,9 @@ import settings from "../data/settings.json";
 import { getEntry } from "astro:content";
 
 const contactPage = await getEntry("pages", "contact");
+if (!contactPage) {
+    throw new Error("Could not find 'contact' page content");
+}
 const { data } = contactPage;
 ---
 

@@ -3,6 +3,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getEntry } from "astro:content";
 
 const linksPage = await getEntry("pages", "links");
+if (!linksPage) {
+    throw new Error("Could not find 'links' page content");
+}
 const { data } = linksPage;
 const links = data.links || [];
 ---
@@ -30,11 +33,16 @@ const links = data.links || [];
         </div>
 
         {
-            links.map((link) => (
-                <a href={link.url} class="link-btn">
-                    {link.label}
-                </a>
-            ))
+            links.map(
+                (link: {
+                    url: string | URL | null | undefined;
+                    label: unknown;
+                }) => (
+                    <a href={link.url} class="link-btn">
+                        {link.label}
+                    </a>
+                ),
+            )
         }
     </div>
 

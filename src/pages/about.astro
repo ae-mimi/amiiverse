@@ -5,6 +5,9 @@ import { getCollection, getEntry } from "astro:content";
 
 const members = await getCollection("members");
 const aboutPage = await getEntry("pages", "about");
+if (!aboutPage) {
+    throw new Error("Could not find 'about' page content");
+}
 const { data } = aboutPage;
 // Provide default values just in case
 const values = data.valuesList || [
@@ -63,7 +66,7 @@ const values = data.valuesList || [
                     <ul
                         style="font-size: 1rem; opacity: 0.9; list-style: disc; padding-left: 1.5rem;"
                     >
-                        {values.map((val) => <li>{val}</li>)}
+                        {values.map((val: string) => <li>{val}</li>)}
                     </ul>
                 </div>
             </div>

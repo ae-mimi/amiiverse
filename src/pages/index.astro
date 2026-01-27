@@ -4,6 +4,9 @@ import Hero from "../components/Hero.astro";
 import { getEntry } from "astro:content";
 
 const homePage = await getEntry("pages", "home");
+if (!homePage) {
+  throw new Error("Could not find 'home' page content");
+}
 const { data } = homePage;
 ---
 

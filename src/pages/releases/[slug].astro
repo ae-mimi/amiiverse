@@ -3,12 +3,18 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PlatformLinks from "../../components/PlatformLinks.astro";
 
+import type { CollectionEntry } from "astro:content";
+
 export async function getStaticPaths() {
     const releases = await getCollection("releases");
     return releases.map((release) => ({
         params: { slug: release.slug },
         props: { release },
     }));
+}
+
+interface Props {
+    release: CollectionEntry<"releases">;
 }
 
 const { release } = Astro.props;

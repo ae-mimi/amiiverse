@@ -4,6 +4,9 @@ import { getCollection, getEntry } from "astro:content";
 
 const releases = await getCollection("releases");
 const musicPage = await getEntry("pages", "music");
+if (!musicPage) {
+    throw new Error("Could not find 'music' page content");
+}
 const { data } = musicPage;
 
 const sortedReleases = releases.sort(
