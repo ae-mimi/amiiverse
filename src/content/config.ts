@@ -2,7 +2,7 @@ import { defineCollection, z } from 'astro:content';
 
 const eras = defineCollection({
   type: 'content',
-  schema: ({ image }) => z.object({
+  schema: () => z.object({
     name: z.string(),
     texture: z.string().optional(),
     bgColor: z.string(),
