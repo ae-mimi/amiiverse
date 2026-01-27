@@ -4,59 +4,68 @@ import pressData from "../data/press.json";
 ---
 
 <BaseLayout title="Press | amii">
-    <section class="max-w-4xl mx-auto py-12">
-        <h1 class="text-4xl font-heading mb-12 border-b border-current pb-4">
+    <section class="section container" style="max-width: 1000px;">
+        <h1
+            class="font-heading"
+            style="font-size: 2.5rem; margin-bottom: 3rem; border-bottom: 1px solid currentColor; padding-bottom: 1rem;"
+        >
             Press Assets
         </h1>
 
-        <div class="grid md:grid-cols-2 gap-12">
+        <div class="grid cols-2">
             <div>
-                <h2 class="text-2xl font-heading mb-4">Biographies</h2>
+                <h2
+                    class="font-heading"
+                    style="font-size: 1.5rem; margin-bottom: 1rem;"
+                >
+                    Biographies
+                </h2>
 
-                <div class="mb-8">
+                <div style="margin-bottom: 2rem;">
                     <h3
-                        class="text-sm uppercase tracking-widest mb-2 opacity-60"
+                        class="uppercase opacity-60"
+                        style="font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 0.5rem;"
                     >
                         Short Bio
                     </h3>
                     <p
-                        class="bg-gray-100 dark:bg-gray-800 p-4 rounded text-sm select-all"
+                        style="background: rgba(0,0,0,0.05); padding: 1rem; border-radius: 4px; font-size: 0.9rem; user-select: all;"
                     >
                         {pressData.shortBio}
                     </p>
                 </div>
 
-                <div class="mb-8">
+                <div style="margin-bottom: 2rem;">
                     <h3
-                        class="text-sm uppercase tracking-widest mb-2 opacity-60"
+                        class="uppercase opacity-60"
+                        style="font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 0.5rem;"
                     >
                         Medium Bio
                     </h3>
-                    <div class="prose prose-sm">
+                    <div
+                        class="font-body"
+                        style="font-size: 0.9rem; line-height: 1.6;"
+                    >
                         {pressData.mediumBio}
                     </div>
                 </div>
             </div>
 
             <div>
-                <h2 class="text-2xl font-heading mb-4">Downloads</h2>
-                <ul class="space-y-4">
-                    <li>
-                        <a href="#" class="btn w-full text-center"
-                            >Download EPK (PDF)</a
-                        >
-                    </li>
-                    <li>
-                        <a href="#" class="btn w-full text-center"
-                            >Download High-Res Photos</a
-                        >
-                    </li>
-                    <li>
-                        <a href="#" class="btn w-full text-center"
-                            >Download Logos</a
-                        >
-                    </li>
-                </ul>
+                <li>
+                    <a href="#" class="btn w-full text-center"
+                        >Download EPK (PDF)</a
+                    >
+                </li>
+                <li>
+                    <a href="#" class="btn w-full text-center"
+                        >Download High-Res Photos</a
+                    >
+                </li>
+                <li>
+                    <a href="#" class="btn w-full text-center">Download Logos</a
+                    >
+                </li>
             </div>
         </div>
     </section>

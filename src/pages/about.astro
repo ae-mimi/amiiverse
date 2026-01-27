@@ -23,11 +23,17 @@ const members = [
 ---
 
 <BaseLayout title="About | amii">
-    <section class="max-w-3xl mx-auto py-12">
-        <h1 class="text-5xl font-heading mb-8 text-center">We Are amii</h1>
+    <section class="section container" style="max-width: 800px;">
+        <h1
+            class="font-heading text-center"
+            style="font-size: 3rem; margin-bottom: 2rem;"
+        >
+            We Are amii
+        </h1>
 
         <div
-            class="prose mx-auto mb-16 text-lg font-body leading-relaxed text-center"
+            class="font-body text-center"
+            style="font-size: 1.2rem; line-height: 1.6; margin-bottom: 4rem;"
         >
             <p>
                 amii is a Nigerian girl group creating pop music rooted in
@@ -35,19 +41,28 @@ const members = [
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid cols-3">
             {
                 members.map((member) => (
                     <div class="text-center">
-                        <div class="aspect-[3/4] bg-gray-200 mb-4 overflow-hidden rounded-lg">
+                        <div style="aspect-ratio: 3/4; background-color: #eee; margin-bottom: 1rem; overflow: hidden; border-radius: 8px;">
                             <img
                                 src={member.photo}
                                 alt={member.name}
-                                class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                                style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); transition: filter 0.5s;"
+                                onmouseover="this.style.filter='grayscale(0)'"
+                                onmouseout="this.style.filter='grayscale(100%)'"
                             />
                         </div>
-                        <h3 class="text-xl font-heading mb-2">{member.name}</h3>
-                        <p class="text-sm opacity-80">{member.bio}</p>
+                        <h3
+                            class="font-heading"
+                            style="font-size: 1.25rem; margin-bottom: 0.5rem;"
+                        >
+                            {member.name}
+                        </h3>
+                        <p class="opacity-80" style="font-size: 0.9rem;">
+                            {member.bio}
+                        </p>
                     </div>
                 ))
             }

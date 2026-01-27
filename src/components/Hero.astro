@@ -18,33 +18,33 @@ const {
 } = Astro.props;
 ---
 
-<section class="min-h-[70vh] flex flex-col items-center justify-center text-center relative overflow-hidden">
+<section class="hero-section">
   {type === 'video' && (
-    <div class="absolute inset-0 bg-black/20 z-10"></div>
-    <video class="absolute inset-0 w-full h-full object-cover -z-10" autoplay loop muted playsinline>
+    <div class="absolute inset-0 z-10" style="background: rgba(0,0,0,0.2);"></div>
+    <video class="absolute inset-0 w-full h-full object-cover -z-10" style="width:100%; height:100%; object-fit: cover; position:absolute; z-index:-1;" autoplay loop muted playsinline>
       <source src="/uploads/hero-loop.mp4" type="video/mp4" />
     </video>
   )}
 
   {type === 'group' && (
-     <div class="absolute inset-0 -z-10">
-        <img src={image} alt="amii group photo" class="w-full h-full object-cover" />
-        <div class="absolute inset-0 bg-black/10"></div>
+     <div class="absolute inset-0 -z-10" style="position:absolute; inset:0; z-index: -1;">
+        <img src={image} alt="amii group photo" style="width:100%; height:100%; object-fit: cover;" />
+        <div style="background: rgba(0,0,0,0.1); position:absolute; inset:0;"></div>
      </div>
   )}
   
-  <div class="z-20 p-8 max-w-2xl bg-white/10 backdrop-blur-sm rounded-xl">
-    <h1 class="text-6xl md:text-8xl font-heading mb-4 leading-tight">
+  <div class="hero-content">
+    <h1 class="hero-title font-heading">
       {title}
     </h1>
     
     {subtitle && (
-      <p class="text-xl md:text-2xl font-body mb-8 max-w-lg mx-auto">
+      <p class="font-body opacity-80" style="font-size: 1.5rem; margin-bottom: 2rem;">
         {subtitle}
       </p>
     )}
     
-    <a href={link} class="btn text-lg px-8 py-3" data-track-category="Hero" data-track-action="Join CTA">
+    <a href={link} class="btn" data-track-category="Hero" data-track-action="Join CTA">
       {linkText}
     </a>
   </div>

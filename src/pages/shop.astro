@@ -3,15 +3,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Shop | amii">
-    <div class="h-[60vh] flex flex-col items-center justify-center text-center">
-        <h1 class="text-6xl font-heading mb-4">Shop</h1>
-        <p class="text-xl mb-8">Official merchandise coming soon.</p>
+    <div
+        class="container"
+        style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;"
+    >
+        <h1 class="font-heading" style="font-size: 4rem; margin-bottom: 1rem;">
+            Shop
+        </h1>
+        <p style="font-size: 1.25rem; margin-bottom: 2rem;">
+            Official merchandise coming soon.
+        </p>
 
-        <form class="flex gap-2 max-w-sm mx-auto w-full">
+        <form
+            style="display: flex; gap: 0.5rem; max-width: 400px; width: 100%;"
+        >
             <input
                 type="email"
                 placeholder="Get notified..."
-                class="flex-grow p-2 border border-current rounded"
+                style="flex-grow: 1;"
             />
             <button class="btn">Join</button>
         </form>

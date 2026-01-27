@@ -83,12 +83,12 @@ const {
             });
         </script>
     </head>
-    <body class="min-h-screen flex flex-col">
+    <body class="site-body">
         <Navigation />
-        <main class="flex-grow container py-8">
+        <main class="main-content container">
             <slot />
         </main>
-        <footer class="py-6 text-center text-sm opacity-60">
+        <footer class="footer">
             <div class="container">
                 &copy; {new Date().getFullYear()} amii. All rights reserved.
             </div>
