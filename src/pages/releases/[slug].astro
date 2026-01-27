@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import PlatformLinks from "../../components/PlatformLinks.astro";
 
 export async function getStaticPaths() {
     const releases = await getCollection("releases");
@@ -76,29 +77,12 @@ const embedUrl = release.data.spotify
                                 allowfullscreen=""
                                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                                 loading="lazy"
-                            ></iframe>
+                            />
                         </div>
                     )
                 }
 
-                <div
-                    class="platform-links"
-                    style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 3rem;"
-                >
-                    {
-                        platforms.map((p) => (
-                            <a
-                                href={p.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="btn btn-outline"
-                                style="padding: 0.5rem 1rem; font-size: 0.9rem;"
-                            >
-                                Listen on {p.name}
-                            </a>
-                        ))
-                    }
-                </div>
+                <PlatformLinks links={platforms} />
 
                 <div class="prose font-body">
                     <Content />

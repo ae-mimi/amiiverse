@@ -1,0 +1,38 @@
+---
+interface Props {
+    links: { name: string; url?: string; icon: string }[];
+}
+
+const { links } = Astro.props;
+---
+
+<div
+    class="platform-links"
+    style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 3rem;"
+>
+    {
+        links.map((p) => (
+            <a
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-outline"
+                style="padding: 0.5rem 1rem; font-size: 0.9rem;"
+            >
+                Listen on {p.name}
+            </a>
+        ))
+    }
+</div>
+
+<style>
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--color-text);
+        color: var(--color-text);
+    }
+    .btn-outline:hover {
+        background: var(--color-text);
+        color: var(--color-bg);
+    }
+</style>
