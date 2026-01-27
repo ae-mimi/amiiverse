@@ -1,11 +1,11 @@
 {
-  "activeEra": "base",
-  "takeoverEnabled": false,
+  "heroLinkText": "Listen Now",
   "bookingsEmail": "bookings@amiiverse.com",
-  "partnerEmail": "partner@amiiverse.com",
-  "heroType": "cover",
-  "heroTitle": "amii",
+  "takeoverEnabled": true,
+  "activeEra": "ordinary-people",
   "heroSubtitle": "The Debut",
+  "heroType": "cover",
   "heroLink": "/music",
-  "heroLinkText": "Listen Now"
+  "partnerEmail": "partner@amiiverse.com",
+  "heroTitle": "amii"
 }
