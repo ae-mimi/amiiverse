@@ -1,4 +1,15 @@
 {
+  "siteTitle": "amii | Official Website",
+  "siteDescription": "amii is a Nigerian girl group creating pop music rooted in honesty, growth, and shared experience.",
+  "favicon": "/favicon.svg",
+  "logo": "",
+  "metaImage": "/placeholder-hero.jpg",
+  "keywords": [
+    "amii",
+    "nigerian music",
+    "pop group",
+    "girl group"
+  ],
   "heroLinkText": "Listen Now",
   "bookingsEmail": "bookings@amiiverse.com",
   "takeoverEnabled": true,

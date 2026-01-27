@@ -11,9 +11,13 @@ interface Props {
 
 const {
     title,
-    description = "amii - Official Website",
+    description = settings.siteDescription || "amii - Official Website",
     era = settings.activeEra || "base",
+    image = settings.metaImage || "/placeholder-hero.jpg",
 } = Astro.props;
+
+const finalTitle = title || settings.siteTitle || "amii";
+const favicon = settings.favicon || "/favicon.svg";
 ---
 
 <!doctype html>
@@ -22,29 +26,29 @@ const {
         <meta charset="UTF-8" />
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/x-icon" href={favicon} />
         <meta name="generator" content={Astro.generator} />
-        <title>{title}</title>
+        <title>{finalTitle}</title>
+
+        {
+            settings.keywords && settings.keywords.length > 0 && (
+                <meta name="keywords" content={settings.keywords.join(", ")} />
+            )
+        }
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
         <meta property="og:url" content={Astro.url} />
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={finalTitle} />
         <meta property="og:description" content={description} />
-        <meta
-            property="og:image"
-            content={new URL("/placeholder-hero.jpg", Astro.url)}
-        />
+        <meta property="og:image" content={new URL(image, Astro.url)} />
 
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content={Astro.url} />
-        <meta property="twitter:title" content={title} />
+        <meta property="twitter:title" content={finalTitle} />
         <meta property="twitter:description" content={description} />
-        <meta
-            property="twitter:image"
-            content={new URL("/placeholder-hero.jpg", Astro.url)}
-        />
+        <meta property="twitter:image" content={new URL(image, Astro.url)} />
 
         <!-- Netlify Identity Widget -->
         <script

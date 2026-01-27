@@ -14,6 +14,13 @@ collections:
         label: "General Settings"
         file: "src/data/settings.json"
         fields:
+          - {label: "Site Title (SEO)", name: "siteTitle", widget: "string", default: "amii | Official Website"}
+          - {label: "Site Description (SEO)", name: "siteDescription", widget: "text", default: "amii is a Nigerian girl group creating pop music rooted in honesty, growth, and shared experience."}
+          - {label: "Favicon", name: "favicon", widget: "image", required: false}
+          - {label: "Header Logo", name: "logo", widget: "image", required: false}
+          - {label: "Social Share Image (OG Default)", name: "metaImage", widget: "image", required: false}
+          - {label: "Mailing List Embed Code", name: "mailingListEmbed", widget: "text", required: false}
+          - {label: "Keywords", name: "keywords", widget: "list", required: false}
           - {label: "Active Era", name: "activeEra", widget: "relation", collection: "eras", search_fields: ["name"], value_field: "slug"}
           - {label: "Takeover Enabled", name: "takeoverEnabled", widget: "boolean", default: false}
           - {label: "Facebook", name: "facebook", widget: "string", required: false}
@@ -23,7 +30,6 @@ collections:
           - {label: "Email (Bookings)", name: "bookingsEmail", widget: "string"}
           - {label: "Email (Partner)", name: "partnerEmail", widget: "string"}
           - {label: "Featured Release", name: "featuredRelease", widget: "relation", collection: "releases", search_fields: ["title"], value_field: "slug", required: false}
-          - {label: "Mailing List Embed Code", name: "mailingListEmbed", widget: "text", required: false}
 
   - name: "pages"
     label: "Pages"

@@ -1,4 +1,5 @@
 ---
+import settings from "../data/settings.json";
 const links = [
   { label: "Home", href: "/" },
   { label: "Music", href: "/music" },
@@ -13,9 +14,19 @@ const links = [
   <a
     href="/"
     class="logo font-heading uppercase"
-    style="font-size: 1.5rem; letter-spacing: 0.1em; font-weight: bold;"
+    style="font-size: 1.5rem; letter-spacing: 0.1em; font-weight: bold; display: flex; align-items: center;"
   >
-    amii
+    {
+      settings.logo ? (
+        <img
+          src={settings.logo}
+          alt={settings.siteTitle || "amii"}
+          style="height: 40px; width: auto;"
+        />
+      ) : (
+        "amii"
+      )
+    }
   </a>
 
   <nav>
