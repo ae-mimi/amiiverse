@@ -83,6 +83,8 @@ const pages = defineCollection({
       label: z.string(),
       url: z.string(),
     })).optional(),
+    // Thank You
+    message: z.string().optional(),
   }),
 });
 

@@ -22,10 +22,15 @@ const { data } = shopPage;
         </p>
 
         <form
+            name="shop-notify"
+            method="POST"
+            action="/thank-you"
+            data-netlify="true"
             style="display: flex; gap: 0.5rem; max-width: 400px; width: 100%;"
         >
             <input
                 type="email"
+                name="email"
                 placeholder={data.placeholderText || "Get notified..."}
                 style="flex-grow: 1;"
             />

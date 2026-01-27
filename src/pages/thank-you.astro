@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getEntry } from "astro:content";
+
+const thankYouPage = await getEntry("pages", "thank-you");
+const { data } = thankYouPage || { data: {} };
+---
+
+<BaseLayout title={data.title || "Thank You | amii"}>
+    <div
+        class="container section"
+        style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;"
+    >
+        <h1
+            class="font-heading"
+            style="font-size: 3rem; margin-bottom: 1.5rem;"
+        >
+            {data.heading || "Thank You"}
+        </h1>
+        <p
+            style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9; max-width: 600px;"
+        >
+            {
+                data.message ||
+                    "Your message has been received. We appreciate you reaching out to us."
+            }
+        </p>
+        <a href="/" class="btn"> {data.buttonText || "Return Home"} </a>
+    </div>
+</BaseLayout>
