@@ -1,9 +1,7 @@
 {
-  "siteTitle": "amii | Official Website",
-  "siteDescription": "amii is a Nigerian girl group creating pop music rooted in honesty, growth, and shared experience.",
-  "favicon": "/favicon.svg",
-  "logo": "",
-  "metaImage": "/placeholder-hero.jpg",
+  "heroLinkText": "Listen Now",
+  "bookingsEmail": "bookings@amiiverse.com",
+  "takeoverEnabled": true,
   "keywords": [
     "amii",
     "nigerian music",
@@ -11,13 +9,15 @@
     "girl group"
   ],
   "mailingListEmbed": "",
-  "heroLinkText": "Listen Now",
-  "bookingsEmail": "bookings@amiiverse.com",
-  "takeoverEnabled": true,
+  "logo": "/uploads/amii-logo-1.png",
   "activeEra": "ordinary-people",
+  "siteTitle": "amii | Official Website",
   "heroSubtitle": "The Debut",
+  "favicon": "/uploads/amii-logo-icon.png",
   "heroType": "cover",
   "heroLink": "/music",
   "partnerEmail": "partner@amiiverse.com",
+  "siteDescription": "amii is a Nigerian girl group creating pop music rooted in honesty, growth, and shared experience.",
+  "metaImage": "/placeholder-hero.jpg",
   "heroTitle": "amii"
 }
