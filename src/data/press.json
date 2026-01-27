@@ -1,6 +1,11 @@
 {
-    "shortBio": "amii is a Nigerian girl group creating pop music rooted in honesty, growth, and shared experience.",
-    "mediumBio": "Coming soon.",
-    "longBio": "Coming soon.",
-    "photos": []
+  "shortBio": "amii is a Nigerian girl group creating Afro-pop rooted in honesty, growth, and shared experience.",
+  "mediumBio": "Coming soon.",
+  "longBio": "Coming soon.",
+  "photos": [
+    {
+      "image": "/uploads/image-1.jpg",
+      "credit": "Yaya"
+    }
+  ]
 }
