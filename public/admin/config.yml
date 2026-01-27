@@ -35,6 +35,8 @@ collections:
         fields:
           - {label: "Page Title", name: "title", widget: "string"}
           - {label: "Hero Type", name: "heroType", widget: "select", options: ["cover", "full", "video"], default: "cover"}
+          - {label: "Hero Image (Cover/Full)", name: "heroImage", widget: "image", required: false}
+          - {label: "Hero Video File (Video type only)", name: "heroVideo", widget: "file", required: false}
           - {label: "Hero Title", name: "heroTitle", widget: "string"}
           - {label: "Hero Subtitle", name: "heroSubtitle", widget: "string"}
           - {label: "Hero Link", name: "heroLink", widget: "string"}

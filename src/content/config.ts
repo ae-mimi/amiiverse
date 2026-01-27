@@ -49,6 +49,8 @@ const pages = defineCollection({
     title: z.string().optional(),
     // Home
     heroType: z.string().optional(),
+    heroImage: z.string().optional(),
+    heroVideo: z.string().optional(),
     heroTitle: z.string().optional(),
     heroSubtitle: z.string().optional(),
     heroLink: z.string().optional(),
