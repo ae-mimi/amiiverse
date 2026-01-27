@@ -1,13 +1,15 @@
 /* Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;700&display=swap');
 
+/* Font file not yet available - uncomment when added to public/fonts/
 @font-face {
   font-family: 'Starbim';
   src: url('/fonts/Starbim.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
-}
+} 
+*/
 
 :root {
   /* Metrics */
@@ -20,10 +22,11 @@
   /* Base Era (Default) */
   --color-bg: #FFFFFF;
   --color-text: #1a1a1a;
-  --color-accent: #E44598; /* Pink from palette */
+  --color-accent: #E44598;
+  /* Pink from palette */
   --font-heading: 'Starbim', 'Courier New', serif;
   --font-body: 'Archivo', sans-serif;
-  
+
   /* Texture (can be url) */
   --bg-texture: none;
 }
@@ -37,14 +40,20 @@
 
 /* "Ordinary People" Era */
 [data-era="ordinary-people"] {
-  --color-bg: #FDF38A; /* Light Yellow */
-  --color-text: #15499D; /* Dark Blue */
-  --color-accent: #E44598; /* Pink accent */
-  --bg-texture: url('/uploads/vhs-texture.png'); /* Placeholder */
+  --color-bg: #FDF38A;
+  /* Light Yellow */
+  --color-text: #15499D;
+  /* Dark Blue */
+  --color-accent: #E44598;
+  /* Pink accent */
+  /* --bg-texture: url('/uploads/vhs-texture.png'); Placeholder - uncomment when file exists */
+  --bg-texture: none;
 }
 
 /* Global Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -61,7 +70,12 @@ body {
   background-attachment: fixed;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   font-weight: normal;
   line-height: 1.1;
