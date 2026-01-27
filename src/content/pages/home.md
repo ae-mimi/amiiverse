@@ -2,10 +2,10 @@
 title: amii | Official Website
 heroType: full
 heroImage: /uploads/image-1.jpg
-heroTitle: Ordinary People
-heroSubtitle: The Debut EP
-heroLink: /music
-heroLinkText: Listen Now
-latestReleasesTitle: Latest Releases
-comingSoonText: Coming Soon
+heroTitle: amii
+heroSubtitle: Join for early access, release updates, and notes from amii.
+heroLink: "#join"
+heroLinkText: Join
+latestReleasesTitle: Join the Community
+comingSoonText: Our debut release is coming soon. We’re sharing updates here first.
 ---

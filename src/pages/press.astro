@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import settings from "../data/settings.json";
 import pressDataRaw from "../data/press.json";
 const pressData = pressDataRaw as any;
 ---
@@ -101,5 +102,46 @@ const pressData = pressDataRaw as any;
                 }
             </div>
         </div>
+        }
     </section>
 </BaseLayout>
+
+<div
+    style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid currentColor;"
+>
+    <h2 class="font-heading" style="font-size: 1.5rem; margin-bottom: 2rem;">
+        Contact
+    </h2>
+    <div class="grid cols-2" style="gap: 2rem;">
+        <div>
+            <h3
+                class="uppercase opacity-60"
+                style="font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 0.5rem;"
+            >
+                For Bookings
+            </h3>
+            <a
+                href={`mailto:${settings.bookingsEmail}`}
+                class="font-body"
+                style="font-size: 1.25rem; border-bottom: 1px solid transparent; transition: border-color 0.2s;"
+            >
+                {settings.bookingsEmail}
+            </a>
+        </div>
+        <div>
+            <h3
+                class="uppercase opacity-60"
+                style="font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 0.5rem;"
+            >
+                For Partnerships
+            </h3>
+            <a
+                href={`mailto:${settings.partnerEmail}`}
+                class="font-body"
+                style="font-size: 1.25rem; border-bottom: 1px solid transparent; transition: border-color 0.2s;"
+            >
+                {settings.partnerEmail}
+            </a>
+        </div>
+    </div>
+</div>

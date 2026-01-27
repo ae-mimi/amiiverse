@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/Hero.astro";
+import settings from "../data/settings.json";
 import { getEntry } from "astro:content";
 
 const homePage = await getEntry("pages", "home");
@@ -21,10 +22,31 @@ const { data } = homePage;
     linkText={data.heroLinkText}
   />
 
-  <section class="section text-center">
-    <h2 class="font-heading" style="font-size: 2rem;">
-      {data.latestReleasesTitle || "Latest Releases"}
-    </h2>
-    <p>{data.comingSoonText || "Coming Soon"}</p>
+  <section
+    id="join"
+    class="section text-center container"
+    style="max-width: 600px;"
+  >
+    <div style="margin-bottom: 2rem;">
+      <p class="font-body" style="font-size: 1.25rem; opacity: 0.9;">
+        {
+          data.comingSoonText ||
+            "Our debut release is coming soon. We’re sharing updates here first."
+        }
+      </p>
+    </div>
+
+    {
+      settings.mailingListEmbed ? (
+        <div class="mailing-list-embed">
+          <Fragment set:html={settings.mailingListEmbed} />
+        </div>
+      ) : (
+        <div style="padding: 2rem; border: 1px dashed currentColor; opacity: 0.5;">
+          <p>Mailing list form will appear here.</p>
+          <small>(Add embed code in Site Settings)</small>
+        </div>
+      )
+    }
   </section>
 </BaseLayout>
