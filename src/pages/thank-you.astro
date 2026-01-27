@@ -3,7 +3,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getEntry } from "astro:content";
 
 const thankYouPage = await getEntry("pages", "thank-you");
-const { data } = thankYouPage || { data: {} };
+if (!thankYouPage) {
+    throw new Error("Could not find 'thank-you' page content");
+}
+const { data } = thankYouPage;
 ---
 
 <BaseLayout title={data.title || "Thank You | amii"}>
