@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import pressData from "../data/press.json";
+import pressDataRaw from "../data/press.json";
+const pressData = pressDataRaw as any;
 ---
 
 <BaseLayout title="Press | amii">
@@ -52,20 +53,52 @@ import pressData from "../data/press.json";
             </div>
 
             <div>
-                <li>
-                    <a href="#" class="btn w-full text-center"
-                        >Download EPK (PDF)</a
-                    >
-                </li>
-                <li>
-                    <a href="#" class="btn w-full text-center"
-                        >Download High-Res Photos</a
-                    >
-                </li>
-                <li>
-                    <a href="#" class="btn w-full text-center">Download Logos</a
-                    >
-                </li>
+                {
+                    pressData.epkPdf && (
+                        <li style="margin-bottom: 1rem; list-style: none;">
+                            <a
+                                href={pressData.epkPdf}
+                                class="btn w-full text-center"
+                                target="_blank"
+                            >
+                                Download EPK (PDF)
+                            </a>
+                        </li>
+                    )
+                }
+
+                {
+                    pressData.photos && pressData.photos.length > 0 && (
+                        <li style="margin-bottom: 1rem; list-style: none;">
+                            <span style="display: block; font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.5rem;">
+                                Photos
+                            </span>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                {pressData.photos.map(
+                                    (
+                                        photo: {
+                                            image: string;
+                                            credit?: string;
+                                        },
+                                        index: number,
+                                    ) => (
+                                        <a
+                                            href={photo.image}
+                                            class="btn w-full text-center"
+                                            download
+                                            target="_blank"
+                                        >
+                                            Download Photo {index + 1}{" "}
+                                            {photo.credit
+                                                ? `(${photo.credit})`
+                                                : ""}
+                                        </a>
+                                    ),
+                                )}
+                            </div>
+                        </li>
+                    )
+                }
             </div>
         </div>
     </section>
