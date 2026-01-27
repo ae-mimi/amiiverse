@@ -1,6 +1,6 @@
 ---
 interface Props {
-  type?: 'cover' | 'group' | 'video';
+  type?: 'cover' | 'group' | 'video' | 'full';
   title?: string;
   subtitle?: string;
   link?: string;
@@ -18,6 +18,8 @@ const {
   image = '/placeholder-hero.jpg',
   video = '/uploads/hero-loop.mp4'
 } = Astro.props;
+  // Ensure image path is absolute if it's from uploads
+  const safeImage = image.startsWith('http') || image.startsWith('/') ? image : `/${image}`;
 ---
 
 <section class="hero-section">
@@ -28,9 +30,9 @@ const {
     </video>
   )}
 
-  {type === 'group' && (
+  {(type === 'group' || type === 'cover' || type === 'full') && (
      <div class="absolute inset-0 -z-10" style="position:absolute; inset:0; z-index: -1;">
-        <img src={image} alt="amii group photo" style="width:100%; height:100%; object-fit: cover;" />
+        <img src={safeImage} alt="amii hero" style="width:100%; height:100%; object-fit: cover;" />
         <div style="background: rgba(0,0,0,0.1); position:absolute; inset:0;"></div>
      </div>
   )}
