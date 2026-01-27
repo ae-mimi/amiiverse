@@ -1,17 +1,21 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getEntry } from "astro:content";
+
+const shopPage = await getEntry("pages", "shop");
+const { data } = shopPage;
 ---
 
-<BaseLayout title="Shop | amii">
+<BaseLayout title={data.title || "Shop | amii"}>
     <div
         class="container"
         style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;"
     >
         <h1 class="font-heading" style="font-size: 4rem; margin-bottom: 1rem;">
-            Shop
+            {data.heading || "Shop"}
         </h1>
         <p style="font-size: 1.25rem; margin-bottom: 2rem;">
-            Official merchandise coming soon.
+            {data.comingSoonText || "Official merchandise coming soon."}
         </p>
 
         <form
@@ -19,10 +23,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         >
             <input
                 type="email"
-                placeholder="Get notified..."
+                placeholder={data.placeholderText || "Get notified..."}
                 style="flex-grow: 1;"
             />
-            <button class="btn">Join</button>
+            <button class="btn">{data.buttonText || "Join"}</button>
         </form>
     </div>
 </BaseLayout>

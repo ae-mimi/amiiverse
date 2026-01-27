@@ -39,7 +39,49 @@ const members = defineCollection({
   schema: () => z.object({
     name: z.string(),
     photo: z.string(),
-    bio: z.string(),
+  }),
+});
+
+const pages = defineCollection({
+  type: 'content',
+  schema: () => z.object({
+    title: z.string().optional(),
+    // Home
+    heroType: z.string().optional(),
+    heroTitle: z.string().optional(),
+    heroSubtitle: z.string().optional(),
+    heroLink: z.string().optional(),
+    heroLinkText: z.string().optional(),
+    latestReleasesTitle: z.string().optional(),
+    comingSoonText: z.string().optional(),
+    // About
+    heading: z.string().optional(),
+    description: z.string().optional(),
+    meaningTitle: z.string().optional(),
+    meaningText: z.string().optional(),
+    valuesTitle: z.string().optional(),
+    valuesList: z.array(z.string()).optional(),
+    // Contact
+    bookingsTitle: z.string().optional(),
+    partnershipsTitle: z.string().optional(),
+    fanMailTitle: z.string().optional(),
+    formNameLabel: z.string().optional(),
+    formEmailLabel: z.string().optional(),
+    formMessageLabel: z.string().optional(),
+    formButtonText: z.string().optional(),
+    // Shop
+    placeholderText: z.string().optional(),
+    buttonText: z.string().optional(),
+    // Music
+    emptyStateText: z.string().optional(),
+    emptyStateSubtext: z.string().optional(),
+    // Links
+    profileImage: z.string().optional(),
+    profileName: z.string().optional(),
+    links: z.array(z.object({
+      label: z.string(),
+      url: z.string(),
+    })).optional(),
   }),
 });
 
@@ -47,4 +89,5 @@ export const collections = {
   eras,
   releases,
   members,
+  pages,
 };

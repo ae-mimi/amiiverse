@@ -1,23 +1,25 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/Hero.astro";
-import settings from "../data/settings.json";
+import { getEntry } from "astro:content";
 
-// In a real app, I would fetch 'settings' from a collection or file properly if it was managed by CMS as a collection item.
-// Since 'settings' is a direct JSON file edited by CMS, importing it works for build time.
+const homePage = await getEntry("pages", "home");
+const { data } = homePage;
 ---
 
-<BaseLayout title="amii | Official Website">
+<BaseLayout title={data.title || "amii | Official Website"}>
   <Hero
-    type={settings.heroType as any}
-    title={settings.heroTitle}
-    subtitle={settings.heroSubtitle}
-    link={settings.heroLink}
-    linkText={settings.heroLinkText}
+    type={data.heroType as any}
+    title={data.heroTitle}
+    subtitle={data.heroSubtitle}
+    link={data.heroLink}
+    linkText={data.heroLinkText}
   />
 
   <section class="section text-center">
-    <h2 class="font-heading" style="font-size: 2rem;">Latest Releases</h2>
-    <p>Coming Soon</p>
+    <h2 class="font-heading" style="font-size: 2rem;">
+      {data.latestReleasesTitle || "Latest Releases"}
+    </h2>
+    <p>{data.comingSoonText || "Coming Soon"}</p>
   </section>
 </BaseLayout>

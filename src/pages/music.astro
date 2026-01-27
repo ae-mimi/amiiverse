@@ -1,28 +1,32 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 
 const releases = await getCollection("releases");
+const musicPage = await getEntry("pages", "music");
+const { data } = musicPage;
+
 const sortedReleases = releases.sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 ---
 
-<BaseLayout title="Music | amii">
+<BaseLayout title={data.title || "Music | amii"}>
     <section class="section container" style="max-width: 1200px;">
         <h1
             class="font-heading text-center"
             style="font-size: 2.5rem; margin-bottom: 3rem;"
         >
-            Discography
+            {data.heading || "Discography"}
         </h1>
 
         {
             sortedReleases.length === 0 ? (
                 <div class="text-center" style="padding: 5rem 0; opacity: 0.6;">
-                    <p>No releases found yet.</p>
+                    <p>{data.emptyStateText || "No releases found yet."}</p>
                     <p style="font-size: 0.9rem; margin-top: 0.5rem;">
-                        Check back soon for our debut.
+                        {data.emptyStateSubtext ||
+                            "Check back soon for our debut."}
                     </p>
                 </div>
             ) : (
@@ -59,7 +63,7 @@ const sortedReleases = releases.sort(
                                 href={`/releases/${release.slug}`}
                                 style="font-size: 0.9rem; font-weight: bold; text-transform: uppercase;"
                             >
-                                Listen / Details &rarr;
+                                {data.buttonText || "Listen / Details"} &rarr;
                             </a>
                         </article>
                     ))}

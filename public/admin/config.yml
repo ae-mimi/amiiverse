@@ -25,6 +25,73 @@ collections:
           - {label: "Featured Release", name: "featuredRelease", widget: "relation", collection: "releases", search_fields: ["title"], value_field: "slug", required: false}
           - {label: "Mailing List Embed Code", name: "mailingListEmbed", widget: "text", required: false}
 
+  - name: "pages"
+    label: "Pages"
+    delete: false
+    files:
+      - name: "home"
+        label: "Home Page"
+        file: "src/content/pages/home.md"
+        fields:
+          - {label: "Page Title", name: "title", widget: "string"}
+          - {label: "Hero Type", name: "heroType", widget: "select", options: ["cover", "full", "video"], default: "cover"}
+          - {label: "Hero Title", name: "heroTitle", widget: "string"}
+          - {label: "Hero Subtitle", name: "heroSubtitle", widget: "string"}
+          - {label: "Hero Link", name: "heroLink", widget: "string"}
+          - {label: "Hero Link Text", name: "heroLinkText", widget: "string"}
+          - {label: "Latest Releases Heading", name: "latestReleasesTitle", widget: "string"}
+          - {label: "Coming Soon Text", name: "comingSoonText", widget: "string"}
+      - name: "about"
+        label: "About Page"
+        file: "src/content/pages/about.md"
+        fields:
+          - {label: "Page Title", name: "title", widget: "string"}
+          - {label: "Main Heading", name: "heading", widget: "string"}
+          - {label: "Description", name: "description", widget: "text"}
+          - {label: "Meaning Section Title", name: "meaningTitle", widget: "string"}
+          - {label: "Meaning Text", name: "meaningText", widget: "text"}
+          - {label: "Values Section Title", name: "valuesTitle", widget: "string"}
+          - {label: "Values List", name: "valuesList", widget: "list"}
+      - name: "music"
+        label: "Music Page"
+        file: "src/content/pages/music.md"
+        fields:
+          - {label: "Page Title", name: "title", widget: "string"}
+          - {label: "Main Heading", name: "heading", widget: "string"}
+          - {label: "Empty State Text", name: "emptyStateText", widget: "string"}
+          - {label: "Empty State Subtext", name: "emptyStateSubtext", widget: "string"}
+          - {label: "Button Text", name: "buttonText", widget: "string"}
+      - name: "shop"
+        label: "Shop Page"
+        file: "src/content/pages/shop.md"
+        fields:
+          - {label: "Page Title", name: "title", widget: "string"}
+          - {label: "Main Heading", name: "heading", widget: "string"}
+          - {label: "Coming Soon Text", name: "comingSoonText", widget: "string"}
+          - {label: "Placeholder Text", name: "placeholderText", widget: "string"}
+          - {label: "Button Text", name: "buttonText", widget: "string"}
+      - name: "contact"
+        label: "Contact Page"
+        file: "src/content/pages/contact.md"
+        fields:
+          - {label: "Page Title", name: "title", widget: "string"}
+          - {label: "Main Heading", name: "heading", widget: "string"}
+          - {label: "Bookings Heading", name: "bookingsTitle", widget: "string"}
+          - {label: "Partnerships Heading", name: "partnershipsTitle", widget: "string"}
+          - {label: "Fan Mail Heading", name: "fanMailTitle", widget: "string"}
+          - {label: "Form Name Label", name: "formNameLabel", widget: "string"}
+          - {label: "Form Email Label", name: "formEmailLabel", widget: "string"}
+          - {label: "Form Message Label", name: "formMessageLabel", widget: "string"}
+          - {label: "Form Button Text", name: "formButtonText", widget: "string"}
+      - name: "links"
+        label: "Links Page"
+        file: "src/content/pages/links.md"
+        fields:
+          - {label: "Page Title", name: "title", widget: "string"}
+          - {label: "Profile Image", name: "profileImage", widget: "image"}
+          - {label: "Profile Name", name: "profileName", widget: "string"}
+          - {label: "Links", name: "links", widget: "list", fields: [{label: "Label", name: "label", widget: "string"}, {label: "URL", name: "url", widget: "string"}]}
+
   - name: "eras"
     label: "Eras"
     folder: "src/content/eras"
