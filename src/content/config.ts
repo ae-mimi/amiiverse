@@ -4,7 +4,6 @@ const eras = defineCollection({
   type: 'content',
   schema: ({ image }) => z.object({
     name: z.string(),
-    slug: z.string(),
     texture: z.string().optional(),
     bgColor: z.string(),
     textColor: z.string(),
