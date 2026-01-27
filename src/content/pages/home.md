@@ -1,6 +1,6 @@
 ---
 title: amii | Official Website
-heroType: full
+heroType: cover
 heroImage: /uploads/image-1.jpg
 heroTitle: Ordinary People
 heroSubtitle: The Debut EP
