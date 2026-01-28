@@ -2,7 +2,7 @@
 title: amii | Official Website
 heroType: full
 heroImage: /uploads/image-1.jpg
-heroTitle: amii
+heroTitle: Welcome
 heroSubtitle: Join for early access, release updates, and notes from amii.
 heroLink: "#join"
 heroLinkText: Join
