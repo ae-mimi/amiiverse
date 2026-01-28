@@ -1,6 +1,6 @@
 ---
 title: amii | Official Website
-heroType: full
+heroType: cover
 heroImage: /uploads/image-1.jpg
 heroTitle: Welcome
 heroSubtitle: Join for early access, release updates, and notes from amii.
