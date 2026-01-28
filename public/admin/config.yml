@@ -14,22 +14,23 @@ collections:
         label: "General Settings"
         file: "src/data/settings.json"
         fields:
-          - {label: "Site Title (SEO)", name: "siteTitle", widget: "string", default: "amii | Official Website"}
-          - {label: "Site Description (SEO)", name: "siteDescription", widget: "text", default: "amii is a Nigerian girl group creating pop music rooted in honesty, growth, and shared experience."}
-          - {label: "Favicon", name: "favicon", widget: "image", required: false}
-          - {label: "Header Logo", name: "logo", widget: "image", required: false}
-          - {label: "Social Share Image (OG Default)", name: "metaImage", widget: "image", required: false}
-          - {label: "Mailing List Embed Code", name: "mailingListEmbed", widget: "text", required: false}
-          - {label: "Keywords", name: "keywords", widget: "list", required: false}
-          - {label: "Active Era", name: "activeEra", widget: "relation", collection: "eras", search_fields: ["name"], value_field: "slug"}
-          - {label: "Takeover Enabled", name: "takeoverEnabled", widget: "boolean", default: false}
-          - {label: "Facebook", name: "facebook", widget: "string", required: false}
-          - {label: "Instagram", name: "instagram", widget: "string", required: false}
-          - {label: "Twitter", name: "twitter", widget: "string", required: false}
-          - {label: "TikTok", name: "tiktok", widget: "string", required: false}
-          - {label: "Email (Bookings)", name: "bookingsEmail", widget: "string"}
-          - {label: "Email (Partner)", name: "partnerEmail", widget: "string"}
-          - {label: "Featured Release", name: "featuredRelease", widget: "relation", collection: "releases", search_fields: ["title"], value_field: "slug", required: false}
+          - {label: "Site Title (SEO)", name: "siteTitle", widget: "string", default: "amii | Official Website", hint: "Appears in browser tabs and search results. Keep under 60 characters."}
+          - {label: "Site Description (SEO)", name: "siteDescription", widget: "text", default: "amii is a Nigerian girl group creating pop music rooted in honesty, growth, and shared experience.", hint: "Summary for search engines. Keep under 160 characters."}
+          - {label: "Favicon", name: "favicon", widget: "image", required: false, hint: "Small icon for browser tabs. Recommended: 32x32px or 64x64px PNG/SVG."}
+          - {label: "Header Logo (Light Mode)", name: "logo", widget: "image", required: false, hint: "Displayed on light backgrounds. Recommended height: 40-60px."}
+          - {label: "Header Logo (Dark Mode)", name: "logoDark", widget: "image", required: false, hint: "Displayed on dark backgrounds. Recommended height: 40-60px."}
+          - {label: "Social Share Image (OG Default)", name: "metaImage", widget: "image", required: false, hint: "Image shown when sharing the site on social media. Recommended: 1200x630px."}
+          - {label: "Mailing List Embed Code", name: "mailingListEmbed", widget: "text", required: false, hint: "The Brevo Action URL for the newsletter form."}
+          - {label: "Keywords", name: "keywords", widget: "list", required: false, hint: "Comma-separated SEO keywords."}
+          - {label: "Active Era", name: "activeEra", widget: "relation", collection: "eras", search_fields: ["name"], value_field: "slug", hint: "Select the current visual era. This overrides base styles if an era is selected."}
+          - {label: "Takeover Enabled", name: "takeoverEnabled", widget: "boolean", default: false, hint: "Enable special takeover mode for new releases (functionality to be implemented)."}
+          - {label: "Facebook", name: "facebook", widget: "string", required: false, hint: "Full URL to Facebook profile."}
+          - {label: "Instagram", name: "instagram", widget: "string", required: false, hint: "Full URL to Instagram profile."}
+          - {label: "Twitter", name: "twitter", widget: "string", required: false, hint: "Full URL to Twitter/X profile."}
+          - {label: "TikTok", name: "tiktok", widget: "string", required: false, hint: "Full URL to TikTok profile."}
+          - {label: "Email (Bookings)", name: "bookingsEmail", widget: "string", hint: "Email address linked in the 'Bookings' section."}
+          - {label: "Email (Partner)", name: "partnerEmail", widget: "string", hint: "Email address linked in the 'Partnerships' section."}
+          - {label: "Featured Release", name: "featuredRelease", widget: "relation", collection: "releases", search_fields: ["title"], value_field: "slug", required: false, hint: "Select a release to highlight on the homepage."}
 
   - name: "pages"
     label: "Pages"
@@ -39,34 +40,36 @@ collections:
         label: "Home Page"
         file: "src/content/pages/home.md"
         fields:
-          - {label: "Page Title", name: "title", widget: "string"}
-          - {label: "Hero Type", name: "heroType", widget: "select", options: ["cover", "full", "video"], default: "cover"}
-          - {label: "Hero Image (Cover/Full)", name: "heroImage", widget: "image", required: false}
-          - {label: "Hero Video File (Video type only)", name: "heroVideo", widget: "file", required: false}
-          - {label: "Hero Title", name: "heroTitle", widget: "string"}
-          - {label: "Hero Subtitle", name: "heroSubtitle", widget: "string"}
-          - {label: "Hero Link", name: "heroLink", widget: "string"}
-          - {label: "Hero Link Text", name: "heroLinkText", widget: "string"}
-          - {label: "Latest Releases Heading", name: "latestReleasesTitle", widget: "string"}
-          - {label: "Coming Soon Text", name: "comingSoonText", widget: "string"}
+          - {label: "Page Title", name: "title", widget: "string", hint: "Internal title for this page (SEO)."}
+          - {label: "Hero Type", name: "heroType", widget: "select", options: ["cover", "full", "video"], default: "cover", hint: "Visual style of the top hero section."}
+          - {label: "Hero Image (Cover/Full)", name: "heroImage", widget: "image", required: false, hint: "Background image for the hero section."}
+          - {label: "Hero Video File (Video type only)", name: "heroVideo", widget: "file", required: false, hint: "Upload an MP4 file if Hero Type is 'video'."}
+          - {label: "Hero Title", name: "heroTitle", widget: "string", hint: "Large text displayed over the hero image."}
+          - {label: "Hero Subtitle", name: "heroSubtitle", widget: "string", hint: "Smaller text displayed below the hero title."}
+          - {label: "Hero Link", name: "heroLink", widget: "string", hint: "URL for the hero CTA button."}
+          - {label: "Hero Link Text", name: "heroLinkText", widget: "string", hint: "Label for the hero CTA button."}
+          - {label: "Latest Releases Heading", name: "latestReleasesTitle", widget: "string", hint: "Heading for the releases section."}
+          - {label: "Coming Soon Text", name: "comingSoonText", widget: "string", hint: "Text shown if no releases are found."}
+          - {label: "Newsletter Name Placeholder", name: "newsletterNamePlaceholder", widget: "string", default: "e.g. Amanda (or Mandy)", hint: "Placeholder text for the name input."}
+          - {label: "Newsletter Email Placeholder", name: "newsletterEmailPlaceholder", widget: "string", default: "e.g. amii-go@amiimail.com", hint: "Placeholder text for the email input."}
       - name: "about"
         label: "About Page"
         file: "src/content/pages/about.md"
         fields:
           - {label: "Page Title", name: "title", widget: "string"}
           - {label: "Main Heading", name: "heading", widget: "string"}
-          - {label: "Description", name: "description", widget: "text"}
+          - {label: "Description", name: "description", widget: "text", hint: "Main introductory text."}
           - {label: "Meaning Section Title", name: "meaningTitle", widget: "string"}
           - {label: "Meaning Text", name: "meaningText", widget: "text"}
           - {label: "Values Section Title", name: "valuesTitle", widget: "string"}
-          - {label: "Values List", name: "valuesList", widget: "list"}
+          - {label: "Values List", name: "valuesList", widget: "list", hint: "Add core values as list items."}
       - name: "music"
         label: "Music Page"
         file: "src/content/pages/music.md"
         fields:
           - {label: "Page Title", name: "title", widget: "string"}
           - {label: "Main Heading", name: "heading", widget: "string"}
-          - {label: "Empty State Text", name: "emptyStateText", widget: "string"}
+          - {label: "Empty State Text", name: "emptyStateText", widget: "string", hint: "Shown when no music releases are available."}
           - {label: "Empty State Subtext", name: "emptyStateSubtext", widget: "string"}
           - {label: "Button Text", name: "buttonText", widget: "string"}
       - name: "shop"
@@ -88,15 +91,18 @@ collections:
           - {label: "Partnerships Heading", name: "partnershipsTitle", widget: "string"}
           - {label: "Fan Mail Heading", name: "fanMailTitle", widget: "string"}
           - {label: "Form Name Label", name: "formNameLabel", widget: "string"}
+          - {label: "Form Name Placeholder", name: "formNamePlaceholder", widget: "string", default: "e.g. Amanda (or Mandy)"}
           - {label: "Form Email Label", name: "formEmailLabel", widget: "string"}
+          - {label: "Form Email Placeholder", name: "formEmailPlaceholder", widget: "string", default: "e.g. amii-go@amiimail.com"}
           - {label: "Form Message Label", name: "formMessageLabel", widget: "string"}
+          - {label: "Form Message Placeholder", name: "formMessagePlaceholder", widget: "string", default: "Type your message here..."}
           - {label: "Form Button Text", name: "formButtonText", widget: "string"}
       - name: "links"
         label: "Links Page"
         file: "src/content/pages/links.md"
         fields:
           - {label: "Page Title", name: "title", widget: "string"}
-          - {label: "Profile Image", name: "profileImage", widget: "image"}
+          - {label: "Profile Image", name: "profileImage", widget: "image", hint: "Circular profile image shown at top of links page."}
           - {label: "Profile Name", name: "profileName", widget: "string"}
           - label: "Links"
             name: "links"
@@ -115,14 +121,16 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - {label: "Name", name: "name", widget: "string"}
-      - {label: "Slug", name: "slug", widget: "string"}
-      - {label: "Texture Image", name: "texture", widget: "image", required: false}
-      - {label: "Background Color", name: "bgColor", widget: "color"}
-      - {label: "Text Color", name: "textColor", widget: "color"}
-      - {label: "Accent Color", name: "accentColor", widget: "color"}
-      - {label: "Font (Heading)", name: "headingFont", widget: "string", default: "Starbim"}
-      - {label: "Font (Body)", name: "bodyFont", widget: "string", default: "Archivo"}
+      - {label: "Name", name: "name", widget: "string", hint: "Human-readable name of the era (e.g. 'Ordinary People')."}
+      - {label: "Slug", name: "slug", widget: "string", hint: "Unique ID for the era (e.g. 'ordinary-people'). Used in code."}
+      - {label: "Texture Image", name: "texture", widget: "image", required: false, hint: "Background texture overlay for this era."}
+      - {label: "Logo (Light Mode)", name: "logoLight", widget: "image", required: false, hint: "Era-specific logo for light backgrounds."}
+      - {label: "Logo (Dark Mode)", name: "logoDark", widget: "image", required: false, hint: "Era-specific logo for dark backgrounds."}
+      - {label: "Background Color", name: "bgColor", widget: "color", hint: "Primary background color."}
+      - {label: "Text Color", name: "textColor", widget: "color", hint: "Primary text color."}
+      - {label: "Accent Color", name: "accentColor", widget: "color", hint: "Color for accents and buttons."}
+      - {label: "Font (Heading)", name: "headingFont", widget: "string", default: "Starbim", hint: "CSS font-family name for headings."}
+      - {label: "Font (Body)", name: "bodyFont", widget: "string", default: "Archivo", hint: "CSS font-family name for body text."}
 
   - name: "releases"
     label: "Releases"
@@ -132,20 +140,20 @@ collections:
     fields:
       - {label: "Title", name: "title", widget: "string"}
       - {label: "Release Date", name: "date", widget: "datetime"}
-      - {label: "Short Description", name: "description", widget: "text"}
-      - {label: "Story/Details", name: "body", widget: "markdown"}
-      - {label: "Credits", name: "credits", widget: "markdown"}
-      - {label: "Cover Art", name: "cover", widget: "image"}
-      - {label: "Spotify", name: "spotify", widget: "string", required: false}
-      - {label: "Apple Music", name: "apple", widget: "string", required: false}
-      - {label: "YouTube", name: "youtube", widget: "string", required: false}
+      - {label: "Short Description", name: "description", widget: "text", hint: "Brief summary shown on cards."}
+      - {label: "Story/Details", name: "body", widget: "markdown", hint: "Full story behind the release."}
+      - {label: "Credits", name: "credits", widget: "markdown", hint: "List of contributors, producers, etc."}
+      - {label: "Cover Art", name: "cover", widget: "image", hint: "Square image recommended (1:1 aspect ratio)."}
+      - {label: "Spotify", name: "spotify", widget: "string", required: false, hint: "Link to Spotify."}
+      - {label: "Apple Music", name: "apple", widget: "string", required: false, hint: "Link to Apple Music."}
+      - {label: "YouTube", name: "youtube", widget: "string", required: false, hint: "Link to YouTube Music or Video."}
       - {label: "Audiomack", name: "audiomack", widget: "string", required: false}
       - {label: "Boomplay", name: "boomplay", widget: "string", required: false}
       - {label: "SoundCloud", name: "soundcloud", widget: "string", required: false}
       - {label: "Deezer", name: "deezer", widget: "string", required: false}
       - {label: "Tidal", name: "tidal", widget: "string", required: false}
       - {label: "Amazon Music", name: "amazon", widget: "string", required: false}
-      - {label: "Era Style", name: "era", widget: "relation", collection: "eras", search_fields: ["name"], value_field: "slug", required: false}
+      - {label: "Era Style", name: "era", widget: "relation", collection: "eras", search_fields: ["name"], value_field: "slug", required: false, hint: "Associate this release with a specific era styling."}
 
   - name: "members"
     label: "Members"
@@ -154,8 +162,8 @@ collections:
     slug: "{{name}}"
     fields:
       - {label: "Name", name: "name", widget: "string"}
-      - {label: "Photo", name: "photo", widget: "image"}
-      - {label: "Short Bio", name: "bio", widget: "text"}
+      - {label: "Photo", name: "photo", widget: "image", hint: "Portrait photo of the member."}
+      - {label: "Short Bio", name: "bio", widget: "text", hint: "Brief description."}
 
   - name: "press"
     label: "Press Assets"
@@ -169,4 +177,4 @@ collections:
           - {label: "Medium Bio", name: "mediumBio", widget: "markdown"}
           - {label: "Long Bio", name: "longBio", widget: "markdown"}
           - {label: "Photo Downloads", name: "photos", widget: "list", fields: [{label: "Image", name: "image", widget: "image"}, {label: "Credit", name: "credit", widget: "string"}]}
-          - {label: "EPK PDF Link", name: "epkPdf", widget: "file", required: false}
+          - {label: "EPK PDF Link", name: "epkPdf", widget: "file", required: false, hint: "Upload the specific PDF Electronic Press Kit file here."}

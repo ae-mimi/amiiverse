@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/Hero.astro";
+import NewsletterForm from "../components/NewsletterForm.astro";
 import settings from "../data/settings.json";
 import { getEntry } from "astro:content";
 
@@ -29,7 +30,10 @@ const { data } = homePage;
     style="max-width: 600px;"
   >
     <div style="margin-bottom: 2rem;">
-      <p class="font-body" style="font-size: 1.25rem; opacity: 0.9;">
+      <p
+        class="font-heading"
+        style="font-size: 1.5rem; opacity: 1; margin-bottom: 1.5rem;"
+      >
         {
           data.comingSoonText ||
             "Our debut release is coming soon. We’re sharing updates here first."
@@ -38,16 +42,18 @@ const { data } = homePage;
     </div>
 
     {
-      settings.mailingListEmbed ? (
-        <div class="mailing-list-embed">
-          <Fragment set:html={settings.mailingListEmbed} />
-        </div>
-      ) : (
-        <div style="padding: 2rem; border: 1px dashed currentColor; opacity: 0.5;">
-          <p>Mailing list form will appear here.</p>
-          <small>(Add embed code in Site Settings)</small>
-        </div>
-      )
+      /* 
+         TODO: USER needs to provide the real Brevo Action URL here.
+         Example: https://sibforms.com/serve/MUIE... 
+         For now, we render the styled form. 
+      */
     }
+    <div style="margin-top: 2rem;">
+      <NewsletterForm
+        action={settings.mailingListEmbed || "#"}
+        namePlaceholder={data.newsletterNamePlaceholder}
+        emailPlaceholder={data.newsletterEmailPlaceholder}
+      />
+    </div>
   </section>
 </BaseLayout>

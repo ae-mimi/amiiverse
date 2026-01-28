@@ -1,43 +1,70 @@
-# Astro Starter Kit: Minimal
+# amii | Official Website
 
-```sh
-npm create astro@latest -- --template minimal
+This is the official website for **amii**, built with **Astro**, **TypeScript**, and **Decap CMS**.
+
+## 🚀 Quick Start
+
+1.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+
+2.  **Start Development Server:**
+    ```bash
+    npm run dev
+    ```
+    - Website: `http://localhost:4321`
+    - CMS Admin: `http://localhost:4321/admin`
+
+3.  **Build for Production:**
+    ```bash
+    npm run build
+    ```
+
+## 🛠️ Tech Stack
+
+-   **Framework:** [Astro v5](https://astro.build)
+-   **CMS:** [Decap CMS](https://decapcms.org) (Git-based)
+-   **Styling:** Vanilla CSS + CSS Variables (No frameworks)
+-   **Forms:** Brevo (Sendinblue) Integration
+-   **Hosting:** Netlify
+
+## 🌍 Environment Variables
+
+Create a `.env` file in the root directory (optional for local dev, required for specific features):
+
+```ini
+# (Optional) For verifying builds locally
+NETLIFY_SITE_ID=your-site-id
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+*Note: Most configuration is handled via `src/data/settings.json` and the CMS, not env vars.*
 
-## 🚀 Project Structure
+## 📂 Project Structure
 
-Inside of your Astro project, you'll see the following folders and files:
+-   `src/components/`: Reusable UI components (Navigation, Forms, etc.)
+-   `src/layouts/`: Page layouts (BaseLayout)
+-   `src/pages/`: Astro pages (routes)
+-   `src/styles/`: Global CSS and variables
+-   `src/content/`: CMS Content collections (Eras, Releases, Members)
+-   `public/admin/`: Decap CMS configuration (`config.yml`)
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## 🎨 The Era System
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+This site uses a unique "Era" system to change its appearance.
+See **[HANDOFF.md](./HANDOFF.md)** for a deep dive into how eras, themes, and dynamic assets work.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## 📝 CMS & Content
 
-Any static assets, like images, can be placed in the `public/` directory.
+Access the CMS at `/admin`.
+-   **Local:** You can edit content locally. Changes are saved to `.md` and `.json` files in `src/`.
+-   **Production:** Changes made in the live CMS are committed to the GitHub repository automatically.
 
-## 🧞 Commands
+## 🚢 Deployment
 
-All commands are run from the root of the project, from a terminal:
+The site is configured for automatic deployment on **Netlify**.
+Any push to the `main` branch triggers a build/deploy.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+**Build Settings:**
+-   **Build Command:** `npm run build`
+-   **Publish Directory:** `dist`

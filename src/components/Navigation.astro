@@ -1,5 +1,26 @@
 ---
 import settings from "../data/settings.json";
+import { getCollection } from "astro:content";
+
+interface Props {
+  activeEra?: string;
+}
+
+const { activeEra } = Astro.props;
+
+// Fetch Era Data if active
+let eraData = null;
+if (activeEra && activeEra !== "base") {
+  const eras = await getCollection("eras");
+  const found = eras.find((e) => e.data.slug === activeEra);
+  if (found) eraData = found.data;
+}
+
+// Resolve Logos
+const lightLogo =
+  eraData?.logoLight || settings.logo || "/uploads/logo-light.png"; // Fallback to upload path if setting missing
+const darkLogo = eraData?.logoDark || settings.logoDark || lightLogo; // Fallback to light logo if dark missing
+
 const links = [
   { label: "Home", href: "/" },
   { label: "Music", href: "/music" },
@@ -11,25 +32,61 @@ const links = [
 ---
 
 <header class="container header">
+  <!-- Theme Toggle (Left on Mobile, Part of Actions on Desktop) -->
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+    <!-- Sun Icon (Shows in Dark Mode to switch to Light) -->
+    <svg
+      class="icon"
+      style="width: 20px; height: 20px; display: var(--icon-sun-display, none);"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      ><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+      ></path></svg
+    >
+    <!-- Moon Icon (Shows in Light Mode to switch to Dark) -->
+    <svg
+      class="icon"
+      style="width: 20px; height: 20px; display: var(--icon-moon-display, block);"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      ><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+      ></path></svg
+    >
+  </button>
+
   <a
     href="/"
     class="logo font-heading uppercase"
     style="font-size: 1.5rem; letter-spacing: 0.1em; font-weight: bold; display: flex; align-items: center;"
   >
-    {
-      settings.logo ? (
-        <img
-          src={settings.logo}
-          alt={settings.siteTitle || "amii"}
-          style="height: 40px; width: auto;"
-        />
-      ) : (
-        "amii"
-      )
-    }
+    <!-- Light Mode Logo -->
+    <img
+      src={lightLogo}
+      alt={settings.siteTitle || "amii"}
+      class="logo-light"
+      style="height: 40px; width: auto;"
+    />
+    <!-- Dark Mode Logo -->
+    <img
+      src={darkLogo}
+      alt={settings.siteTitle || "amii"}
+      class="logo-dark"
+      style="height: 40px; width: auto; display: none;"
+    />
   </a>
 
-  <nav>
+  <!-- Navigation (Desktop & Mobile Drawer) -->
+  <nav id="site-nav" class="nav-container">
     <ul class="nav-list">
       {
         links.map((link) => (
@@ -40,61 +97,243 @@ const links = [
           </li>
         ))
       }
+      <!-- Mobile Only Footer Items inside Drawer -->
+      <li class="visible-mobile-only" style="margin-top: 2rem;">
+        <a href="/links" class="btn w-full text-center">Follow</a>
+      </li>
     </ul>
   </nav>
 
-  <div class="flex items-center gap-sm hidden-mobile">
+  <!-- Desktop Follow Button -->
+  <div class="hidden-mobile desktop-actions">
     <a href="/links" class="btn" style="padding: 0.3em 1em; font-size: 0.8rem;"
       >Follow</a
     >
-
-    <button
-      id="theme-toggle"
-      class="p-2"
-      aria-label="Toggle Dark Mode"
-      style="background:none; border:none; padding: 0.5rem; cursor: pointer; color: inherit;"
-    >
-      <!-- Sun Icon -->
-      <svg
-        class="icon hidden-mobile-theme"
-        style="width: 20px; height: 20px; display: var(--icon-sun-display, block);"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        ><path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-        ></path></svg
-      >
-      <!-- Moon Icon -->
-      <svg
-        class="icon"
-        style="width: 20px; height: 20px; display: var(--icon-moon-display, none);"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        ><path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-        ></path></svg
-      >
-    </button>
   </div>
 
+  <!-- Mobile Menu Button -->
+  <button
+    id="menu-toggle"
+    class="menu-toggle hidden-desktop"
+    aria-label="Toggle Menu"
+    aria-expanded="false"
+  >
+    <span class="hamburger"></span>
+  </button>
+
   <style>
-    [data-theme="dark"] {
+    /* Default State (Light Mode) */
+    :root {
       --icon-sun-display: none;
       --icon-moon-display: block;
+    }
+
+    /* DESKTOP LAYOUT (Grid) */
+    .header {
+      display: grid !important;
+      grid-template-columns: 200px 1fr 200px; /* Allocated space for sides to ensure true center nav */
+      align-items: center;
+      position: relative;
+    }
+
+    .logo {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .nav-container {
+      grid-column: 2;
+      justify-self: center;
+    }
+
+    .desktop-actions {
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-right: 3rem; /* Space for theme toggle */
+    }
+
+    /* Theme toggle on desktop sits at the far right */
+    .theme-toggle {
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: end;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      color: inherit;
+      z-index: 60;
+    }
+
+    .logo-light {
+      display: block;
+    }
+    .logo-dark {
+      display: none !important;
+    }
+
+    /* Dark Mode State */
+    :global(html[data-theme="dark"]) {
+      --icon-sun-display: block;
+      --icon-moon-display: none;
+    }
+
+    :global(html[data-theme="dark"]) .logo-light {
+      display: none !important;
+    }
+    :global(html[data-theme="dark"]) .logo-dark {
+      display: block !important;
+    }
+
+    /* Mobile Menu Styles */
+    .menu-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      z-index: 60;
+      position: relative;
+      color: inherit;
+    }
+
+    .hamburger {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background-color: currentColor;
+      position: relative;
+      transition: background-color 0.3s;
+    }
+
+    .hamburger::before,
+    .hamburger::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background-color: currentColor;
+      left: 0;
+      transition:
+        transform 0.3s,
+        top 0.3s;
+    }
+
+    .hamburger::before {
+      top: -6px;
+    }
+    .hamburger::after {
+      top: 6px;
+    }
+
+    /* Hamburger Open State */
+    .menu-toggle.is-active .hamburger {
+      background-color: transparent;
+    }
+    .menu-toggle.is-active .hamburger::before {
+      transform: rotate(45deg);
+      top: 0;
+    }
+    .menu-toggle.is-active .hamburger::after {
+      transform: rotate(-45deg);
+      top: 0;
+    }
+
+    /* Helper Utilities */
+    .visible-mobile-only {
+      display: none !important;
+    }
+
+    .hidden-desktop {
+      display: none !important;
+    }
+
+    /* MOBILE LAYOUT & OVERRIDES */
+    @media (max-width: 767px) {
+      .header {
+        display: flex !important; /* Flex override */
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        height: var(--header-height);
+        /* Reset Grid props */
+        grid-template-columns: none;
+      }
+
+      /* Mobile: Theme Toggle Left (-1) */
+      .theme-toggle {
+        order: -1;
+        margin-right: 0;
+        grid-column: auto;
+        grid-row: auto;
+      }
+
+      /* Mobile: Logo Centered Absolute */
+      .logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 55; /* Above drawer bg */
+        grid-column: auto;
+      }
+
+      /* Mobile: Hamburger Right */
+      .menu-toggle {
+        order: 2;
+      }
+
+      /* Utilities override */
+      .hidden-mobile {
+        display: none !important;
+      }
+
+      .hidden-desktop {
+        display: block !important;
+      }
+
+      .visible-mobile-only {
+        display: block !important;
+      }
+
+      /* Drawer Logic */
+      .nav-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--color-bg);
+        padding: 6rem 2rem 2rem;
+        transform: translateX(-100%);
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        /* Reset Grid props */
+        grid-column: auto;
+        justify-self: auto;
+      }
+
+      .nav-container.is-active {
+        transform: translateX(0);
+      }
+
+      .nav-list {
+        flex-direction: column;
+        font-size: 1.5rem;
+        text-align: center;
+      }
     }
   </style>
 </header>
 
 <script is:inline>
   const themeToggle = document.getElementById("theme-toggle");
+  const menuToggle = document.getElementById("menu-toggle");
+  const siteNav = document.getElementById("site-nav");
 
   // Check initial state
   const getTheme = () =>
@@ -115,5 +354,16 @@ const links = [
     const currentTheme = getTheme();
     const newTheme = currentTheme === "light" ? "dark" : "light";
     setTheme(newTheme);
+  });
+
+  // Mobile Menu Logic
+  menuToggle?.addEventListener("click", () => {
+    const isExpanded = menuToggle.getAttribute("aria-expanded") === "true";
+    menuToggle.setAttribute("aria-expanded", !isExpanded);
+    menuToggle.classList.toggle("is-active");
+    siteNav.classList.toggle("is-active");
+
+    // Prevent scrolling when menu is open
+    document.body.style.overflow = !isExpanded ? "hidden" : "";
   });
 </script>

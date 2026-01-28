@@ -64,42 +64,97 @@ const { data } = contactPage;
                 {data.fanMailTitle || "Fan Mail & Messages"}
             </h2>
             <form
-                name="fanmail"
+                id="sib-form"
                 method="POST"
-                action="/thank-you"
-                data-netlify="true"
+                action="https://ed72466f.sibforms.com/serve/MUIFANxrm63tTgztdnHlC2BXhMXcDBzzcN_f0uNn-w2z1MMuWFMEbSfUX2uRPL_Xe-E4fpcP3kysCNmJahmv4BD34vnlg-JPcNDWi37hzOLvOpNzDz_gGwdfsv0A2CXuMRtdhVJLV7YxqjTl7l7Ht2GGCgkRDenuPAWpWNP1betuJm1f09CsMu-Z1Gyx9NlXpw3ff1ftohQwC6vrwQ=="
+                data-type="subscription"
                 style="display: flex; flex-direction: column; gap: 1rem;"
             >
-                <div>
-                    <label
-                        style="display: block; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.25rem;"
+                <div class="form-group">
+                    <label class="input-label"
                         >{data.formNameLabel || "Name"}</label
                     >
-                    <input type="text" name="name" required />
+                    <input
+                        type="text"
+                        name="FIRSTNAME"
+                        class="form-input"
+                        placeholder={data.formNamePlaceholder ||
+                            "e.g. Amanda (or Mandy)"}
+                        autocomplete="given-name"
+                        required
+                    />
                 </div>
-                <div>
-                    <label
-                        style="display: block; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.25rem;"
+                <div class="form-group">
+                    <label class="input-label"
                         >{data.formEmailLabel || "Email"}</label
                     >
-                    <input type="email" name="email" />
+                    <input
+                        type="email"
+                        name="EMAIL"
+                        class="form-input"
+                        placeholder={data.formEmailPlaceholder ||
+                            "e.g. amii-go@amiimail.com"}
+                        autocomplete="email"
+                    />
                 </div>
-                <div>
-                    <label
-                        style="display: block; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.25rem;"
-                    >
+                <div class="form-group">
+                    <label class="input-label">
                         {data.formMessageLabel || "Message"}
                     </label>
                     <textarea
-                        name="message"
+                        name="MESSAGE"
                         rows="5"
-                        style="width: 100%; padding: 0.5rem; background: transparent; border: 1px solid currentColor; border-radius: 4px;"
+                        class="form-textarea"
+                        placeholder={data.formMessagePlaceholder ||
+                            "Type your message here..."}
                         required></textarea>
                 </div>
-                <button type="submit" class="btn w-full"
+
+                <!-- Brevo Hidden Fields -->
+                <input
+                    type="text"
+                    name="email_address_check"
+                    value=""
+                    class="input--hidden"
+                    style="display:none;"
+                />
+                <input type="hidden" name="locale" value="en" />
+
+                <button
+                    class="g-recaptcha btn w-full"
+                    data-sitekey="6LdNelgsAAAAADNsAjrG9RpKVklo64q7amBOZ2fk"
+                    data-callback="onContactSubmit"
+                    data-action="submit"
                     >{data.formButtonText || "Send Message"}</button
                 >
+
+                <p
+                    style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem; text-align: center;"
+                >
+                    This site is protected by reCAPTCHA and the Google
+                    <a
+                        href="https://policies.google.com/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style="text-decoration: underline;">Privacy Policy</a
+                    > and
+                    <a
+                        href="https://policies.google.com/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style="text-decoration: underline;">Terms of Service</a
+                    > apply.
+                </p>
             </form>
         </div>
     </section>
+
+    <!-- Scripts for reCAPTCHA -->
+    <script is:inline src="https://www.google.com/recaptcha/api.js?hl=en"
+    ></script>
+    <script is:inline>
+        function onContactSubmit(token) {
+            document.getElementById("sib-form").submit();
+        }
+    </script>
 </BaseLayout>

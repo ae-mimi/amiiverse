@@ -1,0 +1,102 @@
+---
+interface Props {
+    action?: string;
+    namePlaceholder?: string;
+    emailPlaceholder?: string;
+}
+
+const {
+    action = "#",
+    namePlaceholder = "e.g. Amanda (or Mandy)",
+    emailPlaceholder = "e.g. amii-go@amiimail.com",
+} = Astro.props;
+---
+
+<form
+    action={action}
+    method="post"
+    class="newsletter-form"
+    target="_blank"
+    data-netlify="false"
+    id="sib-form"
+    data-type="subscription"
+>
+    <div class="form-group">
+        <label for="newsletter-name" class="input-label">Name</label>
+        <input
+            type="text"
+            id="newsletter-name"
+            name="FIRSTNAME"
+            class="form-input"
+            placeholder={namePlaceholder}
+            autocomplete="given-name"
+            required
+        />
+    </div>
+    <div class="form-group">
+        <label for="newsletter-email" class="input-label">Email</label>
+        <input
+            type="email"
+            id="newsletter-email"
+            name="EMAIL"
+            class="form-input"
+            placeholder={emailPlaceholder}
+            autocomplete="email"
+            required
+        />
+    </div>
+
+    <!-- Brevo Hidden Fields -->
+    <input
+        type="text"
+        name="email_address_check"
+        value=""
+        class="input--hidden"
+        style="display:none;"
+    />
+    <input type="hidden" name="locale" value="en" />
+
+    <button
+        class="g-recaptcha btn w-full"
+        data-sitekey="6LdNelgsAAAAADNsAjrG9RpKVklo64q7amBOZ2fk"
+        data-callback="onNewsletterSubmit"
+        data-action="submit">Join Us</button
+    >
+
+    <p
+        style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem; text-align: center;"
+    >
+        This site is protected by reCAPTCHA and the Google
+        <a
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="text-decoration: underline;">Privacy Policy</a
+        > and
+        <a
+            href="https://policies.google.com/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="text-decoration: underline;">Terms of Service</a
+        > apply.
+    </p>
+</form>
+
+<!-- Brevo/Google Scripts -->
+<script is:inline src="https://www.google.com/recaptcha/api.js?hl=en"></script>
+<script is:inline>
+    function onNewsletterSubmit(token) {
+        document.getElementById("sib-form").submit();
+    }
+</script>
+
+<style>
+    .newsletter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+</style>

@@ -22,19 +22,64 @@ const { data } = shopPage;
         </p>
 
         <form
-            name="shop-notify"
+            id="sib-form"
             method="POST"
-            action="/thank-you"
-            data-netlify="true"
-            style="display: flex; gap: 0.5rem; max-width: 400px; width: 100%;"
+            action="https://ed72466f.sibforms.com/serve/MUIFAAJ8WKXFo5Q1TzmqXeTIEuOr9C2MqCf7Sk8QO8P2Bcfxh1y-zEBvNrzeWX5CPojpdcjKfmTdAkIvZR2cLAAakG_fBleyAcBZzU1NsPAsQBp8nqE3iHtGsUfi2fEtH2kIwAc6Ua4sa0QizCC-QwoTaaSOVu7mtrxaGhncBLZLgagxEk6jOSkdRon11sF4T2svc43r9spIC9Qhxw=="
+            data-type="subscription"
+            style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px; width: 100%;"
         >
-            <input
-                type="email"
-                name="email"
-                placeholder={data.placeholderText || "Get notified..."}
-                style="flex-grow: 1;"
-            />
-            <button class="btn">{data.buttonText || "Join"}</button>
+            <div class="form-group" style="width: 100%;">
+                <input
+                    type="text"
+                    name="email_address_check"
+                    value=""
+                    class="input--hidden"
+                    style="display:none;"
+                />
+                <input type="hidden" name="locale" value="en" />
+                <input
+                    type="email"
+                    name="EMAIL"
+                    class="form-input"
+                    placeholder={data.placeholderText || "Get notified..."}
+                    autocomplete="email"
+                    required
+                />
+            </div>
+
+            <button
+                class="g-recaptcha btn w-full"
+                data-sitekey="6LdNelgsAAAAADNsAjrG9RpKVklo64q7amBOZ2fk"
+                data-callback="onShopSubmit"
+                data-action="submit">{data.buttonText || "Join"}</button
+            >
+
+            <p
+                style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem; text-align: center;"
+            >
+                This site is protected by reCAPTCHA and the Google
+                <a
+                    href="https://policies.google.com/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style="text-decoration: underline;">Privacy Policy</a
+                > and
+                <a
+                    href="https://policies.google.com/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style="text-decoration: underline;">Terms of Service</a
+                > apply.
+            </p>
         </form>
     </div>
+
+    <!-- Scripts for reCAPTCHA -->
+    <script is:inline src="https://www.google.com/recaptcha/api.js?hl=en"
+    ></script>
+    <script is:inline>
+        function onShopSubmit(token) {
+            document.getElementById("sib-form").submit();
+        }
+    </script>
 </BaseLayout>
