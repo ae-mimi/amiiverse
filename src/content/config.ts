@@ -5,6 +5,8 @@ const eras = defineCollection({
   schema: () => z.object({
     name: z.string(),
     texture: z.string().optional(),
+    logoLight: z.string().optional(),
+    logoDark: z.string().optional(),
     bgColor: z.string(),
     textColor: z.string(),
     accentColor: z.string(),

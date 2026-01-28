@@ -12,7 +12,7 @@ const { activeEra } = Astro.props;
 let eraData = null;
 if (activeEra && activeEra !== "base") {
   const eras = await getCollection("eras");
-  const found = eras.find((e) => e.data.slug === activeEra);
+  const found = eras.find((e) => e.slug === activeEra);
   if (found) eraData = found.data;
 }
 
