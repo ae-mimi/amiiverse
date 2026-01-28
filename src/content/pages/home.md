@@ -7,7 +7,7 @@ heroSubtitle: Join for early access, release updates, and notes from amii.
 heroLink: "#join"
 heroLinkText: Join
 latestReleasesTitle: Join the Community
-comingSoonText: Coming March 2026
+comingSoonText: Coming Soon!
 newsletterNamePlaceholder: e.g. Amanda (or Mandy)
 newsletterEmailPlaceholder: e.g. amii-go@amiimail.com
 ---
