@@ -104,3 +104,12 @@ collections:
             widget: "object"
             fields:
               - {label: "Body", name: "body", widget: "markdown"}
+
+  - name: "settings"
+    label: "Settings"
+    files:
+      - name: "global"
+        label: "Global Settings"
+        file: "src/data/settings.json"
+        fields:
+          - {label: "Enable Follow Link", name: "enable_follow_link", widget: "boolean", default: false}

@@ -9,6 +9,11 @@ const links = [
     { label: "CONTACT", href: "/contact" },
 ];
 
+import settings from "../data/settings.json";
+if (settings.enable_follow_link) {
+    links.push({ label: "FOLLOW", href: "/follow" });
+}
+
 const currentPath = Astro.url.pathname;
 const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
 ---
