@@ -60,6 +60,27 @@
   padding: 0;
 }
 
+h1,
+q,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: normal;
+  /* Starbim is display, usually regular weight looks bold enough */
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-weight: normal;
+}
+
+p {
+  font-weight: 400;
+  /* Ensure body text isn't bold */
+}
+
 html,
 body {
   height: 100%;

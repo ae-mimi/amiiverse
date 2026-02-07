@@ -3,6 +3,7 @@ import HeroBlock from "./blocks/HeroBlock.astro";
 import IntroBlock from "./blocks/IntroBlock.astro";
 import WidgetBlock from "./blocks/WidgetBlock.astro";
 import RichTextBlock from "./blocks/RichTextBlock.astro";
+import PredebutHeroBlock from "./blocks/PredebutHeroBlock.astro";
 
 const { blocks } = Astro.props;
 
@@ -19,6 +20,8 @@ interface Props {
         switch (block.type) {
             case "hero":
                 return <HeroBlock {...block} />;
+            case "predebut_hero":
+                return <PredebutHeroBlock {...block} />;
             case "intro":
                 return <IntroBlock {...block} />;
             case "widget":

@@ -72,6 +72,16 @@ collections:
               - {label: "Secondary CTA Text", name: "cta_secondary", widget: "string"}
               - {label: "Secondary CTA Link", name: "cta_secondary_link", widget: "string"}
 
+          - label: "Predebut Hero"
+            name: "predebut_hero"
+            widget: "object"
+            fields:
+              - {label: "Top Text", name: "top_text", widget: "string", default: "we are amii"}
+              - {label: "Main Image", name: "image", widget: "image"}
+              - {label: "Status Text", name: "status_text", widget: "string", default: "LOADING..."}
+              - {label: "CTA Text", name: "cta_text", widget: "string", default: "JOIN THE QUEUE"}
+              - {label: "CTA Link", name: "cta_link", widget: "string"}
+
           - label: "Intro Section"
             name: "intro"
             widget: "object"

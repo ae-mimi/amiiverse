@@ -1,0 +1,197 @@
+---
+import { Icon } from "astro-icon/components";
+
+const {
+    top_text = "we are amii",
+    image,
+    status_text = "LOADING...",
+    cta_text = "JOIN THE QUEUE",
+    cta_link = "#",
+} = Astro.props;
+---
+
+<section class="predebut-hero">
+    <!-- Top Text -->
+    <div class="top-text">{top_text}</div>
+
+    <!-- Main Image -->
+    {
+        image && (
+            <div class="hero-image">
+                <img src={image} alt="Amii Avatars" />
+            </div>
+        )
+    }
+
+    <!-- Welcome Banner Container -->
+    <div class="welcome-banner">
+        <!-- Loading Text -->
+        <h1 class="loading-text">
+            <span class="typewriter-target"
+                >{status_text.replace(/\.+$/, "")}</span
+            ><span class="dots-wrapper"
+                ><span class="dot">.</span><span class="dot">.</span><span
+                    class="dot">.</span
+                ></span
+            >
+        </h1>
+
+        <!-- Join Queue CTA -->
+        <a href={cta_link} class="cta-queue">
+            {cta_text}
+        </a>
+
+        <!-- Down Arrow SVG -->
+        <svg
+            class="down-arrow-svg"
+            width="14"
+            height="48"
+            viewBox="0 0 14 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                d="M7 0V46M7 46L1 40M7 46L13 40"
+                stroke="#15499D"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+        </svg>
+    </div>
+</section>
+
+<style>
+    /* Predebut Hero Structure */
+    .predebut-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 64px 0px;
+        gap: 32px;
+        width: 100%;
+        background: #fdf38a; /* Sun Yellow */
+        color: #15499d; /* Navy */
+        min-height: 90vh; /* Ensure it takes up most of screen */
+    }
+
+    /* Top Text */
+    .top-text {
+        font-family: "Archivo", sans-serif;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 20px;
+        text-align: center;
+        text-transform: lowercase;
+        order: 0;
+    }
+
+    /* Hero Image */
+    .hero-image {
+        order: 1;
+        width: 100%;
+        max-width: 871px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .hero-image img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+
+    /* Welcome Banner Group */
+    .welcome-banner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px;
+        gap: 24px;
+        order: 2;
+        width: 100%;
+        max-width: 818px;
+    }
+
+    /* Loading Text - Starbim */
+    .loading-text {
+        font-family: "Starbim", sans-serif;
+        font-weight: 400;
+        font-size: clamp(40px, 8vw, 64px); /* Fluid sizing */
+        line-height: 1.1;
+        text-align: center;
+        color: #15499d;
+        text-shadow: none; /* Ensure clean look */
+        margin: 0;
+    }
+
+    /* Join Queue CTA */
+    .cta-queue {
+        font-family: "Archivo", sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+        line-height: 22px;
+        text-align: center;
+        color: #15499d;
+        text-decoration: none;
+        text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
+        cursor: pointer;
+        padding-bottom: 10px; /* Slight gap before arrow */
+    }
+
+    .cta-queue:hover {
+        text-decoration: underline;
+    }
+
+    .down-arrow-svg {
+        display: block;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { TextPlugin } from "gsap/TextPlugin";
+
+    gsap.registerPlugin(TextPlugin);
+
+    // Bouncing Dots Animation (Sequential Wave)
+    const dots = document.querySelectorAll(".dot");
+    if (dots.length > 0) {
+        gsap.to(dots, {
+            y: -10,
+            duration: 0.3,
+            stagger: {
+                each: 0.15,
+                repeat: -1,
+                yoyo: true,
+            },
+            ease: "power1.inOut",
+        });
+    }
+
+    // Typewriter Effect (Type -> Wait -> Delete -> Loop)
+    const typeTarget = document.querySelector(".typewriter-target");
+    if (typeTarget && typeTarget.textContent) {
+        const textToType = typeTarget.textContent;
+        // Clear initially
+        typeTarget.textContent = "";
+
+        const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5 });
+
+        tl.to(typeTarget, {
+            duration: 1,
+            text: {
+                value: textToType,
+                delimiter: "",
+            },
+            ease: "none",
+        }).to(typeTarget, {
+            duration: 1,
+            text: {
+                value: "",
+                delimiter: "",
+            },
+            ease: "none",
+            delay: 1, // Wait 1s before deleting
+        });
+    }
+</script>

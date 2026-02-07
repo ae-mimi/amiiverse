@@ -83,8 +83,18 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
 
         <!-- Right: Actions -->
         <div class="header-actions">
-            <!-- Follow Button -->
-            <a href="/follow" class="follow-btn">FOLLOW</a>
+            <!-- Social Icons (Desktop) -->
+            <div class="header-socials">
+                <a href="https://tiktok.com" aria-label="TikTok">
+                    <Icon name="simple-icons:tiktok" class="icon-social" />
+                </a>
+                <a href="https://instagram.com" aria-label="Instagram">
+                    <Icon name="simple-icons:instagram" class="icon-social" />
+                </a>
+                <a href="https://youtube.com" aria-label="YouTube">
+                    <Icon name="simple-icons:youtube" class="icon-social" />
+                </a>
+            </div>
 
             <!-- Theme Toggle (Moon Icon) -->
             <button id="theme-toggle" aria-label="Toggle Dark Mode">
@@ -125,9 +135,6 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
             >
             <a href="https://instagram.com" aria-label="Instagram"
                 ><Icon name="simple-icons:instagram" /></a
-            >
-            <a href="https://spotify.com" aria-label="Spotify"
-                ><Icon name="simple-icons:spotify" /></a
             >
             <a href="https://youtube.com" aria-label="YouTube"
                 ><Icon name="simple-icons:youtube" /></a
@@ -290,31 +297,38 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         gap: 25px; /* Spec gap */
     }
 
-    /* Follow Button */
-    .follow-btn {
+    .header-socials {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+        .header-socials {
+            display: none;
+        }
+    }
+
+    .header-socials a {
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 15px 25px;
-        height: 46px; /* Spec height */
-        width: 120px;
-        box-sizing: border-box;
-
-        background: #15499d;
-        border-radius: 8px;
-
-        font-family: "Archivo";
-        font-weight: 600;
-        font-size: 14px;
-        line-height: 16px;
-        letter-spacing: 2px;
-        color: #fdf38a;
-        text-decoration: none;
-        text-transform: uppercase;
-        transition: transform 0.1s;
+        width: 44px; /* Touch target */
+        height: 44px;
+        color: #15499d;
+        transition:
+            transform 0.2s,
+            opacity 0.2s;
     }
-    .follow-btn:hover {
-        transform: scale(1.02);
+
+    .header-socials a:hover {
+        transform: translateY(-2px);
+        opacity: 0.8;
+    }
+
+    .icon-social {
+        width: 20px;
+        height: 20px;
     }
 
     #theme-toggle {
