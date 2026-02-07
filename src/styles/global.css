@@ -1,6 +1,15 @@
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Archivo:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&display=swap');
 
+/* Custom Fonts */
+@font-face {
+  font-family: 'Starbim';
+  src: url('/fonts/Starbim.woff2') format('woff2'),
+    url('/fonts/Starbim.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   /* Brand Colors */
@@ -25,8 +34,8 @@
   --space-xl: clamp(5rem, 8vw, 8rem);
 
   /* Typography */
-  --font-body: 'Outfit', sans-serif;
-  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Archivo', sans-serif;
+  --font-heading: 'Starbim', sans-serif;
   /* Using bold/black weights for display */
 
   /* Base Setup */
