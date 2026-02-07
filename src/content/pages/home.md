@@ -12,6 +12,10 @@ blocks:
     image: /assets/uploads/desktop-hero.png
     description: it's about friendship, growing up, and finding yourself in the
       middle of everything.
+  - type: intro
+    image: /assets/uploads/desktop-hero.png
+    heading: "Members "
+    content: Meet the members
   - type: widget
     widget_type: player
   - type: intro
