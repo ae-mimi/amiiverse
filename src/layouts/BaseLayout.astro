@@ -1,0 +1,47 @@
+---
+import "../styles/global.css";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import Analytics from "../components/Analytics.astro";
+
+interface Props {
+    title: string;
+    description?: string;
+}
+
+const { title, description = "Welcome to the Amiiverse." } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-theme="sun">
+    <!-- Default to Sun -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content={description} />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title} | Amiiverse</title>
+        <Analytics />
+    </head>
+    <body>
+        <SiteHeader />
+        <main>
+            <slot />
+        </main>
+        <SiteFooter />
+    </body>
+</html>
+
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+</style>

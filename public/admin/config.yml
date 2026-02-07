@@ -1,0 +1,96 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "members"
+    label: "Members"
+    folder: "src/content/members"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Name", name: "name", widget: "string"}
+      - {label: "Role", name: "role", widget: "string"}
+      - {label: "Fun Fact", name: "fact", widget: "string"}
+      - {label: "Image", name: "image", widget: "image"}
+
+  - name: "music"
+    label: "Music"
+    folder: "src/content/music"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "Cover Art", name: "cover", widget: "image"}
+      - {label: "Spotify URL", name: "spotify", widget: "string", required: false}
+      
+  - name: "press"
+    label: "Press"
+    folder: "src/content/press"
+    create: true
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "Link / File", name: "file", widget: "file", required: false}
+
+  - name: "shop"
+    label: "Shop Items"
+    folder: "src/content/shop"
+    create: true
+    fields:
+      - {label: "Product Name", name: "title", widget: "string"}
+      - {label: "Price", name: "price", widget: "string"}
+      - {label: "Image", name: "image", widget: "image"}
+      - {label: "Shop URL", name: "url", widget: "string"}
+
+  - name: "pages"
+    label: "Pages"
+    folder: "src/content/pages"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "URL Slug", name: "slug", widget: "string"}
+      - label: "Page Blocks"
+        name: "blocks"
+        widget: "list"
+        types:
+          - label: "Hero Section"
+            name: "hero"
+            widget: "object"
+            fields:
+              - {label: "Title", name: "title", widget: "string"}
+              - {label: "Subtitle", name: "subtitle", widget: "string"}
+              - {label: "Description", name: "description", widget: "text"}
+              - {label: "Image", name: "image", widget: "image"}
+              - {label: "Primary CTA Text", name: "cta_primary", widget: "string"}
+              - {label: "Primary CTA Link", name: "cta_primary_link", widget: "string"}
+              - {label: "Secondary CTA Text", name: "cta_secondary", widget: "string"}
+              - {label: "Secondary CTA Link", name: "cta_secondary_link", widget: "string"}
+
+          - label: "Intro Section"
+            name: "intro"
+            widget: "object"
+            fields:
+              - {label: "Heading", name: "heading", widget: "string"}
+              - {label: "Content", name: "content", widget: "text"}
+              - {label: "Oval Image", name: "image", widget: "image"}
+
+          - label: "Widget"
+            name: "widget"
+            widget: "object"
+            fields:
+              - label: "Widget Type"
+                name: "widget_type"
+                widget: "select"
+                options: ["newsletter", "player"]
+
+          - label: "Rich Text"
+            name: "rich_text"
+            widget: "object"
+            fields:
+              - {label: "Body", name: "body", widget: "markdown"}

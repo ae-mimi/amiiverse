@@ -1,0 +1,92 @@
+---
+const {
+    title,
+    subtitle,
+    description,
+    image,
+    cta_primary,
+    cta_primary_link,
+    cta_secondary,
+    cta_secondary_link,
+} = Astro.props;
+---
+
+<section class="hero-section container text-center">
+    <!-- Main Graphic -->
+    {
+        image && (
+            <div class="hero-graphic">
+                <img src={image} alt={title} />
+            </div>
+        )
+    }
+
+    {title && <h1 class="hero-title">{title}</h1>}
+    {subtitle && <p class="hero-subtitle">{subtitle}</p>}
+    {description && <p class="hero-subtitle">{description}</p>}
+
+    <div class="cta-group">
+        {
+            cta_primary && (
+                <a href={cta_primary_link || "#"} class="btn btn-primary">
+                    {cta_primary}
+                </a>
+            )
+        }
+        {
+            cta_secondary && (
+                <a href={cta_secondary_link || "#"} class="btn-text-link">
+                    {cta_secondary}
+                </a>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .hero-section {
+        padding-block: var(--space-lg) var(--space-md);
+    }
+
+    .hero-graphic {
+        margin-bottom: var(--space-md);
+    }
+    .hero-graphic img {
+        max-height: 50vh;
+        margin-inline: auto;
+    }
+
+    .hero-title {
+        font-family: var(--font-heading);
+        font-size: clamp(3rem, 8vw, 6rem);
+        font-weight: 900;
+        color: var(--color-navy-500);
+        text-transform: uppercase;
+        line-height: 0.9;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-weight: 700;
+        max-width: 60ch;
+        margin-inline: auto;
+        margin-bottom: 0.5rem;
+        color: var(--color-navy-500);
+    }
+
+    .cta-group {
+        margin-top: var(--space-md);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-text-link {
+        color: var(--color-navy-500);
+        font-weight: 900;
+        text-transform: uppercase;
+        text-decoration: underline;
+        font-size: 0.8rem;
+    }
+</style>

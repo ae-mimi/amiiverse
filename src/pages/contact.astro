@@ -1,0 +1,116 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+---
+
+<BaseLayout title="Contact" description="Get in touch with Ammi.">
+    <div class="container contact-container">
+        <div class="contact-header text-center">
+            <h1 class="page-title">SAY HELLO</h1>
+            <p class="subtitle">For inquiries, bookings, or just to say hi.</p>
+        </div>
+
+        <div class="contact-grid">
+            <!-- Brevo Form Area -->
+            <Card class="form-card">
+                <h2>SEND A MESSAGE</h2>
+                <!-- Replace this div with the actual Brevo iframe or form code -->
+                <div class="brevo-embed-placeholder">
+                    <p>[Brevo Form Embed Here]</p>
+                    <form onsubmit="event.preventDefault();">
+                        <input
+                            type="text"
+                            placeholder="NAME"
+                            class="input-field"
+                        />
+                        <input
+                            type="email"
+                            placeholder="EMAIL"
+                            class="input-field"
+                        />
+                        <textarea
+                            placeholder="MESSAGE"
+                            rows="5"
+                            class="input-field"></textarea>
+                        <button class="btn btn-primary">SEND</button>
+                    </form>
+                </div>
+            </Card>
+
+            <!-- Direct Contact Info -->
+            <div class="direct-contact">
+                <Card class="contact-item">
+                    <h3>MANAGEMENT</h3>
+                    <p>mgmt@amiiverse.com</p>
+                </Card>
+
+                <Card class="contact-item">
+                    <h3>PRESS</h3>
+                    <p>press@amiiverse.com</p>
+                </Card>
+
+                <Card class="contact-item">
+                    <h3>SNAIL MAIL</h3>
+                    <p>PO Box 1234<br />Los Angeles, CA 90001</p>
+                </Card>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
+
+<style>
+    .contact-container {
+        padding-block: var(--space-lg);
+    }
+
+    .page-title {
+        font-family: var(--font-heading);
+        font-size: clamp(3rem, 6vw, 5rem);
+        font-weight: 900;
+        color: var(--color-navy-500);
+        margin-bottom: var(--space-xs);
+    }
+
+    .subtitle {
+        margin-bottom: var(--space-lg);
+        font-size: 1.2rem;
+    }
+
+    .contact-grid {
+        display: grid;
+        gap: var(--space-md);
+        max-width: 1000px;
+        margin-inline: auto;
+    }
+
+    @media (min-width: 768px) {
+        .contact-grid {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+
+    .form-card {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .contact-item h3 {
+        font-weight: 900;
+        color: var(--color-pink-500);
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 2px solid var(--color-navy-500);
+        border-radius: 8px;
+        background: transparent;
+        font-family: inherit;
+    }
+
+    .brevo-embed-placeholder {
+        padding: 1rem 0;
+    }
+</style>

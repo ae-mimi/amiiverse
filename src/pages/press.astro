@@ -1,0 +1,245 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+
+const pressPhotos = [
+    { src: "/assets/placeholder-press1.jpg", alt: "Amii Group Shot 1" },
+    { src: "/assets/placeholder-press2.jpg", alt: "Amii Group Shot 2" },
+    { src: "/assets/placeholder-press3.jpg", alt: "Amii Live Performance" },
+];
+
+const pressReleases = [
+    {
+        title: 'Amii Debuts with "Ordinary People"',
+        date: "Oct 2025",
+        link: "#",
+    },
+    { title: "Amii Announces Pre-Debut Showcase", date: "Aug 2025", link: "#" },
+];
+---
+
+<BaseLayout
+    title="Press / EPK"
+    description="Press assets, bio, and contact info for Amii."
+>
+    <div class="container page-content">
+        <h1 class="page-title text-center">PRESS & EPK</h1>
+
+        <div class="grid-layout">
+            <!-- Sidebar: Info & Contact -->
+            <aside class="press-sidebar">
+                <Card class="info-card">
+                    <h2>CONTACT</h2>
+                    <div class="contact-block">
+                        <h3>MANAGEMENT</h3>
+                        <p>
+                            <a href="mailto:mgmt@amiiverse.com"
+                                >mgmt@amiiverse.com</a>
+                        </p>
+                    </div>
+                    <div class="contact-block">
+                        <h3>PRESS / PR</h3>
+                        <p>
+                            <a href="mailto:press@amiiverse.com"
+                                >press@amiiverse.com</a>
+                        </p>
+                    </div>
+                </Card>
+
+                <Card class="info-card mt-4">
+                    <h2>LINKS</h2>
+                    <ul class="link-list">
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">TikTok</a></li>
+                        <li><a href="#">YouTube</a></li>
+                        <li><a href="#">Spotify</a></li>
+                    </ul>
+                </Card>
+            </aside>
+
+            <!-- Main Content: Bio & Assets -->
+            <main class="press-main">
+                <section class="bio-section">
+                    <h2>BIOGRAPHY</h2>
+                    <p class="lead">
+                        amii is a three-member girl group bringing a fresh,
+                        honest perspective to pop.
+                    </p>
+                    <p>
+                        Built on the concept of "ordinary people" doing
+                        extraordinary things together, members [Member1],
+                        [Member2], and [Member3] combine to form a unit that
+                        celebrates friendship, growth, and the magic of everyday
+                        moments.
+                    </p>
+                    <div class="actions">
+                        <a href="#" class="btn btn-primary"
+                            >Download Full Bio (PDF)</a
+                        >
+                    </div>
+                </section>
+
+                <section class="assets-section">
+                    <div class="section-header">
+                        <h2>OFFICIAL PHOTOS</h2>
+                        <a href="#" class="btn-text">Download All (.zip)</a>
+                    </div>
+
+                    <div class="photos-grid">
+                        {
+                            pressPhotos.map((photo) => (
+                                <div class="photo-item">
+                                    <img src={photo.src} alt={photo.alt} />
+                                </div>
+                            ))
+                        }
+                    </div>
+                </section>
+
+                <section class="releases-section">
+                    <h2>LATEST RELEASES</h2>
+                    <div class="releases-list">
+                        {
+                            pressReleases.map((release) => (
+                                <div class="release-item">
+                                    <span class="date">{release.date}</span>
+                                    <span class="title">{release.title}</span>
+                                    <a
+                                        href={release.link}
+                                        class="download-link"
+                                    >
+                                        PDF
+                                    </a>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</BaseLayout>
+
+<style>
+    .page-content {
+        padding-block: var(--space-lg);
+    }
+
+    .page-title {
+        font-family: var(--font-heading);
+        font-size: clamp(3rem, 8vw, 5rem);
+        font-weight: 900;
+        color: var(--color-navy-500);
+        margin-bottom: var(--space-lg);
+    }
+
+    .grid-layout {
+        display: grid;
+        gap: var(--space-lg);
+    }
+
+    @media (min-width: 768px) {
+        .grid-layout {
+            grid-template-columns: 1fr 3fr; /* Sidebar | Main */
+        }
+        .press-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+    }
+
+    .press-sidebar h2 {
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        color: var(--color-pink-500);
+    }
+
+    .press-sidebar h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--color-navy-500);
+        margin-bottom: 0.25rem;
+    }
+
+    .contact-block {
+        margin-bottom: 1.5rem;
+    }
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+
+    .link-list {
+        list-style: none;
+        padding: 0;
+    }
+    .link-list li {
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+    .link-list a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .press-main section {
+        margin-bottom: var(--space-xl);
+    }
+
+    .press-main h2 {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--color-navy-500);
+        margin-bottom: var(--space-md);
+        border-bottom: 2px solid currentColor;
+        padding-bottom: 0.5rem;
+    }
+
+    .lead {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-bottom: 2px solid var(--color-navy-500);
+        margin-bottom: var(--space-md);
+    }
+    .section-header h2 {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .photos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: var(--space-sm);
+    }
+
+    .photo-item img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: var(--radius-card);
+        border: 2px solid var(--color-navy-500);
+    }
+
+    .release-item {
+        display: flex;
+        justify-content: space-between;
+        padding-block: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .release-item .date {
+        font-family: monospace;
+        opacity: 0.7;
+    }
+    .release-item .title {
+        font-weight: 700;
+    }
+</style>

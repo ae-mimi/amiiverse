@@ -1,0 +1,32 @@
+---
+import HeroBlock from "./blocks/HeroBlock.astro";
+import IntroBlock from "./blocks/IntroBlock.astro";
+import WidgetBlock from "./blocks/WidgetBlock.astro";
+import RichTextBlock from "./blocks/RichTextBlock.astro";
+
+const { blocks } = Astro.props;
+
+interface Props {
+    blocks: Array<{
+        type: string;
+        [key: string]: any;
+    }>;
+}
+---
+
+{
+    blocks?.map((block: any) => {
+        switch (block.type) {
+            case "hero":
+                return <HeroBlock {...block} />;
+            case "intro":
+                return <IntroBlock {...block} />;
+            case "widget":
+                return <WidgetBlock {...block} />;
+            case "rich_text":
+                return <RichTextBlock {...block} />;
+            default:
+                return null;
+        }
+    })
+}

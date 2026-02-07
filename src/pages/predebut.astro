@@ -1,0 +1,71 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import NewsletterForm from "../components/NewsletterForm.astro";
+---
+
+<BaseLayout title="Pre-Debut" description="Join the queue.">
+    <div class="predebut-container">
+        <div class="container text-center hero-stack">
+            <h2 class="mini-header">we are amii</h2>
+
+            <div class="silhouettes">
+                <!-- Placeholder for 3 silhouettes -->
+                <img
+                    src="/assets/placeholder-silhouettes.png"
+                    alt="Silhouettes"
+                />
+            </div>
+
+            <div class="loading-state">
+                <h1 class="lo-ing">LO<span class="star">★</span>DING...</h1>
+                <p class="queue-text">JOIN THE QUEUE</p>
+                <div class="arrow-down">↓</div>
+            </div>
+        </div>
+
+        <NewsletterForm />
+    </div>
+</BaseLayout>
+
+<style>
+    .hero-stack {
+        padding-top: var(--space-lg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-md);
+    }
+
+    .mini-header {
+        text-transform: lowercase;
+        font-weight: 700;
+    }
+
+    .silhouettes img {
+        max-width: 100%;
+        height: auto;
+        filter: brightness(0) saturate(100%) invert(18%) sepia(94%)
+            saturate(2250%) hue-rotate(213deg) brightness(93%) contrast(93%);
+        /* Attempt to simulate Navy filter if image is not navy */
+    }
+
+    .lo-ing {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        font-size: clamp(3rem, 10vw, 6rem);
+        color: var(--color-navy-500);
+        margin-bottom: 0.5rem;
+    }
+
+    .queue-text {
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .arrow-down {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-top: 1rem;
+    }
+</style>

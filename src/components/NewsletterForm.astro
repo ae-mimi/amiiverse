@@ -1,0 +1,109 @@
+---
+
+---
+
+<section
+    class="form-section"
+    style="width: 100%; max-width: 1280px; margin: 0 auto; border-top: 2px solid #15499d; display: flex; justify-content: center; padding: 64px 0;"
+>
+    <!-- Form Card: Style forced inline to ensure layout stability -->
+    <div
+        class="form-card"
+        style="box-sizing: border-box; display: flex; flex-direction: column; align-items: center; padding: 48px; gap: 16px; width: 100%; max-width: 640px; background: #fdf38a; border: 1px solid #15499d; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 16px; position: relative;"
+    >
+        <!-- Headline -->
+        <div
+            class="form-header"
+            style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;"
+        >
+            <h2
+                class="form-title"
+                style="margin: 0; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 36px; line-height: 40px; color: #15499d;"
+            >
+                JOIN THE <span
+                    class="star"
+                    style="font-size: 0.8em; margin: 0 4px;">★</span
+                >MII-GOS
+            </h2>
+            <p
+                class="form-subtitle"
+                style="margin: 0; font-family: 'Archivo', sans-serif; font-weight: 400; font-size: 12px; line-height: 19px; color: #e44598;"
+            >
+                Get early access, updates, and behind-the-scenes
+            </p>
+        </div>
+
+        <!-- Form -->
+        <form
+            class="signup-form"
+            onsubmit="event.preventDefault();"
+            style="display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 544px;"
+        >
+            <!-- Name Input -->
+            <div
+                class="input-group"
+                style="width: 100%; display: flex; flex-direction: column; gap: 4px;"
+            >
+                <label
+                    for="name"
+                    style="font-family: 'Archivo'; font-size: 12px; color: #15499d; font-weight: 400;"
+                    >NAME</label
+                >
+                <input
+                    type="text"
+                    id="name"
+                    name="NAME"
+                    style="width: 100%; height: 44px; background: #fef9c4; border: 1px solid #15499d; border-radius: 7px; padding: 0 1rem; font-family: 'Archivo'; font-size: 16px; color: #15499d; outline: none; box-sizing: border-box;"
+                />
+            </div>
+
+            <!-- Email Input -->
+            <div
+                class="input-group"
+                style="width: 100%; display: flex; flex-direction: column; gap: 4px;"
+            >
+                <label
+                    for="email"
+                    style="font-family: 'Archivo'; font-size: 12px; color: #15499d; font-weight: 400;"
+                    >EMAIL</label
+                >
+                <input
+                    type="email"
+                    id="email"
+                    name="EMAIL"
+                    style="width: 100%; height: 44px; background: #fef9c4; border: 1px solid #15499d; border-radius: 7px; padding: 0 1rem; font-family: 'Archivo'; font-size: 16px; color: #15499d; outline: none; box-sizing: border-box;"
+                />
+            </div>
+
+            <!-- Button -->
+            <button
+                type="submit"
+                class="submit-btn"
+                style="display: flex; justify-content: center; align-items: center; width: 124px; height: 52px; background: #15499d; border-radius: 12px; border: none; cursor: pointer; margin-top: 10px; padding: 16px 0; font-family: 'Archivo'; font-weight: 600; font-size: 14px; letter-spacing: 2px; color: #fdf38a; text-transform: uppercase; white-space: nowrap;"
+            >
+                JOIN US
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- Scoped styles for interactions/media queries that are harder to inline -->
+<style>
+    .submit-btn:hover {
+        transform: scale(1.02);
+    }
+    .submit-btn:active {
+        transform: scale(0.98);
+    }
+    .input-group input:focus {
+        border-width: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            width: 90% !important;
+            padding: 24px !important;
+            min-height: auto !important;
+        }
+    }
+</style>

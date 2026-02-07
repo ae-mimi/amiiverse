@@ -1,0 +1,157 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Archivo:wght@400;600;700&display=swap');
+
+
+:root {
+  /* Brand Colors */
+  --color-yellow-500: #FDF38A;
+  --color-navy-500: #15499D;
+  --color-pink-500: #E44598;
+  --color-blue-500: #43B2E5;
+  --color-golden-500: #FCBF12;
+
+  /* Functional Colors */
+  --color-bg-sun: var(--color-yellow-500);
+  --color-text-sun: var(--color-navy-500);
+
+  --color-bg-deep: var(--color-navy-500);
+  --color-text-deep: var(--color-yellow-500);
+
+  /* Spacing - Fluid Clamp */
+  --space-xs: clamp(0.5rem, 1vw, 0.75rem);
+  --space-sm: clamp(1rem, 2vw, 1.5rem);
+  --space-md: clamp(1.5rem, 3vw, 2.5rem);
+  --space-lg: clamp(3rem, 5vw, 5rem);
+  --space-xl: clamp(5rem, 8vw, 8rem);
+
+  /* Typography */
+  --font-body: 'Outfit', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  /* Using bold/black weights for display */
+
+  /* Base Setup */
+  --radius-card: 24px;
+  --radius-button: 999px;
+
+  /* Icon Sizes */
+  --icon-xs: 14px;
+  --icon-sm: 20px;
+  --icon-md: 24px;
+  --icon-lg: 32px;
+  --icon-xl: 48px;
+  --icon-2xl: 64px;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Themes */
+[data-theme="sun"] {
+  --bg-current: var(--color-bg-sun);
+  --text-current: var(--color-text-sun);
+  --accent-primary: var(--color-pink-500);
+}
+
+[data-theme="deep-dive"] {
+  --bg-current: var(--color-bg-deep);
+  --text-current: var(--color-text-deep);
+  --accent-primary: var(--color-pink-500);
+}
+
+/* Default to Sun if not set */
+:root:not([data-theme]) {
+  --bg-current: var(--color-bg-sun);
+  --text-current: var(--color-text-sun);
+  --accent-primary: var(--color-pink-500);
+}
+
+body {
+  background-color: var(--bg-current);
+  color: var(--text-current);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Utilities */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: var(--space-sm);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-black {
+  font-weight: 900;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75em 2em;
+  border-radius: var(--radius-button);
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid currentColor;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: white;
+  /* Pink button usually has white text? Or Navy? Checking ref images... Pink button has Navy text in sun mode? */
+  border-color: var(--accent-primary);
+}
+
+/* Refinements based on "Join The Amii-gos" form button in image 1: 
+   It's Blue (#15499D maybe?) with White text. 
+   Actually "Join Us" button is deep blue/navy. 
+   "Follow" button in top right is deep blue.
+   Let's check the colors again.
+   "OP Pink is primary accent... OP Blue is secondary"
+   Sun mode text is Navy. So Primary Button might be Navy on Sun.
+   Let's stick to variable usage and refinement later.
+*/

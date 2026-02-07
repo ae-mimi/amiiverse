@@ -1,0 +1,540 @@
+---
+import { Icon } from "astro-icon/components";
+
+const links = [
+    { label: "HOME", href: "/" },
+    { label: "MUSIC", href: "/music" },
+    { label: "ABOUT", href: "/about" },
+    { label: "PRESS", href: "/press" },
+    { label: "CONTACT", href: "/contact" },
+];
+
+const currentPath = Astro.url.pathname;
+const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
+---
+
+<header class="site-header">
+    <div class="header-inner">
+        <!-- Left: Logo -->
+        <a href="/" class="logo-link" aria-label="Amii Home">
+            <!-- SVG Logo: Amii Oval Navy -->
+            <svg
+                width="98"
+                height="59"
+                viewBox="0 0 98 59"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <!-- Oval -->
+                <ellipse
+                    cx="49"
+                    cy="29.5"
+                    rx="48"
+                    ry="28"
+                    stroke="#15499D"
+                    stroke-width="1.5"></ellipse>
+                <!-- Inner ring hint -->
+                <ellipse
+                    cx="49"
+                    cy="29.5"
+                    rx="42"
+                    ry="24"
+                    stroke="#15499D"
+                    stroke-width="0.5"
+                    stroke-opacity="0.5"></ellipse>
+                <!-- Text -->
+                <text
+                    x="50%"
+                    y="55%"
+                    dominant-baseline="middle"
+                    text-anchor="middle"
+                    fill="#15499D"
+                    font-family="'Archivo', sans-serif"
+                    font-weight="400"
+                    font-size="28"
+                    letter-spacing="-1"
+                    >ami<tspan dx="-2" dy="-6" font-size="16">★</tspan>i</text
+                >
+            </svg>
+        </a>
+
+        <!-- Center: Navbar -->
+        <nav class="main-nav">
+            <ul>
+                {
+                    links.map((link) => (
+                        <li>
+                            <a
+                                href={link.href}
+                                class={
+                                    normalizePath(currentPath) ===
+                                    normalizePath(link.href)
+                                        ? "active"
+                                        : ""
+                                }
+                            >
+                                {link.label}
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </nav>
+
+        <!-- Right: Actions -->
+        <div class="header-actions">
+            <!-- Follow Button -->
+            <a href="/follow" class="follow-btn">FOLLOW</a>
+
+            <!-- Theme Toggle (Moon Icon) -->
+            <button id="theme-toggle" aria-label="Toggle Dark Mode">
+                <Icon name="lucide:moon" class="icon-moon" />
+            </button>
+
+            <!-- Mobile Menu Toggle (Contains both icons for perfect alignment) -->
+            <button id="menu-toggle" aria-label="Toggle Menu">
+                <div class="icon-container">
+                    <Icon name="lucide:menu" class="icon-menu" />
+                    <Icon name="lucide:x" class="icon-close" />
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Overlay -->
+    <div id="mobile-menu-overlay">
+        <!-- Close Button Removed (Reused Toggle) -->
+
+        <nav class="mobile-nav">
+            <ul>
+                {
+                    links.map((link) => (
+                        <li>
+                            <a href={link.href}>{link.label}</a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </nav>
+
+        <a href="/follow" class="mobile-follow-btn">FOLLOW</a>
+
+        <div class="mobile-socials">
+            <a href="https://tiktok.com" aria-label="TikTok"
+                ><Icon name="simple-icons:tiktok" /></a
+            >
+            <a href="https://instagram.com" aria-label="Instagram"
+                ><Icon name="simple-icons:instagram" /></a
+            >
+            <a href="https://spotify.com" aria-label="Spotify"
+                ><Icon name="simple-icons:spotify" /></a
+            >
+            <a href="https://youtube.com" aria-label="YouTube"
+                ><Icon name="simple-icons:youtube" /></a
+            >
+        </div>
+    </div>
+</header>
+
+<style>
+    /* Mobile Overlay Styles (Global) */
+    #mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #fdf38a;
+        z-index: 1000;
+        display: none; /* Hidden by default, unhidden in media query */
+        flex-direction: column;
+        justify-content: flex-start; /* Move up from center */
+        align-items: center;
+        padding-top: 100px; /* Space from top (Header 86px + gap) */
+        opacity: 0;
+        pointer-events: none; /* Controlled by GSAP */
+    }
+
+    #menu-close {
+        position: absolute;
+        top: 24px;
+        right: 27px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #15499d;
+        padding: 0;
+    }
+    .icon-close {
+        width: var(--icon-sm); /* 24px */
+        height: var(--icon-sm);
+    }
+
+    .mobile-nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 50px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+    }
+
+    .mobile-nav a {
+        font-family: "Archivo";
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 16px;
+        letter-spacing: 2px;
+        color: #15499d;
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+
+    .mobile-follow-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px 25px;
+        width: 140px;
+        height: 46px;
+        background: #15499d;
+        border-radius: 8px;
+        font-family: "Archivo";
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 16px;
+        letter-spacing: 2px;
+        color: #fdf38a;
+        text-decoration: none;
+        text-transform: uppercase;
+        margin-bottom: 50px;
+    }
+
+    .mobile-socials {
+        display: flex;
+        gap: 24px;
+        color: #15499d;
+    }
+    .mobile-socials svg {
+        width: var(--icon-sm); /* 20px */
+        height: var(--icon-sm);
+    }
+
+    /* Header Container - "Header Light Mode" layer */
+    .site-header {
+        width: 100%;
+        height: 84px;
+        background-color: #fdf38a; /* Light Mode BG */
+        padding: 0 34px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        /* Border removed per user request */
+    }
+
+    .header-inner {
+        width: 100%;
+        max-width: 1280px; /* Optional max-width constraint */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+    }
+
+    /* Logo */
+    .logo-link {
+        flex: 0 0 auto;
+        display: block;
+    }
+
+    /* Navbar */
+    .main-nav {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .main-nav ul {
+        display: flex;
+        gap: 32px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .main-nav a {
+        font-family: "Archivo";
+        font-style: normal;
+        font-weight: 400; /* Default Regular */
+        font-size: 12px; /* Spec says 12px */
+        line-height: 16px;
+        letter-spacing: 2px;
+        color: #15499d;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-stretch: 100%;
+        transition: opacity 0.2s;
+    }
+    .main-nav a.active {
+        font-weight: 600; /* Bold for active state */
+    }
+    .main-nav a:hover {
+        opacity: 0.7;
+    }
+
+    /* Right Actions */
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 25px; /* Spec gap */
+    }
+
+    /* Follow Button */
+    .follow-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px 25px;
+        height: 46px; /* Spec height */
+        width: 120px;
+        box-sizing: border-box;
+
+        background: #15499d;
+        border-radius: 8px;
+
+        font-family: "Archivo";
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 16px;
+        letter-spacing: 2px;
+        color: #fdf38a;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: transform 0.1s;
+    }
+    .follow-btn:hover {
+        transform: scale(1.02);
+    }
+
+    #theme-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #15499d; /* Icon color */
+    }
+    #theme-toggle:hover {
+        opacity: 0.8;
+    }
+    .icon-moon {
+        width: var(--icon-md);
+        height: var(--icon-md);
+    }
+
+    /* Mobile Menu Toggle */
+    #menu-toggle {
+        display: none; /* Hidden on desktop */
+    }
+
+    /* Responsive Mobile */
+    @media (max-width: 768px) {
+        .site-header {
+            height: auto; /* Hug content per request */
+            min-height: 54px; /* Minimum visual bulk */
+            padding: 16px 8px; /* Added padding-y (16px) */
+            background-color: #fdf38a;
+            border-bottom: none;
+        }
+
+        .header-inner {
+            /* We need to reorder elements. 
+               Current DOM order: Logo, Nav, Actions(Follow, Theme).
+               Target Visual Order: Theme(0), Logo(1), Hamburger(2).
+            */
+            position: relative;
+            justify-content: space-between;
+        }
+
+        /* 1. Theme Toggle (Move to Left) */
+        .header-actions {
+            display: contents;
+        }
+
+        #theme-toggle {
+            order: 0;
+            width: auto;
+            height: auto;
+            min-width: 44px; /* Touch target */
+            min-height: 44px; /* Touch target */
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center icon in target */
+        }
+        /* Resize icon for mobile - Spec height 14px */
+        .icon-moon {
+            width: auto;
+            height: var(--icon-sm); /* 14px */
+        }
+
+        /* 2. Logo (Move to Center) */
+        .logo-link {
+            order: 1;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .logo-link svg {
+            width: 45px;
+            height: 27px;
+        }
+
+        /* 3. Hamburger/Close Toggle */
+        #menu-toggle {
+            display: flex;
+            order: 2;
+            padding: 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #15499d;
+            align-self: center;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px; /* Touch target */
+            min-height: 44px; /* Touch target */
+            position: relative; /* For absolute icons */
+            z-index: 2000; /* Ensure button stays on top of overlay (1000) */
+        }
+
+        /* Icon Container */
+        .icon-container {
+            position: relative;
+            width: var(--icon-sm);
+            height: var(--icon-sm);
+            display: grid;
+            place-items: center;
+        }
+
+        .icon-menu,
+        .icon-close {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--icon-sm);
+            height: var(--icon-sm);
+            transition: opacity 0.2s;
+        }
+
+        /* Initial State: Menu visible, Close hidden */
+        .icon-menu {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+        .icon-close {
+            opacity: 0;
+            transform: rotate(-90deg); /* Start rotated for effect */
+        }
+
+        /* Hide Desktop Elements */
+        .main-nav,
+        .follow-btn {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+
+    const menuToggle = document.getElementById("menu-toggle");
+    // const menuClose = document.getElementById("menu-close");
+    const mobileMenu = document.getElementById("mobile-menu-overlay");
+    const mobileLinks = document.querySelectorAll(".mobile-nav li");
+    const mobileFollow = document.querySelector(".mobile-follow-btn");
+    const mobileSocials = document.querySelector(".mobile-socials");
+
+    const iconMenu = document.querySelector(".icon-menu");
+    const iconClose = document.querySelector(".icon-close");
+
+    let isMenuOpen = false;
+
+    if (menuToggle && mobileMenu) {
+        // Create GSAP Timeline
+        const tl = gsap.timeline({ paused: true, reversed: true });
+
+        // Animation Definition
+        tl.to(mobileMenu, {
+            duration: 0.4,
+            opacity: 1,
+            pointerEvents: "all",
+            ease: "power2.inOut",
+            display: "flex", // Ensure it's visible for animation
+        })
+            .to(
+                iconMenu,
+                {
+                    opacity: 0,
+                    rotation: 90,
+                    duration: 0.2,
+                },
+                "<",
+            )
+            .to(
+                iconClose,
+                {
+                    opacity: 1,
+                    rotation: 0,
+                    duration: 0.2,
+                },
+                "<",
+            )
+            .from(
+                [mobileLinks, mobileFollow, mobileSocials],
+                {
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.4,
+                    stagger: 0.05,
+                    ease: "power2.out",
+                },
+                "-=0.2",
+            );
+
+        // Toggle Logic
+        menuToggle.addEventListener("click", () => {
+            if (!isMenuOpen) {
+                tl.play();
+                document.body.style.overflow = "hidden"; // Prevent scrolling
+                isMenuOpen = true;
+                menuToggle.setAttribute("aria-label", "Close Menu");
+            } else {
+                tl.reverse();
+                document.body.style.overflow = ""; // Restore scrolling
+                isMenuOpen = false;
+                menuToggle.setAttribute("aria-label", "Open Menu");
+            }
+        });
+    }
+
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+            const html = document.documentElement;
+            // Check current preference using data-theme or class
+            // The previous logic used data-theme="sun" / "deep-dive"
+            const current = html.getAttribute("data-theme");
+            const next = current === "sun" ? "deep-dive" : "sun";
+            html.setAttribute("data-theme", next);
+
+            // Also toggle 'dark' class for Tailwind/Utility compatibility if needed
+            // html.classList.toggle("dark");
+        });
+    }
+</script>

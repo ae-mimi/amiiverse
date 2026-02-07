@@ -1,0 +1,131 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+
+const products = [
+    {
+        title: "Ordinary People CD",
+        price: "$15.00",
+        image: "/assets/placeholder-shop-cd.jpg",
+        url: "https://shopify.com/placeholder",
+    },
+    {
+        title: "Amii-gos T-Shirt",
+        price: "$25.00",
+        image: "/assets/placeholder-shop-shirt.jpg",
+        url: "https://shopify.com/placeholder",
+    },
+    {
+        title: "Sticker Pack",
+        price: "$8.00",
+        image: "/assets/placeholder-shop-stickers.jpg",
+        url: "https://shopify.com/placeholder",
+    },
+];
+---
+
+<BaseLayout title="Shop" description="Official Amii Merchandise.">
+    <div class="container shop-container">
+        <h1 class="page-title text-center">SHOP AMII</h1>
+
+        <div class="shop-grid">
+            {
+                products.map((product) => (
+                    <a
+                        href={product.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="product-link"
+                    >
+                        <Card class="product-card">
+                            <div class="image-wrapper">
+                                <img src={product.image} alt={product.title} />
+                            </div>
+                            <div class="info">
+                                <h2 class="product-title">{product.title}</h2>
+                                <span class="price">{product.price}</span>
+                                <span class="btn-text">BUY NOW &rarr;</span>
+                            </div>
+                        </Card>
+                    </a>
+                ))
+            }
+        </div>
+    </div>
+</BaseLayout>
+
+<style>
+    .shop-container {
+        padding-block: var(--space-lg);
+    }
+
+    .page-title {
+        font-family: var(--font-heading);
+        font-size: clamp(3rem, 6vw, 5rem);
+        font-weight: 900;
+        color: var(--color-navy-500);
+        margin-bottom: var(--space-lg);
+    }
+
+    .shop-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--space-md);
+    }
+
+    .product-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .product-card {
+        transition: transform 0.2s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .image-wrapper {
+        aspect-ratio: 1;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: calc(var(--radius-card) - 10px);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+    .image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .info {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .product-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--color-navy-500);
+    }
+
+    .price {
+        font-family: monospace;
+        font-size: 1.1rem;
+        color: var(--color-pink-500);
+    }
+
+    .btn-text {
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-top: auto;
+        padding-top: 0.5rem;
+    }
+</style>

@@ -1,0 +1,122 @@
+---
+import Card from "./Card.astro";
+---
+
+<Card class="player-card">
+    <div class="player-inner">
+        <!-- Album Art / Cassette Look -->
+        <div class="album-art">
+            <img
+                src="/assets/placeholder-cover.jpg"
+                alt="Ordinary People Cover"
+            />
+            <div class="sticker">NEW</div>
+        </div>
+
+        <div class="track-info text-center">
+            <h3 class="track-title">Ordinary People - amii</h3>
+            <p class="credits">Lyrics: BASI<br />Prod by: DaDoz</p>
+
+            <div class="controls">
+                <button aria-label="Previous">⏮</button>
+                <button aria-label="Play" class="play-btn">▶</button>
+                <button aria-label="Next">⏭</button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress" style="width: 30%"></div>
+            </div>
+        </div>
+    </div>
+</Card>
+
+<style>
+    .player-card {
+        background-color: var(
+            --color-yellow-500
+        ); /* Card often yellow on other pages? */
+        /* If explicit colors are needed per design reference (Image 3) */
+        /* Image 3: Player card is Yellow bg with Blue text/border. */
+        background-color: var(--color-yellow-500);
+        color: var(--color-navy-500);
+        border: 3px solid var(--color-navy-500);
+        max-width: 350px;
+        margin-inline: auto;
+    }
+
+    .album-art {
+        width: 100%;
+        aspect-ratio: 1;
+        border: 2px solid var(--color-navy-500);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        position: relative;
+        background: white; /* Placeholder bg */
+    }
+
+    .album-art img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .sticker {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: var(--color-pink-500);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        font-weight: 900;
+        transform: rotate(10deg);
+        border-radius: 99px;
+        border: 2px solid white;
+        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .track-title {
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .credits {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+        font-weight: 700;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .controls button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: currentColor;
+        transition: transform 0.1s;
+    }
+    .controls button:active {
+        transform: scale(0.9);
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 99px;
+        overflow: hidden;
+    }
+    .progress {
+        height: 100%;
+        background: var(--color-navy-500);
+    }
+</style>
