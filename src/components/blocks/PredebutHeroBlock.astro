@@ -8,6 +8,8 @@ const {
     cta_text = "JOIN THE QUEUE",
     cta_link = "#",
 } = Astro.props;
+
+// Image swapping removed per request
 ---
 
 <section class="predebut-hero">
@@ -24,16 +26,22 @@ const {
     }
 
     <!-- Welcome Banner Container -->
-    <div class="welcome-banner">
+    <predebut-hero class="welcome-banner">
         <!-- Loading Text -->
         <h1 class="loading-text">
-            <span class="typewriter-target"
-                >{status_text.replace(/\.+$/, "")}</span
-            ><span class="dots-wrapper"
-                ><span class="dot">.</span><span class="dot">.</span><span
+            {
+                status_text
+                    .replace(/\.+$/, "")
+                    .split("")
+                    .map((char: string) => (
+                        <span class="loading-char">{char}</span>
+                    ))
+            }
+            <span class="dots-wrapper">
+                <span class="dot">.</span><span class="dot">.</span><span
                     class="dot">.</span
-                ></span
-            >
+                >
+            </span>
         </h1>
 
         <!-- Join Queue CTA -->
@@ -52,12 +60,12 @@ const {
         >
             <path
                 d="M7 0V46M7 46L1 40M7 46L13 40"
-                stroke="#15499D"
+                stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"></path>
         </svg>
-    </div>
+    </predebut-hero>
 </section>
 
 <style>
@@ -66,18 +74,22 @@ const {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 64px 0px;
+        padding-top: 140px; /* Clear fixed header (84px + gap) */
+        padding-bottom: 64px;
         gap: 32px;
         width: 100%;
-        background: #fdf38a; /* Sun Yellow */
-        color: #15499d; /* Navy */
-        min-height: 90vh; /* Ensure it takes up most of screen */
+        background: var(--bg-page);
+        color: var(--text-main);
+        min-height: 100vh; /* Ensure it takes up full screen */
+        transition:
+            background-color 0.4s ease,
+            color 0.4s ease;
     }
 
     /* Top Text */
     .top-text {
-        font-family: "Archivo", sans-serif;
-        font-weight: 600;
+        font-family: var(--font-body);
+        font-weight: var(--weight-semibold);
         font-size: 18px;
         line-height: 20px;
         text-align: center;
@@ -92,12 +104,14 @@ const {
         max-width: 871px;
         display: flex;
         justify-content: center;
+        position: relative;
     }
 
     .hero-image img {
         width: 100%;
         height: auto;
         object-fit: contain;
+        display: block;
     }
 
     /* Welcome Banner Group */
@@ -114,24 +128,30 @@ const {
 
     /* Loading Text - Starbim */
     .loading-text {
-        font-family: "Starbim", sans-serif;
-        font-weight: 400;
+        font-family: var(--font-heading);
+        font-weight: var(--weight-regular);
         font-size: clamp(40px, 8vw, 64px); /* Fluid sizing */
         line-height: 1.1;
         text-align: center;
-        color: #15499d;
+        color: var(--text-main);
         text-shadow: none; /* Ensure clean look */
         margin: 0;
     }
 
+    .loading-char,
+    .dot {
+        display: inline-block;
+        white-space: pre;
+    }
+
     /* Join Queue CTA */
     .cta-queue {
-        font-family: "Archivo", sans-serif;
-        font-weight: 700;
+        font-family: var(--font-body);
+        font-weight: var(--weight-bold);
         font-size: 20px;
         line-height: 22px;
         text-align: center;
-        color: #15499d;
+        color: var(--text-main);
         text-decoration: none;
         text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
         cursor: pointer;
@@ -144,54 +164,52 @@ const {
 
     .down-arrow-svg {
         display: block;
+        color: var(--text-main); /* Controlled by currentColor */
+    }
+
+    @media (max-width: 768px) {
+        .predebut-hero {
+            padding-top: 100px; /* Clear fixed header on mobile */
+        }
     }
 </style>
 
 <script>
     import { gsap } from "gsap";
-    import { TextPlugin } from "gsap/TextPlugin";
 
-    gsap.registerPlugin(TextPlugin);
+    class PredebutHero extends HTMLElement {
+        constructor() {
+            super();
 
-    // Bouncing Dots Animation (Sequential Wave)
-    const dots = document.querySelectorAll(".dot");
-    if (dots.length > 0) {
-        gsap.to(dots, {
-            y: -10,
-            duration: 0.3,
-            stagger: {
-                each: 0.15,
-                repeat: -1,
-                yoyo: true,
-            },
-            ease: "power1.inOut",
-        });
+            // Scope selectors to this specific component instance
+            const chars = this.querySelectorAll(".loading-char, .dot");
+
+            if (chars.length > 0) {
+                // Continuous Wave Animation
+                gsap.to(chars, {
+                    y: -15, // Jump up 15px
+                    duration: 0.5,
+                    ease: "sine.inOut",
+                    repeat: -1,
+                    yoyo: true,
+                    stagger: 0.1,
+                });
+            }
+
+            // Down Arrow Animation
+            const arrow = this.querySelector(".down-arrow-svg");
+            if (arrow) {
+                gsap.to(arrow, {
+                    y: 10, // Move down 10px
+                    duration: 1.5,
+                    ease: "power1.inOut",
+                    repeat: -1,
+                    yoyo: true,
+                    stagger: 0.1, // Stagger irrelevant for single element but harmless
+                });
+            }
+        }
     }
 
-    // Typewriter Effect (Type -> Wait -> Delete -> Loop)
-    const typeTarget = document.querySelector(".typewriter-target");
-    if (typeTarget && typeTarget.textContent) {
-        const textToType = typeTarget.textContent;
-        // Clear initially
-        typeTarget.textContent = "";
-
-        const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5 });
-
-        tl.to(typeTarget, {
-            duration: 1,
-            text: {
-                value: textToType,
-                delimiter: "",
-            },
-            ease: "none",
-        }).to(typeTarget, {
-            duration: 1,
-            text: {
-                value: "",
-                delimiter: "",
-            },
-            ease: "none",
-            delay: 1, // Wait 1s before deleting
-        });
-    }
+    customElements.define("predebut-hero", PredebutHero);
 </script>

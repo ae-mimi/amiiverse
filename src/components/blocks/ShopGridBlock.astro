@@ -1,0 +1,54 @@
+---
+import { getCollection } from "astro:content";
+import ShopCard from "../ShopCard.astro";
+
+const { title, limit } = Astro.props;
+
+const shopItems = await getCollection("shop");
+const sortedItems = shopItems.sort((a, b) => {
+    // Optional: Sort by date or priority if field exists. Default order for now.
+    return 0;
+});
+const displayedItems = limit ? sortedItems.slice(0, limit) : sortedItems;
+---
+
+<section class="shop-grid-block">
+    <div class="container">
+        {title && <h2 class="section-title">{title}</h2>}
+        <div class="grid">
+            {
+                displayedItems.map((item) => (
+                    <ShopCard
+                        url={item.data.url}
+                        title={item.data.title}
+                        price={item.data.price}
+                        image={item.data.image}
+                    />
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .shop-grid-block {
+        padding: 60px 20px;
+        background-color: var(--bg-page);
+    }
+    .container {
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+    .section-title {
+        font-family: var(--font-heading);
+        font-size: 40px;
+        color: var(--text-main);
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+    }
+</style>

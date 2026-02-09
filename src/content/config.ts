@@ -9,6 +9,49 @@ const pages = defineCollection({
     }),
 });
 
+const members = defineCollection({
+    type: 'content',
+    schema: z.object({
+        name: z.string(),
+        role: z.string(),
+        fact: z.string(),
+        image: z.string(),
+    }),
+});
+
+const music = defineCollection({
+    type: 'content',
+    schema: z.object({
+        title: z.string(),
+        date: z.date(),
+        cover: z.string(),
+        spotify: z.string().optional(),
+    }),
+});
+
+const press = defineCollection({
+    type: 'content',
+    schema: z.object({
+        title: z.string(),
+        date: z.date(),
+        file: z.string().optional(),
+    }),
+});
+
+const shop = defineCollection({
+    type: 'content',
+    schema: z.object({
+        title: z.string(),
+        price: z.string(),
+        image: z.string(),
+        url: z.string(),
+    }),
+});
+
 export const collections = {
     pages,
+    members,
+    music,
+    press,
+    shop,
 };

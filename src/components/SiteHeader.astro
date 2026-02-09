@@ -1,17 +1,16 @@
 ---
 import { Icon } from "astro-icon/components";
 
-const links = [
-    { label: "HOME", href: "/" },
-    { label: "MUSIC", href: "/music" },
-    { label: "ABOUT", href: "/about" },
-    { label: "PRESS", href: "/press" },
-    { label: "CONTACT", href: "/contact" },
-];
+import { getGlobalSettings } from "../utils/global";
+const settings = getGlobalSettings();
+const links = settings.nav || [];
 
-import settings from "../data/settings.json";
-if (settings.enable_follow_link) {
-    links.push({ label: "FOLLOW", href: "/follow" });
+// Retain conditional logic if needed, or rely purely on the CMS list.
+// If the user wants "FOLLOW" in the main nav, they can add it via CMS.
+// However, if strict compat is needed:
+if (settings.enable_follow_link && !links.find((l) => l.href === "/follow")) {
+    // Optional: Auto-inject if missing? Or just trust the user?
+    // Let's trust the CMS list for the main nav.
 }
 
 const currentPath = Astro.url.pathname;
@@ -22,45 +21,21 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     <div class="header-inner">
         <!-- Left: Logo -->
         <a href="/" class="logo-link" aria-label="Amii Home">
-            <!-- SVG Logo: Amii Oval Navy -->
-            <svg
+            <img
+                class="header-logo-img"
+                src={settings.site_info?.logo_navy ||
+                    "/assets/uploads/amii-logo_op-navy.webp"}
+                alt={settings.site_info?.title || "Amii Logo"}
+                loading="eager"
                 width="98"
                 height="59"
-                viewBox="0 0 98 59"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <!-- Oval -->
-                <ellipse
-                    cx="49"
-                    cy="29.5"
-                    rx="48"
-                    ry="28"
-                    stroke="#15499D"
-                    stroke-width="1.5"></ellipse>
-                <!-- Inner ring hint -->
-                <ellipse
-                    cx="49"
-                    cy="29.5"
-                    rx="42"
-                    ry="24"
-                    stroke="#15499D"
-                    stroke-width="0.5"
-                    stroke-opacity="0.5"></ellipse>
-                <!-- Text -->
-                <text
-                    x="50%"
-                    y="55%"
-                    dominant-baseline="middle"
-                    text-anchor="middle"
-                    fill="#15499D"
-                    font-family="'Archivo', sans-serif"
-                    font-weight="400"
-                    font-size="28"
-                    letter-spacing="-1"
-                    >ami<tspan dx="-2" dy="-6" font-size="16">★</tspan>i</text
-                >
-            </svg>
+            />
+            <style
+                define:vars={{
+                    logoNavy: `url(${settings.site_info?.logo_navy})`,
+                    logoYellow: `url(${settings.site_info?.logo_yellow})`,
+                }}
+            ></style>
         </a>
 
         <!-- Center: Navbar -->
@@ -90,21 +65,21 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         <div class="header-actions">
             <!-- Social Icons (Desktop) -->
             <div class="header-socials">
-                <a href="https://tiktok.com" aria-label="TikTok">
-                    <Icon name="simple-icons:tiktok" class="icon-social" />
-                </a>
-                <a href="https://instagram.com" aria-label="Instagram">
-                    <Icon name="simple-icons:instagram" class="icon-social" />
-                </a>
-                <a href="https://youtube.com" aria-label="YouTube">
-                    <Icon name="simple-icons:youtube" class="icon-social" />
-                </a>
+                {
+                    settings.socials?.map((social) => (
+                        <a
+                            href={social.url}
+                            aria-label={social.platform}
+                            target="_blank"
+                        >
+                            <Icon
+                                name={`simple-icons:${social.icon}`}
+                                class="icon-social"
+                            />
+                        </a>
+                    ))
+                }
             </div>
-
-            <!-- Theme Toggle (Moon Icon) -->
-            <button id="theme-toggle" aria-label="Toggle Dark Mode">
-                <Icon name="lucide:moon" class="icon-moon" />
-            </button>
 
             <!-- Mobile Menu Toggle (Contains both icons for perfect alignment) -->
             <button id="menu-toggle" aria-label="Toggle Menu">
@@ -132,183 +107,111 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
             </ul>
         </nav>
 
-        <a href="/follow" class="mobile-follow-btn">FOLLOW</a>
+        {
+            settings.enable_follow_link && (
+                <a href="/follow" class="mobile-follow-btn">
+                    FOLLOW
+                </a>
+            )
+        }
 
         <div class="mobile-socials">
-            <a href="https://tiktok.com" aria-label="TikTok"
-                ><Icon name="simple-icons:tiktok" /></a
-            >
-            <a href="https://instagram.com" aria-label="Instagram"
-                ><Icon name="simple-icons:instagram" /></a
-            >
-            <a href="https://youtube.com" aria-label="YouTube"
-                ><Icon name="simple-icons:youtube" /></a
-            >
+            {
+                settings.socials?.map((social) => (
+                    <a
+                        href={social.url}
+                        aria-label={social.platform}
+                        target="_blank"
+                    >
+                        <Icon name={`simple-icons:${social.icon}`} />
+                    </a>
+                ))
+            }
         </div>
     </div>
 </header>
 
 <style>
-    /* Mobile Overlay Styles (Global) */
-    #mobile-menu-overlay {
+    /* Header Container - "Header Light Mode" layer */
+    /* Header Container - "Header Light Mode" layer */
+    .site-header {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: #fdf38a;
-        z-index: 1000;
-        display: none; /* Hidden by default, unhidden in media query */
-        flex-direction: column;
-        justify-content: flex-start; /* Move up from center */
-        align-items: center;
-        padding-top: 100px; /* Space from top (Header 86px + gap) */
-        opacity: 0;
-        pointer-events: none; /* Controlled by GSAP */
-    }
-
-    #menu-close {
-        position: absolute;
-        top: 24px;
-        right: 27px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #15499d;
-        padding: 0;
-    }
-    .icon-close {
-        width: var(--icon-sm); /* 24px */
-        height: var(--icon-sm);
-    }
-
-    .mobile-nav ul {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 50px 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 32px;
-    }
-
-    .mobile-nav a {
-        font-family: "Archivo";
-        font-weight: 600;
-        font-size: 14px;
-        line-height: 16px;
-        letter-spacing: 2px;
-        color: #15499d;
-        text-decoration: none;
-        text-transform: uppercase;
-    }
-
-    .mobile-follow-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 15px 25px;
-        width: 140px;
-        height: 46px;
-        background: #15499d;
-        border-radius: 8px;
-        font-family: "Archivo";
-        font-weight: 600;
-        font-size: 14px;
-        line-height: 16px;
-        letter-spacing: 2px;
-        color: #fdf38a;
-        text-decoration: none;
-        text-transform: uppercase;
-        margin-bottom: 50px;
-    }
-
-    .mobile-socials {
-        display: flex;
-        gap: 24px;
-        color: #15499d;
-    }
-    .mobile-socials svg {
-        width: var(--icon-sm); /* 20px */
-        height: var(--icon-sm);
-    }
-
-    /* Header Container - "Header Light Mode" layer */
-    .site-header {
         width: 100%;
-        height: 84px;
-        background-color: #fdf38a; /* Light Mode BG */
-        padding: 0 34px;
+        min-height: 84px; /* Changed from fixed height */
+        background-color: var(--bg-header);
+        padding: 24px 34px 0 34px; /* Added top padding */
         box-sizing: border-box;
         display: flex;
         justify-content: center;
+        z-index: 1000;
+        transition: transform 0.3s ease; /* Fallback for non-GSAP */
         /* Border removed per user request */
     }
 
     .header-inner {
         width: 100%;
-        max-width: 1280px; /* Optional max-width constraint */
+        max-width: 1440px;
+        margin: 0 auto;
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        height: 100%;
-    }
-
-    /* Logo */
-    .logo-link {
-        flex: 0 0 auto;
-        display: block;
-    }
-
-    /* Navbar */
-    .main-nav {
-        flex: 1;
-        display: flex;
-        justify-content: center;
+        align-items: flex-start; /* Aligned top to match padding */
     }
 
     .main-nav ul {
         display: flex;
-        gap: 32px;
+        gap: 40px;
         list-style: none;
-        padding: 0;
         margin: 0;
+        padding: 0;
+    }
+
+    .logo-link {
+        display: block;
+        line-height: 0;
+    }
+
+    .header-logo-img {
+        width: 98px;
+        height: auto;
+        display: block;
+        /* Sun Mode Default */
+        content: url("/assets/uploads/amii-logo_op-navy.webp");
+    }
+
+    /* Dark Mode Toggle for Logo */
+    :global([data-theme="deep-dive"]) .header-logo-img {
+        content: url("/assets/uploads/amii-logo_op-yellow.webp");
     }
 
     .main-nav a {
-        font-family: "Archivo";
+        font-family: var(--font-body);
         font-style: normal;
-        font-weight: 400; /* Default Regular */
-        font-size: 12px; /* Spec says 12px */
+        font-weight: var(--weight-regular);
+        font-size: var(--text-xs);
         line-height: 16px;
         letter-spacing: 2px;
-        color: #15499d;
+        color: var(--text-nav);
         text-decoration: none;
         text-transform: uppercase;
         font-stretch: 100%;
         transition: opacity 0.2s;
     }
-    .main-nav a.active {
-        font-weight: 600; /* Bold for active state */
-    }
-    .main-nav a:hover {
-        opacity: 0.7;
-    }
 
-    /* Right Actions */
     .header-actions {
         display: flex;
         align-items: center;
-        gap: 25px; /* Spec gap */
+        gap: 24px;
     }
 
     .header-socials {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
         .header-socials {
             display: none;
         }
@@ -320,20 +223,20 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         align-items: center;
         width: 44px; /* Touch target */
         height: 44px;
-        color: #15499d;
+        color: var(--text-nav);
         transition:
             transform 0.2s,
             opacity 0.2s;
     }
 
-    .header-socials a:hover {
-        transform: translateY(-2px);
-        opacity: 0.8;
-    }
-
     .icon-social {
         width: 20px;
         height: 20px;
+        transition: transform 0.2s;
+    }
+
+    .icon-social:hover {
+        transform: scale(1.1);
     }
 
     #theme-toggle {
@@ -344,14 +247,41 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #15499d; /* Icon color */
+        color: var(--text-nav);
     }
-    #theme-toggle:hover {
-        opacity: 0.8;
+
+    .icon-container {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .icon-moon {
-        width: var(--icon-md);
-        height: var(--icon-md);
+
+    .icon-menu,
+    .icon-close {
+        width: 24px;
+        height: 24px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .icon-close {
+        opacity: 0;
+    }
+
+    /* Deep Dive Mode Styles - REDUCED: Only Icon Toggling needed */
+    /* Colors handled by Global Variable Swap */
+
+    :global([data-theme="deep-dive"]) .icon-moon {
+        display: none;
+    }
+    :global([data-theme="deep-dive"]) .icon-sun {
+        display: block;
+        color: var(--text-nav);
     }
 
     /* Mobile Menu Toggle */
@@ -365,111 +295,322 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
             height: auto; /* Hug content per request */
             min-height: 54px; /* Minimum visual bulk */
             padding: 16px 8px; /* Added padding-y (16px) */
-            background-color: #fdf38a;
+            background-color: var(--bg-header);
             border-bottom: none;
         }
 
-        .header-inner {
-            /* We need to reorder elements. 
-               Current DOM order: Logo, Nav, Actions(Follow, Theme).
-               Target Visual Order: Theme(0), Logo(1), Hamburger(2).
-            */
-            position: relative;
-            justify-content: space-between;
+        .main-nav {
+            display: none;
         }
 
-        /* 1. Theme Toggle (Move to Left) */
         .header-actions {
-            display: contents;
-        }
-
-        #theme-toggle {
-            order: 0;
-            width: auto;
-            height: auto;
-            min-width: 44px; /* Touch target */
-            min-height: 44px; /* Touch target */
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Center icon in target */
-        }
-        /* Resize icon for mobile - Spec height 14px */
-        .icon-moon {
-            width: auto;
-            height: var(--icon-sm); /* 14px */
-        }
-
-        /* 2. Logo (Move to Center) */
-        .logo-link {
-            order: 1;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-        .logo-link svg {
-            width: 45px;
-            height: 27px;
+            gap: 16px;
         }
 
         /* 3. Hamburger/Close Toggle */
         #menu-toggle {
-            display: flex;
-            order: 2;
-            padding: 0;
+            display: block;
             background: none;
             border: none;
             cursor: pointer;
-            color: #15499d;
-            align-self: center;
-            align-items: center;
-            justify-content: center;
-            min-width: 44px; /* Touch target */
-            min-height: 44px; /* Touch target */
-            position: relative; /* For absolute icons */
-            z-index: 2000; /* Ensure button stays on top of overlay (1000) */
+            padding: 0;
+            color: var(--text-nav);
         }
+    }
 
-        /* Icon Container */
-        .icon-container {
-            position: relative;
-            width: var(--icon-sm);
-            height: var(--icon-sm);
-            display: grid;
-            place-items: center;
-        }
+    /* Mobile Overlay Styles (Global) */
+    #mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--bg-page);
+        opacity: 0;
+        pointer-events: none;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        z-index: 999;
+    }
 
-        .icon-menu,
-        .icon-close {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: var(--icon-sm);
-            height: var(--icon-sm);
-            transition: opacity 0.2s;
-        }
+    .mobile-nav a {
+        font-family: var(--font-heading);
+        font-weight: var(--weight-black);
+        font-size: 36px;
+        line-height: 40px;
+        color: var(--text-main);
+        text-decoration: none;
+        text-transform: uppercase;
+    }
 
-        /* Initial State: Menu visible, Close hidden */
-        .icon-menu {
-            opacity: 1;
-            transform: rotate(0deg);
-        }
-        .icon-close {
-            opacity: 0;
-            transform: rotate(-90deg); /* Start rotated for effect */
-        }
+    .mobile-follow-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 130px;
+        height: 55px;
+        background: var(--btn-bg-primary);
+        border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-weight: var(--weight-semibold);
+        font-size: 15px;
+        letter-spacing: 2px;
+        color: var(--btn-text-primary);
+        text-decoration: none;
+        text-transform: uppercase;
+    }
 
-        /* Hide Desktop Elements */
-        .main-nav,
-        .follow-btn {
+    .mobile-socials {
+        display: flex;
+        gap: 24px;
+        margin-top: 16px;
+    }
+
+    .mobile-socials a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 44px;
+        height: 44px;
+        color: var(--text-main);
+        transition: transform 0.2s;
+    }
+
+    .mobile-socials a:hover {
+        transform: scale(1.1);
+    }
+
+    .header-inner {
+        width: 100%;
+        max-width: 1440px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center; /* Changed to center for better vertical alignment */
+        position: relative; /* Context for absolute centering */
+    }
+
+    .main-nav {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .main-nav ul {
+        display: flex;
+        gap: 40px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .logo-link {
+        display: block;
+        line-height: 0;
+    }
+
+    .header-logo-img {
+        width: 98px;
+        height: auto;
+        display: block;
+        /* Sun Mode Default */
+        content: var(--logoNavy);
+    }
+
+    /* Dark Mode Toggle for Logo */
+    :global([data-theme="deep-dive"]) .header-logo-img {
+        content: var(--logoYellow);
+    }
+
+    .main-nav a {
+        font-family: "Archivo";
+        font-style: normal;
+        font-weight: 400; /* Default Regular */
+        font-size: 12px; /* Spec says 12px */
+        line-height: 16px;
+        letter-spacing: 2px;
+        color: var(--color-navy-500); /* Was #15499d */
+        text-decoration: none;
+        text-transform: uppercase;
+        font-stretch: 100%;
+        transition: opacity 0.2s;
+    }
+
+    .main-nav a.active {
+        font-weight: 700;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .header-socials {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    @media (max-width: 1024px) {
+        .header-socials {
             display: none;
         }
     }
+
+    .header-socials a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 44px; /* Touch target */
+        height: 44px;
+        color: var(--color-navy-500); /* Was #15499d */
+        transition:
+            transform 0.2s,
+            opacity 0.2s;
+    }
+
+    .icon-social {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.2s;
+    }
+
+    .icon-social:hover {
+        transform: scale(1.1);
+    }
+
+    .icon-container {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-menu,
+    .icon-close {
+        width: 24px;
+        height: 24px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .icon-close {
+        opacity: 0;
+    }
+
+    /* Mobile Menu Toggle */
+    #menu-toggle {
+        display: none; /* Hidden on desktop */
+    }
+
+    /* Responsive Mobile */
+    @media (max-width: 768px) {
+        .site-header {
+            height: auto; /* Hug content per request */
+            min-height: 54px; /* Minimum visual bulk */
+            padding: 16px 8px; /* Added padding-y (16px) */
+            background-color: var(--color-yellow-500); /* Was #fdf38a */
+            border-bottom: none;
+        }
+
+        .main-nav {
+            display: none;
+        }
+
+        .header-actions {
+            gap: 16px;
+        }
+
+        /* 3. Hamburger/Close Toggle */
+        #menu-toggle {
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            color: var(--color-navy-500); /* Was #15499d */
+        }
+    }
+
+    /* Mobile Overlay Styles (Global) */
+    #mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--color-yellow-500); /* Was #fdf38a */
+        opacity: 0;
+        pointer-events: none;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        z-index: 999;
+    }
+
+    .mobile-nav a {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        font-size: 36px;
+        line-height: 40px;
+        color: var(--color-navy-500); /* Was #15499d */
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+
+    .mobile-follow-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 130px;
+        height: 55px;
+        background: var(--color-navy-500); /* Was #15499d */
+        border-radius: 999px;
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: 2px;
+        color: var(--color-yellow-500); /* Was #fdf38a */
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+
+    .mobile-socials {
+        display: flex;
+        gap: 24px;
+        margin-top: 16px;
+    }
+
+    .mobile-socials a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 44px;
+        height: 44px;
+        color: var(--color-navy-500); /* Was #15499d */
+        transition: transform 0.2s;
+    }
+
+    .mobile-socials a:hover {
+        transform: scale(1.1);
+    }
+    /* Handled by Global Swap */
 </style>
 
 <script>
     import { gsap } from "gsap";
+
+    // Theme Toggle Logic Removed
 
     const menuToggle = document.getElementById("menu-toggle");
     // const menuClose = document.getElementById("menu-close");
@@ -541,19 +682,50 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         });
     }
 
-    // Theme Toggle Logic
-    const themeToggle = document.getElementById("theme-toggle");
-    if (themeToggle) {
-        themeToggle.addEventListener("click", () => {
-            const html = document.documentElement;
-            // Check current preference using data-theme or class
-            // The previous logic used data-theme="sun" / "deep-dive"
-            const current = html.getAttribute("data-theme");
-            const next = current === "sun" ? "deep-dive" : "sun";
-            html.setAttribute("data-theme", next);
+    // Smart Sticky Header Logic
+    const header = document.querySelector(".site-header");
+    let lastScrollY = window.scrollY;
+    let isHeaderHidden = false;
 
-            // Also toggle 'dark' class for Tailwind/Utility compatibility if needed
-            // html.classList.toggle("dark");
-        });
+    if (header) {
+        // Initial check to set filler height or body padding if needed
+        // For now, we rely on the header being overlay or having a spacer.
+        // Since we are changing to fixed, we might need a spacer div in the layout or body padding.
+        // However, the design seems to have a lot of top padding on pages anyway.
+        // Let's just handle the show/hide.
+
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Show header if scrolling up or at the very top
+            if (currentScrollY < lastScrollY || currentScrollY < 50) {
+                if (isHeaderHidden) {
+                    gsap.to(header, {
+                        y: "0%",
+                        duration: 0.3,
+                        ease: "power2.out",
+                    });
+                    isHeaderHidden = false;
+                }
+            }
+            // Hide header if scrolling down and past the top threshold
+            else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                if (!isHeaderHidden) {
+                    gsap.to(header, {
+                        y: "-100%",
+                        duration: 0.3,
+                        ease: "power2.in",
+                    });
+                    isHeaderHidden = false; // logic correction: hiding means we want to animate out
+                    // Actually, let's track state better.
+                    // If we want to hide, we animate blindly? No.
+                    isHeaderHidden = true;
+                }
+            }
+
+            lastScrollY = currentScrollY;
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
     }
 </script>

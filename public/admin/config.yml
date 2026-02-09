@@ -99,11 +99,62 @@ collections:
                 widget: "select"
                 options: ["newsletter", "player"]
 
+          - label: "Page Header"
+            name: "page_hero"
+            widget: "object"
+            fields:
+              - {label: "Title", name: "title", widget: "string"}
+              - {label: "Subtitle", name: "subtitle", widget: "string"}
+
           - label: "Rich Text"
             name: "rich_text"
             widget: "object"
             fields:
               - {label: "Body", name: "body", widget: "markdown"}
+
+          - label: "Shop Grid"
+            name: "shop_grid"
+            widget: "object"
+            fields:
+              - {label: "Title", name: "title", widget: "string", default: "Shop"}
+              - {label: "Limit", name: "limit", widget: "number", default: 12}
+
+          - label: "Music Grid"
+            name: "music_grid"
+            widget: "object"
+            fields:
+              - {label: "Title", name: "title", widget: "string", default: "Music"}
+
+          - label: "Press Grid"
+            name: "press_grid"
+            widget: "object"
+            fields:
+              - {label: "Title", name: "title", widget: "string", default: "Press"}
+
+          - label: "Members Grid"
+            name: "members_grid"
+            widget: "object"
+            fields:
+              - {label: "Title", name: "title", widget: "string", default: "Members"}
+
+          - label: "Contact Form"
+            name: "contact_form"
+            widget: "object"
+            fields:
+              - {label: "Title", name: "title", widget: "string", default: "Contact Us"}
+              - {label: "Form Endpoint", name: "endpoint", widget: "string"}
+          
+          - label: "Contact Section"
+            name: "contact_section"
+            widget: "object"
+            fields:
+              - {label: "Form Title", name: "title", widget: "string", default: "SAY HELLO"}
+              - {label: "Form Subtitle", name: "subtitle", widget: "string", default: "Have a question, idea, or opportunity? Send us a message."}
+              - {label: "Management Email", name: "management_email", widget: "string", default: "mgmt@amiiverse.com"}
+              - {label: "Press Email", name: "press_email", widget: "string", default: "press@amiiverse.com"}
+              - {label: "Bookings Email", name: "bookings_email", widget: "string", default: "bookings@amiiverse.com"}
+              - {label: "Inquiries Email", name: "inquiries_email", widget: "string", default: "hello@amiiverse.com"}
+              - {label: "Show Social Links", name: "show_socials", widget: "boolean", default: true}
 
   - name: "settings"
     label: "Settings"
@@ -113,3 +164,41 @@ collections:
         file: "src/data/settings.json"
         fields:
           - {label: "Enable Follow Link", name: "enable_follow_link", widget: "boolean", default: false}
+          - label: "Site Info"
+            name: "site_info"
+            widget: "object"
+            fields:
+              - {label: "Site Title", name: "title", widget: "string"}
+              - {label: "Site Description", name: "description", widget: "text"}
+              - {label: "Logo (Navy)", name: "logo_navy", widget: "image"}
+              - {label: "Logo (Yellow)", name: "logo_yellow", widget: "image"}
+              - {label: "Favicon", name: "favicon", widget: "image"}
+          - label: "Navigation"
+            name: "nav"
+            widget: "list"
+            fields:
+              - {label: "Label", name: "label", widget: "string"}
+              - {label: "URL", name: "href", widget: "string"}
+          - label: "Footer"
+            name: "footer"
+            widget: "object"
+            fields: 
+              - label: "Footer Links"
+                name: "links"
+                widget: "list"
+                fields:
+                  - {label: "Label", name: "label", widget: "string"}
+                  - {label: "URL", name: "href", widget: "string"}
+                  - {label: "Is Special Link?", name: "is_special", widget: "boolean", default: false}
+                  - {label: "Is Disabled?", name: "disabled", widget: "boolean", default: false}
+              - {label: "Copyright Text", name: "copyright", widget: "string", default: "Copyright &copy; amii"}
+          - label: "Socials"
+            name: "socials"
+            widget: "list"
+            fields:
+              - {label: "Platform Name", name: "platform", widget: "string"}
+              - {label: "URL", name: "url", widget: "string"}
+              - label: "Icon" 
+                name: "icon" 
+                widget: "select" 
+                options: ["tiktok", "instagram", "youtube", "twitter", "facebook"]

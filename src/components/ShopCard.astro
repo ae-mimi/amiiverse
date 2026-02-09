@@ -1,0 +1,71 @@
+---
+interface Props {
+    title: string;
+    price: string;
+    image: string;
+    url: string;
+}
+
+const { title, price, image, url } = Astro.props;
+---
+
+<a href={url} class="shop-card">
+    <div class="image-wrapper">
+        <img src={image} alt={title} class="shop-image" />
+    </div>
+    <div class="info">
+        <h3 class="title">{title}</h3>
+        <p class="price">{price}</p>
+    </div>
+</a>
+
+<style>
+    .shop-card {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: var(--text-main);
+        transition: transform 0.2s ease;
+    }
+
+    .shop-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .image-wrapper {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        border-radius: var(--radius-card);
+        margin-bottom: 20px;
+        background-color: #f0f0f0;
+    }
+
+    .shop-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .shop-card:hover .shop-image {
+        transform: scale(1.05);
+    }
+
+    .info {
+        text-align: center;
+    }
+
+    .title {
+        font-family: var(--font-heading);
+        font-size: 20px;
+        margin: 0 0 5px 0;
+        text-transform: uppercase;
+    }
+
+    .price {
+        font-family: var(--font-body);
+        font-size: 16px;
+        opacity: 0.8;
+    }
+</style>

@@ -1,0 +1,71 @@
+---
+
+---
+
+<section class="music-placeholder">
+    <div class="placeholder-content">
+        <h1 class="music-title">MUSIC</h1>
+        <p class="coming-soon">Music coming soon...</p>
+    </div>
+</section>
+
+<style>
+    .music-placeholder {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 42px 34px;
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        /* Height from Figma is 213px, but we might want it to be flexible or min-height */
+        min-height: 213px;
+    }
+
+    .placeholder-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 34px;
+        width: 100%;
+    }
+
+    .music-title {
+        font-family: "Starbim", sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 69px;
+        line-height: 78px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #15499d;
+        margin: 0;
+    }
+
+    .coming-soon {
+        font-family: "Archivo", sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 19px;
+        line-height: 17px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #666666;
+        margin: 0;
+    }
+
+    /* Responsiveness? User didn't specify, but let's ensure it doesn't break on mobile */
+    @media (max-width: 768px) {
+        .music-title {
+            font-size: 48px; /* Safe scale down */
+            line-height: 1.1;
+        }
+        .coming-soon {
+            font-size: 16px;
+        }
+    }
+</style>

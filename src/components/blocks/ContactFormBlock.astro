@@ -1,0 +1,31 @@
+---
+import ContactForm from "../ContactForm.astro";
+
+const { title, endpoint } = Astro.props;
+---
+
+<section class="contact-form-block">
+    <div class="container">
+        <!-- 
+           The ContactForm component currently has a hardcoded title "SAY HELLO".
+           We might want to pass the CMS title to it, or just use the wrapper to position it.
+           For now, let's wrap it centered.
+        -->
+        <ContactForm />
+    </div>
+</section>
+
+<style>
+    .contact-form-block {
+        padding: 60px 20px;
+        background-color: var(--bg-page);
+        display: flex;
+        justify-content: center;
+    }
+    .container {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        justify-content: center;
+    }
+</style>

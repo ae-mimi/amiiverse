@@ -1,0 +1,359 @@
+---
+const {
+    title = "SAY HELLO",
+    subtitle = "Have a question, idea, or opportunity? Send us a message.",
+} = Astro.props;
+---
+
+<div class="contact-form-container">
+    <div class="header-group">
+        <h2 class="form-title">{title}</h2>
+        <p class="form-subtitle" style="color: var(--color-pink-500);">
+            {subtitle}
+        </p>
+    </div>
+
+    <form class="contact-form" action="#" method="POST">
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    placeholder=" "
+                />
+                <label for="name">NAME</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    placeholder=" "
+                />
+                <label for="email">EMAIL</label>
+            </div>
+
+            <div class="input-wrapper message-wrapper">
+                <textarea id="message" name="message" required placeholder=" "
+                ></textarea>
+                <label for="message">MESSAGE</label>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">SEND</button>
+    </form>
+</div>
+
+<style>
+    .contact-form-container {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 48px;
+        gap: 25px;
+        width: 100%;
+        max-width: 640px;
+        height: auto;
+        background: var(--bg-card);
+        border: 1px solid var(--text-main);
+        box-shadow: var(--shadow-sm);
+        border-radius: var(--radius-card);
+        font-family: var(--font-body);
+    }
+
+    .header-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0px;
+        gap: 4px;
+        width: 100%;
+        margin-bottom: 24px;
+    }
+
+    .form-title {
+        font-family: var(--font-heading);
+        font-style: normal;
+        font-weight: var(--weight-regular);
+        font-size: 39px;
+        line-height: 43px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: var(--text-main);
+        margin: 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0px;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0px;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .input-wrapper {
+        position: relative;
+        width: 100%;
+        height: 71px; /* 25px label + 46px input */
+    }
+
+    .message-wrapper {
+        height: 147px; /* Taller for textarea */
+    }
+
+    input,
+    textarea {
+        box-sizing: border-box;
+        position: absolute;
+        width: 100%;
+        height: 46px;
+        left: 0px;
+        top: 25px;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 16px;
+        color: var(--input-text);
+        padding: 10px;
+        outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+        border-width: 2px;
+    }
+
+    /* Message specific height */
+    textarea {
+        height: 122px;
+        resize: none;
+    }
+
+    label {
+        position: absolute;
+        width: auto;
+        height: 21px;
+        left: 0px;
+        top: 0px;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: var(--weight-regular);
+        font-size: 13px;
+        line-height: 21px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: var(--input-text);
+        pointer-events: none;
+    }
+
+    .submit-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 17px 29px;
+        width: 130px;
+        height: 55px;
+        background: var(--btn-bg-primary);
+        border-radius: var(--radius-pill);
+        border: none;
+        cursor: pointer;
+        margin-top: 0px;
+        align-self: flex-start;
+
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: var(--weight-semibold);
+        font-size: 15px;
+        line-height: 17px;
+        text-align: center;
+        letter-spacing: 2px;
+        color: var(--btn-text-primary);
+        white-space: nowrap;
+        transition: transform 0.1s ease;
+    }
+
+    .submit-btn:hover {
+        transform: scale(1.02);
+    }
+
+    .submit-btn:active {
+        transform: scale(0.98);
+    }
+
+    .header-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0px;
+        gap: 4px;
+        width: 100%;
+        margin-bottom: 24px;
+    }
+
+    .form-title {
+        font-family: "Starbim", sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 39px;
+        line-height: 43px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: var(--color-navy-500); /* Was #15499d */
+        margin: 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0px;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0px;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .input-wrapper {
+        position: relative;
+        width: 100%;
+        height: 71px; /* 25px label + 46px input */
+    }
+
+    .message-wrapper {
+        height: 147px; /* Taller for textarea */
+    }
+
+    input,
+    textarea {
+        box-sizing: border-box;
+        position: absolute;
+        width: 100%;
+        height: 46px;
+        left: 0px;
+        top: 25px;
+        background: var(
+            --color-input-bg
+        ); /* Restored original cream (#fef9c4) via variable */
+        border: 1px solid var(--color-navy-500); /* Was #15499d */
+        border-radius: 7px;
+        font-family: "Archivo", sans-serif;
+        font-size: 16px;
+        color: var(--color-navy-500); /* Was #15499d */
+        padding: 10px;
+        outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+        border-width: 2px;
+    }
+
+    /* Message specific height */
+    textarea {
+        height: 122px;
+        resize: none;
+    }
+
+    label {
+        position: absolute;
+        width: auto;
+        height: 21px;
+        left: 0px;
+        top: 0px;
+        font-family: "Archivo";
+        font-style: normal;
+        font-weight: 400;
+        font-size: 13px;
+        line-height: 21px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: var(--color-navy-500); /* Was #15499d */
+        pointer-events: none;
+    }
+
+    .submit-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 17px 29px;
+        width: 130px;
+        height: 55px;
+        background: var(--color-navy-500);
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        margin-top: 0px;
+        align-self: flex-start;
+
+        font-family: "Archivo";
+        font-style: normal;
+        font-weight: 600;
+        font-size: 15px;
+        line-height: 17px;
+        text-align: center;
+        letter-spacing: 2px;
+        color: var(--color-yellow-500); /* Was #fdf38a */
+        white-space: nowrap;
+        transition: transform 0.1s ease;
+    }
+
+    .submit-btn:hover {
+        transform: scale(1.02);
+    }
+
+    .submit-btn:active {
+        transform: scale(0.98);
+    }
+
+    @media (max-width: 480px) {
+        .contact-form-container {
+            padding: 24px;
+        }
+
+        .header-group,
+        .form-title,
+        .form-subtitle {
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .submit-btn {
+            align-self: center;
+        }
+    }
+</style>

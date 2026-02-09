@@ -1,3 +1,80 @@
 {
-  "enable_follow_link": true
+  "enable_follow_link": false,
+  "site_info": {
+    "title": "Amiiverse",
+    "description": "Welcome to the Amiiverse.",
+    "logo_navy": "/assets/uploads/amii-logo_op-navy.webp",
+    "logo_yellow": "/assets/uploads/amii-logo_op-yellow.webp",
+    "favicon": "/favicon.svg"
+  },
+  "nav": [
+    {
+      "label": "HOME",
+      "href": "/"
+    },
+    {
+      "label": "MUSIC",
+      "href": "/music"
+    },
+    {
+      "label": "ABOUT",
+      "href": "/about"
+    },
+    {
+      "label": "PRESS",
+      "href": "/press"
+    },
+    {
+      "label": "CONTACT",
+      "href": "/contact"
+    }
+  ],
+  "footer": {
+    "copyright": "Copyright \u00A9 amii",
+    "links": [
+      {
+        "label": "HOME",
+        "href": "/"
+      },
+      {
+        "label": "MUSIC",
+        "href": "/music"
+      },
+      {
+        "label": "ABOUT",
+        "href": "/about"
+      },
+      {
+        "label": "PRESS",
+        "href": "/press"
+      },
+      {
+        "label": "CONTACT",
+        "href": "/contact"
+      },
+      {
+        "label": "FOLLOW",
+        "href": "#",
+        "is_special": true,
+        "disabled": true
+      }
+    ]
+  },
+  "socials": [
+    {
+      "platform": "TikTok",
+      "url": "https://tiktok.com",
+      "icon": "tiktok"
+    },
+    {
+      "platform": "Instagram",
+      "url": "https://instagram.com",
+      "icon": "instagram"
+    },
+    {
+      "platform": "YouTube",
+      "url": "https://youtube.com",
+      "icon": "youtube"
+    }
+  ]
 }

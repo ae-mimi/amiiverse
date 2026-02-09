@@ -11,47 +11,124 @@
   font-display: swap;
 }
 
+/*****************************************************************************
+ * 1. PRIMITIVES (The Options)
+ *    - Raw values that should rarely be used directly in components.
+ *****************************************************************************/
+
 :root {
-  /* Brand Colors */
+  /* Colors - Core Palette */
   --color-yellow-500: #FDF38A;
+  /* Sun Mode Bg */
   --color-navy-500: #15499D;
+  /* Deep Dive Bg */
   --color-pink-500: #E44598;
+  /* Primary Accent */
   --color-blue-500: #43B2E5;
+  /* Secondary Accent */
   --color-golden-500: #FCBF12;
 
-  /* Functional Colors */
-  --color-bg-sun: var(--color-yellow-500);
-  --color-text-sun: var(--color-navy-500);
+  --color-cream: #FEF9C4;
+  /* Input Bg (Sun) */
+  --color-navy-900: #1E3A8A;
+  /* Input Bg (Deep) */
+  --color-white: #FFFFFF;
 
-  --color-bg-deep: var(--color-navy-500);
-  --color-text-deep: var(--color-yellow-500);
-
-  /* Spacing - Fluid Clamp */
-  --space-xs: clamp(0.5rem, 1vw, 0.75rem);
-  --space-sm: clamp(1rem, 2vw, 1.5rem);
-  --space-md: clamp(1.5rem, 3vw, 2.5rem);
-  --space-lg: clamp(3rem, 5vw, 5rem);
-  --space-xl: clamp(5rem, 8vw, 8rem);
-
-  /* Typography */
+  /* Typography - Families */
   --font-body: 'Archivo', sans-serif;
   --font-heading: 'Starbim', sans-serif;
-  /* Using bold/black weights for display */
 
-  /* Base Setup */
+  /* Typography - Weights */
+  --weight-regular: 400;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* Typography - Scale (Mobile Base) */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 36px;
+  --text-4xl: 48px;
+
+  /* Spacing - Fluid Scale */
+  --space-2xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  /* 4-8px */
+  --space-xs: clamp(0.5rem, 1vw, 0.75rem);
+  /* 8-12px */
+  --space-sm: clamp(1rem, 2vw, 1.5rem);
+  /* 16-24px */
+  --space-md: clamp(1.5rem, 3vw, 2.5rem);
+  /* 24-40px */
+  --space-lg: clamp(3rem, 5vw, 5rem);
+  /* 48-80px */
+  --space-xl: clamp(5rem, 8vw, 8rem);
+  /* 80-128px */
+
+  /* Radius */
+  --radius-sm: 7px;
   --radius-card: 24px;
-  --radius-button: 999px;
+  --radius-pill: 999px;
 
-  /* Icon Sizes */
-  --icon-xs: 14px;
-  --icon-sm: 20px;
-  --icon-md: 24px;
-  --icon-lg: 32px;
-  --icon-xl: 48px;
-  --icon-2xl: 64px;
+  /* Shadows */
+  --shadow-sm: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* Reset */
+/*****************************************************************************
+ * 2. SEMANTIC TOKENS (The Decisions)
+ *    - Context-aware variables that map Primitives to Usage.
+ *    - Use these in components!
+ *****************************************************************************/
+
+/* Theme Context: Sun Mode (Default) */
+:root {
+  /* Backgrounds */
+  --bg-page: var(--color-yellow-500);
+  --bg-card: var(--color-yellow-500);
+  --bg-header: var(--color-yellow-500);
+  --bg-footer: var(--color-navy-500);
+  /* Inverted for Sun Mode */
+
+  /* Text */
+  --text-main: var(--color-navy-500);
+  --text-muted: var(--color-navy-500);
+  --text-accent: var(--color-pink-500);
+  --text-nav: var(--color-navy-500);
+  --text-footer: var(--color-yellow-500);
+  /* Inverted for Sun Mode */
+
+  /* Buttons */
+  --btn-bg-primary: var(--color-navy-500);
+  --btn-text-primary: var(--color-yellow-500);
+  --btn-border: var(--color-navy-500);
+
+  /* Inputs */
+  --input-bg: var(--color-cream);
+  --input-border: var(--color-navy-500);
+  --input-text: var(--color-navy-500);
+  --input-placeholder: rgba(21, 73, 157, 0.6);
+  /* Navy 60% */
+
+  /* Graphics */
+  --logo-color-primary: var(--color-navy-500);
+}
+
+/* Theme Context: Deep Dive Mode */
+
+
+/* Legacy Variable Support (Bridge for Components) */
+:root {
+  --bg-current: var(--bg-page);
+  --text-current: var(--text-main);
+
+  /* Map old input var to new token if used dynamically */
+  --color-input-bg: var(--input-bg);
+}
+
+/* Reset & Base Styles */
 *,
 *::before,
 *::after {
@@ -60,33 +137,30 @@
   padding: 0;
 }
 
-h1,
-q,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading);
-  font-weight: normal;
-  /* Starbim is display, usually regular weight looks bold enough */
-}
-
-h2 {
-  font-family: var(--font-heading);
-  font-weight: normal;
-}
-
-p {
-  font-weight: 400;
-  /* Ensure body text isn't bold */
-}
-
 html,
 body {
   height: 100%;
   font-family: var(--font-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1,
+q,
+h3,
+h4,
+h5,
+h6,
+h2 {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-regular);
+}
+
+p {
+  font-weight: var(--weight-regular);
 }
 
 img,
@@ -103,32 +177,6 @@ input,
 textarea,
 select {
   font: inherit;
-}
-
-/* Themes */
-[data-theme="sun"] {
-  --bg-current: var(--color-bg-sun);
-  --text-current: var(--color-text-sun);
-  --accent-primary: var(--color-pink-500);
-}
-
-[data-theme="deep-dive"] {
-  --bg-current: var(--color-bg-deep);
-  --text-current: var(--color-text-deep);
-  --accent-primary: var(--color-pink-500);
-}
-
-/* Default to Sun if not set */
-:root:not([data-theme]) {
-  --bg-current: var(--color-bg-sun);
-  --text-current: var(--color-text-sun);
-  --accent-primary: var(--color-pink-500);
-}
-
-body {
-  background-color: var(--bg-current);
-  color: var(--text-current);
-  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* Utilities */
@@ -148,20 +196,21 @@ body {
 }
 
 .font-bold {
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .font-black {
-  font-weight: 900;
+  font-weight: var(--weight-black);
 }
 
+/* Standard Button Utility */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.75em 2em;
-  border-radius: var(--radius-button);
-  font-weight: 700;
+  border-radius: var(--radius-pill);
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
@@ -170,18 +219,15 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--accent-primary);
-  color: white;
-  /* Pink button usually has white text? Or Navy? Checking ref images... Pink button has Navy text in sun mode? */
-  border-color: var(--accent-primary);
+  background-color: var(--btn-bg-primary);
+  color: var(--btn-text-primary);
+  border-color: var(--btn-border);
 }
 
-/* Refinements based on "Join The Amii-gos" form button in image 1: 
-   It's Blue (#15499D maybe?) with White text. 
-   Actually "Join Us" button is deep blue/navy. 
-   "Follow" button in top right is deep blue.
-   Let's check the colors again.
-   "OP Pink is primary accent... OP Blue is secondary"
-   Sun mode text is Navy. So Primary Button might be Navy on Sun.
-   Let's stick to variable usage and refinement later.
-*/
+.btn:hover {
+  transform: scale(1.02);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}

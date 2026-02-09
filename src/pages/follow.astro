@@ -1,5 +1,10 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import settings from "../data/settings.json";
+
+if (!settings.enable_follow_link) {
+    return Astro.redirect("/404");
+}
 
 const links = [
     {
@@ -111,9 +116,8 @@ const links = [
     }
 
     .type-secondary {
-        background-color: var(--color-pink-500);
-        border-color: var(--color-pink-500);
-        color: white; /* Or Navy? */
-        color: var(--color-navy-500);
+        background-color: var(--color-navy-500);
+        border-color: var(--color-navy-500);
+        color: var(--color-yellow-500);
     }
 </style>

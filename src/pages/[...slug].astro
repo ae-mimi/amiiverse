@@ -1,0 +1,28 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageBuilder from "../components/PageBuilder.astro";
+
+export async function getStaticPaths() {
+    const pages = await getCollection("pages");
+    return pages.map((page) => {
+        // If the slug is 'home', we might want to skip it if index.astro exists.
+        // Or we can return undefined for slug to handle the root path if we delete index.astro.
+        // For now, let's just return the slug as is.
+        return {
+            params: { slug: page.slug === "home" ? undefined : page.slug },
+            props: { page },
+        };
+    });
+}
+
+const { page } = Astro.props;
+const blocks = page.data.blocks || [];
+const title = page.data.title;
+---
+
+<BaseLayout title={title}>
+    <div class="page-container">
+        <PageBuilder blocks={blocks} />
+    </div>
+</BaseLayout>

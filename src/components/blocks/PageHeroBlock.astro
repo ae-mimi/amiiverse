@@ -1,0 +1,82 @@
+---
+const {
+    title,
+    subtitle,
+    backgroundColor = "transparent",
+    borderColor = "none",
+    subtitleColor = "#666666",
+} = Astro.props;
+---
+
+<section
+    class="page-hero"
+    style={{
+        backgroundColor: backgroundColor,
+        border: borderColor !== "none" ? `1px solid ${borderColor}` : "none",
+    }}
+>
+    <div class="hero-content">
+        <h1 class="hero-title" set:html={title} />
+        <p class="hero-subtitle" style={{ color: subtitleColor }}>{subtitle}</p>
+    </div>
+</section>
+
+<style>
+    .page-hero {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 42px 34px;
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        min-height: 213px;
+        box-sizing: border-box; /* Ensure padding doesn't add to width */
+    }
+
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 34px;
+        width: 100%;
+    }
+
+    .hero-title {
+        font-family: "Starbim", sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 69px;
+        line-height: 78px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #15499d;
+        margin: 0;
+    }
+
+    .hero-subtitle {
+        font-family: "Archivo", sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 19px;
+        line-height: 17px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        /* Color set via inline style for override */
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 48px;
+            line-height: 1.1;
+        }
+        .hero-subtitle {
+            font-size: 16px;
+        }
+    }
+</style>

@@ -4,6 +4,13 @@ import IntroBlock from "./blocks/IntroBlock.astro";
 import WidgetBlock from "./blocks/WidgetBlock.astro";
 import RichTextBlock from "./blocks/RichTextBlock.astro";
 import PredebutHeroBlock from "./blocks/PredebutHeroBlock.astro";
+import PageHeroBlock from "./blocks/PageHeroBlock.astro";
+import ShopGridBlock from "./blocks/ShopGridBlock.astro";
+import MusicGridBlock from "./blocks/MusicGridBlock.astro";
+import PressGridBlock from "./blocks/PressGridBlock.astro";
+import MembersGridBlock from "./blocks/MembersGridBlock.astro";
+import ContactFormBlock from "./blocks/ContactFormBlock.astro";
+import ContactSectionBlock from "./blocks/ContactSectionBlock.astro";
 
 const { blocks } = Astro.props;
 
@@ -22,12 +29,26 @@ interface Props {
                 return <HeroBlock {...block} />;
             case "predebut_hero":
                 return <PredebutHeroBlock {...block} />;
+            case "page_hero":
+                return <PageHeroBlock {...block} />;
             case "intro":
                 return <IntroBlock {...block} />;
             case "widget":
                 return <WidgetBlock {...block} />;
             case "rich_text":
                 return <RichTextBlock {...block} />;
+            case "shop_grid":
+                return <ShopGridBlock {...block} />;
+            case "music_grid":
+                return <MusicGridBlock {...block} />;
+            case "press_grid":
+                return <PressGridBlock {...block} />;
+            case "members_grid":
+                return <MembersGridBlock {...block} />;
+            case "contact_form":
+                return <ContactFormBlock {...block} />;
+            case "contact_section":
+                return <ContactSectionBlock {...block} />;
             default:
                 return null;
         }
