@@ -4,12 +4,33 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PageBuilder from "../components/PageBuilder.astro";
 
 const { slug } = Astro.params;
-const pages = await getCollection("pages");
+let page;
+let error;
 
-const page = pages.find((p) => {
-    if (!slug) return p.slug === "home";
-    return p.slug === slug;
-});
+try {
+    const pages = await getCollection("pages");
+    page = pages.find((p) => {
+        if (!slug) return p.slug === "home";
+        return p.slug === slug;
+    });
+} catch (e) {
+    error = e;
+}
+
+if (error) {
+    return new Response(
+        JSON.stringify(
+            {
+                message: error.message,
+                stack: error.stack,
+                slug: slug,
+            },
+            null,
+            2,
+        ),
+        { status: 500 },
+    );
+}
 
 if (!page) {
     return Astro.redirect("/404");
@@ -17,10 +38,10 @@ if (!page) {
 
 const blocks = page.data.blocks || [];
 const title = page.data.title;
+---
 
 <BaseLayout title={title}>
     <div class="page-container">
         <PageBuilder blocks={blocks} />
     </div>
-</BaseLayout>;
----
+</BaseLayout>
