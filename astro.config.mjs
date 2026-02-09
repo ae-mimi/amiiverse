@@ -6,5 +6,10 @@ import icon from 'astro-icon';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare(),
-  integrations: [icon()]
+  integrations: [icon()],
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/noop'
+    }
+  }
 });
