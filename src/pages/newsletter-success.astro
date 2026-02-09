@@ -1,0 +1,49 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Subscribed!">
+    <div class="success-container">
+        <h1>YOU'RE IN!</h1>
+        <p>Welcome to the Amii-gos. You've successfully joined the queue.</p>
+        <a href="/" class="btn">BACK TO HOME</a>
+    </div>
+</BaseLayout>
+
+<style>
+    .success-container {
+        min-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 2rem;
+        color: var(--text-main);
+        padding: 2rem;
+    }
+    h1 {
+        font-family: var(--font-heading);
+        font-size: clamp(2rem, 5vw, 4rem);
+        color: var(--color-navy-500);
+        margin: 0;
+    }
+    p {
+        font-family: var(--font-body);
+        font-size: 1.2rem;
+        max-width: 600px;
+    }
+    .btn {
+        padding: 1rem 2.5rem;
+        background: var(--color-navy-500);
+        color: var(--color-yellow-500);
+        text-decoration: none;
+        border-radius: 999px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        transition: transform 0.2s ease;
+    }
+    .btn:hover {
+        transform: scale(1.05);
+    }
+</style>

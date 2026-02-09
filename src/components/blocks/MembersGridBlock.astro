@@ -1,8 +1,8 @@
 ---
-import { getCollection } from "astro:content";
+import { getSanityContent, urlFor } from "../../utils/sanity";
 
 const { title } = Astro.props;
-const members = await getCollection("members");
+const members = (await getSanityContent(`*[_type == "member"]`)) || [];
 ---
 
 <section class="members-grid-block">
@@ -10,18 +10,18 @@ const members = await getCollection("members");
         {title && <h2 class="section-title">{title}</h2>}
         <div class="members-grid">
             {
-                members.map((member) => (
+                members.map((member: any) => (
                     <div class="member-card">
                         <div class="member-image">
                             <img
-                                src={member.data.image}
-                                alt={member.data.name}
+                                src={urlFor(member.image)}
+                                alt={member.name}
                                 loading="lazy"
                             />
                         </div>
-                        <h3 class="member-name">{member.data.name}</h3>
-                        <p class="member-role">{member.data.role}</p>
-                        <p class="member-fact">{member.data.fact}</p>
+                        <h3 class="member-name">{member.name}</h3>
+                        <p class="member-role">{member.role}</p>
+                        <p class="member-fact">{member.fact}</p>
                     </div>
                 ))
             }

@@ -24,7 +24,8 @@ interface Props {
 
 {
     blocks?.map((block: any) => {
-        switch (block.type) {
+        const type = block._type || block.type; // Fallback for safety
+        switch (type) {
             case "hero":
                 return <HeroBlock {...block} />;
             case "predebut_hero":

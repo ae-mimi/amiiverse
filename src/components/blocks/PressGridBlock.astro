@@ -1,11 +1,11 @@
 ---
-import { getCollection } from "astro:content";
+import { getSanityContent } from "../../utils/sanity";
 
 const { title } = Astro.props;
-const pressItems = await getCollection("press");
-const sortedPress = pressItems.sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+const pressItems = await getSanityContent(
+    `*[_type == "press"] | order(date desc)`,
 );
+const sortedPress = pressItems || [];
 ---
 
 <section class="press-grid-block">
@@ -13,19 +13,19 @@ const sortedPress = pressItems.sort(
         {title && <h2 class="section-title">{title}</h2>}
         <div class="press-list">
             {
-                sortedPress.map((item) => (
+                sortedPress.map((item: any) => (
                     <div class="press-item">
-                        <h3 class="press-title">{item.data.title}</h3>
+                        <h3 class="press-title">{item.title}</h3>
                         <p class="press-date">
-                            {item.data.date.toLocaleDateString("en-US", {
+                            {new Date(item.date).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
                             })}
                         </p>
-                        {item.data.file && (
+                        {item.file && (
                             <a
-                                href={item.data.file}
+                                href={item.file}
                                 target="_blank"
                                 class="press-link"
                             >

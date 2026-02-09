@@ -1,43 +1,19 @@
 ---
-import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PageBuilder from "../components/PageBuilder.astro";
+import { getSanityContent, PAGE_QUERY } from "../utils/sanity";
 
 const { slug } = Astro.params;
-let page;
-let error;
+const currentSlug = slug === undefined ? "home" : slug;
 
-try {
-    const pages = await getCollection("pages");
-    page = pages.find((p) => {
-        if (!slug) return p.slug === "home";
-        return p.slug === slug;
-    });
-} catch (e) {
-    error = e;
-}
-
-if (error) {
-    return new Response(
-        JSON.stringify(
-            {
-                message: error.message,
-                stack: error.stack,
-                slug: slug,
-            },
-            null,
-            2,
-        ),
-        { status: 500 },
-    );
-}
+const page = await getSanityContent(PAGE_QUERY, { slug: currentSlug });
 
 if (!page) {
     return Astro.redirect("/404");
 }
 
-const blocks = page.data.blocks || [];
-const title = page.data.title;
+const blocks = page.blocks || [];
+const title = page.title;
 ---
 
 <BaseLayout title={title}>

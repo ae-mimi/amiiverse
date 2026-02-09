@@ -1,4 +1,6 @@
 ---
+import { urlFor } from "../../utils/sanity";
+
 const {
     title,
     subtitle,
@@ -16,7 +18,7 @@ const {
     {
         image && (
             <div class="hero-graphic">
-                <img src={image} alt={title} />
+                <img src={urlFor(image)} alt={title} />
             </div>
         )
     }

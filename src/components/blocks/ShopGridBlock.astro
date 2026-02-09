@@ -1,15 +1,15 @@
 ---
-import { getCollection } from "astro:content";
+import { getSanityContent, urlFor } from "../../utils/sanity";
 import ShopCard from "../ShopCard.astro";
 
 const { title, limit } = Astro.props;
 
-const shopItems = await getCollection("shop");
-const sortedItems = shopItems.sort((a, b) => {
-    // Optional: Sort by date or priority if field exists. Default order for now.
-    return 0;
-});
-const displayedItems = limit ? sortedItems.slice(0, limit) : sortedItems;
+// Fetch shop items from Sanity
+const shopItems = await getSanityContent(`*[_type == "shop"]`);
+const items = shopItems || [];
+
+// Sort or filter if needed (Sanity order() in query is better, but simple array slice works for limit)
+const displayedItems = limit ? items.slice(0, limit) : items;
 ---
 
 <section class="shop-grid-block">
@@ -17,12 +17,12 @@ const displayedItems = limit ? sortedItems.slice(0, limit) : sortedItems;
         {title && <h2 class="section-title">{title}</h2>}
         <div class="grid">
             {
-                displayedItems.map((item) => (
+                displayedItems.map((item: any) => (
                     <ShopCard
-                        url={item.data.url}
-                        title={item.data.title}
-                        price={item.data.price}
-                        image={item.data.image}
+                        url={item.url}
+                        title={item.title}
+                        price={item.price}
+                        image={urlFor(item.image)}
                     />
                 ))
             }

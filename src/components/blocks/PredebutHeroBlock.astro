@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import { urlFor } from "../../utils/sanity";
 
 const {
     top_text = "we are amii",
@@ -20,7 +21,7 @@ const {
     {
         image && (
             <div class="hero-image">
-                <img src={image} alt="Amii Avatars" />
+                <img src={urlFor(image)} alt="Amii Avatars" />
             </div>
         )
     }

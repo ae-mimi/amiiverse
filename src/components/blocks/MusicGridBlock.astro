@@ -1,13 +1,12 @@
 ---
-import { getCollection } from "astro:content";
+import { getSanityContent, urlFor } from "../../utils/sanity";
+import { Icon } from "astro-icon/components";
 
 const { title } = Astro.props;
-const musicItems = await getCollection("music");
-const sortedMusic = musicItems.sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+const musicItems = await getSanityContent(
+    `*[_type == "music"] | order(date desc)`,
 );
-
-import { Icon } from "astro-icon/components";
+const sortedMusic = musicItems || [];
 ---
 
 <section class="music-grid-block">
@@ -15,25 +14,28 @@ import { Icon } from "astro-icon/components";
         {title && <h2 class="section-title">{title}</h2>}
         <div class="music-list">
             {
-                sortedMusic.map((item) => (
+                sortedMusic.map((item: any) => (
                     <div class="music-item">
                         <div class="cover-art">
                             <img
-                                src={item.data.cover}
-                                alt={item.data.title}
+                                src={urlFor(item.cover)}
+                                alt={item.title}
                                 loading="lazy"
                             />
                         </div>
                         <div class="music-info">
-                            <h3 class="music-title">{item.data.title}</h3>
+                            <h3 class="music-title">{item.title}</h3>
                             <p class="music-date">
-                                {item.data.date.toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                })}
+                                {new Date(item.date).toLocaleDateString(
+                                    "en-US",
+                                    {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    },
+                                )}
                             </p>
-                            {item.data.spotify && (
+                            {item.spotify && (
                                 <a
                                     href={item.data.spotify}
                                     target="_blank"

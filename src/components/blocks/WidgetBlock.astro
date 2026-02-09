@@ -10,6 +10,62 @@ const { widget_type } = Astro.props;
     {widget_type === "player" && <PlayerWidget />}
 </section>
 
+<script>
+    // Handle all newsletter forms on the page (footer, sidebar, etc.)
+    const forms = document.querySelectorAll(".newsletter-form");
+
+    forms.forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formEl = e.target as HTMLFormElement;
+            const input = formEl.querySelector(
+                'input[name="email"]',
+            ) as HTMLInputElement;
+            const privacyCheckbox = formEl.querySelector(
+                'input[name="privacy"]',
+            ) as HTMLInputElement;
+            const button = formEl.querySelector("button") as HTMLButtonElement;
+            const originalText = button.innerText;
+
+            if (!input || !button) return;
+
+            if (privacyCheckbox && !privacyCheckbox.checked) {
+                alert("Please agree to the Privacy Policy.");
+                return;
+            }
+
+            button.disabled = true;
+            button.innerText = "...";
+
+            const formData = new FormData();
+            formData.append("email", input.value);
+
+            try {
+                const response = await fetch("/api/subscribe", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success!
+                    window.location.href = "/newsletter-success";
+                } else {
+                    alert(result.message || "Subscription failed.");
+                    button.disabled = false;
+                    button.innerText = originalText;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Network error.");
+                button.disabled = false;
+                button.innerText = originalText;
+            }
+        });
+    });
+</script>
+
 <style>
     .widget-section {
         padding-block: var(--space-md);
