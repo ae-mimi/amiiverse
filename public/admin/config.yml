@@ -1,6 +1,11 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: ae-mimi/amiiverse
   branch: master
+  base_url: https://amiiverse.com
+  auth_endpoint: api/oauth/authorize
+  
+local_backend: true
 
 media_folder: "public/assets/uploads"
 public_folder: "/assets/uploads"
