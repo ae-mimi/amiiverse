@@ -80,6 +80,13 @@ export default defineType({
                 ],
               },
             },
+            {
+              name: 'music_item',
+              title: 'Song to Play',
+              type: 'reference',
+              to: [{ type: 'music' }],
+              hidden: ({ parent }) => parent?.widget_type !== 'player',
+            },
           ],
         },
         // Page Hero (Simple Header)

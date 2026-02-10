@@ -24,9 +24,42 @@ export default defineType({
             },
         }),
         defineField({
+            name: 'performed_by',
+            title: 'Performed By',
+            type: 'string',
+        }),
+        defineField({
+            name: 'lyrics',
+            title: 'Lyrics By',
+            type: 'string',
+        }),
+        defineField({
+            name: 'producer',
+            title: 'Produced By',
+            type: 'string',
+        }),
+        defineField({
             name: 'spotify',
             title: 'Spotify URL',
             type: 'url',
+        }),
+        defineField({
+            name: 'apple_music',
+            title: 'Apple Music URL',
+            type: 'url',
+        }),
+        defineField({
+            name: 'youtube_music',
+            title: 'YouTube Music URL',
+            type: 'url',
+        }),
+        defineField({
+            name: 'audio_file',
+            title: 'Audio File',
+            type: 'file',
+            options: {
+                accept: 'audio/*',
+            },
         }),
     ],
     preview: {

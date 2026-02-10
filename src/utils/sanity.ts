@@ -19,6 +19,25 @@ export async function getSanityContent(query: string, params: Record<string, any
 }
 
 // Queries
-export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]`;
+export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
+    ...,
+    blocks[]{
+        ...,
+        _type == "widget" => {
+            ...,
+            music_item->{
+                title,
+                cover,
+                performed_by,
+                lyrics,
+                producer,
+                spotify,
+                apple_music,
+                youtube_music,
+                "audio_url": audio_file.asset->url
+            }
+        }
+    }
+}`;
 export const SETTINGS_QUERY = `*[_type == "settings"][0]`;
 export const ALL_PAGES_QUERY = `*[_type == "page"]{ "slug": slug.current }`;
