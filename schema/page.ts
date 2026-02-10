@@ -28,7 +28,7 @@ export default defineType({
         {
           type: 'object',
           name: 'hero',
-          title: 'Hero Section',
+          title: 'Hero (Home)',
           fields: [
             { name: 'title', type: 'string' },
             { name: 'subtitle', type: 'string' },
@@ -44,7 +44,7 @@ export default defineType({
         {
           type: 'object',
           name: 'predebut_hero',
-          title: 'Predebut Hero',
+          title: 'Hero (Pre-Debut)',
           fields: [
             { name: 'top_text', type: 'string', initialValue: 'we are amii' },
             { name: 'image', type: 'image' },
@@ -57,7 +57,7 @@ export default defineType({
         {
           type: 'object',
           name: 'intro',
-          title: 'Intro Section',
+          title: 'Intro / Text + Image',
           fields: [
             { name: 'heading', type: 'string' },
             { name: 'content', type: 'text' },
@@ -68,7 +68,7 @@ export default defineType({
         {
           type: 'object',
           name: 'widget',
-          title: 'Widget',
+          title: 'Widget (Newsletter/Player)',
           fields: [
             {
               name: 'widget_type',
@@ -86,7 +86,7 @@ export default defineType({
         {
           type: 'object',
           name: 'page_hero',
-          title: 'Page Header',
+          title: 'Hero (Inner Page)',
           fields: [
             { name: 'title', type: 'string' },
             { name: 'subtitle', type: 'string' },
@@ -96,7 +96,7 @@ export default defineType({
         {
           type: 'object',
           name: 'rich_text',
-          title: 'Rich Text',
+          title: 'Rich Text / Markdown',
           fields: [
             {
               name: 'body',
@@ -109,7 +109,7 @@ export default defineType({
         {
           type: 'object',
           name: 'shop_grid',
-          title: 'Shop Grid',
+          title: 'Grid: Shop',
           fields: [
             { name: 'title', type: 'string', initialValue: 'Shop' },
             { name: 'limit', type: 'number', initialValue: 12 },
@@ -118,7 +118,7 @@ export default defineType({
         {
           type: 'object',
           name: 'music_grid',
-          title: 'Music Grid',
+          title: 'Grid: Music',
           fields: [
             { name: 'title', type: 'string', initialValue: 'Music' },
           ],
@@ -126,7 +126,7 @@ export default defineType({
         {
           type: 'object',
           name: 'press_grid',
-          title: 'Press Grid',
+          title: 'Grid: Press',
           fields: [
             { name: 'title', type: 'string', initialValue: 'Press' },
           ],
@@ -134,7 +134,7 @@ export default defineType({
         {
           type: 'object',
           name: 'members_grid',
-          title: 'Members Grid',
+          title: 'Grid: Members',
           fields: [
             { name: 'title', type: 'string', initialValue: 'Members' },
           ],
@@ -143,7 +143,7 @@ export default defineType({
         {
           type: 'object',
           name: 'contact_form',
-          title: 'Contact Form',
+          title: 'Contact: Form',
           fields: [
             { name: 'title', type: 'string', initialValue: 'Contact Us' },
             { name: 'endpoint', type: 'string' },
@@ -152,7 +152,7 @@ export default defineType({
         {
           type: 'object',
           name: 'contact_section',
-          title: 'Contact Section',
+          title: 'Contact: Info Section',
           fields: [
             { name: 'title', type: 'string', initialValue: 'SAY HELLO' },
             { name: 'subtitle', type: 'string', initialValue: 'Have a question...' },
