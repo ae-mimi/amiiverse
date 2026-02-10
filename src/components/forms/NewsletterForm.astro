@@ -1,0 +1,168 @@
+---
+
+---
+
+<section id="newsletter" class="form-section">
+    <!-- Form Card -->
+    <div class="form-card">
+        <!-- Headline -->
+        <div class="form-header">
+            <h2 class="form-title">JOIN THE AMII-GOS</h2>
+            <p class="form-subtitle">
+                Get early access, updates, and behind-the-scenes
+            </p>
+        </div>
+
+        <!-- Form -->
+        <form class="newsletter-form">
+            <!-- Name Input -->
+            <div class="input-group">
+                <label for="name">NAME</label>
+                <input type="text" id="name" name="name" />
+            </div>
+
+            <!-- Email Input -->
+            <div class="input-group">
+                <label for="email">EMAIL</label>
+                <input type="email" id="email" name="email" />
+            </div>
+
+            <!-- Button -->
+            <button type="submit" class="submit-btn"> JOIN US </button>
+        </form>
+    </div>
+</section>
+
+<style>
+    .form-section {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        border-top: 2px solid var(--text-main);
+        display: flex;
+        justify-content: center;
+        padding: 64px 0;
+    }
+
+    .form-card {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px;
+        gap: 16px;
+        width: 100%;
+        max-width: 640px;
+        background: var(--bg-card);
+        border: 1px solid var(--text-main);
+        box-shadow: var(--shadow-sm);
+        border-radius: var(--radius-card);
+        position: relative;
+    }
+
+    .form-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 4px;
+    }
+
+    .form-title {
+        margin: 0;
+        font-family: var(--font-heading), sans-serif;
+        font-weight: var(--weight-black);
+        font-size: 36px;
+        line-height: 40px;
+        color: var(--text-main);
+    }
+
+    .form-subtitle {
+        margin: 0;
+        font-family: var(--font-body), sans-serif;
+        font-weight: var(--weight-regular);
+        font-size: 12px;
+        line-height: 19px;
+        color: var(--text-accent);
+    }
+
+    .newsletter-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+        max-width: 544px;
+    }
+
+    .input-group {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .input-group label {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--text-main);
+        font-weight: var(--weight-regular);
+    }
+
+    .input-group input {
+        width: 100%;
+        height: 44px;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: var(--radius-sm);
+        padding: 0 1rem;
+        font-family: var(--font-body);
+        font-size: 16px;
+        color: var(--input-text);
+        outline: none;
+        box-sizing: border-box;
+        transition: border-width 0.1s;
+    }
+
+    .input-group input:focus {
+        border-width: 2px;
+    }
+
+    .submit-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 130px;
+        height: 55px;
+        background: var(--btn-bg-primary);
+        border-radius: var(--radius-pill);
+        border: none;
+        cursor: pointer;
+        margin-top: 10px;
+        padding: 17px 29px;
+        font-family: var(--font-body);
+        font-weight: var(--weight-semibold);
+        font-size: 15px;
+        letter-spacing: 2px;
+        color: var(--btn-text-primary);
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: transform 0.1s;
+    }
+
+    .submit-btn:hover {
+        transform: scale(1.02);
+    }
+
+    .submit-btn:active {
+        transform: scale(0.98);
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            width: 90%;
+            padding: 24px;
+            min-height: auto;
+        }
+    }
+</style>

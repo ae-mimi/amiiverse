@@ -1,17 +1,11 @@
 ---
 import { Icon } from "astro-icon/components";
 
-import { getGlobalSettings } from "../utils/global";
+import { getGlobalSettings } from "../../utils/global";
 const settings = getGlobalSettings();
 const links = settings.nav || [];
 
-// Retain conditional logic if needed, or rely purely on the CMS list.
-// If the user wants "FOLLOW" in the main nav, they can add it via CMS.
-// However, if strict compat is needed:
-if (settings.enable_follow_link && !links.find((l) => l.href === "/follow")) {
-    // Optional: Auto-inject if missing? Or just trust the user?
-    // Let's trust the CMS list for the main nav.
-}
+// settings.nav is the source of truth for the main navigation.
 
 const currentPath = Astro.url.pathname;
 const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
@@ -74,7 +68,7 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
                         >
                             <Icon
                                 name={`simple-icons:${social.icon}`}
-                                class="icon-social"
+                                class={`icon-social icon-${social.icon}`}
                             />
                         </a>
                     ))
@@ -133,7 +127,10 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
                         aria-label={social.platform}
                         target="_blank"
                     >
-                        <Icon name={`simple-icons:${social.icon}`} />
+                        <Icon
+                            name={`simple-icons:${social.icon}`}
+                            class={`icon-social icon-${social.icon}`}
+                        />
                     </a>
                 ))
             }
@@ -142,22 +139,20 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
 </header>
 
 <style>
-    /* Header Container - "Header Light Mode" layer */
-    /* Header Container - "Header Light Mode" layer */
+    /* Header Light Mode Layer */
     .site-header {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        min-height: 84px; /* Changed from fixed height */
+        min-height: 84px;
         background-color: var(--bg-header);
-        padding: 24px 34px 0 34px; /* Added top padding */
+        padding: 24px 34px 0 34px;
         box-sizing: border-box;
         display: flex;
         justify-content: center;
         z-index: 1000;
-        transition: transform 0.3s ease; /* Fallback for non-GSAP */
-        /* Border removed per user request */
+        transition: transform 0.3s ease;
     }
 
     .header-inner {
@@ -166,251 +161,8 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         margin: 0 auto;
         display: flex;
         justify-content: space-between;
-        align-items: flex-start; /* Aligned top to match padding */
-    }
-
-    .main-nav ul {
-        display: flex;
-        gap: 40px;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    .logo-link {
-        display: block;
-        line-height: 0;
-    }
-
-    .header-logo-img {
-        width: 98px;
-        height: auto;
-        display: block;
-        /* Sun Mode Default */
-        content: url("/assets/uploads/amii-logo_op-navy.webp");
-    }
-
-    /* Dark Mode Toggle for Logo */
-    :global([data-theme="deep-dive"]) .header-logo-img {
-        content: url("/assets/uploads/amii-logo_op-yellow.webp");
-    }
-
-    .main-nav a {
-        font-family: var(--font-body);
-        font-style: normal;
-        font-weight: var(--weight-regular);
-        font-size: var(--text-xs);
-        line-height: 16px;
-        letter-spacing: 2px;
-        color: var(--text-nav);
-        text-decoration: none;
-        text-transform: uppercase;
-        font-stretch: 100%;
-        transition: opacity 0.2s;
-    }
-
-    .header-actions {
-        display: flex;
         align-items: center;
-        gap: 24px;
-    }
-
-    .header-socials {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    @media (max-width: 1024px) {
-        .header-socials {
-            display: none;
-        }
-    }
-
-    .header-socials a {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 33px; /* Touch target */
-        height: 33px;
-        color: var(--text-nav);
-        transition:
-            transform 0.2s,
-            opacity 0.2s;
-    }
-
-    .icon-social {
-        width: 20px;
-        height: 20px;
-        transition: transform 0.2s;
-    }
-
-    .icon-social:hover {
-        transform: scale(1.1);
-    }
-
-    #theme-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-nav);
-    }
-
-    .icon-container {
         position: relative;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .icon-menu,
-    .icon-close {
-        width: 24px;
-        height: 24px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .icon-close {
-        opacity: 0;
-    }
-
-    /* Deep Dive Mode Styles - REDUCED: Only Icon Toggling needed */
-    /* Colors handled by Global Variable Swap */
-
-    :global([data-theme="deep-dive"]) .icon-moon {
-        display: none;
-    }
-    :global([data-theme="deep-dive"]) .icon-sun {
-        display: block;
-        color: var(--text-nav);
-    }
-
-    /* Mobile Menu Toggle */
-    #menu-toggle {
-        display: none; /* Hidden on desktop */
-    }
-
-    /* Responsive Mobile */
-    @media (max-width: 768px) {
-        .site-header {
-            height: auto; /* Hug content per request */
-            min-height: 54px; /* Minimum visual bulk */
-            padding: 16px 8px; /* Added padding-y (16px) */
-            background-color: var(--bg-header);
-            border-bottom: none;
-        }
-
-        .main-nav {
-            display: none;
-        }
-
-        .header-actions {
-            gap: 16px;
-        }
-
-        /* 3. Hamburger/Close Toggle */
-        #menu-toggle {
-            display: block;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            color: var(--text-nav);
-        }
-    }
-
-    /* Mobile Overlay Styles (Global) */
-    #mobile-menu-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: var(--bg-page);
-        opacity: 0;
-        pointer-events: none;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 32px;
-        z-index: 999;
-    }
-
-    .mobile-nav ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .mobile-nav a {
-        font-family: var(--font-heading);
-        font-weight: var(--weight-black);
-        font-size: 36px;
-        line-height: 40px;
-        color: var(--text-main);
-        text-decoration: none;
-        text-transform: uppercase;
-    }
-
-    .mobile-follow-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 130px;
-        height: 55px;
-        background: var(--btn-bg-primary);
-        border-radius: var(--radius-pill);
-        font-family: var(--font-body);
-        font-weight: var(--weight-semibold);
-        font-size: 15px;
-        letter-spacing: 2px;
-        color: var(--btn-text-primary);
-        text-decoration: none;
-        text-transform: uppercase;
-    }
-
-    .mobile-socials {
-        display: flex;
-        gap: 24px;
-        margin-top: 16px;
-    }
-
-    .mobile-socials a {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 44px;
-        height: 44px;
-        color: var(--text-main);
-        transition: transform 0.2s;
-    }
-
-    .mobile-socials a:hover {
-        transform: scale(1.1);
-    }
-
-    .header-inner {
-        width: 100%;
-        max-width: 1440px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center; /* Changed to center for better vertical alignment */
-        position: relative; /* Context for absolute centering */
     }
 
     .main-nav {
@@ -436,7 +188,6 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         width: 98px;
         height: auto;
         display: block;
-        /* Sun Mode Default */
         content: var(--logoNavy);
     }
 
@@ -446,13 +197,13 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     }
 
     .main-nav a {
-        font-family: "Archivo";
+        font-family: var(--font-body);
         font-style: normal;
-        font-weight: 400; /* Default Regular */
-        font-size: 12px; /* Spec says 12px */
+        font-weight: var(--weight-regular);
+        font-size: var(--text-xs);
         line-height: 16px;
         letter-spacing: 2px;
-        color: var(--color-navy-500); /* Was #15499d */
+        color: var(--text-nav);
         text-decoration: none;
         text-transform: uppercase;
         font-stretch: 100%;
@@ -486,22 +237,27 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 33px; /* Touch target */
+        width: 33px;
         height: 33px;
-        color: var(--color-navy-500); /* Was #15499d */
+        color: var(--text-nav);
         transition:
             transform 0.2s,
             opacity 0.2s;
     }
 
     .icon-social {
-        width: 20px;
+        width: auto;
         height: 20px;
         transition: transform 0.2s;
     }
 
-    .icon-social:hover {
+    .icon-youtube {
+        height: 22px;
         transform: scale(1.1);
+    }
+
+    .icon-social:hover {
+        transform: scale(1.2);
     }
 
     .icon-container {
@@ -527,20 +283,20 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         opacity: 0;
     }
 
-    /* Mobile Menu Toggle - ensure it sits above the overlay */
+    /* Mobile Menu Toggle */
     #menu-toggle {
-        display: none; /* Hidden on desktop */
-        z-index: 1001; /* Above the overlay */
-        position: relative; /* Create context */
+        display: none;
+        z-index: 1001;
+        position: relative;
     }
 
     /* Responsive Mobile */
     @media (max-width: 768px) {
         .site-header {
-            height: auto; /* Hug content per request */
-            min-height: 54px; /* Minimum visual bulk */
-            padding: 16px 8px; /* Added padding-y (16px) */
-            background-color: transparent; /* Rely on overlay or body bg? No, keep it yellow */
+            height: auto;
+            min-height: 54px;
+            padding: 16px 8px;
+            background-color: transparent;
             background-color: var(--color-yellow-500);
             border-bottom: none;
         }
@@ -560,7 +316,7 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
             border: none;
             cursor: pointer;
             padding: 0;
-            color: var(--color-navy-500); /* Was #15499d */
+            color: var(--color-navy-500);
         }
     }
 
@@ -571,14 +327,14 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: var(--color-yellow-500); /* Was #fdf38a */
+        background-color: var(--color-yellow-500);
         opacity: 0;
         pointer-events: none;
         display: none;
         flex-direction: column;
         align-items: center;
-        justify-content: center; /* Center vertically as per Figma layout intention */
-        gap: 27px; /* Figma gap */
+        justify-content: center;
+        gap: 27px;
         z-index: 999;
     }
 
@@ -589,17 +345,17 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 27px; /* Figma gap */
+        gap: 27px;
     }
 
     .mobile-nav a {
         font-family: "Archivo", sans-serif;
         font-style: normal;
-        font-weight: 400; /* Regular default */
-        font-size: 14px; /* Figma spec */
+        font-weight: 400;
+        font-size: 14px;
         line-height: 16px;
         letter-spacing: 2px;
-        color: var(--color-navy-500); /* #15499D */
+        color: var(--color-navy-500);
         text-decoration: none;
         text-transform: uppercase;
         text-align: center;
@@ -609,8 +365,8 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     }
 
     .mobile-nav a.active {
-        font-weight: 700; /* Bold */
-        color: var(--color-pink-500); /* Pink */
+        font-weight: 700;
+        color: var(--color-pink-500);
     }
 
     .mobile-follow-btn {
@@ -619,20 +375,20 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         align-items: center;
         width: 130px;
         height: 55px;
-        background: var(--color-navy-500); /* Was #15499d */
+        background: var(--color-navy-500);
         border-radius: 999px;
         font-family: var(--font-body);
         font-weight: 600;
         font-size: 15px;
         letter-spacing: 2px;
-        color: var(--color-yellow-500); /* Was #fdf38a */
+        color: var(--color-yellow-500);
         text-decoration: none;
         text-transform: uppercase;
     }
 
     .mobile-socials {
         display: flex;
-        gap: 8px; /* Figma "Connect" gap? 8px */
+        gap: 8px;
         margin-top: 16px;
     }
 
@@ -640,9 +396,9 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 44px;
-        height: 44px;
-        color: var(--color-navy-500); /* Was #15499d */
+        width: 33px;
+        height: 33px;
+        color: var(--color-navy-500);
         transition: transform 0.2s;
     }
 
@@ -655,10 +411,9 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
 <script>
     import { gsap } from "gsap";
 
-    // Theme Toggle Logic Removed
+    // Mobile Menu Logic
 
     const menuToggle = document.getElementById("menu-toggle");
-    // const menuClose = document.getElementById("menu-close");
     const mobileMenu = document.getElementById("mobile-menu-overlay");
     const mobileLinks = document.querySelectorAll(".mobile-nav li");
     const mobileFollow = document.querySelector(".mobile-follow-btn");
@@ -733,12 +488,6 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     let isHeaderHidden = false;
 
     if (header) {
-        // Initial check to set filler height or body padding if needed
-        // For now, we rely on the header being overlay or having a spacer.
-        // Since we are changing to fixed, we might need a spacer div in the layout or body padding.
-        // However, the design seems to have a lot of top padding on pages anyway.
-        // Let's just handle the show/hide.
-
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
 
@@ -761,9 +510,6 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
                         duration: 0.3,
                         ease: "power2.in",
                     });
-                    isHeaderHidden = false; // logic correction: hiding means we want to animate out
-                    // Actually, let's track state better.
-                    // If we want to hide, we animate blindly? No.
                     isHeaderHidden = true;
                 }
             }

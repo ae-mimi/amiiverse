@@ -14,16 +14,19 @@ import ContactSectionBlock from "./blocks/ContactSectionBlock.astro";
 
 const { blocks } = Astro.props;
 
+interface Block {
+    _type?: string;
+    type?: string;
+    [key: string]: any;
+}
+
 interface Props {
-    blocks: Array<{
-        type: string;
-        [key: string]: any;
-    }>;
+    blocks: Block[];
 }
 ---
 
 {
-    blocks?.map((block: any) => {
+    blocks?.map((block: Block) => {
         const type = block._type || block.type; // Fallback for safety
         switch (type) {
             case "hero":

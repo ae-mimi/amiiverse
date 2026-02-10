@@ -1,5 +1,5 @@
 ---
-import ContactForm from "../ContactForm.astro";
+import ContactForm from "../forms/ContactForm.astro";
 import { Icon } from "astro-icon/components";
 import { getGlobalSettings } from "../../utils/global";
 
@@ -91,7 +91,7 @@ const socials = settings.socials || [];
                                         >
                                             <Icon
                                                 name={`simple-icons:${social.icon}`}
-                                                class="social-icon"
+                                                class={`social-icon icon-${social.icon}`}
                                             />
                                         </a>
                                     ))}
@@ -108,7 +108,7 @@ const socials = settings.socials || [];
 <style>
     .content-wrapper {
         width: 100%;
-        padding-inline: 27px;
+        padding: 24px 16px; /* User specified exact padding to match Newsletter */
         box-sizing: border-box;
         display: flex;
         justify-content: center;
@@ -251,8 +251,14 @@ const socials = settings.socials || [];
     }
 
     .social-icon {
-        width: 17px;
+        width: auto;
         height: 17px;
+        transition: transform 0.2s;
+    }
+
+    .icon-youtube {
+        height: 19px; /* Slightly taller than 17px */
+        transform: scale(1.1);
     }
 
     .icon-link:hover {

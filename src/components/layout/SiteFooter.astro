@@ -1,9 +1,10 @@
 ---
 import { Icon } from "astro-icon/components";
-import { getGlobalSettings } from "../utils/global";
+import { getGlobalSettings } from "../../utils/global";
 
 const settings = getGlobalSettings();
 const footerLinks = settings.footer.links || [];
+
 const currentYear = new Date().getFullYear();
 const copyrightText = settings.footer.copyright.replace(
     "{currentYear}",
@@ -37,10 +38,10 @@ const copyrightText = settings.footer.copyright.replace(
 
             <!-- Navigation Section -->
             <nav class="footer-nav">
-                <ul>
+                <div class="footer-links-grid">
                     {
                         footerLinks.map((link) => (
-                            <li>
+                            <div class="footer-link-item">
                                 <a
                                     href={link.disabled ? undefined : link.href}
                                     class:list={[
@@ -51,10 +52,10 @@ const copyrightText = settings.footer.copyright.replace(
                                 >
                                     {link.label}
                                 </a>
-                            </li>
+                            </div>
                         ))
                     }
-                </ul>
+                </div>
             </nav>
 
             <!-- Socials Section -->
@@ -68,7 +69,7 @@ const copyrightText = settings.footer.copyright.replace(
                         >
                             <Icon
                                 name={`simple-icons:${social.icon}`}
-                                class="social-icon"
+                                class={`social-icon icon-${social.icon}`}
                             />
                         </a>
                     ))
@@ -84,7 +85,7 @@ const copyrightText = settings.footer.copyright.replace(
 </footer>
 
 <style is:global>
-    /* Base Styles (Default / Sun Mode) */
+    /* Base Styles */
     .site-footer {
         width: 100%;
         background-color: var(--bg-footer);
@@ -97,9 +98,6 @@ const copyrightText = settings.footer.copyright.replace(
             background-color 0.4s ease,
             color 0.4s ease;
     }
-
-    /* Dark Mode Override (Deep Dive) - REMOVED */
-    /* Handled by Global Swap */
 
     .site-footer * {
         box-sizing: border-box;
@@ -132,11 +130,9 @@ const copyrightText = settings.footer.copyright.replace(
         height: auto;
         aspect-ratio: 98 / 59;
         display: block;
-        /* Sun Mode: Footer is Navy -> Use Yellow Logo */
         content: var(--footerLogoYellow);
     }
 
-    /* Dark Mode Override: Footer is Yellow -> Use Navy Logo */
     :global([data-theme="deep-dive"]) .site-footer .logo-img {
         content: var(--footerLogoNavy);
     }
@@ -145,27 +141,59 @@ const copyrightText = settings.footer.copyright.replace(
     .site-footer .footer-nav {
         margin-bottom: 40px;
         width: 100%;
+        display: flex;
+        justify-content: center;
     }
 
-    /* Target the UL directly */
-    .site-footer .footer-nav ul {
+    .site-footer .footer-links-grid {
         display: grid !important;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 40px;
+        grid-template-columns: repeat(2, max-content);
+        grid-template-rows: repeat(3, auto);
+        column-gap: 30px;
         row-gap: 32px;
-        list-style: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        text-align: center;
+        width: fit-content;
+        margin: 0 auto;
+        justify-items: center;
+        align-items: center;
     }
 
-    .site-footer .footer-nav li {
+    .site-footer .footer-link-item:nth-child(2) {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .site-footer .footer-link-item:nth-child(3) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .site-footer .footer-link-item:nth-child(4) {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    .site-footer .footer-link-item:nth-child(5) {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .site-footer .footer-link-item:nth-child(6) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+    .site-footer .footer-link-item:nth-child(7) {
+        grid-column: 2;
+        grid-row: 3;
+    }
+
+    .site-footer .footer-links-grid::before,
+    .site-footer .footer-links-grid::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .site-footer .footer-link-item {
         margin: 0;
         padding: 0;
-    }
-
-    .site-footer .footer-nav li::before {
-        content: none !important;
     }
 
     .site-footer .footer-nav a {
@@ -187,12 +215,9 @@ const copyrightText = settings.footer.copyright.replace(
     .site-footer .social-icon {
         width: 20px;
         height: 20px;
-        color: var(--text-footer); /* Was Beige */
+        color: var(--text-footer);
         transition: color 0.4s ease;
     }
-
-    /* Deep Dive Overrides for Icons - REMOVED */
-    /* Handled by Global Swap of --text-footer */
 
     /* Socials */
     .site-footer .footer-socials {
@@ -206,15 +231,14 @@ const copyrightText = settings.footer.copyright.replace(
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 33px;
+        height: 33px;
         text-decoration: none;
     }
 
-    /* Also update social icon color for mobile specifically? */
     @media (max-width: 767px) {
         .site-footer .social-icon {
-            color: var(
-                --text-footer
-            ); /* Mobile White? No, use footer text color */
+            color: var(--text-footer);
         }
     }
 
@@ -226,21 +250,11 @@ const copyrightText = settings.footer.copyright.replace(
         line-height: 16px;
         letter-spacing: 2px;
         color: var(--text-footer);
-        opacity: 0.8; /* Slight dim for copyright */
+        opacity: 0.8;
         text-align: center;
         margin: 0;
         transition: color 0.4s ease;
     }
-
-    /* Override Copyright for Deep Dive - REMOVED */
-    /* Handled by Global Swap */
-
-    /* Dark Mode Override (Deep Dive) - REMOVED */
-    /* Handled by Global Swap:
-       --color-navy-500 becomes Yellow
-       --color-yellow-500 becomes Navy
-       So Footer becomes Yellow, Text becomes Navy automatically.
-    */
 
     .site-footer * {
         box-sizing: border-box;
@@ -288,16 +302,16 @@ const copyrightText = settings.footer.copyright.replace(
         width: 100%;
     }
 
-    /* Target the UL directly */
-    .site-footer .footer-nav ul {
+    .site-footer .footer-links-grid {
         display: grid !important;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 40px;
+        grid-template-columns: 1fr 1fr; /* 2 Columns */
+        column-gap: 20px;
         row-gap: 32px;
         list-style: none !important;
         padding: 0 !important;
         margin: 0 !important;
         text-align: center;
+        justify-items: center;
     }
 
     .site-footer .footer-nav li {
@@ -329,38 +343,17 @@ const copyrightText = settings.footer.copyright.replace(
         width: 20px;
         height: 20px;
         color: #eae8d4; /* Beige */
-        transition: color 0.4s ease;
+        transition:
+            color 0.4s ease,
+            transform 0.2s;
     }
 
-    /* Deep Dive Overrides for Icons */
-    /* If Footer is Yellow (Deep Dive), Beige is hard to see? 
-       Use Navy for better contrast?
-    */
-    :global([data-theme="deep-dive"]) .site-footer .social-icon {
-        color: #15499d; /* Navy */
+    .site-footer .icon-youtube {
+        height: 22px;
+        transform: scale(1.1);
     }
 
-    /* Socials */
-    .site-footer .footer-socials {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .site-footer .footer-socials a {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-    }
-
-    /* Also update social icon color for mobile specifically? */
-    @media (max-width: 767px) {
-        .site-footer .social-icon {
-            color: #ffffff; /* Mobile White */
-        }
-    }
+    /* Deep Dive Overrides for Icons - Handled by Global Swap */
 
     /* Copyright */
     .site-footer .footer-copyright p {
@@ -376,12 +369,8 @@ const copyrightText = settings.footer.copyright.replace(
         transition: color 0.4s ease;
     }
 
-    /* Override Copyright for Deep Dive */
-    :global([data-theme="deep-dive"]) .site-footer .footer-copyright p {
-        color: #15499d;
-    }
+    /* Override Copyright for Deep Dive - Handled by Global Swap */
 
-    /* Tablet (~800px) */
     @media (min-width: 768px) {
         .site-footer {
             padding: 61px 30px;
@@ -417,10 +406,19 @@ const copyrightText = settings.footer.copyright.replace(
             justify-content: center;
         }
 
-        .site-footer .footer-nav ul {
+        /* DESKTOP: Switch to Flex Row */
+        .site-footer .footer-links-grid {
             display: flex !important;
+            flex-direction: row;
             column-gap: 50px;
             row-gap: 0;
+            margin: 0; /* Reset margin from mobile centering */
+            max-width: none; /* Reset max-width from mobile */
+        }
+
+        .site-footer .footer-link-item {
+            grid-column: auto !important;
+            grid-row: auto !important;
         }
 
         .site-footer .footer-socials {
@@ -430,12 +428,15 @@ const copyrightText = settings.footer.copyright.replace(
         }
 
         .site-footer .social-icon {
-            width: 24px;
+            width: auto;
             height: 24px;
+        }
+
+        .site-footer .icon-youtube {
+            height: 26px;
         }
     }
 
-    /* Desktop (1280px) */
     @media (min-width: 1200px) {
         .site-footer {
             padding: 64px 32px;
@@ -450,8 +451,12 @@ const copyrightText = settings.footer.copyright.replace(
             height: auto;
         }
 
-        .site-footer .footer-nav ul {
-            column-gap: 48px; /* Match closer to Figma's ~162px width constraint */
+        .site-footer .footer-links-grid {
+            column-gap: 48px;
+        }
+
+        .nav-cols {
+            gap: 48px;
         }
     }
 </style>
