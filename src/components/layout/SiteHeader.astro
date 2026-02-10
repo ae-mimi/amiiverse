@@ -207,12 +207,21 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         text-decoration: none;
         text-transform: uppercase;
         font-stretch: 100%;
-        transition: opacity 0.2s;
+        transition: all 0.3s ease;
     }
 
     .main-nav a.active {
-        font-weight: 700;
+        font-weight: 600;
         color: var(--color-pink-500);
+    }
+
+    .main-nav a:hover {
+        font-weight: 600;
+        color: var(--text-nav);
+        text-decoration: underline;
+        text-decoration-color: var(--color-pink-500);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
     }
 
     .header-actions {

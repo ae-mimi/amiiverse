@@ -29,16 +29,18 @@ const {
     <!-- Welcome Banner Container -->
     <predebut-hero class="welcome-banner">
         <!-- Loading Text -->
-        <h1 class="loading-text">
+        <h1 class="loading-text" aria-label={status_text}>
             {
                 status_text
                     .replace(/\.+$/, "")
                     .split("")
                     .map((char: string) => (
-                        <span class="loading-char">{char}</span>
+                        <span class="loading-char" aria-hidden="true">
+                            {char}
+                        </span>
                     ))
             }
-            <span class="dots-wrapper">
+            <span class="dots-wrapper" aria-hidden="true">
                 <span class="dot">.</span><span class="dot">.</span><span
                     class="dot">.</span
                 >
@@ -166,12 +168,6 @@ const {
     .down-arrow-svg {
         display: block;
         color: var(--text-main); /* Controlled by currentColor */
-    }
-
-    @media (max-width: 768px) {
-        .predebut-hero {
-            padding-top: 100px; /* Clear fixed header on mobile */
-        }
     }
 </style>
 

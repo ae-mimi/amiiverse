@@ -3,13 +3,22 @@ import { Icon } from "astro-icon/components";
 import { getGlobalSettings } from "../../utils/global";
 
 const settings = getGlobalSettings();
-const footerLinks = settings.footer.links || [];
+const rawFooterLinks = settings.footer.links || [];
+const footerLinks = rawFooterLinks.filter((link: any) => {
+    if (link.label === "FOLLOW" && !settings.enable_follow_link) {
+        return false;
+    }
+    return true;
+});
 
 const currentYear = new Date().getFullYear();
 const copyrightText = settings.footer.copyright.replace(
     "{currentYear}",
     currentYear.toString(),
 );
+
+const currentPath = Astro.url.pathname;
+const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
 ---
 
 <footer class="site-footer">
@@ -43,12 +52,14 @@ const copyrightText = settings.footer.copyright.replace(
                         footerLinks.map((link) => (
                             <div class="footer-link-item">
                                 <a
-                                    href={link.disabled ? undefined : link.href}
+                                    href={link.href}
                                     class:list={[
                                         link.is_special ? "special-link" : "",
-                                        link.disabled ? "disabled-link" : "",
+                                        normalizePath(currentPath) ===
+                                        normalizePath(link.href)
+                                            ? "active"
+                                            : "",
                                     ]}
-                                    aria-disabled={link.disabled}
                                 >
                                     {link.label}
                                 </a>
@@ -205,7 +216,22 @@ const copyrightText = settings.footer.copyright.replace(
         color: inherit !important;
         text-decoration: none;
         text-transform: uppercase;
-        transition: opacity 0.2s;
+        transition: all 0.3s ease;
+    }
+
+    .site-footer .footer-nav a.active {
+        color: var(--color-pink-500) !important;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .site-footer .footer-nav a:hover {
+        color: inherit !important;
+        font-weight: 600;
+        text-decoration: underline;
+        text-decoration-color: var(--color-pink-500);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
     }
 
     .site-footer .footer-nav a.special-link {

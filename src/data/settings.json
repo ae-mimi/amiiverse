@@ -54,9 +54,8 @@
       },
       {
         "label": "FOLLOW",
-        "href": "#",
-        "is_special": true,
-        "disabled": true
+        "href": "/follow",
+        "is_special": true
       }
     ]
   },
