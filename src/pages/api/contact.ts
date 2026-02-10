@@ -1,11 +1,13 @@
 export const prerender = false;
 
-export async function POST({ request }) {
+import { sanityClient } from "sanity:client";
+
+export async function POST({ request }: { request: Request }) {
     const data = await request.formData();
-    const name = data.get("name");
-    const email = data.get("email");
-    const message = data.get("message");
-    const subject = data.get("subject") || "New Contact Form Submission";
+    const name = data.get("name") as string;
+    const email = data.get("email") as string;
+    const message = data.get("message") as string;
+    const subject = (data.get("subject") as string) || "New Contact Form Submission";
 
     // Basic validation
     if (!name || !email || !message) {
@@ -15,6 +17,21 @@ export async function POST({ request }) {
             }),
             { status: 400 }
         );
+    }
+
+    // Fetch Admin Email from CMS
+    let adminEmail = "mgmt@amiiverse.com";
+    try {
+        // Query: Find the page that has a block named 'contact_section' and get its management_email
+        // We look for any page that has a block with _name == 'contact_section'
+        // and project that block's management_email
+        const query = `*[_type == "page" && defined(blocks) && "contact_section" in blocks[].name][0].blocks[name == "contact_section"][0].management_email`;
+        const fetchedEmail = await sanityClient.fetch(query);
+        if (fetchedEmail) {
+            adminEmail = fetchedEmail;
+        }
+    } catch (e) {
+        console.warn("Could not fetch dynamic admin email, using default.", e);
     }
 
     const BREVO_API_KEY = import.meta.env.BREVO_API_KEY;
@@ -29,14 +46,24 @@ export async function POST({ request }) {
         );
     }
 
-    const payload = {
+    // 1. Save to Brevo CRM (Contacts)
+    const contactPayload = {
+        email: email,
+        attributes: {
+            FIRSTNAME: name,
+        },
+        updateEnabled: true,
+    };
+
+    // 2. Send Email via Brevo SMTP
+    const emailPayload = {
         sender: {
             name: "Amiiverse Website",
             email: "no-reply@amiiverse.com"
         },
         to: [
             {
-                email: "mgmt@amiiverse.com", // Replace with your actual admin email in production if different
+                email: adminEmail,
                 name: "Amiiverse Admin"
             }
         ],
@@ -61,6 +88,18 @@ export async function POST({ request }) {
     };
 
     try {
+        // A. Save to CRM
+        await fetch("https://api.brevo.com/v3/contacts", {
+            method: "POST",
+            headers: {
+                "accept": "application/json",
+                "api-key": BREVO_API_KEY,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify(contactPayload)
+        });
+
+        // B. Send Admin Email
         const response = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",
             headers: {
@@ -68,7 +107,7 @@ export async function POST({ request }) {
                 "api-key": BREVO_API_KEY,
                 "content-type": "application/json"
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(emailPayload)
         });
 
         if (!response.ok) {
@@ -82,8 +121,6 @@ export async function POST({ request }) {
                 { status: 500 }
             );
         }
-
-        // Optional: Send auto-reply to user (could be a separate call here)
 
         return new Response(
             JSON.stringify({
