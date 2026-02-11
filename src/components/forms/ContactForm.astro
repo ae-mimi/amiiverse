@@ -54,7 +54,7 @@ const {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        padding: 48px;
+        padding: clamp(24px, 4vw, 48px); /* Fluid padding */
         gap: 25px;
         width: 100%;
         max-width: 100%; /* Let parent control width */
@@ -80,8 +80,8 @@ const {
         font-family: var(--font-heading);
         font-style: normal;
         font-weight: var(--weight-regular);
-        font-size: 39px;
-        line-height: 43px;
+        font-size: clamp(32px, 3vw, 48px); /* Fluid Title */
+        line-height: 1.1;
         display: flex;
         align-items: center;
         text-align: center;
@@ -89,6 +89,10 @@ const {
         margin: 0;
         width: 100%;
         justify-content: flex-start;
+    }
+
+    .form-subtitle {
+        font-size: clamp(14px, 1vw, 18px); /* Fluid Subtitle */
     }
 
     .contact-form {
@@ -105,33 +109,36 @@ const {
         flex-direction: column;
         align-items: flex-start;
         padding: 0px;
-        gap: 16px;
+        gap: 24px; /* Increased gap */
         width: 100%;
     }
 
     .input-wrapper {
         position: relative;
         width: 100%;
-        height: 71px; /* 25px label + 46px input */
+        height: auto; /* Allow natural height */
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* Gap between label and input */
     }
 
     .message-wrapper {
-        height: 147px; /* Taller for textarea */
+        height: auto;
     }
 
     input,
     textarea {
         box-sizing: border-box;
-        position: absolute;
+        position: relative; /* Not absolute */
         width: 100%;
-        height: 46px;
-        left: 0px;
-        top: 25px;
+        height: clamp(46px, 4vw, 64px); /* Fluid Input Height */
+        left: auto;
+        top: auto;
         background: var(--input-bg);
         border: 1px solid var(--input-border);
         border-radius: var(--radius-sm);
         font-family: var(--font-body);
-        font-size: 16px;
+        font-size: clamp(16px, 1.2vw, 20px); /* Fluid Font */
         color: var(--input-text);
         padding: 10px;
         outline: none;
@@ -144,24 +151,24 @@ const {
 
     /* Message specific height */
     textarea {
-        height: 122px;
-        resize: none;
+        height: clamp(122px, 10vw, 200px); /* Fluid Textarea Height */
+        resize: vertical;
     }
 
     label {
-        position: absolute;
+        position: relative; /* Not absolute */
         width: auto;
-        height: 21px;
-        left: 0px;
-        top: 0px;
+        height: auto;
+        left: auto;
+        top: auto;
         font-family: var(--font-body);
         font-style: normal;
         font-weight: var(--weight-regular);
-        font-size: 13px;
-        line-height: 21px;
+        font-size: clamp(13px, 1vw, 16px); /* Fluid Label */
+        line-height: 1.4;
         display: flex;
         align-items: center;
-        text-align: center;
+        text-align: left;
         color: var(--input-text);
         pointer-events: none;
     }
@@ -189,141 +196,6 @@ const {
         text-align: center;
         letter-spacing: 2px;
         color: var(--btn-text-primary);
-        white-space: nowrap;
-        transition: transform 0.1s ease;
-    }
-
-    .submit-btn:hover {
-        transform: scale(1.02);
-    }
-
-    .submit-btn:active {
-        transform: scale(0.98);
-    }
-
-    .header-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 0px;
-        gap: 4px;
-        width: 100%;
-        margin-bottom: 24px;
-    }
-
-    .form-title {
-        font-family: var(--font-heading);
-        font-style: normal;
-        font-weight: 400;
-        font-size: 39px;
-        line-height: 43px;
-        display: flex;
-        align-items: center;
-        text-align: center;
-        color: var(--color-navy-500);
-        margin: 0;
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    .contact-form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 0px;
-        gap: 24px;
-        width: 100%;
-    }
-
-    .input-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 0px;
-        gap: 16px;
-        width: 100%;
-    }
-
-    .input-wrapper {
-        position: relative;
-        width: 100%;
-        height: 71px; /* 25px label + 46px input */
-    }
-
-    .message-wrapper {
-        height: 147px; /* Taller for textarea */
-    }
-
-    input,
-    textarea {
-        box-sizing: border-box;
-        position: absolute;
-        width: 100%;
-        height: 46px;
-        left: 0px;
-        top: 25px;
-        background: var(--color-input-bg);
-        border: 1px solid var(--color-navy-500);
-        border-radius: 7px;
-        font-family: var(--font-body);
-        font-size: 16px;
-        color: var(--color-navy-500);
-        padding: 10px;
-        outline: none;
-    }
-
-    input:focus,
-    textarea:focus {
-        border-width: 2px;
-    }
-
-    /* Message specific height */
-    textarea {
-        height: 122px;
-        resize: none;
-    }
-
-    label {
-        position: absolute;
-        width: auto;
-        height: 21px;
-        left: 0px;
-        top: 0px;
-        font-family: var(--font-body);
-        font-style: normal;
-        font-weight: 400;
-        font-size: 13px;
-        line-height: 21px;
-        display: flex;
-        align-items: center;
-        text-align: center;
-        color: var(--color-navy-500);
-        pointer-events: none;
-    }
-
-    .submit-btn {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 17px 29px;
-        width: 130px;
-        height: 55px;
-        background: var(--color-navy-500);
-        border-radius: 999px;
-        border: none;
-        cursor: pointer;
-        margin-top: 0px;
-        align-self: flex-start;
-
-        font-family: var(--font-body);
-        font-style: normal;
-        font-weight: 600;
-        font-size: 15px;
-        line-height: 17px;
-        text-align: center;
-        letter-spacing: 2px;
-        color: var(--color-yellow-500);
         white-space: nowrap;
         transition: transform 0.1s ease;
     }
