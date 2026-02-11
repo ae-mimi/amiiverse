@@ -16,6 +16,7 @@ const {
     <form class="contact-form" action="#" method="POST">
         <div class="input-group">
             <div class="input-wrapper">
+                <label for="name">NAME</label>
                 <input
                     type="text"
                     id="name"
@@ -23,10 +24,10 @@ const {
                     required
                     placeholder=" "
                 />
-                <label for="name">NAME</label>
             </div>
 
             <div class="input-wrapper">
+                <label for="email">EMAIL</label>
                 <input
                     type="email"
                     id="email"
@@ -34,13 +35,12 @@ const {
                     required
                     placeholder=" "
                 />
-                <label for="email">EMAIL</label>
             </div>
 
             <div class="input-wrapper message-wrapper">
+                <label for="message">MESSAGE</label>
                 <textarea id="message" name="message" required placeholder=" "
                 ></textarea>
-                <label for="message">MESSAGE</label>
             </div>
         </div>
 
@@ -57,7 +57,7 @@ const {
         padding: 48px;
         gap: 25px;
         width: 100%;
-        max-width: 640px;
+        max-width: 100%; /* Let parent control width */
         height: auto;
         background: var(--bg-card);
         border: 1px solid var(--text-main);

@@ -47,19 +47,25 @@ const {
 
 <style>
     .hero-section {
+        height: auto; /* Ensure it fits content */
         padding-block: var(--space-lg) var(--space-md);
     }
 
     .hero-graphic {
         margin-bottom: var(--space-md);
+        width: 100%;
+        display: flex;
+        justify-content: center;
     }
     .hero-graphic img {
-        max-height: 50vh;
+        max-height: 60vh; /* Increased from 50vh */
+        max-width: 90vw; /* Added fluid width constraint */
+        width: auto;
         margin-inline: auto;
     }
 
     .hero-title {
-        font-size: clamp(2rem, 8vw, 6rem);
+        font-size: clamp(3rem, 10vw, 8rem); /* Massive scaling for 4K */
         color: var(--color-navy-500);
         text-transform: uppercase;
         line-height: 0.9;
@@ -68,9 +74,12 @@ const {
 
     .hero-subtitle {
         max-width: 60ch;
+        width: 90%; /* Ensure it doesn't touch edges on small screens */
         margin-inline: auto;
         margin-bottom: 0.5rem;
         color: var(--color-navy-500);
+        font-size: clamp(1rem, 1.5vw, 1.5rem); /* Fluid subtitle */
+        line-height: 1.5;
     }
 
     .cta-group {
@@ -86,6 +95,6 @@ const {
         font-weight: 900;
         text-transform: uppercase;
         text-decoration: underline;
-        font-size: 0.8rem;
+        font-size: clamp(0.8rem, 1vw, 1.2rem); /* Fluid link text */
     }
 </style>

@@ -29,22 +29,8 @@ const {
     <!-- Welcome Banner Container -->
     <predebut-hero class="welcome-banner">
         <!-- Loading Text -->
-        <h1 class="loading-text" aria-label={status_text}>
-            {
-                status_text
-                    .replace(/\.+$/, "")
-                    .split("")
-                    .map((char: string) => (
-                        <span class="loading-char" aria-hidden="true">
-                            {char}
-                        </span>
-                    ))
-            }
-            <span class="dots-wrapper" aria-hidden="true">
-                <span class="dot">.</span><span class="dot">.</span><span
-                    class="dot">.</span
-                >
-            </span>
+        <h1 class="loading-text" data-status={status_text}>
+            {status_text}
         </h1>
 
         <!-- Join Queue CTA -->
@@ -77,13 +63,13 @@ const {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding-top: 0;
+        padding-top: var(--space-lg);
         padding-bottom: 40px;
         gap: 32px;
         width: 100%;
         background: var(--bg-page);
         color: var(--text-main);
-        min-height: 100vh; /* Ensure it takes up full screen */
+        height: auto; /* Flexible height */
         transition:
             background-color 0.4s ease,
             color 0.4s ease;
@@ -93,7 +79,7 @@ const {
     .top-text {
         font-family: var(--font-body);
         font-weight: var(--weight-semibold);
-        font-size: 18px;
+        font-size: clamp(18px, 1.5vw, 32px); /* Fluid Top Text */
         line-height: 20px;
         text-align: center;
         text-transform: lowercase;
@@ -105,7 +91,7 @@ const {
         order: 1;
         width: 100%;
         width: 100%;
-        max-width: 1400px; /* Increased from 871px for 4K */
+        max-width: 90vw; /* Scales with viewport width */
         display: flex;
         justify-content: center;
         position: relative;
@@ -137,19 +123,24 @@ const {
         font-weight: var(--weight-regular);
         font-size: clamp(
             2rem,
-            8vw,
-            120px
-        ); /* Decreased lower bound for mobile */
+            10vw,
+            180px
+        ); /* Reduced from 12vw/240px to prevent overflow on 2K/150% */
         line-height: 1.1;
         text-align: center;
         color: var(--text-main);
         text-shadow: none; /* Ensure clean look */
         margin: 0;
         white-space: nowrap; /* Prevent wrapping */
+        visibility: hidden; /* Hide until JS splits it to prevent FOUC */
     }
 
-    .loading-char,
-    .dot {
+    .loading-text.visible {
+        visibility: visible;
+    }
+
+    :global(.loading-char),
+    :global(.dot) {
         display: inline-block;
         white-space: pre;
     }
@@ -184,32 +175,73 @@ const {
     class PredebutHero extends HTMLElement {
         constructor() {
             super();
+            this.init();
+        }
 
-            // Scope selectors to this specific component instance
-            const chars = this.querySelectorAll(".loading-char, .dot");
+        init() {
+            const loadingText = this.querySelector(".loading-text");
+            if (loadingText) {
+                // Get text and clear content
+                const originalText =
+                    loadingText.getAttribute("data-status") || "LOADING...";
+                loadingText.textContent = "";
 
-            if (chars.length > 0) {
-                // Continuous Wave Animation
-                gsap.to(chars, {
-                    y: -15, // Jump up 15px
-                    duration: 0.5,
-                    ease: "sine.inOut",
-                    repeat: -1,
-                    yoyo: true,
-                    stagger: 0.1,
+                // Split text into lines/chars logic
+                // Separate trailing dots for consistency
+                const match = originalText.match(/^(.*?)(\.*)$/);
+                const mainText = match ? match[1] : originalText;
+                const dots = match ? match[2] : "";
+
+                // Create fragment to hold new nodes
+                const fragment = document.createDocumentFragment();
+
+                // Add main chars
+                mainText.split("").forEach((char) => {
+                    const span = document.createElement("span");
+                    span.className = "loading-char";
+                    span.textContent = char;
+                    fragment.appendChild(span);
                 });
+
+                // Add dots
+                if (dots) {
+                    const dotsWrapper = document.createElement("span");
+                    dotsWrapper.className = "dots-wrapper";
+                    dots.split("").forEach((dot) => {
+                        const span = document.createElement("span");
+                        span.className = "dot";
+                        span.textContent = dot;
+                        dotsWrapper.appendChild(span);
+                    });
+                    fragment.appendChild(dotsWrapper);
+                }
+
+                loadingText.appendChild(fragment);
+                loadingText.classList.add("visible");
+
+                // Animate
+                const chars = this.querySelectorAll(".loading-char, .dot");
+                if (chars.length > 0) {
+                    gsap.to(chars, {
+                        y: -15,
+                        duration: 0.5,
+                        ease: "sine.inOut",
+                        repeat: -1,
+                        yoyo: true,
+                        stagger: 0.1,
+                    });
+                }
             }
 
             // Down Arrow Animation
             const arrow = this.querySelector(".down-arrow-svg");
             if (arrow) {
                 gsap.to(arrow, {
-                    y: 10, // Move down 10px
+                    y: 10,
                     duration: 1.5,
                     ease: "power1.inOut",
                     repeat: -1,
                     yoyo: true,
-                    stagger: 0.1, // Stagger irrelevant for single element but harmless
                 });
             }
         }

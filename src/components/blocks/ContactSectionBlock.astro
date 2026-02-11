@@ -2,6 +2,7 @@
 import ContactForm from "../forms/ContactForm.astro";
 import { Icon } from "astro-icon/components";
 import { getGlobalSettings } from "../../utils/global";
+import InfoCard from "../ui/InfoCard.astro";
 
 const {
     title,
@@ -28,47 +29,40 @@ const socials = settings.socials || [];
             <!-- Right Column: Info Cards -->
             <div class="info-column">
                 <!-- Contact Us Card -->
-                <div class="info-card">
-                    <h3 class="card-title">CONTACT US</h3>
-                    <div class="card-content">
-                        <p>
-                            <strong>Management</strong><br /><a
-                                href={`mailto:${management_email}`}
-                                >{management_email}</a
-                            >
-                        </p>
-                        <p>
-                            <strong>PR/Press</strong><br /><a
-                                href={`mailto:${press_email}`}>{press_email}</a
-                            >
-                        </p>
-                    </div>
-                </div>
+                <InfoCard title="CONTACT US">
+                    <p>
+                        <strong>Management</strong><br /><a
+                            href={`mailto:${management_email}`}
+                            >{management_email}</a
+                        >
+                    </p>
+                    <p>
+                        <strong>PR/Press</strong><br /><a
+                            href={`mailto:${press_email}`}>{press_email}</a
+                        >
+                    </p>
+                </InfoCard>
 
                 <!-- Bookings Card -->
-                <div class="info-card">
-                    <h3 class="card-title">BOOKINGS</h3>
-                    <div class="card-content">
-                        <p>
-                            <strong>Bookings</strong><br /><a
-                                href={`mailto:${bookings_email}`}
-                                >{bookings_email}</a
-                            >
-                        </p>
-                        <p>
-                            <strong>Inquiries</strong><br /><a
-                                href={`mailto:${inquiries_email}`}
-                                >{inquiries_email}</a
-                            >
-                        </p>
-                    </div>
-                </div>
+                <InfoCard title="BOOKINGS">
+                    <p>
+                        <strong>Bookings</strong><br /><a
+                            href={`mailto:${bookings_email}`}
+                            >{bookings_email}</a
+                        >
+                    </p>
+                    <p>
+                        <strong>Inquiries</strong><br /><a
+                            href={`mailto:${inquiries_email}`}
+                            >{inquiries_email}</a
+                        >
+                    </p>
+                </InfoCard>
 
                 <!-- Links Card -->
                 {
                     show_socials && (
-                        <div class="info-card links-card">
-                            <h3 class="card-title">LINKS</h3>
+                        <InfoCard title="LINKS" class="links-card">
                             <div class="links-grid">
                                 <div class="links-text-col">
                                     {socials.map((social) => (
@@ -97,7 +91,7 @@ const socials = settings.socials || [];
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </InfoCard>
                     )
                 }
             </div>
@@ -108,6 +102,7 @@ const socials = settings.socials || [];
 <style>
     .content-wrapper {
         width: 100%;
+        height: auto; /* Ensure it fits content */
         padding: 24px 16px; /* User specified exact padding to match Newsletter */
         box-sizing: border-box;
         display: flex;
@@ -117,7 +112,8 @@ const socials = settings.socials || [];
 
     .content-container {
         width: 100%;
-        max-width: 1280px;
+        height: auto; /* Ensure it fits content */
+        max-width: 2560px; /* Match global cap */
         padding-inline: 0px;
         border-top: 2px solid var(--color-navy-500);
         display: flex;
@@ -129,90 +125,32 @@ const socials = settings.socials || [];
         display: flex;
         flex-direction: row;
         justify-content: center;
-        align-items: flex-start;
+        align-items: stretch; /* Use stretch to equal height */
+        height: auto; /* Ensure it fits content */
         padding-block: 67px;
-        gap: 84px;
+        gap: clamp(40px, 5vw, 100px); /* Fluid layout gap */
         width: 100%;
-        max-width: 1280px;
+        max-width: 2560px; /* Match global cap */
         flex-wrap: wrap;
     }
 
     .form-column {
-        flex: 0 0 auto;
+        flex: 1 1 auto; /* Allow growth */
         width: 100%;
-        max-width: 640px;
+        height: auto; /* Ensure it fits content */
+        max-width: clamp(
+            600px,
+            45vw,
+            1400px
+        ); /* Increased cap for 4K screens */
     }
 
     .info-column {
         display: flex;
         flex-direction: column;
-        gap: 25px;
-        width: 222px;
+        gap: clamp(25px, 2vw, 40px); /* Fluid column gap */
+        width: clamp(222px, 20vw, 450px); /* Fluid info column */
         flex-shrink: 0;
-    }
-
-    .info-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 17px 25px;
-        gap: 17px;
-        width: 100%;
-        height: 181px;
-        background-color: color-mix(
-            in srgb,
-            var(--color-yellow-500),
-            black 10%
-        ) !important;
-        border-radius: 17px;
-        box-sizing: border-box;
-    }
-
-    .info-card.links-card {
-        height: auto;
-        min-height: 182px;
-    }
-
-    .card-title {
-        font-family: var(--font-heading);
-        font-style: normal;
-        font-weight: 400;
-        font-size: 19px;
-        line-height: 26px;
-        color: var(--color-navy-500);
-        margin: 0;
-        text-align: center;
-        width: 100%;
-    }
-
-    .card-content {
-        font-family: var(--font-body);
-        font-style: normal;
-        font-weight: 700;
-        font-size: 17px;
-        line-height: 26px;
-        text-align: center;
-        color: var(--color-navy-500);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-
-    .card-content p {
-        margin: 0;
-    }
-
-    .card-content a,
-    .social-link {
-        color: var(--color-navy-500);
-        text-decoration: none;
-    }
-
-    .card-content a:hover,
-    .social-link:hover {
-        text-decoration: underline;
     }
 
     .links-grid {
@@ -282,7 +220,6 @@ const socials = settings.socials || [];
         .info-card {
             width: 100%;
             height: auto;
-            min-height: 181px;
         }
     }
 </style>

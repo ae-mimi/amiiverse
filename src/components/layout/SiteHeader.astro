@@ -7,8 +7,7 @@ const links = settings.nav || [];
 
 // settings.nav is the source of truth for the main navigation.
 
-const currentPath = Astro.url.pathname;
-const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
+import Navigation from "../ui/Navigation.astro";
 ---
 
 <header class="site-header">
@@ -33,27 +32,9 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         </a>
 
         <!-- Center: Navbar -->
-        <nav class="main-nav">
-            <ul>
-                {
-                    links.map((link) => (
-                        <li>
-                            <a
-                                href={link.href}
-                                class={
-                                    normalizePath(currentPath) ===
-                                    normalizePath(link.href)
-                                        ? "active"
-                                        : ""
-                                }
-                            >
-                                {link.label}
-                            </a>
-                        </li>
-                    ))
-                }
-            </ul>
-        </nav>
+        <div class="main-nav-wrapper">
+            <Navigation links={links} mode="header-desktop" />
+        </div>
 
         <!-- Right: Actions -->
         <div class="header-actions">
@@ -89,27 +70,7 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     <div id="mobile-menu-overlay">
         <!-- Close Button Removed (Reused Toggle) -->
 
-        <nav class="mobile-nav">
-            <ul>
-                {
-                    links.map((link) => (
-                        <li>
-                            <a
-                                href={link.href}
-                                class={
-                                    normalizePath(currentPath) ===
-                                    normalizePath(link.href)
-                                        ? "active"
-                                        : ""
-                                }
-                            >
-                                {link.label}
-                            </a>
-                        </li>
-                    ))
-                }
-            </ul>
-        </nav>
+        <Navigation links={links} mode="header-mobile" class="mobile-nav" />
 
         {
             settings.enable_follow_link && (
@@ -147,17 +108,22 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         width: 100%;
         min-height: 84px;
         background-color: var(--bg-header);
-        padding: 24px 34px 0 34px;
+        padding: 24px 34px;
         box-sizing: border-box;
         display: flex;
         justify-content: center;
         z-index: 1000;
-        transition: transform 0.3s ease;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: transform;
+    }
+
+    .site-header.is-hidden {
+        transform: translateY(-100%);
     }
 
     .header-inner {
         width: 100%;
-        max-width: 1920px;
+        max-width: 2560px; /* Increased for 4K */
         margin: 0 auto;
         display: flex;
         justify-content: space-between;
@@ -165,18 +131,10 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         position: relative;
     }
 
-    .main-nav {
+    .main-nav-wrapper {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
-    }
-
-    .main-nav ul {
-        display: flex;
-        gap: 40px;
-        list-style: none;
-        margin: 0;
-        padding: 0;
     }
 
     .logo-link {
@@ -185,7 +143,7 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     }
 
     .header-logo-img {
-        width: 98px;
+        width: clamp(98px, 6vw, 140px); /* Fluid Logo */
         height: auto;
         display: block;
         content: var(--logoNavy);
@@ -194,34 +152,6 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     /* Dark Mode Toggle for Logo */
     :global([data-theme="deep-dive"]) .header-logo-img {
         content: var(--logoYellow);
-    }
-
-    .main-nav a {
-        font-family: var(--font-body);
-        font-style: normal;
-        font-weight: var(--weight-regular);
-        font-size: var(--text-xs);
-        line-height: 16px;
-        letter-spacing: 2px;
-        color: var(--text-nav);
-        text-decoration: none;
-        text-transform: uppercase;
-        font-stretch: 100%;
-        transition: all 0.3s ease;
-    }
-
-    .main-nav a.active {
-        font-weight: 600;
-        color: var(--color-pink-500);
-    }
-
-    .main-nav a:hover {
-        font-weight: 600;
-        color: var(--text-nav);
-        text-decoration: underline;
-        text-decoration-color: var(--color-pink-500);
-        text-decoration-thickness: 2px;
-        text-underline-offset: 4px;
     }
 
     .header-actions {
@@ -309,7 +239,7 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
             border-bottom: none;
         }
 
-        .main-nav {
+        .main-nav-wrapper {
             display: none;
         }
 
@@ -344,37 +274,6 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         justify-content: center;
         gap: 27px;
         z-index: 999;
-    }
-
-    .mobile-nav ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 27px;
-    }
-
-    .mobile-nav a {
-        font-family: "Archivo", sans-serif;
-        font-style: normal;
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 16px;
-        letter-spacing: 2px;
-        color: var(--color-navy-500);
-        text-decoration: none;
-        text-transform: uppercase;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .mobile-nav a.active {
-        font-weight: 700;
-        color: var(--color-pink-500);
     }
 
     .mobile-follow-btn {
@@ -491,7 +390,7 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
     }
 
     // Smart Sticky Header Logic
-    const header = document.querySelector(".site-header");
+    const header = document.querySelector(".site-header") as HTMLElement | null;
     let lastScrollY = window.scrollY;
     let isHeaderHidden = false;
 
@@ -502,22 +401,19 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
             // Show header if scrolling up or at the very top
             if (currentScrollY < lastScrollY || currentScrollY < 50) {
                 if (isHeaderHidden) {
-                    gsap.to(header, {
-                        y: "0%",
-                        duration: 0.3,
-                        ease: "power2.out",
-                    });
+                    header.classList.remove("is-hidden");
                     isHeaderHidden = false;
                 }
             }
             // Hide header if scrolling down and past the top threshold
-            else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+            // AND ensure menu is not open
+            else if (
+                currentScrollY > lastScrollY &&
+                currentScrollY > 100 &&
+                !isMenuOpen
+            ) {
                 if (!isHeaderHidden) {
-                    gsap.to(header, {
-                        y: "-100%",
-                        duration: 0.3,
-                        ease: "power2.in",
-                    });
+                    header.classList.add("is-hidden");
                     isHeaderHidden = true;
                 }
             }
@@ -526,5 +422,26 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    // Dynamic Header Height Calculation
+    if (header) {
+        const updateHeaderHeight = () => {
+            const height = header.offsetHeight;
+            document.documentElement.style.setProperty(
+                "--header-height",
+                `${height}px`,
+            );
+        };
+
+        // Initial calculation
+        updateHeaderHeight();
+
+        // Observe resize events
+        const resizeObserver = new ResizeObserver(() => {
+            updateHeaderHeight();
+        });
+
+        resizeObserver.observe(header);
     }
 </script>

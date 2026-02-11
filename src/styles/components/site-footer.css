@@ -1,0 +1,238 @@
+/* Base Styles */
+.site-footer {
+    width: 100%;
+    background-color: var(--bg-footer);
+    color: var(--text-footer);
+    display: flex;
+    justify-content: center;
+    padding: 54px 27px;
+    box-sizing: border-box;
+    transition:
+        background-color 0.4s ease,
+        color 0.4s ease;
+}
+
+.site-footer * {
+    box-sizing: border-box;
+}
+
+.footer-copyright p {
+    font-family: var(--font-body);
+    font-weight: var(--weight-semibold);
+    font-size: 15px;
+    line-height: 16px;
+    letter-spacing: 2px;
+    color: var(--text-footer);
+    opacity: 0.8;
+    text-align: center;
+    margin: 0;
+    transition: color 0.4s ease;
+}
+
+.site-footer * {
+    box-sizing: border-box;
+}
+
+.site-footer .footer-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 64px;
+    width: 100%;
+    max-width: 100%;
+    /* Allow it to fill the container, restricted by footer-main logic */
+}
+
+.site-footer .footer-main {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    /* Uniform spacing between Logo, Nav, Socials */
+    max-width: 450px;
+    /* Base mobile max-width */
+    margin: 0 auto;
+}
+
+/* Logo */
+.site-footer .footer-logo {
+    margin-bottom: 0px;
+}
+
+.site-footer .logo-img {
+    width: 60px;
+    height: auto;
+    aspect-ratio: 98 / 59;
+    display: block;
+    /* Sun Mode: Footer is Navy -> Use Yellow Logo */
+    content: url("/assets/uploads/amii-logo_op-yellow.webp");
+}
+
+/* Dark Mode Override: Footer is Yellow -> Use Navy Logo */
+:global([data-theme="deep-dive"]) .site-footer .logo-img {
+    content: url("/assets/uploads/amii-logo_op-navy.webp");
+}
+
+/* Navigation */
+/* Navigation */
+.site-footer .footer-nav {
+    margin-bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.site-footer .footer-links-grid {
+    display: flex !important;
+    flex-direction: column;
+    /* Mobile = Column */
+    align-items: center;
+    /* Centered on x-axis */
+    justify-content: center;
+    gap: 24px;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100%;
+}
+
+/* Remove old grid child hacks */
+.site-footer .footer-link-item:nth-child(n) {
+    grid-area: auto !important;
+    margin: 0;
+}
+
+.site-footer .footer-nav li {
+    margin: 0;
+    padding: 0;
+}
+
+.site-footer .footer-nav li::before {
+    content: none !important;
+}
+
+/* Socials (Base Mobile/Tablet) */
+.site-footer .footer-socials {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.site-footer .footer-socials a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 33px;
+    height: 33px;
+    color: var(--color-yellow-500);
+    transition:
+        transform 0.2s,
+        opacity 0.2s;
+}
+
+.site-footer .footer-socials a:hover {
+    transform: scale(1.1);
+}
+
+.site-footer .social-icon {
+    width: 20px;
+    height: 20px;
+    color: inherit;
+}
+
+/* Copyright */
+.site-footer .footer-copyright p {
+    font-family: "Archivo", sans-serif;
+    font-weight: 600;
+    font-size: clamp(15px, 1vw, 20px);
+    line-height: 1.4;
+    letter-spacing: 2px;
+    color: var(--color-yellow-500);
+    opacity: 0.8;
+    text-align: center;
+    margin: 0;
+    transition: color 0.4s ease;
+}
+
+@media (min-width: 1025px) {
+    .site-footer {
+        padding: 61px 30px;
+    }
+
+    .site-footer .footer-inner {
+        max-width: 2560px;
+    }
+
+    .site-footer .footer-main {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: none;
+        max-width: none;
+        position: relative;
+        /* Ensure absolute positioning works relative to this */
+    }
+
+    .site-footer .footer-logo {
+        margin-bottom: 0;
+        /* No flex-grow, just natural size */
+    }
+
+    .site-footer .logo-img {
+        width: clamp(88px, 5vw, 130px);
+        height: auto;
+    }
+
+    .site-footer .footer-nav {
+        margin-bottom: 0;
+        /* Absolute Centering */
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        /* Shrink to fit */
+    }
+
+    .site-footer .footer-links-grid {
+        flex-direction: row;
+        /* Desktop = Row */
+        gap: 50px;
+        /* Desktop spacing */
+        max-width: none;
+    }
+
+    .site-footer .footer-socials {
+        justify-content: flex-end;
+    }
+
+    .site-footer .social-icon {
+        width: auto;
+        height: 24px;
+    }
+
+    .site-footer .icon-youtube {
+        height: 26px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .site-footer {
+        padding: 64px 32px;
+    }
+
+    .site-footer .footer-inner {
+        max-width: 2560px;
+    }
+
+    .site-footer .logo-img {
+        width: clamp(120px, 6vw, 160px);
+    }
+
+    .site-footer .footer-links-grid {
+        gap: 48px;
+    }
+}

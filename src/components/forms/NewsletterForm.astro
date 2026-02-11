@@ -33,10 +33,65 @@
     </div>
 </section>
 
+<script>
+    const forms = document.querySelectorAll("form.newsletter-form");
+
+    forms.forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formEl = e.target as HTMLFormElement;
+            const input = formEl.querySelector(
+                'input[name="email"]',
+            ) as HTMLInputElement;
+            // Privacy checkbox might not be in this specific form, but keeping logic generic
+            const privacyCheckbox = formEl.querySelector(
+                'input[name="privacy"]',
+            ) as HTMLInputElement;
+            const button = formEl.querySelector("button") as HTMLButtonElement;
+            const originalText = button.innerText;
+
+            if (!input || !button) return;
+
+            if (privacyCheckbox && !privacyCheckbox.checked) {
+                alert("Please agree to the Privacy Policy.");
+                return;
+            }
+
+            button.disabled = true;
+            button.innerText = "...";
+
+            const formData = new FormData();
+            formData.append("email", input.value);
+
+            try {
+                const response = await fetch("/api/subscribe", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success!
+                    window.location.href = "/newsletter-success";
+                } else {
+                    alert(result.message || "Subscription failed.");
+                    button.disabled = false;
+                    button.innerText = originalText;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Network error.");
+                button.disabled = false;
+                button.innerText = originalText;
+            }
+        });
+    });
+</script>
 <style>
     .form-section {
         width: 100%;
-        max-width: 1280px;
+        max-width: 2560px; /* Match global cap */
         margin: 0 auto;
         border-top: 2px solid var(--text-main);
         display: flex;
@@ -49,10 +104,10 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 48px;
-        gap: 16px;
+        padding: clamp(48px, 5vw, 80px); /* More breathing room */
+        gap: clamp(16px, 2vw, 32px); /* larger gap */
         width: 100%;
-        max-width: 640px;
+        max-width: clamp(640px, 40vw, 1000px); /* Fluid Card Width */
         background: var(--bg-card);
         border: 1px solid var(--text-main);
         box-shadow: var(--shadow-sm);
@@ -72,8 +127,8 @@
         margin: 0;
         font-family: var(--font-heading), sans-serif;
         font-weight: var(--weight-black);
-        font-size: 36px;
-        line-height: 40px;
+        font-size: clamp(36px, 3vw, 72px); /* Fluid Title */
+        line-height: 1.1;
         color: var(--text-main);
     }
 
@@ -81,8 +136,8 @@
         margin: 0;
         font-family: var(--font-body), sans-serif;
         font-weight: var(--weight-regular);
-        font-size: 12px;
-        line-height: 19px;
+        font-size: clamp(12px, 1vw, 20px); /* Fluid Subtitle */
+        line-height: 1.5;
         color: var(--text-accent);
     }
 
@@ -90,9 +145,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 16px;
+        gap: clamp(16px, 1.5vw, 24px); /* Fluid form gap */
         width: 100%;
-        max-width: 544px;
+        max-width: 80%; /* Allow form to be reasonably wide within card */
     }
 
     .input-group {
@@ -104,20 +159,20 @@
 
     .input-group label {
         font-family: var(--font-body);
-        font-size: 12px;
+        font-size: clamp(12px, 1vw, 18px);
         color: var(--text-main);
         font-weight: var(--weight-regular);
     }
 
     .input-group input {
         width: 100%;
-        height: 44px;
+        height: clamp(44px, 4vw, 64px); /* Taller inputs */
         background: var(--input-bg);
         border: 1px solid var(--input-border);
         border-radius: var(--radius-sm);
         padding: 0 1rem;
         font-family: var(--font-body);
-        font-size: 16px;
+        font-size: clamp(16px, 1.2vw, 24px); /* Fluid Input Text */
         color: var(--input-text);
         outline: none;
         box-sizing: border-box;
@@ -132,8 +187,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 130px;
-        height: 55px;
+        width: clamp(130px, 10vw, 200px); /* Wider button */
+        height: clamp(55px, 4vw, 70px); /* Taller button */
         background: var(--btn-bg-primary);
         border-radius: var(--radius-pill);
         border: none;

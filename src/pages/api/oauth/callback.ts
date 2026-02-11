@@ -1,8 +1,13 @@
+import type { APIRoute } from "astro";
+import { getOAuthSuccessHtml } from "../../../utils/oauth-templates";
+
 export const prerender = false;
 
-export async function GET({ request }) {
+export const GET: APIRoute = async ({ request, cookies }) => {
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const storedState = cookies.get("oauth_state")?.value;
 
     const client_id = import.meta.env.GITHUB_CLIENT_ID;
     const client_secret = import.meta.env.GITHUB_CLIENT_SECRET;
@@ -10,6 +15,12 @@ export async function GET({ request }) {
     if (!code) {
         return new Response("No code provided", { status: 400 });
     }
+
+    if (!state || !storedState || state !== storedState) {
+        return new Response("Invalid state parameter", { status: 403 });
+    }
+
+    cookies.delete("oauth_state", { path: "/" });
 
     if (!client_id || !client_secret) {
         return new Response("GitHub credentials not configured", { status: 500 });
@@ -37,40 +48,14 @@ export async function GET({ request }) {
         }
 
         // Return HTML that posts the message back to the CMS window
-        const html = `
-      <!DOCTYPE html>
-      <html>
-      <body>
-      <script>
-        (function() {
-          function receiveMessage(e) {
-            console.log("receiveMessage %o", e);
-            
-            // Validate origin if needed, but for now we trust the opener
-             window.opener.postMessage(
-              'authorization:github:success:${JSON.stringify({
-            token: token,
-            provider: "github"
-        })}', 
-              e.origin
-            );
-          }
-
-          window.addEventListener("message", receiveMessage, false);
-          
-          // Send message to opener to initiate handshake
-          window.opener.postMessage("authorizing:github", "*");
-        })()
-      </script>
-      </body>
-      </html>
-    `;
+        const html = getOAuthSuccessHtml(token);
 
         return new Response(html, {
             headers: { "Content-Type": "text/html" },
         });
 
     } catch (error) {
-        return new Response(error.message, { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        return new Response(errorMessage, { status: 500 });
     }
 }

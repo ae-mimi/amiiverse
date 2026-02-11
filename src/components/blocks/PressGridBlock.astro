@@ -1,5 +1,6 @@
 ---
 import { getSanityContent } from "../../utils/sanity";
+import PressItem from "../ui/PressItem.astro";
 
 const { title } = Astro.props;
 const pressItems = await getSanityContent(
@@ -12,79 +13,21 @@ const sortedPress = pressItems || [];
     <div class="container">
         {title && <h2 class="section-title">{title}</h2>}
         <div class="press-list">
-            {
-                sortedPress.map((item: any) => (
-                    <div class="press-item">
-                        <h3 class="press-title">{item.title}</h3>
-                        <p class="press-date">
-                            {new Date(item.date).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            })}
-                        </p>
-                        {item.file && (
-                            <a
-                                href={item.file}
-                                target="_blank"
-                                class="press-link"
-                            >
-                                READ MORE
-                            </a>
-                        )}
-                    </div>
-                ))
-            }
+            {sortedPress.map((item: any) => <PressItem item={item} />)}
         </div>
     </div>
 </section>
 
 <style>
     .press-grid-block {
-        padding: 60px 20px;
+        height: auto; /* Ensure it fits content */
+        padding-block: var(--space-lg);
         background-color: var(--bg-page);
     }
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    .section-title {
-        font-family: var(--font-heading);
-        font-size: 40px;
-        color: var(--text-main);
-        text-align: center;
-        margin-bottom: 40px;
-    }
+
     .press-list {
         display: flex;
         flex-direction: column;
         gap: 30px;
-    }
-    .press-item {
-        border-bottom: 1px solid var(--text-main);
-        padding-bottom: 30px;
-    }
-    .press-item:last-child {
-        border-bottom: none;
-    }
-    .press-title {
-        font-family: var(--font-heading);
-        font-size: 24px;
-        color: var(--text-main);
-        margin: 0 0 10px 0;
-    }
-    .press-date {
-        font-family: var(--font-body);
-        color: var(--text-main);
-        opacity: 0.7;
-        margin-bottom: 15px;
-    }
-    .press-link {
-        font-family: var(--font-body);
-        font-weight: bold;
-        color: var(--text-main);
-        text-decoration: underline;
-        text-transform: uppercase;
-        letter-spacing: 1px;
     }
 </style>

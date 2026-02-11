@@ -15,12 +15,12 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 42px 34px;
+        padding: var(--space-lg) var(--space-md);
         width: 100%;
-        max-width: 1280px;
+        max-width: 2560px; /* Match global cap */
         margin: 0 auto;
         /* Height from Figma is 213px, but we might want it to be flexible or min-height */
-        min-height: 213px;
+        height: auto; /* Ensure it fits content */
     }
 
     .placeholder-content {
@@ -36,8 +36,8 @@
         font-family: "Starbim", sans-serif;
         font-style: normal;
         font-weight: 400;
-        font-size: 69px;
-        line-height: 78px;
+        font-size: clamp(48px, 6vw, 140px); /* Fluid Title */
+        line-height: 1.1;
         display: flex;
         align-items: center;
         text-align: center;
@@ -49,8 +49,8 @@
         font-family: "Archivo", sans-serif;
         font-style: normal;
         font-weight: 400;
-        font-size: 19px;
-        line-height: 17px;
+        font-size: clamp(16px, 1.5vw, 32px); /* Fluid Subtitle */
+        line-height: 1.5;
         display: flex;
         align-items: center;
         text-align: center;
@@ -58,14 +58,10 @@
         margin: 0;
     }
 
-    /* Responsiveness? User didn't specify, but let's ensure it doesn't break on mobile */
+    /* Responsiveness */
     @media (max-width: 768px) {
         .music-title {
-            font-size: 48px; /* Safe scale down */
-            line-height: 1.1;
-        }
-        .coming-soon {
-            font-size: 16px;
+            /* clamp handles this mostly, but good to be safe */
         }
     }
 </style>

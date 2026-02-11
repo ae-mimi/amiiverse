@@ -1,6 +1,6 @@
 ---
 import { getSanityContent, urlFor } from "../../utils/sanity";
-import { Icon } from "astro-icon/components";
+import MusicCard from "../ui/MusicCard.astro";
 
 const { title } = Astro.props;
 const musicItems = await getSanityContent(
@@ -13,119 +13,23 @@ const sortedMusic = musicItems || [];
     <div class="container">
         {title && <h2 class="section-title">{title}</h2>}
         <div class="music-list">
-            {
-                sortedMusic.map((item: any) => (
-                    <div class="music-item">
-                        <div class="cover-art">
-                            <img
-                                src={urlFor(item.cover)}
-                                alt={item.title}
-                                loading="lazy"
-                            />
-                        </div>
-                        <div class="music-info">
-                            <h3 class="music-title">{item.title}</h3>
-                            <p class="music-date">
-                                {new Date(item.date).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                    },
-                                )}
-                            </p>
-                            {item.spotify && (
-                                <a
-                                    href={item.data.spotify}
-                                    target="_blank"
-                                    class="spotify-link"
-                                >
-                                    <Icon
-                                        name="simple-icons:spotify"
-                                        class="icon"
-                                    />
-                                    <span>Listen on Spotify</span>
-                                </a>
-                            )}
-                        </div>
-                    </div>
-                ))
-            }
+            {sortedMusic.map((item: any) => <MusicCard item={item} />)}
         </div>
     </div>
 </section>
 
 <style>
     .music-grid-block {
-        padding: 60px 20px;
+        height: auto; /* Ensure it fits content */
+        padding-block: var(--space-lg);
         background-color: var(--bg-page);
     }
-    .container {
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-    .section-title {
-        font-family: var(--font-heading);
-        font-size: 40px;
-        color: var(--text-main);
-        text-align: center;
-        margin-bottom: 40px;
-    }
+
     .music-list {
         display: flex;
         flex-direction: column;
-        gap: 40px;
-    }
-    .music-item {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        align-items: center;
-        text-align: center;
-    }
-    @media (min-width: 768px) {
-        .music-item {
-            flex-direction: row;
-            text-align: left;
-            gap: 40px;
-        }
-    }
-    .cover-art img {
-        width: 100%;
-        max-width: 300px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    .music-title {
-        font-family: var(--font-heading);
-        font-size: 32px;
-        color: var(--text-main);
-        margin: 0 0 10px 0;
-    }
-    .music-date {
-        font-family: var(--font-body);
-        color: var(--text-main);
-        opacity: 0.8;
-        margin-bottom: 20px;
-    }
-    .spotify-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        background: #1db954;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: transform 0.2s;
-    }
-    .spotify-link:hover {
-        transform: scale(1.05);
-    }
-    .icon {
-        width: 20px;
-        height: 20px;
+        gap: clamp(40px, 4vw, 80px); /* Fluid gap */
+        max-width: 1280px; /* Keep list constrained reasonably within container */
+        margin: 0 auto;
     }
 </style>

@@ -1,0 +1,74 @@
+---
+const { title, class: className } = Astro.props;
+---
+
+<div class:list={["info-card", className]}>
+    <h3 class="card-title">{title}</h3>
+    <div class="card-content">
+        <slot />
+    </div>
+</div>
+
+<style>
+    .info-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(20px, 2vw, 40px); /* Fluid Padding */
+        gap: 17px;
+        width: 100%;
+        flex: 1; /* evenly distribute height */
+        background-color: color-mix(
+            in srgb,
+            var(--color-yellow-500),
+            black 10%
+        ) !important;
+        border-radius: 17px;
+        box-sizing: border-box;
+    }
+
+    .info-card.links-card {
+        height: auto;
+    }
+
+    .card-title {
+        font-family: var(--font-heading);
+        font-style: normal;
+        font-weight: 400;
+        font-size: clamp(19px, 1.5vw, 32px); /* Fluid Title */
+        line-height: 1.4;
+        color: var(--color-navy-500);
+        margin: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .card-content {
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: 700;
+        font-size: clamp(17px, 1.2vw, 24px); /* Fluid Content */
+        line-height: 1.5;
+        text-align: center;
+        color: var(--color-navy-500);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    /* Global style for links inside content to ensure they inherit correct color */
+    .card-content :global(a) {
+        color: var(--color-navy-500);
+        text-decoration: none;
+    }
+    .card-content :global(a:hover) {
+        text-decoration: underline;
+    }
+    .card-content :global(p) {
+        margin: 0;
+    }
+</style>

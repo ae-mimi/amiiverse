@@ -1,0 +1,56 @@
+---
+const { item } = Astro.props;
+---
+
+<div class="press-item">
+    <h3 class="press-title">{item.title}</h3>
+    <p class="press-date">
+        {
+            new Date(item.date).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            })
+        }
+    </p>
+    {
+        item.file && (
+            <a href={item.file} target="_blank" class="press-link">
+                READ MORE
+            </a>
+        )
+    }
+</div>
+
+<style>
+    .press-item {
+        border-bottom: 1px solid var(--text-main);
+        padding-bottom: 30px;
+    }
+    .press-item:last-child {
+        border-bottom: none;
+    }
+    .press-title {
+        font-family: var(--font-heading);
+        font-size: clamp(24px, 2.5vw, 48px); /* Fluid Headline */
+        color: var(--text-main);
+        margin: 0 0 10px 0;
+        line-height: 1.2;
+    }
+    .press-date {
+        font-family: var(--font-body);
+        font-size: clamp(14px, 1vw, 20px); /* Fluid Date */
+        color: var(--text-main);
+        opacity: 0.7;
+        margin-bottom: 15px;
+    }
+    .press-link {
+        font-family: var(--font-body);
+        font-weight: bold;
+        font-size: clamp(14px, 1vw, 20px); /* Fluid Link */
+        color: var(--text-main);
+        text-decoration: underline;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>

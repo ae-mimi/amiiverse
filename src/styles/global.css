@@ -45,28 +45,23 @@
   --weight-black: 900;
 
   /* Typography - Scale (Mobile Base -> 4K) */
-  --text-xs: clamp(12px, 0.8vw, 16px);
-  --text-sm: clamp(14px, 1vw, 20px);
-  --text-base: clamp(16px, 1.2vw, 24px);
-  --text-lg: clamp(20px, 1.5vw, 32px);
-  --text-xl: clamp(24px, 2vw, 40px);
-  --text-2xl: clamp(32px, 3vw, 64px);
-  --text-3xl: clamp(36px, 4vw, 96px);
-  --text-4xl: clamp(48px, 5vw, 128px);
+  --text-xs: clamp(12px, 0.8vw, 18px);
+  --text-sm: clamp(14px, 1vw, 24px);
+  --text-base: clamp(16px, 1.2vw, 32px);
+  --text-lg: clamp(20px, 1.5vw, 42px);
+  --text-xl: clamp(24px, 2vw, 56px);
+  --text-2xl: clamp(32px, 3vw, 84px);
+  --text-3xl: clamp(36px, 4vw, 128px);
+  --text-4xl: clamp(48px, 6vw, 180px);
+  /* Increased upper bound significantly */
 
   /* Spacing - Fluid Scale (Targeting up to 2560px) */
-  --space-2xs: clamp(0.25rem, 0.5vw, 1rem);
-  /* 4-16px */
-  --space-xs: clamp(0.5rem, 1vw, 2rem);
-  /* 8-32px */
-  --space-sm: clamp(1rem, 2vw, 4rem);
-  /* 16-64px */
-  --space-md: clamp(1.5rem, 3vw, 6rem);
-  /* 24-96px */
-  --space-lg: clamp(3rem, 5vw, 10rem);
-  /* 48-160px */
-  --space-xl: clamp(5rem, 8vw, 16rem);
-  /* 80-256px */
+  --space-2xs: clamp(0.25rem, 0.5vw, 1.5rem);
+  --space-xs: clamp(0.5rem, 1vw, 3rem);
+  --space-sm: clamp(1rem, 2vw, 5rem);
+  --space-md: clamp(1.5rem, 3vw, 8rem);
+  --space-lg: clamp(3rem, 5vw, 14rem);
+  --space-xl: clamp(5rem, 8vw, 22rem);
 
   /* Radius */
   --radius-sm: 7px;
@@ -76,6 +71,14 @@
   /* Shadows */
   --shadow-sm: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
+
+/*****************************************************************************
+ * 2. SEMANTIC TOKENS (The Decisions)
+ *    - Context-aware variables that map Primitives to Usage.
+ *    - Use these in components!
+ *    - Colors/Fonts etc.
+ *****************************************************************************/
+
 
 /*****************************************************************************
  * 2. SEMANTIC TOKENS (The Decisions)
@@ -139,7 +142,7 @@
 
 html,
 body {
-  height: 100%;
+  /* height: 100% removed to allow window scroll */
   font-family: var(--font-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -186,8 +189,8 @@ select {
 /* Utilities */
 .container {
   width: 100%;
-  max-width: 1920px;
-  /* Increased for 4K */
+  max-width: 2560px;
+  /* Increased for 4K/Ultrawide */
   margin-inline: auto;
   padding-inline: max(16px, var(--space-sm));
   /* Ensure minimum padding on mobile */
@@ -236,4 +239,13 @@ select {
 
 .btn:active {
   transform: scale(0.98);
+}
+
+/* Typography Utilities */
+.section-title {
+  font-family: var(--font-heading);
+  font-size: clamp(40px, 4vw, 80px);
+  color: var(--text-main);
+  text-align: center;
+  margin-bottom: 40px;
 }

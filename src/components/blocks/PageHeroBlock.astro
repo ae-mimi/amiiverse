@@ -27,11 +27,11 @@ const {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 42px 34px;
+        padding: var(--space-md) var(--space-sm);
         width: 100%;
-        max-width: 1280px;
+        max-width: 2560px; /* Match global container cap */
         margin: 0 auto;
-        min-height: 213px;
+        height: auto; /* Ensure it fits content */
         box-sizing: border-box; /* Ensure padding doesn't add to width */
     }
 
@@ -40,7 +40,7 @@ const {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 34px;
+        gap: var(--space-xs);
         width: 100%;
     }
 
@@ -48,8 +48,8 @@ const {
         font-family: "Starbim", sans-serif;
         font-style: normal;
         font-weight: 400;
-        font-size: 69px;
-        line-height: 78px;
+        font-size: clamp(48px, 6vw, 140px); /* Fluid 4K scaling */
+        line-height: 1.1;
         display: flex;
         align-items: center;
         text-align: center;
@@ -61,7 +61,7 @@ const {
         font-family: "Archivo", sans-serif;
         font-style: normal;
         font-weight: 400;
-        font-size: 19px;
+        font-size: clamp(16px, 1.5vw, 32px); /* Fluid 4K scaling */
         line-height: 17px;
         display: flex;
         align-items: center;

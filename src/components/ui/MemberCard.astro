@@ -1,0 +1,52 @@
+---
+import { urlFor } from "../../utils/sanity";
+
+const { member } = Astro.props;
+---
+
+<div class="member-card">
+    <div class="member-image">
+        <img src={urlFor(member.image)} alt={member.name} loading="lazy" />
+    </div>
+    <h3 class="member-name">{member.name}</h3>
+    <p class="member-role">{member.role}</p>
+    <p class="member-fact">{member.fact}</p>
+</div>
+
+<style>
+    .member-card {
+        text-align: center;
+        width: 100%;
+        max-width: clamp(300px, 25vw, 500px); /* Fluid card width */
+    }
+    .member-image img {
+        width: 100%;
+        aspect-ratio: 1; /* Keep square */
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+        border: 4px solid var(--text-main);
+    }
+    .member-name {
+        font-family: var(--font-heading);
+        font-size: clamp(24px, 2.5vw, 42px); /* Fluid Name */
+        color: var(--text-main);
+        margin: 0 0 5px 0;
+    }
+    .member-role {
+        font-family: var(--font-body);
+        font-weight: bold;
+        font-size: clamp(16px, 1.2vw, 24px); /* Fluid Role */
+        color: var(--text-main);
+        opacity: 0.8;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .member-fact {
+        font-family: var(--font-body);
+        font-size: clamp(16px, 1.2vw, 22px); /* Fluid Fact */
+        color: var(--text-main);
+        font-style: italic;
+    }
+</style>

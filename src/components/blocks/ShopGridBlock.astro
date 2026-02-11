@@ -32,23 +32,15 @@ const displayedItems = limit ? items.slice(0, limit) : items;
 
 <style>
     .shop-grid-block {
-        padding: 60px 20px;
+        height: auto; /* Ensure it fits content */
+        padding-block: var(--space-lg);
         background-color: var(--bg-page);
     }
-    .container {
-        max-width: 1440px;
-        margin: 0 auto;
-    }
-    .section-title {
-        font-family: var(--font-heading);
-        font-size: 40px;
-        color: var(--text-main);
-        text-align: center;
-        margin-bottom: 40px;
-    }
+
     .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
-        gap: 30px;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+        gap: clamp(30px, 3vw, 60px); /* Fluid gap */
+        justify-items: center;
     }
 </style>

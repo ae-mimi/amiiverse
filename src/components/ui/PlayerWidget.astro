@@ -117,7 +117,7 @@ const track = propTrack
         align-items: center;
         gap: 32px;
         width: 100%;
-        max-width: 1280px;
+        max-width: 2560px; /* Match global cap */
         margin-inline: auto;
         padding-block: 2rem;
     }
@@ -181,7 +181,7 @@ const track = propTrack
         backdrop-filter: blur(10px);
         width: 100%;
         width: 100%;
-        max-width: 1000px; /* Increased for wider screens */
+        max-width: clamp(800px, 60vw, 1400px); /* Fluid Player Card */
         align-items: center;
     }
 
@@ -200,7 +200,7 @@ const track = propTrack
         align-items: center;
         gap: 24px;
         width: 100%;
-        max-width: 300px;
+        max-width: clamp(300px, 20vw, 500px); /* Fluid Art Column */
     }
 
     .album-art {
@@ -324,7 +324,7 @@ const track = propTrack
     .track-title {
         font-family: "Archivo", sans-serif;
         font-weight: 600;
-        font-size: 26px;
+        font-size: clamp(26px, 2.5vw, 42px); /* Fluid Track Title */
         line-height: 1.2;
         color: #15499d;
     }
@@ -338,13 +338,13 @@ const track = propTrack
     .credits-section h4 {
         font-family: "Archivo", sans-serif;
         font-weight: 600;
-        font-size: 19px;
+        font-size: clamp(19px, 1.5vw, 24px); /* Fluid Credits Header */
         color: #15499d;
     }
 
     .credits-text {
         font-family: "Archivo", sans-serif;
-        font-size: 15px;
+        font-size: clamp(15px, 1.2vw, 20px); /* Fluid Credits Text */
         line-height: 1.6;
         color: #15499d;
     }
