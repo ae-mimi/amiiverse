@@ -299,13 +299,12 @@ const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
         position: relative;
     }
 
-    /* Responsive Mobile */
-    @media (max-width: 768px) {
+    /* Responsive Mobile & Tablet */
+    @media (max-width: 1024px) {
         .site-header {
             height: auto;
             min-height: 54px;
             padding: 16px 8px;
-            background-color: transparent;
             background-color: var(--color-yellow-500);
             border-bottom: none;
         }
