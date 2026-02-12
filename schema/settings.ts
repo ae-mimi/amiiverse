@@ -15,11 +15,7 @@ export default defineType({
             title: 'Site Description',
             type: 'text',
         }),
-        defineField({
-            name: 'enable_follow_link',
-            title: 'Enable Follow Link',
-            type: 'boolean',
-        }),
+
         defineField({
             name: 'logo_navy',
             title: 'Logo (Navy)',
@@ -45,6 +41,8 @@ export default defineType({
                     fields: [
                         { name: 'label', type: 'string' },
                         { name: 'href', type: 'string' },
+                        { name: 'is_special', type: 'boolean', title: 'Is Special?' },
+                        { name: 'disabled', type: 'boolean', title: 'Is Disabled?' },
                     ],
                 },
             ],

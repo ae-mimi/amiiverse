@@ -11,6 +11,8 @@ import PressGridBlock from "./blocks/PressGridBlock.astro";
 import MembersGridBlock from "./blocks/MembersGridBlock.astro";
 import ContactFormBlock from "./blocks/ContactFormBlock.astro";
 import ContactSectionBlock from "./blocks/ContactSectionBlock.astro";
+import ProfileHeaderBlock from "./blocks/ProfileHeaderBlock.astro";
+import LinkStackBlock from "./blocks/LinkStackBlock.astro";
 
 const { blocks } = Astro.props;
 
@@ -52,7 +54,11 @@ interface Props {
             case "contact_form":
                 return <ContactFormBlock {...block} />;
             case "contact_section":
-                return <ContactSectionBlock {...block} />;
+                return <ContactSectionBlock {...(block as any)} />;
+            case "profile_header":
+                return <ProfileHeaderBlock {...(block as any)} />;
+            case "link_stack":
+                return <LinkStackBlock {...(block as any)} />;
             default:
                 return null;
         }

@@ -119,8 +119,6 @@
   --logo-color-primary: var(--color-navy-500);
 }
 
-/* Theme Context: Deep Dive Mode */
-
 
 /* Legacy Variable Support (Bridge for Components) */
 :root {

@@ -1,8 +1,8 @@
 ---
 import { Icon } from "astro-icon/components";
 
-import { getGlobalSettings } from "../../utils/global";
-const settings = getGlobalSettings();
+import { fetchGlobalSettings } from "../../utils/global";
+const settings = await fetchGlobalSettings();
 const links = settings.nav || [];
 
 // settings.nav is the source of truth for the main navigation.
@@ -33,7 +33,7 @@ import Navigation from "../ui/Navigation.astro";
 
         <!-- Center: Navbar -->
         <div class="main-nav-wrapper">
-            <Navigation links={links} mode="header-desktop" />
+            <Navigation links={links} layout="row" theme="default" />
         </div>
 
         <!-- Right: Actions -->
@@ -70,15 +70,12 @@ import Navigation from "../ui/Navigation.astro";
     <div id="mobile-menu-overlay">
         <!-- Close Button Removed (Reused Toggle) -->
 
-        <Navigation links={links} mode="header-mobile" class="mobile-nav" />
-
-        {
-            settings.enable_follow_link && (
-                <a href="/follow" class="mobile-follow-btn">
-                    FOLLOW
-                </a>
-            )
-        }
+        <Navigation
+            links={links}
+            layout="column"
+            theme="default"
+            class="mobile-nav"
+        />
 
         <div class="mobile-socials">
             {
@@ -276,23 +273,6 @@ import Navigation from "../ui/Navigation.astro";
         z-index: 999;
     }
 
-    .mobile-follow-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 130px;
-        height: 55px;
-        background: var(--color-navy-500);
-        border-radius: 999px;
-        font-family: var(--font-body);
-        font-weight: 600;
-        font-size: 15px;
-        letter-spacing: 2px;
-        color: var(--color-yellow-500);
-        text-decoration: none;
-        text-transform: uppercase;
-    }
-
     .mobile-socials {
         display: flex;
         gap: 8px;
@@ -318,12 +298,9 @@ import Navigation from "../ui/Navigation.astro";
 <script>
     import { gsap } from "gsap";
 
-    // Mobile Menu Logic
-
     const menuToggle = document.getElementById("menu-toggle");
     const mobileMenu = document.getElementById("mobile-menu-overlay");
     const mobileLinks = document.querySelectorAll(".mobile-nav li");
-    const mobileFollow = document.querySelector(".mobile-follow-btn");
     const mobileSocials = document.querySelector(".mobile-socials");
 
     const iconMenu = document.querySelector(".icon-menu");
@@ -362,7 +339,7 @@ import Navigation from "../ui/Navigation.astro";
                 "<",
             )
             .from(
-                [mobileLinks, mobileFollow, mobileSocials],
+                [mobileLinks, mobileSocials],
                 {
                     y: 20,
                     opacity: 0,

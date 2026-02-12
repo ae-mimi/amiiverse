@@ -1,16 +1,10 @@
 ---
 import { Icon } from "astro-icon/components";
-import { getGlobalSettings } from "../../utils/global";
+import { fetchGlobalSettings } from "../../utils/global";
 import "../../styles/components/site-footer.css";
 
-const settings = getGlobalSettings();
-const rawFooterLinks = settings.footer.links || [];
-const footerLinks = rawFooterLinks.filter((link: any) => {
-    if (link.label === "FOLLOW" && !settings.enable_follow_link) {
-        return false;
-    }
-    return true;
-});
+const settings = await fetchGlobalSettings();
+const footerLinks = settings.footer.links || [];
 
 const currentYear = new Date().getFullYear();
 const copyrightText = settings.footer.copyright.replace(
@@ -40,11 +34,12 @@ import Navigation from "../ui/Navigation.astro";
             </div>
 
             <!-- Navigation Section -->
-            <nav class="footer-nav">
-                <div class="footer-links-grid">
-                    <Navigation links={footerLinks} mode="footer" class="" />
-                </div>
-            </nav>
+            <Navigation
+                links={footerLinks}
+                layout="row"
+                theme="inverse"
+                class="footer-nav"
+            />
 
             <!-- Socials Section -->
             <div class="footer-socials">

@@ -170,6 +170,9 @@ export default defineType({
             { name: 'show_socials', type: 'boolean', initialValue: true },
           ],
         },
+        // Follow Page Blocks
+        { type: 'profile_header' },
+        { type: 'link_stack' },
       ],
     }),
   ],

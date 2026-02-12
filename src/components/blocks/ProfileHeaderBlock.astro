@@ -1,0 +1,53 @@
+---
+import { urlFor } from "../../utils/sanity";
+
+interface Props {
+    avatar: any;
+    handle: string;
+    bio: string;
+}
+
+const { avatar, handle, bio } = Astro.props;
+const avatarUrl = avatar
+    ? urlFor(avatar)
+    : "/assets/placeholder-group-square.jpg";
+---
+
+<div class="profile-header text-center">
+    <div class="avatar">
+        <img src={avatarUrl} alt={handle || "Profile"} />
+    </div>
+    <h1 class="handle">{handle}</h1>
+    <p class="bio">{bio}</p>
+</div>
+
+<style>
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-inline: auto;
+        margin-bottom: 1rem;
+        border: 3px solid var(--color-navy-500);
+    }
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .handle {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
