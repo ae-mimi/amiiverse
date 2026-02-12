@@ -7,7 +7,11 @@ const {
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
-const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
+const normalizePath = (path: string) => {
+    let p = path.replace(/\/$/, "") || "/";
+    if (p === "/home") return "/";
+    return p;
+};
 ---
 
 <nav class:list={[className, `nav-layout-${layout}`, `nav-theme-${theme}`]}>

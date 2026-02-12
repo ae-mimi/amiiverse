@@ -15,6 +15,13 @@ export default defineType({
             title: 'Site Description',
             type: 'text',
         }),
+        defineField({
+            name: 'enable_follow_link',
+            title: 'Enable Special "Follow" Link',
+            description: 'Show a "FOLLOW" button in the mobile menu.',
+            type: 'boolean',
+            initialValue: false,
+        }),
 
         defineField({
             name: 'logo_navy',

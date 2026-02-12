@@ -1,0 +1,86 @@
+---
+import { getSanityContent } from "../../utils/sanity";
+
+// Fetch themes for the selector
+const THEMES_QUERY = `*[_type == "theme"] {
+  name,
+  "slug": slug.current,
+  isActive
+}`;
+
+const themes = (await getSanityContent(THEMES_QUERY)) || [];
+
+// Fallback if no themes
+const availableThemes =
+    themes.length > 0
+        ? themes
+        : [{ name: "Default", slug: "default", isActive: true }];
+---
+
+<div class="theme-selector">
+    <select id="era-selector" aria-label="Select Era">
+        {
+            availableThemes.map((theme) => (
+                <option value={theme.slug}>{theme.name}</option>
+            ))
+        }
+    </select>
+</div>
+
+<script>
+    const selector = document.getElementById("era-selector");
+
+    // Set initial value from storage
+    const savedTheme = localStorage.getItem("selected-theme");
+    if (savedTheme && selector) {
+        selector.value = savedTheme;
+    }
+
+    // Handle change
+    selector?.addEventListener("change", (e) => {
+        const slug = e.target.value;
+        // Call the global switch function defined in ThemeManager
+        if (window.switchTheme) {
+            window.switchTheme(slug);
+        }
+    });
+</script>
+
+<style>
+    .theme-selector {
+        position: relative;
+        display: inline-block;
+    }
+
+    select {
+        appearance: none;
+        background-color: transparent;
+        border: 1px solid var(--color-navy-500);
+        color: var(--color-navy-500);
+        padding: 0.5em 2em 0.5em 1em;
+        border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        cursor: pointer;
+        text-transform: uppercase;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    select:hover {
+        background-color: var(--color-navy-500);
+        color: var(--color-yellow-500);
+    }
+
+    /* Custom arrow */
+    .theme-selector::after {
+        content: "▼";
+        font-size: 0.6em;
+        position: absolute;
+        right: 1em;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: currentColor;
+    }
+</style>

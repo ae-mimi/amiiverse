@@ -9,6 +9,7 @@ export interface SiteSettings {
         logo_yellow: string;
         favicon: string;
     };
+    enable_follow_link?: boolean;
     nav: {
         label: string;
         href: string;

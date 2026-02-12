@@ -6,5 +6,6 @@ import page from './page'
 import settings from './settings'
 import profileHeader from './profileHeader'
 import linkStack from './linkStack'
+import theme from './theme'
 
-export const schemaTypes = [music, member, shop, press, page, settings, profileHeader, linkStack]
+export const schemaTypes = [music, member, shop, press, page, settings, profileHeader, linkStack, theme]
