@@ -1,0 +1,77 @@
+---
+interface Props {
+    text: string;
+    speed?: "slow" | "normal" | "fast";
+    variant?: "default" | "bold" | "subtle";
+}
+
+const { text, speed = "normal", variant = "default" } = Astro.props;
+
+const speedDuration = { slow: "30s", normal: "18s", fast: "10s" };
+const duration = speedDuration[speed] || "18s";
+
+// Repeat text enough times to fill the viewport
+const repeats = 6;
+const repeatedText = Array(repeats).fill(`${text}\u2003\u2605\u2003`).join("");
+---
+
+<div class:list={["marquee-block", `variant-${variant}`]} aria-label={text}>
+    <div class="marquee-track" style={`--duration: ${duration};`}>
+        <span class="marquee-content">{repeatedText}</span>
+        <span class="marquee-content" aria-hidden="true">{repeatedText}</span>
+    </div>
+</div>
+
+<style>
+    .marquee-block {
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 1rem 0;
+        font-family: var(--font-heading, sans-serif);
+        font-weight: 900;
+        font-size: clamp(1rem, 2.5vw, 1.5rem);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .variant-default {
+        color: var(--color-text, #333);
+        opacity: 0.8;
+    }
+
+    .variant-bold {
+        background: var(--color-text, #333);
+        color: var(--color-bg, #fff);
+        padding: 1.25rem 0;
+    }
+
+    .variant-subtle {
+        color: var(--color-text, #333);
+        opacity: 0.3;
+        font-size: clamp(0.85rem, 2vw, 1.2rem);
+    }
+
+    .marquee-track {
+        display: inline-flex;
+        animation: scroll var(--duration) linear infinite;
+    }
+
+    .marquee-content {
+        flex-shrink: 0;
+    }
+
+    @keyframes scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .marquee-track {
+            animation: none;
+        }
+    }
+</style>

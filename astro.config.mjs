@@ -1,16 +1,19 @@
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
+import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://amiiverse.com', // Replace with actual domain
   output: 'server',
   adapter: cloudflare(),
   integrations: [
     icon(),
     react(),
+    sitemap(),
     sanity({
       projectId: 'pxn399gi',
       dataset: 'production',

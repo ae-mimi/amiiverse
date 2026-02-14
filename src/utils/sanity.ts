@@ -39,5 +39,23 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
         }
     }
 }`;
-export const SETTINGS_QUERY = `*[_type == "settings"][0]`;
+export const SETTINGS_QUERY = `*[_type == "settings"][0]{
+    ...,
+    "logo_navy": logo_navy.asset->url,
+    "logo_yellow": logo_yellow.asset->url,
+    "favicons": {
+        "ico": favicons.ico.asset->url,
+        "svg": favicons.svg.asset->url,
+        "png96": favicons.png96.asset->url,
+        "apple": favicons.apple.asset->url,
+        "manifest192": favicons.manifest192.asset->url,
+        "manifest512": favicons.manifest512.asset->url
+    },
+    "site_info": {
+        "title": title,
+        "description": description,
+        "logo_navy": logo_navy.asset->url,
+        "logo_yellow": logo_yellow.asset->url
+    }
+}`;
 export const ALL_PAGES_QUERY = `*[_type == "page"]{ "slug": slug.current }`;

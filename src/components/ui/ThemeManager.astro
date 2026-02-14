@@ -14,7 +14,12 @@ const THEMES_QUERY = `*[_type == "theme"] {
       hex
     }
   },
-  "favicon": favicon.asset->url,
+  "favicons": {
+      "ico": favicons.faviconIco.asset->url,
+      "svg": favicons.faviconSvg.asset->url,
+      "png96": favicons.favicon96.asset->url,
+      "apple": favicons.appleTouchIcon.asset->url
+  },
   fontHeading,
   fontBody,
   buttonStyle,
@@ -100,33 +105,38 @@ const allThemes = themes.length > 0 ? themes : defaultThemes;
         // 1. Apply data attribute
         document.documentElement.setAttribute('data-theme', slug);
 
-        // 2. Update Favicon
-        if (theme.favicon) {
-            updateFavicon(theme.favicon);
+        // 2. Update Favicons (Full Package)
+        if (theme.favicons) {
+            updateFavicons(theme.favicons);
         }
 
         // 3. Save to storage
         localStorage.setItem(themeStorageKey, slug);
     }
 
-    function updateFavicon(url) {
-        // 1. Update/Add standard icon
-        let link = document.querySelector("link[rel~='icon']");
-        if (!link) {
-            link = document.createElement('link');
-            link.rel = 'icon';
-            document.head.appendChild(link);
-        }
-        link.href = url;
+    function updateFavicons(favicons) {
+        // Helper to update or create link tag
+        const setLink = (rel, href, type, sizes) => {
+            if (!href) return;
+            let link = document.querySelector(`link[rel="${rel}"]${sizes ? `[sizes="${sizes}"]` : ''}`);
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = rel;
+                if (type) link.type = type;
+                if (sizes) link.sizes = sizes;
+                document.head.appendChild(link);
+            }
+            link.href = href;
+        };
 
-        // 2. Remove conflicting hardcoded icons to force browser to use the new one
-        // (Optional: You could also update them if you had resized versions)
-        document.querySelectorAll("link[rel^='apple-touch-icon']").forEach(el => el.remove());
-        document.querySelectorAll("link[rel='manifest']").forEach(el => el.remove());
-        
-        // 3. Force refresh?
-        // Sometimes browsers cache favicons aggressively. 
-        // We add a timestamp to force reload if needed, but Sanity URLs usually have versions.
+        // Clear existing static defaults first (optional, but good for cleanliness)
+        // document.querySelectorAll("link[rel*='icon']").forEach(el => el.remove());
+
+        // Inject new ones
+        if (favicons.ico) setLink('shortcut icon', favicons.ico); // Legacy
+        if (favicons.svg) setLink('icon', favicons.svg, 'image/svg+xml'); // Modern
+        if (favicons.png96) setLink('icon', favicons.png96, 'image/png', '96x96'); // Google/Desktop
+        if (favicons.apple) setLink('apple-touch-icon', favicons.apple, 'image/png', '180x180'); // Apple
     }
 
     // Initialize

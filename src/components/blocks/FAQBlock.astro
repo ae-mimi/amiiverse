@@ -1,0 +1,109 @@
+---
+const { title, items } = Astro.props;
+
+interface FAQItem {
+    question: string;
+    answer: string;
+    _key?: string;
+}
+---
+
+<section class="faq-block">
+    <div class="container">
+        {title && <h2 class="faq-title">{title}</h2>}
+        <div class="faq-list">
+            {
+                items?.map((item: FAQItem, i: number) => (
+                    <details class="faq-item" id={`faq-${i}`}>
+                        <summary class="faq-question">
+                            <span>{item.question}</span>
+                            <span class="faq-icon" aria-hidden="true">
+                                +
+                            </span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>{item.answer}</p>
+                        </div>
+                    </details>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .faq-block {
+        padding-block: var(--space-lg);
+    }
+
+    .faq-title {
+        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        text-align: center;
+        margin-bottom: var(--space-md);
+        color: var(--color-text, #15499d);
+    }
+
+    .faq-list {
+        max-width: 720px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .faq-item {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .faq-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-md) 0;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--color-text, #15499d);
+        list-style: none;
+        user-select: none;
+    }
+
+    .faq-question::-webkit-details-marker {
+        display: none;
+    }
+
+    .faq-icon {
+        font-size: 1.5rem;
+        font-weight: 300;
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .faq-item[open] .faq-icon {
+        transform: rotate(45deg);
+    }
+
+    .faq-answer {
+        padding-bottom: var(--space-md);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .faq-answer p {
+        margin: 0;
+        line-height: 1.7;
+        opacity: 0.75;
+        color: var(--color-text, #15499d);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

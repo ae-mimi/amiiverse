@@ -58,16 +58,16 @@ export async function POST({ request }: { request: Request }) {
     // 2. Send Email via Brevo SMTP
     const emailPayload = {
         sender: {
-            name: "Amiiverse Website",
+            name: "amiiverse Website",
             email: "no-reply@amiiverse.com"
         },
         to: [
             {
                 email: adminEmail,
-                name: "Amiiverse Admin"
+                name: "amiiverse Admin"
             }
         ],
-        subject: `[Amiiverse Contact] ${subject}`,
+        subject: `[amiiverse Contact] ${subject}`,
         htmlContent: `
           <html>
               <body>

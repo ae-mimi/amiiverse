@@ -1,0 +1,221 @@
+---
+const { title, event_list } = Astro.props;
+
+interface EventItem {
+    name: string;
+    date: string;
+    venue?: string;
+    city?: string;
+    ticket_url?: string;
+    status?: string;
+}
+
+const statusConfig: Record<string, { label: string; className: string }> = {
+    on_sale: { label: "Tickets", className: "status-on-sale" },
+    sold_out: { label: "Sold Out", className: "status-sold-out" },
+    cancelled: { label: "Cancelled", className: "status-cancelled" },
+    coming_soon: { label: "Coming Soon", className: "status-coming-soon" },
+};
+---
+
+<section class="events-block">
+    <div class="container">
+        {title && <h2 class="events-title">{title}</h2>}
+        {
+            event_list?.length > 0 ? (
+                <div class="events-list">
+                    {event_list.map((event: EventItem) => {
+                        const status = statusConfig[event.status || "on_sale"];
+                        const dateObj = new Date(event.date);
+                        const month = dateObj
+                            .toLocaleString("en-US", { month: "short" })
+                            .toUpperCase();
+                        const day = dateObj.getDate();
+                        const year = dateObj.getFullYear();
+                        return (
+                            <div
+                                class={`event-row ${event.status === "cancelled" ? "cancelled" : ""}`}
+                            >
+                                <div class="event-date">
+                                    <span class="event-month">{month}</span>
+                                    <span class="event-day">{day}</span>
+                                    <span class="event-year">{year}</span>
+                                </div>
+                                <div class="event-info">
+                                    <h3 class="event-name">{event.name}</h3>
+                                    <p class="event-venue">
+                                        {[event.venue, event.city]
+                                            .filter(Boolean)
+                                            .join(" · ")}
+                                    </p>
+                                </div>
+                                <div class="event-action">
+                                    {event.status === "on_sale" &&
+                                    event.ticket_url ? (
+                                        <a
+                                            href={event.ticket_url}
+                                            class={`event-badge ${status.className}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {status.label} →
+                                        </a>
+                                    ) : (
+                                        <span
+                                            class={`event-badge ${status.className}`}
+                                        >
+                                            {status.label}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <p class="no-events">No upcoming events. Check back soon!</p>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .events-block {
+        padding-block: var(--space-lg);
+    }
+
+    .events-title {
+        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        text-align: center;
+        margin-bottom: var(--space-md);
+        color: var(--color-text, #15499d);
+    }
+
+    .events-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .event-row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        padding: var(--space-sm) var(--space-md);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.03);
+        transition: background 0.2s ease;
+    }
+
+    .event-row:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    .event-row.cancelled {
+        opacity: 0.5;
+    }
+
+    .event-date {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 60px;
+        line-height: 1.1;
+        color: var(--color-text, #15499d);
+    }
+
+    .event-month {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .event-day {
+        font-size: 1.75rem;
+        font-weight: 800;
+    }
+
+    .event-year {
+        font-size: 0.7rem;
+        opacity: 0.5;
+    }
+
+    .event-info {
+        flex: 1;
+    }
+
+    .event-name {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--color-text, #15499d);
+    }
+
+    .event-venue {
+        font-size: 0.85rem;
+        margin: 2px 0 0;
+        opacity: 0.6;
+        color: var(--color-text, #15499d);
+    }
+
+    .event-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: opacity 0.2s ease;
+    }
+
+    .event-badge:hover {
+        opacity: 0.85;
+    }
+
+    .status-on-sale {
+        background: var(--color-text, #15499d);
+        color: var(--color-bg, #fdf38a);
+    }
+
+    .status-sold-out {
+        background: rgba(0, 0, 0, 0.1);
+        color: var(--color-text, #15499d);
+    }
+
+    .status-cancelled {
+        background: transparent;
+        color: var(--color-text, #15499d);
+        text-decoration: line-through;
+    }
+
+    .status-coming-soon {
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--color-text, #15499d);
+    }
+
+    .no-events {
+        text-align: center;
+        opacity: 0.6;
+        padding: var(--space-lg);
+        color: var(--color-text, #15499d);
+    }
+
+    @media (max-width: 600px) {
+        .event-row {
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+
+        .event-action {
+            width: 100%;
+        }
+
+        .event-badge {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>

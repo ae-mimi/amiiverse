@@ -1,0 +1,56 @@
+---
+interface Props {
+    style?: "solid" | "dashed" | "dotted" | "gradient";
+    width?: "short" | "medium" | "full";
+}
+
+const { style = "solid", width = "medium" } = Astro.props;
+
+const widthMap = { short: "30%", medium: "60%", full: "100%" };
+const lineWidth = widthMap[width] || "60%";
+const isGradient = style === "gradient";
+---
+
+<div class="divider-block" aria-hidden="true">
+    <hr
+        class:list={[isGradient ? "gradient" : style]}
+        style={`width: ${lineWidth};`}
+    />
+</div>
+
+<style>
+    .divider-block {
+        display: flex;
+        justify-content: center;
+        padding: 1.5rem 0;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+        background: var(--color-text, #333);
+        opacity: 0.2;
+    }
+
+    hr.dashed {
+        background: none;
+        border-top: 2px dashed var(--color-text, #333);
+        opacity: 0.2;
+    }
+
+    hr.dotted {
+        background: none;
+        border-top: 2px dotted var(--color-text, #333);
+        opacity: 0.2;
+    }
+
+    hr.gradient {
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            var(--color-text, #333) 50%,
+            transparent 100%
+        );
+        opacity: 0.15;
+    }
+</style>

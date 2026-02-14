@@ -1,0 +1,164 @@
+---
+const { label, target_date, finished_text = "OUT NOW!" } = Astro.props;
+const targetMs = new Date(target_date).getTime();
+const isAlreadyPast = targetMs <= Date.now();
+---
+
+<section class="countdown-block">
+    <div class="container">
+        <p class="countdown-label">{label}</p>
+        <div
+            class="countdown-timer"
+            data-target={targetMs}
+            data-finished={finished_text}
+        >
+            {
+                isAlreadyPast ? (
+                    <span class="countdown-finished">{finished_text}</span>
+                ) : (
+                    <div class="countdown-digits">
+                        <div class="countdown-unit">
+                            <span class="digit" data-unit="days">
+                                --
+                            </span>
+                            <span class="unit-label">Days</span>
+                        </div>
+                        <span class="countdown-sep">:</span>
+                        <div class="countdown-unit">
+                            <span class="digit" data-unit="hours">
+                                --
+                            </span>
+                            <span class="unit-label">Hours</span>
+                        </div>
+                        <span class="countdown-sep">:</span>
+                        <div class="countdown-unit">
+                            <span class="digit" data-unit="minutes">
+                                --
+                            </span>
+                            <span class="unit-label">Min</span>
+                        </div>
+                        <span class="countdown-sep">:</span>
+                        <div class="countdown-unit">
+                            <span class="digit" data-unit="seconds">
+                                --
+                            </span>
+                            <span class="unit-label">Sec</span>
+                        </div>
+                    </div>
+                )
+            }
+        </div>
+    </div>
+</section>
+
+<script>
+    document
+        .querySelectorAll<HTMLElement>(".countdown-timer")
+        .forEach((timer) => {
+            const target = Number(timer.dataset.target);
+            const finishedText = timer.dataset.finished || "OUT NOW!";
+
+            function update() {
+                const diff = target - Date.now();
+                if (diff <= 0) {
+                    timer.innerHTML = `<span class="countdown-finished">${finishedText}</span>`;
+                    return;
+                }
+                const days = Math.floor(diff / 86400000);
+                const hours = Math.floor((diff % 86400000) / 3600000);
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+
+                const daysEl = timer.querySelector('[data-unit="days"]');
+                const hoursEl = timer.querySelector('[data-unit="hours"]');
+                const minEl = timer.querySelector('[data-unit="minutes"]');
+                const secEl = timer.querySelector('[data-unit="seconds"]');
+
+                if (daysEl) daysEl.textContent = String(days).padStart(2, "0");
+                if (hoursEl)
+                    hoursEl.textContent = String(hours).padStart(2, "0");
+                if (minEl) minEl.textContent = String(minutes).padStart(2, "0");
+                if (secEl) secEl.textContent = String(seconds).padStart(2, "0");
+
+                requestAnimationFrame(() => setTimeout(update, 1000));
+            }
+
+            update();
+        });
+</script>
+
+<style>
+    .countdown-block {
+        padding-block: var(--space-xl, 4rem);
+        text-align: center;
+    }
+
+    .countdown-label {
+        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        margin-bottom: var(--space-md);
+        color: var(--color-text, #15499d);
+    }
+
+    .countdown-digits {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+
+    .countdown-unit {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .digit {
+        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-size: clamp(2.5rem, 6vw, 5rem);
+        font-weight: 800;
+        line-height: 1;
+        color: var(--color-text, #15499d);
+        min-width: 2ch;
+    }
+
+    .unit-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        opacity: 0.5;
+        margin-top: 4px;
+        color: var(--color-text, #15499d);
+    }
+
+    .countdown-sep {
+        font-size: clamp(2rem, 5vw, 4rem);
+        font-weight: 300;
+        opacity: 0.3;
+        align-self: flex-start;
+        color: var(--color-text, #15499d);
+    }
+
+    .countdown-finished {
+        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-size: clamp(2rem, 5vw, 4rem);
+        color: var(--color-text, #15499d);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .countdown-sep {
+            font-size: 1.5rem;
+        }
+    }
+</style>

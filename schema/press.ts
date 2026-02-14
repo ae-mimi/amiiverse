@@ -1,24 +1,30 @@
 import { defineField, defineType } from 'sanity'
+import { PressIcon } from './icons'
 
 export default defineType({
     name: 'press',
     title: 'Press',
     type: 'document',
+    icon: PressIcon,
     fields: [
         defineField({
             name: 'title',
-            title: 'Title',
+            title: 'Headline',
             type: 'string',
+            description: 'The title of the article or press mention.',
+            validation: (rule) => rule.required(),
         }),
         defineField({
             name: 'date',
-            title: 'Date',
+            title: 'Publication Date',
             type: 'date',
+            description: 'When this was published.',
         }),
         defineField({
             name: 'file',
-            title: 'Link or File URL',
+            title: 'Link',
             type: 'url',
+            description: 'URL to the full article or press release.',
         }),
     ],
     preview: {

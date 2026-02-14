@@ -1,0 +1,13 @@
+---
+const { size = "md" } = Astro.props;
+
+const sizeMap: Record<string, string> = {
+    sm: "var(--space-md, 1.5rem)",
+    md: "var(--space-lg, 3rem)",
+    lg: "var(--space-xl, 5rem)",
+};
+
+const height = sizeMap[size] || sizeMap.md;
+---
+
+<div class="spacer-block" style={`height: ${height}`} aria-hidden="true"></div>

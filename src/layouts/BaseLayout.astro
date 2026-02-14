@@ -3,6 +3,7 @@ import "../styles/global.css";
 import SiteHeader from "../components/layout/SiteHeader.astro";
 import SiteFooter from "../components/layout/SiteFooter.astro";
 import Analytics from "../components/seo/Analytics.astro";
+import JSONLD from "../components/seo/JSONLD.astro";
 import ThemeManager from "../components/ui/ThemeManager.astro";
 
 interface Props {
@@ -10,96 +11,85 @@ interface Props {
     description?: string;
 }
 
-const { title, description = "Welcome to the Amiiverse." } = Astro.props;
+const { title, description = "Welcome to the amiiverse." } = Astro.props;
+import { fetchGlobalSettings } from "../utils/global";
+const settings = await fetchGlobalSettings();
 ---
 
 <!doctype html>
 <html lang="en" data-theme="sun">
-    <!-- Default to Sun -->
     <head>
         <meta charset="UTF-8" />
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width" />
         <ThemeManager />
-        <link
-            rel="apple-touch-icon"
-            sizes="57x57"
-            href="/apple-icon-57x57.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="60x60"
-            href="/apple-icon-60x60.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="72x72"
-            href="/apple-icon-72x72.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="76x76"
-            href="/apple-icon-76x76.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="114x114"
-            href="/apple-icon-114x114.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="120x120"
-            href="/apple-icon-120x120.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="144x144"
-            href="/apple-icon-144x144.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="152x152"
-            href="/apple-icon-152x152.png?v=3"
-        />
-        <link
-            rel="apple-touch-icon"
-            sizes="180x180"
-            href="/apple-icon-180x180.png?v=3"
-        />
-        <link
-            rel="icon"
-            type="image/png"
-            sizes="192x192"
-            href="/android-icon-192x192.png?v=3"
-        />
-        <link
-            rel="icon"
-            type="image/png"
-            sizes="32x32"
-            href="/favicon-32x32.png?v=3"
-        />
-        <link
-            rel="icon"
-            type="image/png"
-            sizes="96x96"
-            href="/favicon-96x96.png?v=3"
-        />
-        <link
-            rel="icon"
-            type="image/png"
-            sizes="16x16"
-            href="/favicon-16x16.png?v=3"
-        />
-        <link rel="manifest" href="/manifest.json?v=3" />
-        <meta name="msapplication-TileColor" content="#ffffff" />
-        <meta
-            name="msapplication-TileImage"
-            content="/ms-icon-144x144.png?v=3"
-        />
-        <meta name="msapplication-config" content="/browserconfig.xml?v=3" />
-        <meta name="theme-color" content="#ffffff" />
+
+        <!-- Dynamic Favicons (SSR Failure/Default) -->
+        {
+            settings.favicons?.ico && (
+                <link
+                    rel="icon"
+                    type="image/x-icon"
+                    href={settings.favicons.ico}
+                />
+            )
+        }
+        {
+            settings.favicons?.svg && (
+                <link
+                    rel="icon"
+                    type="image/svg+xml"
+                    href={settings.favicons.svg}
+                />
+            )
+        }
+        {
+            settings.favicons?.png96 && (
+                <link
+                    rel="icon"
+                    type="image/png"
+                    sizes="96x96"
+                    href={settings.favicons.png96}
+                />
+            )
+        }
+        {
+            settings.favicons?.apple && (
+                <link
+                    rel="apple-touch-icon"
+                    sizes="180x180"
+                    href={settings.favicons.apple}
+                />
+            )
+        }
+
+        <link rel="manifest" href="/manifest.json" />
+
         <meta name="generator" content={Astro.generator} />
-        <title>{title} | Amiiverse</title>
+        <title>{title} | amiiverse</title>
+
+        <!-- Open Graph / SEO -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={Astro.url} />
+        <meta property="og:site_name" content="amiiverse" />
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+
+        <!-- Keywords (AI/SEO) -->
+        {
+            settings.keywords && (
+                <meta name="keywords" content={settings.keywords.join(", ")} />
+            )
+        }
+
+        <!-- Structured Data -->
+        <JSONLD />
+
         <Analytics />
     </head>
     <body>

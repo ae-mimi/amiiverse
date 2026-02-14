@@ -7,9 +7,21 @@ export interface SiteSettings {
         description: string;
         logo_navy: string;
         logo_yellow: string;
-        favicon: string;
     };
+    title?: string;
+    description?: string;
+    logo_navy?: string;
+    logo_yellow?: string;
     enable_follow_link?: boolean;
+    keywords?: string[];
+    favicons?: {
+        ico?: string;
+        svg?: string;
+        png96?: string;
+        apple?: string;
+        manifest192?: string;
+        manifest512?: string;
+    };
     nav: {
         label: string;
         href: string;

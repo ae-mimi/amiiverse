@@ -1,0 +1,9 @@
+# Netlify / Cloudflare Redirects
+# This ensures that if you use client-side routing (less likely with Astro, but good practice)
+# or if you change URLs later, you have a place to put them.
+
+# Example: Redirect old contact page
+# /contact-us  /contact  301
+
+# For SPA fallback (if using extensive client-side React routes)
+# /*  /index.html  200

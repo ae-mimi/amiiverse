@@ -1,8 +1,8 @@
 {
   "enable_follow_link": false,
   "site_info": {
-    "title": "Amiiverse",
-    "description": "Welcome to the Amiiverse.",
+    "title": "amiiverse",
+    "description": "Welcome to the amiiverse.",
     "logo_navy": "/assets/uploads/amii-logo_op-navy.webp",
     "logo_yellow": "/assets/uploads/amii-logo_op-yellow.webp",
     "favicon": "/favicon.svg"

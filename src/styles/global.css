@@ -19,19 +19,13 @@
 :root {
   /* Colors - Core Palette */
   --color-yellow-500: #FDF38A;
-  /* Sun Mode Bg */
   --color-navy-500: #15499D;
-  /* Deep Dive Bg */
   --color-pink-500: #E44598;
-  /* Primary Accent */
   --color-blue-500: #43B2E5;
-  /* Secondary Accent */
   --color-golden-500: #FCBF12;
 
   --color-cream: #FEF9C4;
-  /* Input Bg (Sun) */
   --color-navy-900: #1E3A8A;
-  /* Input Bg (Deep) */
   --color-white: #FFFFFF;
 
   /* Typography - Families */
@@ -53,7 +47,6 @@
   --text-2xl: clamp(32px, 3vw, 84px);
   --text-3xl: clamp(36px, 4vw, 128px);
   --text-4xl: clamp(48px, 6vw, 180px);
-  /* Increased upper bound significantly */
 
   /* Spacing - Fluid Scale (Targeting up to 2560px) */
   --space-2xs: clamp(0.25rem, 0.5vw, 1.5rem);
@@ -76,14 +69,6 @@
  * 2. SEMANTIC TOKENS (The Decisions)
  *    - Context-aware variables that map Primitives to Usage.
  *    - Use these in components!
- *    - Colors/Fonts etc.
- *****************************************************************************/
-
-
-/*****************************************************************************
- * 2. SEMANTIC TOKENS (The Decisions)
- *    - Context-aware variables that map Primitives to Usage.
- *    - Use these in components!
  *****************************************************************************/
 
 /* Theme Context: Sun Mode (Default) */
@@ -93,7 +78,6 @@
   --bg-card: var(--color-yellow-500);
   --bg-header: var(--color-yellow-500);
   --bg-footer: var(--color-navy-500);
-  /* Inverted for Sun Mode */
 
   /* Text */
   --text-main: var(--color-navy-500);
@@ -101,7 +85,6 @@
   --text-accent: var(--color-pink-500);
   --text-nav: var(--color-navy-500);
   --text-footer: var(--color-yellow-500);
-  /* Inverted for Sun Mode */
 
   /* Buttons */
   --btn-bg-primary: var(--color-navy-500);
@@ -113,20 +96,9 @@
   --input-border: var(--color-navy-500);
   --input-text: var(--color-navy-500);
   --input-placeholder: rgba(21, 73, 157, 0.6);
-  /* Navy 60% */
 
   /* Graphics */
   --logo-color-primary: var(--color-navy-500);
-}
-
-
-/* Legacy Variable Support (Bridge for Components) */
-:root {
-  --bg-current: var(--bg-page);
-  --text-current: var(--text-main);
-
-  /* Map old input var to new token if used dynamically */
-  --color-input-bg: var(--input-bg);
 }
 
 /* Reset & Base Styles */
@@ -148,7 +120,6 @@ body {
   color: var(--text-main);
   transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
-  /* Prevent horizontal scroll globally */
 }
 
 h1,
@@ -161,7 +132,6 @@ h6 {
   font-weight: var(--weight-regular);
   margin: 0;
   text-wrap: balance;
-  /* Prevent awkward wrapping globally */
 }
 
 p {
@@ -188,10 +158,8 @@ select {
 .container {
   width: 100%;
   max-width: 2560px;
-  /* Increased for 4K/Ultrawide */
   margin-inline: auto;
   padding-inline: max(16px, var(--space-sm));
-  /* Ensure minimum padding on mobile */
 }
 
 .text-center {

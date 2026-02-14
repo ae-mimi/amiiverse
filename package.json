@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.2.0",
+    "@astrojs/sitemap": "latest",
     "@iconify-json/lucide": "^1.2.89",
     "@iconify-json/simple-icons": "^1.2.69",
+    "@iconify/react": "^5.2.0",
     "astro": "^5.17.1",
     "astro-icon": "^1.1.5",
     "gsap": "^3.14.2",

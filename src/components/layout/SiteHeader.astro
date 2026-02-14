@@ -5,79 +5,27 @@ import { fetchGlobalSettings } from "../../utils/global";
 const settings = await fetchGlobalSettings();
 const links = settings.nav || [];
 
-// settings.nav is the source of truth for the main navigation.
-
 import Navigation from "../ui/Navigation.astro";
+import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
 ---
 
 <header class="site-header">
     <div class="header-inner">
         <!-- Left: Logo -->
-        <a href="/" class="logo-link" aria-label="Amii Home">
-            <img
-                class="header-logo-img"
-                src={settings.site_info?.logo_navy ||
-                    "/assets/uploads/amii-logo_op-navy.webp"}
-                alt={settings.site_info?.title || "Amii Logo"}
-                loading="eager"
-                width="98"
-                height="59"
-            />
-            <style
-                define:vars={{
-                    logoNavy: `url(${settings.site_info?.logo_navy})`,
-                    logoYellow: `url(${settings.site_info?.logo_yellow})`,
-                }}
-            ></style>
+        <a href="/" class="logo-link" aria-label="amii Home">
+            <ThemeAwareLogo className="header-logo" />
         </a>
-
-        <!-- Center: Navbar -->
-        <div class="main-nav-wrapper">
-            <Navigation links={links} layout="row" theme="default" />
-        </div>
-
-        <!-- Right: Actions -->
-        <div class="header-actions">
-            <!-- Social Icons (Desktop) -->
-            <div class="header-socials">
-                {
-                    settings.socials?.map((social) => (
-                        <a
-                            href={social.url}
-                            aria-label={social.platform}
-                            target="_blank"
-                        >
-                            <Icon
-                                name={`simple-icons:${social.icon}`}
-                                class={`icon-social icon-${social.icon}`}
-                            />
-                        </a>
-                    ))
-                }
-            </div>
-
-            <!-- Mobile Menu Toggle (Contains both icons for perfect alignment) -->
-            <button id="menu-toggle" aria-label="Toggle Menu">
-                <div class="icon-container">
-                    <Icon name="lucide:menu" class="icon-menu" />
-                    <Icon name="lucide:x" class="icon-close" />
-                </div>
-            </button>
-        </div>
     </div>
 
-    <!-- Mobile Navigation Overlay -->
-    <div id="mobile-menu-overlay">
-        <!-- Close Button Removed (Reused Toggle) -->
+    <!-- Center: Navbar -->
+    <div class="main-nav-wrapper">
+        <Navigation links={links} layout="row" theme="default" />
+    </div>
 
-        <Navigation
-            links={links}
-            layout="column"
-            theme="default"
-            class="mobile-nav"
-        />
-
-        <div class="mobile-socials">
+    <!-- Right: Actions -->
+    <div class="header-actions">
+        <!-- Social Icons (Desktop) -->
+        <div class="header-socials">
             {
                 settings.socials?.map((social) => (
                     <a
@@ -93,8 +41,45 @@ import Navigation from "../ui/Navigation.astro";
                 ))
             }
         </div>
+
+        <!-- Mobile Menu Toggle (Contains both icons for perfect alignment) -->
+        <button id="menu-toggle" aria-label="Toggle Menu">
+            <div class="icon-container">
+                <Icon name="lucide:menu" class="icon-menu" />
+                <Icon name="lucide:x" class="icon-close" />
+            </div>
+        </button>
     </div>
 </header>
+
+<!-- Mobile Navigation Overlay -->
+<div id="mobile-menu-overlay">
+    <!-- Close Button Removed (Reused Toggle) -->
+
+    <Navigation
+        links={links}
+        layout="column"
+        theme="default"
+        class="mobile-nav"
+    />
+
+    <div class="mobile-socials">
+        {
+            settings.socials?.map((social) => (
+                <a
+                    href={social.url}
+                    aria-label={social.platform}
+                    target="_blank"
+                >
+                    <Icon
+                        name={`simple-icons:${social.icon}`}
+                        class={`icon-social icon-${social.icon}`}
+                    />
+                </a>
+            ))
+        }
+    </div>
+</div>
 
 <style>
     /* Header Light Mode Layer */
@@ -131,7 +116,8 @@ import Navigation from "../ui/Navigation.astro";
     .main-nav-wrapper {
         position: absolute;
         left: 50%;
-        transform: translateX(-50%);
+        top: 50%;
+        transform: translate(-50%, -50%);
     }
 
     .logo-link {
@@ -139,16 +125,8 @@ import Navigation from "../ui/Navigation.astro";
         line-height: 0;
     }
 
-    .header-logo-img {
-        width: clamp(98px, 6vw, 140px); /* Fluid Logo */
-        height: auto;
-        display: block;
-        content: var(--logoNavy);
-    }
-
-    /* Dark Mode Toggle for Logo */
-    :global([data-theme="deep-dive"]) .header-logo-img {
-        content: var(--logoYellow);
+    :global(.header-logo) {
+        width: clamp(98px, 6vw, 140px);
     }
 
     .header-actions {
@@ -292,7 +270,6 @@ import Navigation from "../ui/Navigation.astro";
     .mobile-socials a:hover {
         transform: scale(1.1);
     }
-    /* Handled by Global Swap */
 </style>
 
 <script>

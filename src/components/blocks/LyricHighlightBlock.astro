@@ -1,0 +1,60 @@
+---
+interface Props {
+    text: string;
+    attribution?: string;
+    alignment?: "left" | "center" | "right";
+}
+
+const { text, attribution, alignment = "center" } = Astro.props;
+---
+
+<blockquote class="lyric-block" style={`text-align: ${alignment};`}>
+    <p class="lyric-text">{text}</p>
+    {attribution && <cite class="lyric-source">&mdash; {attribution}</cite>}
+</blockquote>
+
+<style>
+    .lyric-block {
+        padding: 3rem 1.5rem;
+        margin: 0;
+        border: none;
+    }
+
+    .lyric-text {
+        font-family: var(--font-heading, sans-serif);
+        font-weight: 900;
+        font-size: clamp(1.5rem, 5vw, 3.5rem);
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        color: var(--color-text, #333);
+        margin: 0;
+    }
+
+    .lyric-text::before {
+        content: "\201C";
+        opacity: 0.15;
+        font-size: 1.5em;
+        line-height: 0;
+        vertical-align: -0.25em;
+        margin-right: 0.05em;
+    }
+
+    .lyric-text::after {
+        content: "\201D";
+        opacity: 0.15;
+        font-size: 1.5em;
+        line-height: 0;
+        vertical-align: -0.25em;
+        margin-left: 0.05em;
+    }
+
+    .lyric-source {
+        display: block;
+        margin-top: 1rem;
+        font-style: normal;
+        font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+        opacity: 0.5;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+</style>

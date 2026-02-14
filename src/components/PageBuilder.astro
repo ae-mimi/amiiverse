@@ -13,6 +13,17 @@ import ContactFormBlock from "./blocks/ContactFormBlock.astro";
 import ContactSectionBlock from "./blocks/ContactSectionBlock.astro";
 import ProfileHeaderBlock from "./blocks/ProfileHeaderBlock.astro";
 import LinkStackBlock from "./blocks/LinkStackBlock.astro";
+import VideoEmbedBlock from "./blocks/VideoEmbedBlock.astro";
+import GalleryBlock from "./blocks/GalleryBlock.astro";
+import EventsBlock from "./blocks/EventsBlock.astro";
+import CountdownBlock from "./blocks/CountdownBlock.astro";
+import CTABannerBlock from "./blocks/CTABannerBlock.astro";
+import FAQBlock from "./blocks/FAQBlock.astro";
+import TestimonialsBlock from "./blocks/TestimonialsBlock.astro";
+import SpacerBlock from "./blocks/SpacerBlock.astro";
+import DividerBlock from "./blocks/DividerBlock.astro";
+import MarqueeBlock from "./blocks/MarqueeBlock.astro";
+import LyricHighlightBlock from "./blocks/LyricHighlightBlock.astro";
 
 const { blocks } = Astro.props;
 
@@ -29,36 +40,72 @@ interface Props {
 
 {
     blocks?.map((block: Block) => {
-        const type = block._type || block.type; // Fallback for safety
+        const type = block._type || block.type;
         switch (type) {
+            // Heroes
             case "hero":
                 return <HeroBlock {...block} />;
             case "predebut_hero":
                 return <PredebutHeroBlock {...block} />;
             case "page_hero":
                 return <PageHeroBlock {...block} />;
+
+            // Content
             case "intro":
                 return <IntroBlock {...block} />;
-            case "widget":
-                return <WidgetBlock {...block} />;
             case "rich_text":
                 return <RichTextBlock {...block} />;
-            case "shop_grid":
-                return <ShopGridBlock {...block} />;
+            case "gallery":
+                return <GalleryBlock {...block} />;
+            case "video_embed":
+                return <VideoEmbedBlock {...block} />;
+
+            // Engagement
+            case "cta_banner":
+                return <CTABannerBlock {...block} />;
+            case "countdown":
+                return <CountdownBlock {...block} />;
+            case "faq":
+                return <FAQBlock {...block} />;
+            case "testimonials":
+                return <TestimonialsBlock {...block} />;
+
+            // Collections
             case "music_grid":
                 return <MusicGridBlock {...block} />;
-            case "press_grid":
-                return <PressGridBlock {...block} />;
             case "members_grid":
                 return <MembersGridBlock {...block} />;
+            case "shop_grid":
+                return <ShopGridBlock {...block} />;
+            case "press_grid":
+                return <PressGridBlock {...block} />;
+            case "events":
+                return <EventsBlock {...block} />;
+
+            // Widgets
+            case "widget":
+                return <WidgetBlock {...block} />;
             case "contact_form":
                 return <ContactFormBlock {...block} />;
             case "contact_section":
                 return <ContactSectionBlock {...(block as any)} />;
+
+            // Follow Page
             case "profile_header":
                 return <ProfileHeaderBlock {...(block as any)} />;
             case "link_stack":
                 return <LinkStackBlock {...(block as any)} />;
+
+            // Layout & Decorative
+            case "spacer":
+                return <SpacerBlock {...block} />;
+            case "divider":
+                return <DividerBlock {...(block as any)} />;
+            case "marquee":
+                return <MarqueeBlock {...(block as any)} />;
+            case "lyric_highlight":
+                return <LyricHighlightBlock {...(block as any)} />;
+
             default:
                 return null;
         }

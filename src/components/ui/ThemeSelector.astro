@@ -20,15 +20,19 @@ const availableThemes =
 <div class="theme-selector">
     <select id="era-selector" aria-label="Select Era">
         {
-            availableThemes.map((theme) => (
-                <option value={theme.slug}>{theme.name}</option>
-            ))
+            availableThemes.map(
+                (theme: { name: string; slug: string; isActive: boolean }) => (
+                    <option value={theme.slug}>{theme.name}</option>
+                ),
+            )
         }
     </select>
 </div>
 
 <script>
-    const selector = document.getElementById("era-selector");
+    const selector = document.getElementById(
+        "era-selector",
+    ) as HTMLSelectElement | null;
 
     // Set initial value from storage
     const savedTheme = localStorage.getItem("selected-theme");
@@ -38,10 +42,11 @@ const availableThemes =
 
     // Handle change
     selector?.addEventListener("change", (e) => {
-        const slug = e.target.value;
+        const target = e.target as HTMLSelectElement;
+        const slug = target.value;
         // Call the global switch function defined in ThemeManager
-        if (window.switchTheme) {
-            window.switchTheme(slug);
+        if ((window as any).switchTheme) {
+            (window as any).switchTheme(slug);
         }
     });
 </script>

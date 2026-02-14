@@ -1,0 +1,95 @@
+---
+const { title, quotes } = Astro.props;
+
+interface Quote {
+    quote: string;
+    author?: string;
+    source?: string;
+}
+---
+
+<section class="testimonials-block">
+    <div class="container">
+        {title && <h2 class="testimonials-title">{title}</h2>}
+        <div class="quotes-grid">
+            {
+                quotes?.map((q: Quote) => (
+                    <blockquote class="quote-card">
+                        <p class="quote-text">"{q.quote}"</p>
+                        <footer class="quote-footer">
+                            {q.author && (
+                                <cite class="quote-author">{q.author}</cite>
+                            )}
+                            {q.source && (
+                                <span class="quote-source">{q.source}</span>
+                            )}
+                        </footer>
+                    </blockquote>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .testimonials-block {
+        padding-block: var(--space-lg);
+    }
+
+    .testimonials-title {
+        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        text-align: center;
+        margin-bottom: var(--space-md);
+        color: var(--color-text, #15499d);
+    }
+
+    .quotes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-md);
+    }
+
+    .quote-card {
+        margin: 0;
+        padding: var(--space-md);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.03);
+        border-left: 4px solid var(--color-text, #15499d);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease;
+    }
+
+    .quote-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .quote-text {
+        font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+        line-height: 1.7;
+        font-style: italic;
+        margin: 0 0 var(--space-sm);
+        color: var(--color-text, #15499d);
+    }
+
+    .quote-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .quote-author {
+        font-style: normal;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--color-text, #15499d);
+    }
+
+    .quote-source {
+        font-size: 0.8rem;
+        opacity: 0.5;
+        color: var(--color-text, #15499d);
+    }
+</style>
