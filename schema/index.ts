@@ -7,8 +7,6 @@ import navGroup from './objects/navGroup'
 import themeSettings from './objects/themeSettings'
 
 // ── Legacy schemas (kept for build) ─────────────────────
-import music from './music'
-import shop from './shop'
 import linkStack from './linkStack'
 import profileHeader from './profileHeader'
 
@@ -29,6 +27,8 @@ import poll from './documents/poll'
 import campaign from './documents/campaign'
 import redirect from './documents/redirect'
 import pressMention from './documents/pressMention'
+import product from './shop/product'
+import order from './shop/order'
 
 export const schemaTypes = [
     // Objects (must come first — used by documents)
@@ -67,11 +67,13 @@ export const schemaTypes = [
     timelineItem,
 
     // Legacy (kept for backward-compat build)
-    music,
-    shop,
     linkStack,
     profileHeader,
 
     // New objects
     themeSettings,
+
+    // Shop System
+    product,
+    order,
 ]

@@ -142,6 +142,33 @@ export const deskStructure = (S: StructureBuilder) =>
 
             S.divider(),
 
+            // ── Shop & Commerce ───────────────────────
+            S.listItem()
+                .title('Shop')
+                .icon(ShopIcon)
+                .child(
+                    S.list()
+                        .title('Shop & Commerce')
+                        .items([
+                            S.listItem()
+                                .title('Products')
+                                .icon(ShopIcon)
+                                .child(S.documentTypeList('product').title('Products')),
+                            S.listItem()
+                                .title('Recent Orders')
+                                .icon(ShopIcon)
+                                .child(
+                                    S.documentList()
+                                        .title('Recent Orders')
+                                        .schemaType('order')
+                                        .filter('_type == "order"')
+                                        .defaultOrdering([{ field: 'createdAt', direction: 'desc' }])
+                                ),
+                        ]),
+                ),
+
+            S.divider(),
+
             // ── Campaigns & Admin ─────────────────────
             S.listItem()
                 .title('Campaigns')
@@ -152,12 +179,4 @@ export const deskStructure = (S: StructureBuilder) =>
                 .title('Redirects')
                 .icon(RedirectIcon)
                 .child(S.documentTypeList('redirect').title('Redirects')),
-
-            S.divider(),
-
-            // ── Legacy ────────────────────────────────
-            S.listItem()
-                .title('Shop (Legacy)')
-                .icon(ShopIcon)
-                .child(S.documentTypeList('shop').title('Shop (Legacy)')),
         ])

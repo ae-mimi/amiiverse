@@ -10,24 +10,19 @@ const { title, limit } = Astro.props;
 const shopItems = await getSanityContent(ALL_SHOP_QUERY);
 const items = shopItems || [];
 
-// Sort or filter if needed (Sanity order() in query is better, but simple array slice works for limit)
 const displayedItems = limit ? items.slice(0, limit) : items;
 ---
 
-<section class="shop-grid-block">
+<section class="product-grid-block">
     <div class="container">
-        {title && <h2 class="section-title">{title}</h2>}
+        {title && <h2 class="section-title uppercase">{title}</h2>}
         <div class="grid">
             {
                 displayedItems.map((item: any) => (
                     <ShopCard
                         url={item.url}
                         title={item.title}
-                        price={
-                            typeof item.price === "number"
-                                ? `₦${item.price.toLocaleString()}`
-                                : item.price
-                        }
+                        price={item.price}
                         image={urlFor(item.image)}
                         productId={item.productId}
                     />
@@ -38,16 +33,21 @@ const displayedItems = limit ? items.slice(0, limit) : items;
 </section>
 
 <style>
-    .shop-grid-block {
-        height: auto; /* Ensure it fits content */
-        padding-block: var(--space-lg);
+    .product-grid-block {
+        padding-block: var(--space-xl);
         background-color: var(--bg-page);
     }
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-        gap: clamp(30px, 3vw, 60px); /* Fluid gap */
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: clamp(40px, 4vw, 80px);
         justify-items: center;
+    }
+
+    @media (max-width: 640px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>

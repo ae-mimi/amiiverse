@@ -3,10 +3,29 @@ import { Icon } from "astro-icon/components";
 import { fetchGlobalSettings } from "../../utils/global";
 
 const settings = await fetchGlobalSettings();
-const footerLinks = settings.footer.links || [];
+const { businessName, contactEmail, copyright } = settings.footer;
+
+// Process footer links from unified navigationItems
+const footerLinks = (settings.navigationItems || [])
+    .filter((item) => item.showInFooter)
+    .map((item) => {
+        const { link, is_special, disabled } = item;
+        let href = "#";
+        if (link?.type === "internal")
+            href = `/${link.internalRef?.slug || ""}`;
+        else if (link?.type === "external") href = link.url || "#";
+        else if (link?.type === "email") href = `mailto:${link.url || ""}`;
+
+        return {
+            label: link?.label || "Untitled",
+            href,
+            is_special,
+            disabled,
+        };
+    });
 
 const currentYear = new Date().getFullYear();
-const copyrightText = settings.footer.copyright.replace(
+const copyrightText = (copyright || "© {currentYear} amii").replace(
     "{currentYear}",
     currentYear.toString(),
 );
@@ -62,9 +81,21 @@ import Navigation from "../ui/Navigation.astro";
             </div>
         </div>
 
-        <!-- Copyright -->
-        <div class="footer-copyright">
-            <p set:html={copyrightText} />
+        <!-- Compliance & Copyright -->
+        <div class="footer-bottom">
+            <div class="footer-compliance">
+                {businessName && <span class="biz-name">{businessName}</span>}
+                {
+                    contactEmail && (
+                        <a href={`mailto:${contactEmail}`} class="biz-email">
+                            {contactEmail}
+                        </a>
+                    )
+                }
+            </div>
+            <div class="footer-copyright">
+                <p set:html={copyrightText} />
+            </div>
         </div>
     </div>
 </footer>
@@ -180,14 +211,49 @@ import Navigation from "../ui/Navigation.astro";
         color: inherit;
     }
 
-    /* Copyright */
+    /* Copyright & Compliance */
+    .site-footer .footer-bottom {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding-top: 40px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .site-footer .footer-compliance {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+        font-size: 0.85rem;
+        opacity: 0.6;
+    }
+
+    .site-footer .biz-name {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .site-footer .biz-email {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .site-footer .biz-email:hover {
+        color: var(--color-accent);
+    }
+
     .site-footer .footer-copyright p {
         font-family: "Archivo", sans-serif;
         font-weight: 600;
-        font-size: clamp(15px, 1vw, 20px);
+        font-size: clamp(14px, 0.9vw, 18px);
         line-height: 1.4;
-        letter-spacing: 2px;
-        color: var(--color-secondary); /* was yellow-500 */
+        letter-spacing: 1px;
+        color: var(--color-secondary);
         opacity: 0.8;
         text-align: center;
         margin: 0;

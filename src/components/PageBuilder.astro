@@ -11,7 +11,7 @@ import WidgetBlock from "./blocks/WidgetBlock.astro";
 import RichTextBlock from "./blocks/RichTextBlock.astro";
 import PredebutHeroBlock from "./blocks/PredebutHeroBlock.astro";
 import PageHeroBlock from "./blocks/PageHeroBlock.astro";
-import ShopGridBlock from "./blocks/ShopGridBlock.astro";
+import ProductGridBlock from "./blocks/ProductGridBlock.astro";
 import MusicGridBlock from "./blocks/MusicGridBlock.astro";
 import PressGridBlock from "./blocks/PressGridBlock.astro";
 import MembersGridBlock from "./blocks/MembersGridBlock.astro";
@@ -121,7 +121,7 @@ const { sections } = Astro.props;
             case "members_grid":
                 return <MembersGridBlock {...section} />;
             case "shop_grid":
-                return <ShopGridBlock {...section} />;
+                return <ProductGridBlock {...section} />;
 
             // ── Press & Downloads ────────────────
             case "press_grid":

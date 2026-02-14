@@ -6,57 +6,65 @@
     "logo_navy": "",
     "logo_yellow": ""
   },
-  "nav": [
+  "navigationItems": [
     {
-      "label": "HOME",
-      "href": "/"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/",
+        "label": "HOME"
+      }
     },
     {
-      "label": "MUSIC",
-      "href": "/music"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/music",
+        "label": "MUSIC"
+      }
     },
     {
-      "label": "ABOUT",
-      "href": "/about"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/about",
+        "label": "ABOUT"
+      }
     },
     {
-      "label": "PRESS",
-      "href": "/press"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/press",
+        "label": "PRESS"
+      }
     },
     {
-      "label": "CONTACT",
-      "href": "/contact"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/contact",
+        "label": "CONTACT"
+      }
+    },
+    {
+      "showInHeader": true,
+      "showInFooter": true,
+      "is_special": true,
+      "link": {
+        "type": "external",
+        "url": "/follow",
+        "label": "FOLLOW"
+      }
     }
   ],
   "footer": {
-    "copyright": "Copyright © amii",
-    "links": [
-      {
-        "label": "HOME",
-        "href": "/"
-      },
-      {
-        "label": "MUSIC",
-        "href": "/music"
-      },
-      {
-        "label": "ABOUT",
-        "href": "/about"
-      },
-      {
-        "label": "PRESS",
-        "href": "/press"
-      },
-      {
-        "label": "CONTACT",
-        "href": "/contact"
-      },
-      {
-        "label": "FOLLOW",
-        "href": "/follow",
-        "is_special": true
-      }
-    ]
+    "copyright": "Copyright © {currentYear} amii"
   },
   "socials": [
     {

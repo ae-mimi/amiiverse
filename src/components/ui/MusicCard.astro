@@ -22,11 +22,7 @@ const { item } = Astro.props;
         </p>
         {
             item.spotify && (
-                <a
-                    href={item.data.spotify}
-                    target="_blank"
-                    class="spotify-link"
-                >
+                <a href={item.spotify} target="_blank" class="spotify-link">
                     <Icon name="simple-icons:spotify" class="icon" />
                     <span>Listen on Spotify</span>
                 </a>

@@ -6,8 +6,8 @@ export interface SiteSettings {
     site_info: {
         title: string;
         description: string;
-        logo_navy: string;
-        logo_yellow: string;
+        logo_navy?: string;
+        logo_yellow?: string;
     };
     title?: string;
     description?: string;
@@ -28,20 +28,24 @@ export interface SiteSettings {
         manifest192?: string;
         manifest512?: string;
     };
-    nav: {
-        label: string;
-        href: string;
+    navigationItems: {
+        showInHeader: boolean;
+        showInFooter: boolean;
         is_special?: boolean;
         disabled?: boolean;
+        link: {
+            label?: string;
+            type: 'internal' | 'external' | 'download' | 'email' | 'phone';
+            url?: string;
+            internalRef?: {
+                slug: string;
+            };
+        };
     }[];
     footer: {
+        businessName?: string;
+        contactEmail?: string;
         copyright: string;
-        links: {
-            label: string;
-            href: string;
-            is_special?: boolean;
-            disabled?: boolean;
-        }[];
     };
     socials: {
         platform: string;

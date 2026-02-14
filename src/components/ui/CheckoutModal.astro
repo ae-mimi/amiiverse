@@ -1,0 +1,459 @@
+---
+/**
+ * CheckoutModal.astro
+ * A premium modal for collecting email and quantity before checkout.
+ */
+---
+
+<div id="checkout-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <button class="close-btn" id="close-modal">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><line x1="18" y1="6" x2="6" y2="18"></line><line
+                    x1="6"
+                    y1="6"
+                    x2="18"
+                    y2="18"></line></svg
+            >
+        </button>
+
+        <div class="modal-header">
+            <h2 id="modal-product-title">Complete Purchase</h2>
+            <p class="modal-subtitle">
+                Join the Amii-gos for this exclusive drop.
+            </p>
+        </div>
+
+        <form id="checkout-form" class="modal-form">
+            <input type="hidden" id="modal-product-id" name="productId" />
+
+            <div class="name-grid">
+                <div class="form-group">
+                    <label for="checkout-firstName">First Name</label>
+                    <input
+                        type="text"
+                        id="checkout-firstName"
+                        name="firstName"
+                        placeholder="Jane"
+                        required
+                        class="themed-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="checkout-lastName">Last Name</label>
+                    <input
+                        type="text"
+                        id="checkout-lastName"
+                        name="lastName"
+                        placeholder="Doe"
+                        required
+                        class="themed-input"
+                    />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="checkout-email">Email Address</label>
+                <input
+                    type="email"
+                    id="checkout-email"
+                    name="email"
+                    placeholder="your@email.com"
+                    required
+                    class="themed-input"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="checkout-phone">Phone Number</label>
+                <input
+                    type="tel"
+                    id="checkout-phone"
+                    name="phone"
+                    placeholder="08012345678"
+                    required
+                    class="themed-input"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="checkout-quantity">Quantity</label>
+                <div class="quantity-controls">
+                    <button type="button" class="qty-btn" id="qty-minus"
+                        >-</button
+                    >
+                    <input
+                        type="number"
+                        id="checkout-quantity"
+                        name="quantity"
+                        value="1"
+                        min="1"
+                        max="10"
+                        readonly
+                    />
+                    <button type="button" class="qty-btn" id="qty-plus"
+                        >+</button
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="checkout-submit">
+                <span class="btn-text">INITIALIZE CHECKOUT</span>
+                <div class="loader" style="display: none;"></div>
+            </button>
+
+            <p class="form-notice">
+                By proceeding, you agree to our terms of service.
+            </p>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+        background: var(--color-bg);
+        border: 2px solid var(--color-primary);
+        border-radius: var(--radius-card);
+        width: 100%;
+        max-width: 500px;
+        padding: 40px;
+        position: relative;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: var(--color-text);
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+
+    .close-btn:hover {
+        opacity: 1;
+    }
+
+    .modal-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .modal-header h2 {
+        font-size: 2rem;
+        margin-bottom: 8px;
+        color: var(--color-primary);
+    }
+
+    .modal-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    .name-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    @media (max-width: 480px) {
+        .name-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .themed-input {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--color-text);
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .themed-input:focus {
+        outline: none;
+        border-color: var(--color-accent);
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 6px;
+        border-radius: var(--radius-pill);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: fit-content;
+    }
+
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: var(--color-primary);
+        color: var(--color-bg);
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    #checkout-quantity {
+        background: none;
+        border: none;
+        color: var(--color-text);
+        width: 40px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+        -moz-appearance: textfield;
+    }
+
+    #checkout-quantity::-webkit-outer-spin-button,
+    #checkout-quantity::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .submit-btn {
+        width: 100%;
+        background: var(--color-primary);
+        color: var(--color-bg);
+        border: none;
+        padding: 18px;
+        border-radius: var(--radius-pill);
+        font-family: var(--font-heading);
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition:
+            transform 0.2s,
+            filter 0.2s;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .submit-btn:hover {
+        transform: scale(1.02);
+        filter: brightness(1.1);
+    }
+    .submit-btn:active {
+        transform: scale(0.98);
+    }
+
+    .form-notice {
+        font-size: 0.7rem;
+        text-align: center;
+        margin-top: 20px;
+        opacity: 0.5;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .loader {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-top: 3px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<script>
+    class CheckoutManager {
+        modal: HTMLElement;
+        form: HTMLFormElement;
+        titleEl: HTMLElement;
+        idInput: HTMLInputElement;
+        qtyInput: HTMLInputElement;
+        submitBtn: HTMLButtonElement;
+
+        constructor() {
+            this.modal = document.getElementById("checkout-modal")!;
+            this.form = document.getElementById(
+                "checkout-form",
+            ) as HTMLFormElement;
+            this.titleEl = document.getElementById("modal-product-title")!;
+            this.idInput = document.getElementById(
+                "modal-product-id",
+            ) as HTMLInputElement;
+            this.qtyInput = document.getElementById(
+                "checkout-quantity",
+            ) as HTMLInputElement;
+            this.submitBtn = document.getElementById(
+                "checkout-submit",
+            ) as HTMLButtonElement;
+
+            this.init();
+        }
+
+        init() {
+            // Listen for custom trigger events
+            window.addEventListener("open-checkout", (e: any) => {
+                this.open(e.detail);
+            });
+
+            document
+                .getElementById("close-modal")
+                ?.addEventListener("click", () => this.close());
+            this.modal.addEventListener("click", (e) => {
+                if (e.target === this.modal) this.close();
+            });
+
+            // Quantity controls
+            document
+                .getElementById("qty-plus")
+                ?.addEventListener("click", () => {
+                    this.qtyInput.value = (
+                        parseInt(this.qtyInput.value) + 1
+                    ).toString();
+                });
+            document
+                .getElementById("qty-minus")
+                ?.addEventListener("click", () => {
+                    const val = parseInt(this.qtyInput.value);
+                    if (val > 1) this.qtyInput.value = (val - 1).toString();
+                });
+
+            // Submit
+            this.form.addEventListener("submit", (e) => this.handleSubmit(e));
+        }
+
+        open({ productId, title }: { productId: string; title: string }) {
+            this.idInput.value = productId;
+            this.titleEl.innerText = title;
+            this.modal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+
+        close() {
+            this.modal.style.display = "none";
+            document.body.style.overflow = "";
+            this.submitBtn.disabled = false;
+            this.submitBtn.querySelector(".btn-text")!.innerHTML =
+                "INITIALIZE CHECKOUT";
+            (
+                this.submitBtn.querySelector(".loader") as HTMLElement
+            ).style.display = "none";
+        }
+
+        async handleSubmit(e: Event) {
+            e.preventDefault();
+
+            this.submitBtn.disabled = true;
+            this.submitBtn.querySelector(".btn-text")!.innerHTML =
+                "PROCESSING...";
+            (
+                this.submitBtn.querySelector(".loader") as HTMLElement
+            ).style.display = "block";
+
+            const formData = new FormData(this.form);
+            const payload = {
+                productId: formData.get("productId"),
+                firstName: formData.get("firstName"),
+                lastName: formData.get("lastName"),
+                email: formData.get("email"),
+                phone: formData.get("phone"),
+                quantity: parseInt(formData.get("quantity") as string),
+            };
+
+            try {
+                const res = await fetch("/api/paystack/initialize", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+                if (data.authorization_url) {
+                    window.location.href = data.authorization_url;
+                } else {
+                    throw new Error(
+                        data.error || "Failed to initialize checkout",
+                    );
+                }
+            } catch (err: any) {
+                alert(err.message);
+                this.close();
+            }
+        }
+    }
+
+    // Initialize
+    new CheckoutManager();
+</script>

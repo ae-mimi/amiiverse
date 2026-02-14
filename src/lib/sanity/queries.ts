@@ -18,9 +18,15 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
     _type == "widget" => {
       ...,
       music_item->{
-        title, cover, performed_by, lyrics, producer,
-        spotify, apple_music, youtube_music,
-        "audio_url": audio_file.asset->url
+        title,
+        "cover": release->artwork,
+        "performed_by": credits[role match "Performed by"][0].name,
+        "lyrics": credits[role match "Written by" || role match "Lyrics"][0].name,
+        "producer": credits[role match "Produced by" || role match "Prod."][0].name,
+        "spotify": platformLinks.spotify,
+        "apple_music": platformLinks.apple,
+        "youtube_music": platformLinks.youtube,
+        "audio_url": previewUrl
       }
     },
     _type == "release_spotlight" => {
@@ -99,6 +105,23 @@ export const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
     "description": description,
     "logo_navy": logo_navy.asset->url,
     "logo_yellow": logo_yellow.asset->url
+  },
+  "navigationItems": navigationItems[]{
+    showInHeader,
+    showInFooter,
+    is_special,
+    disabled,
+    link{ 
+      label, 
+      type, 
+      url, 
+      internalRef->{ "slug": slug.current } 
+    }
+  },
+  "footer": {
+    "businessName": footer.businessName,
+    "contactEmail": footer.contactEmail,
+    "copyright": footer.copyright
   }
 }`;
 
@@ -184,13 +207,18 @@ export const ALL_TIMELINE_QUERY = `*[_type == "timelineItem"] | order(date asc) 
 }`;
 
 // ── Shop ────────────────────────────────────────────────
-export const ALL_SHOP_QUERY = `*[_type == "shop"] | order(_createdAt desc) {
-  title, price, url, image, category
+export const ALL_SHOP_QUERY = `*[_type == "product" && isActive == true] | order(_createdAt desc) {
+  title, price, "url": "/shop/" + slug.current, "image": coverImage, productType, "productId": _id
 }`;
 
 // ── Legacy (kept for backward compat) ───────────────────
 
-export const LEGACY_MUSIC_QUERY = `*[_type == "music"] | order(_createdAt desc) {
-  title, cover, spotify, apple_music, youtube_music,
-  "audio_url": audio_file.asset->url
+export const LEGACY_MUSIC_QUERY = `*[_type == "track" && isSingleFocus == true] | order(_createdAt desc) {
+  title, 
+  "date": release->releaseDate,
+  "cover": release->artwork,
+  "spotify": platformLinks.spotify, 
+  "apple_music": platformLinks.apple, 
+  "youtube_music": platformLinks.youtube,
+  "audio_url": previewUrl
 }`;

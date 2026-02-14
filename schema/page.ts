@@ -759,7 +759,7 @@ export default defineType({
               name: 'music_item',
               title: 'Song to Play',
               type: 'reference',
-              to: [{ type: 'music' }],
+              to: [{ type: 'track' }],
               description: 'Pick a song from your Music library.',
             }),
           ],

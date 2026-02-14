@@ -3,7 +3,25 @@ import { Icon } from "astro-icon/components";
 
 import { fetchGlobalSettings } from "../../utils/global";
 const settings = await fetchGlobalSettings();
-const links = settings.nav || [];
+
+// Process header links from unified navigationItems
+const links = (settings.navigationItems || [])
+    .filter((item) => item.showInHeader)
+    .map((item) => {
+        const { link, is_special, disabled } = item;
+        let href = "#";
+        if (link?.type === "internal")
+            href = `/${link.internalRef?.slug || ""}`;
+        else if (link?.type === "external") href = link.url || "#";
+        else if (link?.type === "email") href = `mailto:${link.url || ""}`;
+
+        return {
+            label: link?.label || "Untitled",
+            href,
+            is_special,
+            disabled,
+        };
+    });
 
 import Navigation from "../ui/Navigation.astro";
 ---
@@ -15,7 +33,7 @@ import Navigation from "../ui/Navigation.astro";
             {
                 settings.site_info?.logo_navy && (
                     <img
-                        src={settings.site_info.logo_navy}
+                        src={settings.site_info.logo_navy || ""}
                         alt="amii Logo"
                         class="header-logo"
                         loading="eager"
