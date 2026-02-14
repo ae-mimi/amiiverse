@@ -1,0 +1,104 @@
+---
+/**
+ * EmailSignupBlock — Newsletter / mailing-list signup form.
+ * Supports Brevo or generic form action.
+ */
+interface Props {
+    title?: string;
+    subtitle?: string;
+    provider?: string;
+    formId?: string;
+    successMessage?: string;
+}
+
+const {
+    title = "Stay in the Loop",
+    subtitle,
+    provider,
+    formId,
+    successMessage = "You're in! 🎉",
+} = Astro.props;
+---
+
+<section class="email-signup" aria-label={title}>
+    <div class="email-signup__inner">
+        <h2 class="email-signup__title">{title}</h2>
+        {subtitle && <p class="email-signup__subtitle">{subtitle}</p>}
+
+        <form
+            class="email-signup__form"
+            data-provider={provider}
+            data-form-id={formId}
+            data-success={successMessage}
+        >
+            <div class="email-signup__field">
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Your email address"
+                    required
+                    aria-label="Email address"
+                    autocomplete="email"
+                />
+                <button type="submit">Subscribe</button>
+            </div>
+            <p class="email-signup__status" aria-live="polite"></p>
+        </form>
+    </div>
+</section>
+
+<style>
+    .email-signup {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+        text-align: center;
+    }
+    .email-signup__inner {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .email-signup__title {
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+    .email-signup__subtitle {
+        opacity: 0.7;
+        margin-bottom: 1.5rem;
+    }
+    .email-signup__field {
+        display: flex;
+        gap: 0.5rem;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+    .email-signup__field input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid rgba(0, 0, 0, 0.12);
+        border-radius: 0.5rem;
+        font-size: 1rem;
+    }
+    .email-signup__field input:focus {
+        outline: none;
+        border-color: var(--color-accent, #e44598);
+    }
+    .email-signup__field button {
+        padding: 0.75rem 1.5rem;
+        background: var(--color-accent, #e44598);
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .email-signup__field button:hover {
+        opacity: 0.85;
+    }
+    .email-signup__status {
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        min-height: 1.2em;
+    }
+</style>

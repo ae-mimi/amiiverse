@@ -1,0 +1,129 @@
+---
+/**
+ * NewsFeedBlock — Lists recent news posts.
+ */
+import { fetchSanity } from "../../lib/sanity/client";
+import { ALL_POSTS_QUERY } from "../../lib/sanity/queries";
+import { urlFor } from "../../lib/sanity/image";
+import { formatDate } from "../../lib/utils/format";
+import type { Post } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    limit?: number;
+}
+
+const { title = "Latest News", limit = 6 } = Astro.props;
+const allPosts = (await fetchSanity<Post[]>(ALL_POSTS_QUERY)) || [];
+const posts = allPosts.slice(0, limit);
+---
+
+<section class="news-feed" aria-label={title}>
+    <div class="news-feed__inner">
+        <h2 class="news-feed__title">{title}</h2>
+
+        {
+            posts.length === 0 ? (
+                <p class="news-feed__empty">No news yet — stay tuned!</p>
+            ) : (
+                <div class="news-feed__grid">
+                    {posts.map((p) => (
+                        <a
+                            href={`/news/${p.slug?.current || ""}`}
+                            class="post-card"
+                        >
+                            {p.coverImage && (
+                                <img
+                                    src={urlFor(p.coverImage)}
+                                    alt={p.title}
+                                    loading="lazy"
+                                    class="post-card__img"
+                                />
+                            )}
+                            <div class="post-card__info">
+                                <time class="post-card__date">
+                                    {formatDate(p.publishedAt)}
+                                </time>
+                                <h3 class="post-card__title">{p.title}</h3>
+                                {p.excerpt && (
+                                    <p class="post-card__excerpt">
+                                        {p.excerpt}
+                                    </p>
+                                )}
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .news-feed {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .news-feed__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .news-feed__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .news-feed__empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: 3rem 0;
+    }
+    .news-feed__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    .post-card {
+        text-decoration: none;
+        color: inherit;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition:
+            transform 0.2s,
+            box-shadow 0.2s;
+    }
+    .post-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+    .post-card__img {
+        width: 100%;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+    }
+    .post-card__info {
+        padding: 1rem;
+    }
+    .post-card__date {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.5;
+    }
+    .post-card__title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0.25rem 0 0.5rem;
+    }
+    .post-card__excerpt {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>

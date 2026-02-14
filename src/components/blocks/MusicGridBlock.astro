@@ -1,5 +1,6 @@
 ---
-import { getSanityContent, urlFor } from "../../utils/sanity";
+import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
+import { urlFor } from "../../lib/sanity/image";
 import MusicCard from "../ui/MusicCard.astro";
 
 const { title } = Astro.props;

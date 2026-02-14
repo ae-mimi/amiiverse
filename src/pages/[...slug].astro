@@ -1,23 +1,25 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PageBuilder from "../components/PageBuilder.astro";
-import { getSanityContent, PAGE_QUERY } from "../utils/sanity";
+import { fetchSanity } from "../lib/sanity/client";
+import { PAGE_QUERY } from "../lib/sanity/queries";
+import type { Page } from "../lib/sanity/types";
 
 const { slug } = Astro.params;
 const currentSlug = slug === undefined ? "home" : slug;
 
-const page = await getSanityContent(PAGE_QUERY, { slug: currentSlug });
+const page = await fetchSanity<Page>(PAGE_QUERY, { slug: currentSlug });
 
 if (!page) {
     return Astro.redirect("/404");
 }
 
-const blocks = page.blocks || [];
+const sections = page.sections || [];
 const title = page.title;
 ---
 
 <BaseLayout title={title}>
     <div class="page-container">
-        <PageBuilder blocks={blocks} />
+        <PageBuilder sections={sections} />
     </div>
 </BaseLayout>

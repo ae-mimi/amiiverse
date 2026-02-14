@@ -20,15 +20,18 @@ import Navigation from "../ui/Navigation.astro";
             <!-- Logo Section -->
             <div class="footer-brand">
                 <a href="/" aria-label="amii Home">
-                    <img
-                        class="logo-img"
-                        src={settings.site_info?.logo_yellow ||
-                            "/assets/uploads/amii-logo_op-yellow.webp"}
-                        alt="amii Logo"
-                        loading="lazy"
-                        width="120"
-                        height="72"
-                    />
+                    {
+                        settings.site_info?.logo_yellow && (
+                            <img
+                                class="logo-img"
+                                src={settings.site_info.logo_yellow}
+                                alt="amii Logo"
+                                loading="lazy"
+                                width="120"
+                                height="72"
+                            />
+                        )
+                    }
                 </a>
             </div>
 
@@ -110,12 +113,6 @@ import Navigation from "../ui/Navigation.astro";
         height: auto;
         aspect-ratio: 98 / 59;
         display: block;
-        content: url("/assets/uploads/amii-logo_op-yellow.webp");
-    }
-
-    /* Dark Mode Override: Footer is Yellow -> Use Navy Logo */
-    :global([data-theme="deep-dive"]) .site-footer .logo-img {
-        content: url("/assets/uploads/amii-logo_op-navy.webp");
     }
 
     /* Navigation */
@@ -167,7 +164,7 @@ import Navigation from "../ui/Navigation.astro";
         align-items: center;
         width: 33px;
         height: 33px;
-        color: var(--color-yellow-500);
+        color: var(--color-secondary); /* was yellow-500 */
         transition:
             transform 0.2s,
             opacity 0.2s;
@@ -190,7 +187,7 @@ import Navigation from "../ui/Navigation.astro";
         font-size: clamp(15px, 1vw, 20px);
         line-height: 1.4;
         letter-spacing: 2px;
-        color: var(--color-yellow-500);
+        color: var(--color-secondary); /* was yellow-500 */
         opacity: 0.8;
         text-align: center;
         margin: 0;

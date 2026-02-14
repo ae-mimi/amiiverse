@@ -1,0 +1,171 @@
+---
+/**
+ * TimelineBlock — Vertical timeline of milestones.
+ */
+import { fetchSanity } from "../../lib/sanity/client";
+import { ALL_TIMELINE_QUERY } from "../../lib/sanity/queries";
+import { urlFor } from "../../lib/sanity/image";
+import { formatDate } from "../../lib/utils/format";
+import type { TimelineItem } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    items?: TimelineItem[];
+}
+
+const { title = "Our Journey", items: passedItems } = Astro.props;
+const items =
+    passedItems ||
+    (await fetchSanity<TimelineItem[]>(ALL_TIMELINE_QUERY)) ||
+    [];
+---
+
+<section class="timeline-block" aria-label={title}>
+    <div class="timeline-block__inner">
+        <h2 class="timeline-block__title">{title}</h2>
+
+        {
+            items.length === 0 ? (
+                <p class="timeline-block__empty">No timeline items yet.</p>
+            ) : (
+                <div class="timeline" role="list">
+                    {items.map((item, i) => (
+                        <div
+                            class={`timeline__item ${i % 2 === 0 ? "timeline__item--left" : "timeline__item--right"}`}
+                            role="listitem"
+                        >
+                            <div class="timeline__marker" />
+                            <div class="timeline__content">
+                                <time
+                                    class="timeline__date"
+                                    datetime={item.date}
+                                >
+                                    {formatDate(item.date)}
+                                </time>
+                                <h3 class="timeline__heading">{item.title}</h3>
+                                {item.description && (
+                                    <p class="timeline__desc">
+                                        {item.description}
+                                    </p>
+                                )}
+                                {item.media && (
+                                    <img
+                                        src={urlFor(item.media)}
+                                        alt={item.title}
+                                        loading="lazy"
+                                        class="timeline__img"
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .timeline-block {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .timeline-block__inner {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .timeline-block__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .timeline-block__empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: 3rem 0;
+    }
+    .timeline {
+        position: relative;
+        padding: 1rem 0;
+    }
+    .timeline::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(0, 0, 0, 0.1);
+        transform: translateX(-50%);
+    }
+    @media (max-width: 600px) {
+        .timeline::before {
+            left: 1.25rem;
+        }
+    }
+    .timeline__item {
+        position: relative;
+        display: flex;
+        margin-bottom: 2rem;
+    }
+    .timeline__item--left {
+        justify-content: flex-start;
+        padding-right: 52%;
+    }
+    .timeline__item--right {
+        justify-content: flex-end;
+        padding-left: 52%;
+    }
+    @media (max-width: 600px) {
+        .timeline__item--left,
+        .timeline__item--right {
+            padding: 0 0 0 3rem;
+            justify-content: flex-start;
+        }
+    }
+    .timeline__marker {
+        position: absolute;
+        left: 50%;
+        top: 0.5rem;
+        width: 12px;
+        height: 12px;
+        background: var(--color-accent, #e44598);
+        border-radius: 50%;
+        transform: translateX(-50%);
+        z-index: 1;
+    }
+    @media (max-width: 600px) {
+        .timeline__marker {
+            left: 1.25rem;
+        }
+    }
+    .timeline__content {
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        width: 100%;
+    }
+    .timeline__date {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.6;
+    }
+    .timeline__heading {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0.25rem 0;
+    }
+    .timeline__desc {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        opacity: 0.8;
+        margin: 0.5rem 0 0;
+    }
+    .timeline__img {
+        width: 100%;
+        border-radius: 0.5rem;
+        margin-top: 0.75rem;
+    }
+</style>

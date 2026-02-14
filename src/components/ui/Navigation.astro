@@ -91,7 +91,7 @@ const normalizePath = (path: string) => {
 
     /* Default Theme (Navy Text, Pink Highlight) */
     .nav-theme-default .nav-link {
-        color: var(--color-navy-500); /* Was --text-nav */
+        color: var(--color-primary); /* Was --text-nav */
         font-size: clamp(12px, 1vw, 20px);
     }
 
@@ -103,9 +103,9 @@ const normalizePath = (path: string) => {
     }
 
     .nav-theme-default .nav-link:hover {
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         text-decoration: underline;
-        text-decoration-color: var(--color-pink-500);
+        text-decoration-color: var(--color-accent);
         text-decoration-thickness: 2px;
         text-underline-offset: 4px;
     }
@@ -113,7 +113,7 @@ const normalizePath = (path: string) => {
     .nav-theme-default .nav-link.active,
     .nav-theme-default .nav-link.special-link {
         font-weight: 600;
-        color: var(--color-pink-500);
+        color: var(--color-accent);
         text-decoration: none;
     }
     .nav-theme-default .nav-layout-column .nav-link.active {
@@ -122,22 +122,22 @@ const normalizePath = (path: string) => {
 
     /* Inverse Theme (Yellow Text, Pink Highlight) - For Footer */
     .nav-theme-inverse .nav-link {
-        color: var(--color-yellow-500);
+        color: var(--color-secondary);
         font-size: clamp(12px, 1vw, 20px);
     }
 
     .nav-theme-inverse .nav-link:hover {
-        color: var(--color-yellow-500);
+        color: var(--color-secondary);
         text-decoration: underline;
         text-decoration-thickness: 2px;
         text-underline-offset: 4px;
-        text-decoration-color: var(--color-pink-500);
+        text-decoration-color: var(--color-accent);
     }
 
     .nav-theme-inverse .nav-link.active,
     .nav-theme-inverse .nav-link.special-link {
         font-weight: 600;
-        color: var(--color-pink-500);
+        color: var(--color-accent);
         text-decoration: none;
     }
 </style>

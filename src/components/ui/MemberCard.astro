@@ -1,12 +1,16 @@
 ---
-import { urlFor } from "../../utils/sanity";
+import { urlFor } from "../../lib/sanity/image";
 
 const { member } = Astro.props;
 ---
 
 <div class="member-card">
     <div class="member-image">
-        <img src={urlFor(member.image)} alt={member.name} loading="lazy" />
+        <img
+            src={urlFor(member.profilePhoto)}
+            alt={member.name}
+            loading="lazy"
+        />
     </div>
     <h3 class="member-name">{member.name}</h3>
     <p class="member-role">{member.role}</p>

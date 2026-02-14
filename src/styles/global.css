@@ -17,16 +17,26 @@
  *****************************************************************************/
 
 :root {
-  /* Colors - Core Palette */
-  --color-yellow-500: #FDF38A;
-  --color-navy-500: #15499D;
-  --color-pink-500: #E44598;
-  --color-blue-500: #43B2E5;
-  --color-golden-500: #FCBF12;
+  /* ── Theme System (Injected via BaseLayout) ── */
+  /*
+      --color-primary
+      --color-secondary
+      --color-accent
+      --color-bg
+      --color-text
+      --color-text-muted
+      --radius-scale
+    */
 
-  --color-cream: #FEF9C4;
-  --color-navy-900: #1E3A8A;
-  --color-white: #FFFFFF;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Semantic Usage */
+  --bg-body: var(--color-bg);
+  --text-main: var(--color-text);
+  --text-muted: var(--color-text-muted);
+
+  /* Spacing & Layout */
 
   /* Typography - Families */
   --font-body: 'Archivo', sans-serif;
@@ -74,31 +84,32 @@
 /* Theme Context: Sun Mode (Default) */
 :root {
   /* Backgrounds */
-  --bg-page: var(--color-yellow-500);
-  --bg-card: var(--color-yellow-500);
-  --bg-header: var(--color-yellow-500);
-  --bg-footer: var(--color-navy-500);
+  --bg-page: var(--color-bg);
+  --bg-card: var(--color-bg);
+  --bg-header: var(--color-bg);
+  --bg-footer: var(--color-primary);
 
   /* Text */
-  --text-main: var(--color-navy-500);
-  --text-muted: var(--color-navy-500);
-  --text-accent: var(--color-pink-500);
-  --text-nav: var(--color-navy-500);
-  --text-footer: var(--color-yellow-500);
+  --text-main: var(--color-text);
+  --text-muted: var(--color-text-muted);
+  --text-accent: var(--color-accent);
+  --text-nav: var(--color-primary);
+  --text-footer: var(--color-secondary);
 
   /* Buttons */
-  --btn-bg-primary: var(--color-navy-500);
-  --btn-text-primary: var(--color-yellow-500);
-  --btn-border: var(--color-navy-500);
+  --btn-bg-primary: var(--color-primary);
+  --btn-text-primary: var(--color-secondary);
+  --btn-border: var(--color-primary);
 
   /* Inputs */
-  --input-bg: var(--color-cream);
-  --input-border: var(--color-navy-500);
-  --input-text: var(--color-navy-500);
-  --input-placeholder: rgba(21, 73, 157, 0.6);
+  --input-bg: var(--color-bg);
+  --input-border: var(--color-primary);
+  --input-text: var(--color-text);
+  --input-placeholder: rgba(30, 30, 46, 0.6);
+  /* Fallback */
 
   /* Graphics */
-  --logo-color-primary: var(--color-navy-500);
+  --logo-color-primary: var(--color-primary);
 }
 
 /* Reset & Base Styles */

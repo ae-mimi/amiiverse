@@ -89,7 +89,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
         font-size: clamp(1.75rem, 3vw, 2.5rem);
         text-align: center;
         margin-bottom: var(--space-md);
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
     }
 
     .events-list {
@@ -104,12 +104,12 @@ const statusConfig: Record<string, { label: string; className: string }> = {
         gap: var(--space-md);
         padding: var(--space-sm) var(--space-md);
         border-radius: 8px;
-        background: rgba(0, 0, 0, 0.03);
+        background: color-mix(in srgb, var(--text-main), transparent 97%);
         transition: background 0.2s ease;
     }
 
     .event-row:hover {
-        background: rgba(0, 0, 0, 0.06);
+        background: color-mix(in srgb, var(--text-main), transparent 94%);
     }
 
     .event-row.cancelled {
@@ -122,7 +122,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
         align-items: center;
         min-width: 60px;
         line-height: 1.1;
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
     }
 
     .event-month {
@@ -150,14 +150,14 @@ const statusConfig: Record<string, { label: string; className: string }> = {
         font-size: 1rem;
         font-weight: 600;
         margin: 0;
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
     }
 
     .event-venue {
         font-size: 0.85rem;
         margin: 2px 0 0;
         opacity: 0.6;
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
     }
 
     .event-badge {
@@ -176,31 +176,31 @@ const statusConfig: Record<string, { label: string; className: string }> = {
     }
 
     .status-on-sale {
-        background: var(--color-text, #15499d);
-        color: var(--color-bg, #fdf38a);
+        background: var(--color-primary);
+        color: var(--color-secondary);
     }
 
     .status-sold-out {
-        background: rgba(0, 0, 0, 0.1);
-        color: var(--color-text, #15499d);
+        background: color-mix(in srgb, var(--text-main), transparent 90%);
+        color: var(--text-main);
     }
 
     .status-cancelled {
         background: transparent;
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
         text-decoration: line-through;
     }
 
     .status-coming-soon {
-        background: rgba(0, 0, 0, 0.05);
-        color: var(--color-text, #15499d);
+        background: color-mix(in srgb, var(--text-main), transparent 95%);
+        color: var(--text-main);
     }
 
     .no-events {
         text-align: center;
         opacity: 0.6;
         padding: var(--space-lg);
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
     }
 
     @media (max-width: 600px) {

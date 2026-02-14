@@ -3,9 +3,8 @@
   "site_info": {
     "title": "amiiverse",
     "description": "Welcome to the amiiverse.",
-    "logo_navy": "/assets/uploads/amii-logo_op-navy.webp",
-    "logo_yellow": "/assets/uploads/amii-logo_op-yellow.webp",
-    "favicon": "/favicon.svg"
+    "logo_navy": "",
+    "logo_yellow": ""
   },
   "nav": [
     {
@@ -30,7 +29,7 @@
     }
   ],
   "footer": {
-    "copyright": "Copyright \u00A9 amii",
+    "copyright": "Copyright © amii",
     "links": [
       {
         "label": "HOME",

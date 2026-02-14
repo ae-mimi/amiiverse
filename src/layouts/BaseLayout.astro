@@ -4,7 +4,6 @@ import SiteHeader from "../components/layout/SiteHeader.astro";
 import SiteFooter from "../components/layout/SiteFooter.astro";
 import Analytics from "../components/seo/Analytics.astro";
 import JSONLD from "../components/seo/JSONLD.astro";
-import ThemeManager from "../components/ui/ThemeManager.astro";
 
 interface Props {
     title: string;
@@ -13,16 +12,37 @@ interface Props {
 
 const { title, description = "Welcome to the amiiverse." } = Astro.props;
 import { fetchGlobalSettings } from "../utils/global";
+import { getActiveTheme } from "../lib/theme";
+
 const settings = await fetchGlobalSettings();
+const theme = await getActiveTheme();
+
+const radiusMap = {
+    small: "4px",
+    medium: "8px",
+    large: "16px",
+};
 ---
 
-<!doctype html>
-<html lang="en" data-theme="sun">
+<html
+    lang="en"
+    data-theme="sun"
+    style={`
+        --color-primary: ${theme.primaryColor};
+        --color-secondary: ${theme.secondaryColor};
+        --color-accent: ${theme.accentColor};
+        --color-bg: ${theme.backgroundColor};
+        --color-text: ${theme.textColor};
+        --color-text-muted: ${theme.mutedTextColor};
+        --radius-scale: ${radiusMap[theme.borderRadiusScale || "medium"]};
+        --font-heading: ${theme.headingFont};
+        --font-body: ${theme.bodyFont};
+    `}
+>
     <head>
         <meta charset="UTF-8" />
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width" />
-        <ThemeManager />
 
         <!-- Dynamic Favicons (SSR Failure/Default) -->
         {
@@ -72,6 +92,11 @@ const settings = await fetchGlobalSettings();
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
+        {
+            settings.seo?.og_image && (
+                <meta property="og:image" content={settings.seo.og_image} />
+            )
+        }
         <meta property="og:url" content={Astro.url} />
         <meta property="og:site_name" content="amiiverse" />
 
@@ -79,6 +104,14 @@ const settings = await fetchGlobalSettings();
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:title" content={title} />
         <meta property="twitter:description" content={description} />
+        {
+            settings.seo?.og_image && (
+                <meta
+                    property="twitter:image"
+                    content={settings.seo.og_image}
+                />
+            )
+        }
 
         <!-- Keywords (AI/SEO) -->
         {

@@ -41,7 +41,7 @@ interface FAQItem {
         font-size: clamp(1.75rem, 3vw, 2.5rem);
         text-align: center;
         margin-bottom: var(--space-md);
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
     }
 
     .faq-list {
@@ -52,7 +52,8 @@ interface FAQItem {
     }
 
     .faq-item {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid
+            color-mix(in srgb, var(--text-main), transparent 90%);
     }
 
     .faq-question {
@@ -64,7 +65,7 @@ interface FAQItem {
         cursor: pointer;
         font-weight: 600;
         font-size: 1rem;
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
         list-style: none;
         user-select: none;
     }
@@ -93,7 +94,7 @@ interface FAQItem {
         margin: 0;
         line-height: 1.7;
         opacity: 0.75;
-        color: var(--color-text, #15499d);
+        color: var(--text-main);
     }
 
     @keyframes fadeIn {

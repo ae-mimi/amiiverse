@@ -8,6 +8,7 @@ export default defineType({
     icon: SettingsIcon,
     groups: [
         { name: 'general', title: 'General', icon: GeneralIcon, default: true },
+        { name: 'seo', title: 'SEO' },
         { name: 'branding', title: 'Branding', icon: BrandingIcon },
         { name: 'navigation', title: 'Navigation', icon: NavigationIcon },
         { name: 'social', title: 'Social Media', icon: SocialIcon },
@@ -39,6 +40,40 @@ export default defineType({
             of: [{ type: 'string' }],
             options: { layout: 'tags' },
             group: 'general',
+        }),
+
+        defineField({
+            name: 'theme',
+            title: 'Default Theme',
+            type: 'themeSettings',
+            group: 'general',
+            description: 'The base look and feel of the site.',
+            options: { collapsible: true, collapsed: false },
+        }),
+
+        // ── SEO Defaults ────────────────────────────────────────
+        defineField({
+            name: 'defaultSeo',
+            title: 'Default SEO',
+            type: 'seo',
+            group: 'seo',
+            description: 'Fallback SEO settings used when a page does not have its own SEO configured.',
+        }),
+
+        // ── Announcement Bar ────────────────────────────────────
+        defineField({
+            name: 'announcementBar',
+            title: 'Announcement Bar',
+            type: 'object',
+            group: 'general',
+            description: 'A small banner across the top of the site. Great for release announcements.',
+            options: { collapsible: true, collapsed: true },
+            fields: [
+                defineField({ name: 'enabled', title: 'Enabled', type: 'boolean', initialValue: false }),
+                defineField({ name: 'text', title: 'Message', type: 'string', description: 'Short announcement text.' }),
+                defineField({ name: 'link', title: 'Link', type: 'link' }),
+                defineField({ name: 'closable', title: 'Allow Dismiss', type: 'boolean', initialValue: true, description: 'Let visitors close the bar.' }),
+            ],
         }),
 
         // ── Branding ─────────────────────────────────────────

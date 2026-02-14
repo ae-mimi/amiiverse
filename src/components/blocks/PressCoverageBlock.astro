@@ -1,0 +1,112 @@
+---
+/**
+ * PressCoverageBlock — Displays press quotes/mentions.
+ * Maps to section._type "press_quotes".
+ */
+import { fetchSanity } from "../../lib/sanity/client";
+import { FEATURED_PRESS_QUERY } from "../../lib/sanity/queries";
+import type { PressMention } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    items?: PressMention[];
+}
+
+const { title = "Press", items: passedItems } = Astro.props;
+const items =
+    passedItems ||
+    (await fetchSanity<PressMention[]>(FEATURED_PRESS_QUERY)) ||
+    [];
+---
+
+<section class="press-coverage" aria-label={title}>
+    <div class="press-coverage__inner">
+        <h2 class="press-coverage__title">{title}</h2>
+
+        {
+            items.length === 0 ? (
+                <p class="press-coverage__empty">No press mentions yet.</p>
+            ) : (
+                <div class="press-coverage__grid">
+                    {items.map((item) => (
+                        <blockquote class="press-quote">
+                            {item.quote && (
+                                <p class="press-quote__text">"{item.quote}"</p>
+                            )}
+                            <footer class="press-quote__meta">
+                                {item.url ? (
+                                    <a
+                                        href={item.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="press-quote__source"
+                                    >
+                                        <strong>{item.title}</strong>
+                                        {item.publisher && (
+                                            <span> — {item.publisher}</span>
+                                        )}
+                                    </a>
+                                ) : (
+                                    <span class="press-quote__source">
+                                        <strong>{item.title}</strong>
+                                        {item.publisher && (
+                                            <span> — {item.publisher}</span>
+                                        )}
+                                    </span>
+                                )}
+                            </footer>
+                        </blockquote>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .press-coverage {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .press-coverage__inner {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .press-coverage__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .press-coverage__empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: 3rem 0;
+    }
+    .press-coverage__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    .press-quote {
+        margin: 0;
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 0.75rem;
+        border-left: 4px solid var(--color-accent, #e44598);
+    }
+    .press-quote__text {
+        font-style: italic;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin: 0 0 1rem;
+    }
+    .press-quote__source {
+        font-size: 0.85rem;
+        text-decoration: none;
+        color: inherit;
+    }
+    .press-quote__source:hover {
+        text-decoration: underline;
+    }
+</style>

@@ -11,13 +11,14 @@ const defaultTrack = {
         prod: "DeBola",
         performed: "MO, BASI, NINAH",
     },
-    cover: "/assets/uploads/Ordinary_People_Cover_Art.png",
+    cover: "", // No hardcoded fallback
     spotify: "#",
     apple_music: "#",
     youtube_music: "#",
+    audio_url: "",
 };
 
-import { urlFor } from "../../utils/sanity";
+import { urlFor } from "../../lib/sanity/image";
 
 // Map CMS data to component structure
 const track = propTrack
@@ -32,8 +33,11 @@ const track = propTrack
           spotify: propTrack.spotify || defaultTrack.spotify,
           apple_music: propTrack.apple_music || defaultTrack.apple_music,
           youtube_music: propTrack.youtube_music || defaultTrack.youtube_music,
+          audio_url: propTrack.audio_url || "",
       }
     : defaultTrack;
+
+const hasAudio = !!track.audio_url;
 ---
 
 <div class="music-player-container">
@@ -52,27 +56,55 @@ const track = propTrack
                 <img src={track.cover} alt={track.title} draggable="false" />
             </div>
 
-            <div class="controls-wrapper">
-                <div class="controls">
-                    <button class="ctrl-btn prev" aria-label="Previous">
-                        <Icon name="lucide:skip-back" />
-                    </button>
-                    <button class="ctrl-btn play" aria-label="Play">
-                        <Icon name="lucide:play" />
-                    </button>
-                    <button class="ctrl-btn next" aria-label="Next">
-                        <Icon name="lucide:skip-forward" />
-                    </button>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 30%"></div>
-                    <div class="progress-thumb" style="left: 30%"></div>
-                </div>
-                <div class="timestamps">
-                    <span>0:45</span>
-                    <span>2:30</span>
-                </div>
-            </div>
+            {
+                hasAudio ? (
+                    <div class="controls-wrapper" data-player>
+                        <audio
+                            src={track.audio_url}
+                            preload="metadata"
+                            class="player-audio"
+                        />
+
+                        <div class="controls">
+                            <button
+                                class="ctrl-btn rewind"
+                                aria-label="Rewind 10s"
+                                data-rewind
+                            >
+                                <Icon name="lucide:skip-back" />
+                            </button>
+                            <button
+                                class="ctrl-btn play"
+                                aria-label="Play"
+                                data-play
+                            >
+                                <Icon name="lucide:play" />
+                            </button>
+                            <button
+                                class="ctrl-btn forward"
+                                aria-label="Forward 10s"
+                                data-forward
+                            >
+                                <Icon name="lucide:skip-forward" />
+                            </button>
+                        </div>
+
+                        <div class="progress-bar" data-progress-bar>
+                            <div class="progress-fill" data-progress-fill />
+                            <div class="progress-thumb" data-progress-thumb />
+                        </div>
+
+                        <div class="timestamps">
+                            <span data-current-time>0:00</span>
+                            <span data-duration>0:00</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div class="controls-wrapper controls-wrapper--empty">
+                        <p class="audio-fallback">🎵 Audio coming soon.</p>
+                    </div>
+                )
+            }
         </div>
 
         <div class="player-info">
@@ -81,9 +113,21 @@ const track = propTrack
             <div class="credits-section">
                 <h4>Credits</h4>
                 <div class="credits-text">
-                    <p>Lyrics: {track.credits.lyrics}</p>
-                    <p>Prod. by: {track.credits.prod}</p>
-                    <p>Performed by: {track.credits.performed}</p>
+                    {
+                        track.credits.lyrics && (
+                            <p>Lyrics: {track.credits.lyrics}</p>
+                        )
+                    }
+                    {
+                        track.credits.prod && (
+                            <p>Prod. by: {track.credits.prod}</p>
+                        )
+                    }
+                    {
+                        track.credits.performed && (
+                            <p>Performed by: {track.credits.performed}</p>
+                        )
+                    }
                 </div>
             </div>
 
@@ -110,6 +154,127 @@ const track = propTrack
     </div>
 </div>
 
+<script>
+    const playerWrapper = document.querySelector(
+        "[data-player]",
+    ) as HTMLElement;
+
+    if (playerWrapper) {
+        const audio = playerWrapper.querySelector(
+            ".player-audio",
+        ) as HTMLAudioElement;
+        const playBtn = playerWrapper.querySelector(
+            "[data-play]",
+        ) as HTMLButtonElement;
+        const rewindBtn = playerWrapper.querySelector(
+            "[data-rewind]",
+        ) as HTMLButtonElement;
+        const forwardBtn = playerWrapper.querySelector(
+            "[data-forward]",
+        ) as HTMLButtonElement;
+        const progressBar = playerWrapper.querySelector(
+            "[data-progress-bar]",
+        ) as HTMLElement;
+        const progressFill = playerWrapper.querySelector(
+            "[data-progress-fill]",
+        ) as HTMLElement;
+        const progressThumb = playerWrapper.querySelector(
+            "[data-progress-thumb]",
+        ) as HTMLElement;
+        const currentTimeEl = playerWrapper.querySelector(
+            "[data-current-time]",
+        ) as HTMLElement;
+        const durationEl = playerWrapper.querySelector(
+            "[data-duration]",
+        ) as HTMLElement;
+
+        function formatTime(s: number): string {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, "0")}`;
+        }
+
+        // Update play icon
+        const playIcon = playBtn?.querySelector("[data-icon]") as SVGElement;
+
+        function setPlaying(isPlaying: boolean) {
+            playBtn.setAttribute("aria-label", isPlaying ? "Pause" : "Play");
+            // Swap icon by toggling style (simple approach)
+            if (playIcon) {
+                playIcon.style.opacity = isPlaying ? "0.6" : "1";
+            }
+            playBtn.classList.toggle("ctrl-btn--playing", isPlaying);
+        }
+
+        // Play/Pause
+        playBtn?.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        });
+
+        audio.addEventListener("play", () => setPlaying(true));
+        audio.addEventListener("pause", () => setPlaying(false));
+        audio.addEventListener("ended", () => setPlaying(false));
+
+        // Skip back/forward 10s
+        rewindBtn?.addEventListener("click", () => {
+            audio.currentTime = Math.max(0, audio.currentTime - 10);
+        });
+        forwardBtn?.addEventListener("click", () => {
+            audio.currentTime = Math.min(
+                audio.duration,
+                audio.currentTime + 10,
+            );
+        });
+
+        // Duration
+        audio.addEventListener("loadedmetadata", () => {
+            if (durationEl) durationEl.textContent = formatTime(audio.duration);
+        });
+
+        // Progress update
+        audio.addEventListener("timeupdate", () => {
+            if (!audio.duration) return;
+            const pct = (audio.currentTime / audio.duration) * 100;
+            if (progressFill) progressFill.style.width = `${pct}%`;
+            if (progressThumb) progressThumb.style.left = `${pct}%`;
+            if (currentTimeEl)
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
+
+        // Seek on click
+        progressBar?.addEventListener("click", (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const pct = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pct * audio.duration;
+        });
+
+        // Seek on drag
+        let isDragging = false;
+        progressBar?.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            const rect = progressBar.getBoundingClientRect();
+            const pct = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pct * audio.duration;
+        });
+        document.addEventListener("mousemove", (e) => {
+            if (!isDragging || !progressBar) return;
+            const rect = progressBar.getBoundingClientRect();
+            const pct = Math.max(
+                0,
+                Math.min(1, (e.clientX - rect.left) / rect.width),
+            );
+            audio.currentTime = pct * audio.duration;
+        });
+        document.addEventListener("mouseup", () => {
+            isDragging = false;
+        });
+    }
+</script>
+
 <style>
     .music-player-container {
         display: flex;
@@ -117,7 +282,7 @@ const track = propTrack
         align-items: center;
         gap: 32px;
         width: 100%;
-        max-width: 2560px; /* Match global cap */
+        max-width: 2560px;
         margin-inline: auto;
         padding-block: 2rem;
     }
@@ -180,7 +345,7 @@ const track = propTrack
         border-radius: 15px;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: clamp(800px, 60vw, 1400px); /* Fluid Player Card */
+        max-width: clamp(800px, 60vw, 1400px);
         align-items: center;
     }
 
@@ -199,7 +364,7 @@ const track = propTrack
         align-items: center;
         gap: 24px;
         width: 100%;
-        max-width: clamp(300px, 20vw, 500px); /* Fluid Art Column */
+        max-width: clamp(300px, 20vw, 500px);
     }
 
     .album-art {
@@ -219,11 +384,26 @@ const track = propTrack
         object-fit: cover;
     }
 
+    .player-audio {
+        display: none;
+    }
+
     .controls-wrapper {
         width: 100%;
         display: flex;
         flex-direction: column;
         gap: 12px;
+    }
+
+    .controls-wrapper--empty {
+        align-items: center;
+        padding: 1rem 0;
+    }
+
+    .audio-fallback {
+        font-size: 0.95rem;
+        opacity: 0.5;
+        font-style: italic;
     }
 
     .controls {
@@ -255,8 +435,8 @@ const track = propTrack
         transform: scale(0.95);
     }
 
-    .ctrl-btn.prev,
-    .ctrl-btn.next {
+    .ctrl-btn.rewind,
+    .ctrl-btn.forward {
         font-size: 24px;
         width: 24px;
     }
@@ -266,6 +446,10 @@ const track = propTrack
         width: 32px;
     }
 
+    .ctrl-btn--playing {
+        color: var(--color-accent, #e44598);
+    }
+
     [data-icon] {
         width: 1em;
         height: 1em;
@@ -273,7 +457,7 @@ const track = propTrack
 
     .progress-bar {
         width: 100%;
-        height: 4px;
+        height: 6px;
         background: #f5f3e9;
         border-radius: 8px;
         position: relative;
@@ -284,16 +468,24 @@ const track = propTrack
         height: 100%;
         background: #15499d;
         border-radius: 8px;
+        transition: width 0.1s linear;
     }
 
     .progress-thumb {
         position: absolute;
         top: 50%;
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
         background: #15499d;
         border-radius: 50%;
         transform: translate(-50%, -50%);
+        transition: left 0.1s linear;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .progress-bar:hover .progress-thumb {
+        width: 16px;
+        height: 16px;
     }
 
     .timestamps {
@@ -323,7 +515,7 @@ const track = propTrack
     .track-title {
         font-family: "Archivo", sans-serif;
         font-weight: 600;
-        font-size: clamp(26px, 2.5vw, 42px); /* Fluid Track Title */
+        font-size: clamp(26px, 2.5vw, 42px);
         line-height: 1.2;
         color: #15499d;
     }
@@ -337,13 +529,13 @@ const track = propTrack
     .credits-section h4 {
         font-family: "Archivo", sans-serif;
         font-weight: 600;
-        font-size: clamp(19px, 1.5vw, 24px); /* Fluid Credits Header */
+        font-size: clamp(19px, 1.5vw, 24px);
         color: #15499d;
     }
 
     .credits-text {
         font-family: "Archivo", sans-serif;
-        font-size: clamp(15px, 1.2vw, 20px); /* Fluid Credits Text */
+        font-size: clamp(15px, 1.2vw, 20px);
         line-height: 1.6;
         color: #15499d;
     }

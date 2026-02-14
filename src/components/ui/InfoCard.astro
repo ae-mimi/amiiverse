@@ -21,7 +21,7 @@ const { title, class: className } = Astro.props;
         flex: 1; /* evenly distribute height */
         background-color: color-mix(
             in srgb,
-            var(--color-yellow-500),
+            var(--color-secondary),
             black 10%
         ) !important;
         border-radius: 17px;
@@ -38,7 +38,7 @@ const { title, class: className } = Astro.props;
         font-weight: 400;
         font-size: clamp(19px, 1.5vw, 32px); /* Fluid Title */
         line-height: 1.4;
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         margin: 0;
         text-align: center;
         width: 100%;
@@ -51,7 +51,7 @@ const { title, class: className } = Astro.props;
         font-size: clamp(17px, 1.2vw, 24px); /* Fluid Content */
         line-height: 1.5;
         text-align: center;
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -62,7 +62,7 @@ const { title, class: className } = Astro.props;
 
     /* Global style for links inside content to ensure they inherit correct color */
     .card-content :global(a) {
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         text-decoration: none;
     }
     .card-content :global(a:hover) {

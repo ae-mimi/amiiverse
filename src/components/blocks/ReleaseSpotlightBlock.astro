@@ -1,0 +1,258 @@
+---
+/**
+ * ReleaseSpotlightBlock — Features a specific release with artwork,
+ * tracklist, streaming links, and credits.
+ */
+import { urlFor } from "../../lib/sanity/image";
+import { getActivePlatforms } from "../../lib/utils/platforms";
+import { formatDate } from "../../lib/utils/format";
+import type { ReleaseSpotlightSection } from "../../lib/sanity/types";
+
+interface Props extends ReleaseSpotlightSection {}
+
+const {
+    release,
+    showTracklist = true,
+    showCredits = false,
+    showPreSave = false,
+} = Astro.props;
+
+if (!release) return null;
+
+const platforms = getActivePlatforms(release.platformLinks as any);
+const releaseTypeLabel =
+    { single: "Single", ep: "EP", album: "Album" }[
+        release.releaseType || "single"
+    ] || "Release";
+---
+
+<section
+    class="release-spotlight"
+    aria-label={`${release.title} — ${releaseTypeLabel}`}
+>
+    <div class="release-spotlight__inner">
+        {
+            release.artwork && (
+                <div class="release-spotlight__artwork">
+                    <img
+                        src={urlFor(release.artwork)}
+                        alt={`${release.title} artwork`}
+                        loading="lazy"
+                        width="600"
+                        height="600"
+                    />
+                </div>
+            )
+        }
+
+        <div class="release-spotlight__info">
+            <span class="release-spotlight__badge">{releaseTypeLabel}</span>
+            <h2 class="release-spotlight__title">{release.title}</h2>
+            <p class="release-spotlight__date">
+                {formatDate(release.releaseDate)}
+            </p>
+
+            {
+                release.story && (
+                    <p class="release-spotlight__story">{release.story}</p>
+                )
+            }
+
+            {
+                showPreSave && release.preSaveUrl && (
+                    <a
+                        href={release.preSaveUrl}
+                        class="release-spotlight__presave"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Pre-Save Now
+                    </a>
+                )
+            }
+
+            {
+                platforms.length > 0 && (
+                    <div
+                        class="release-spotlight__links"
+                        role="list"
+                        aria-label="Listen on"
+                    >
+                        {platforms.map((p) => (
+                            <a
+                                href={p.url}
+                                class="release-spotlight__link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                role="listitem"
+                                aria-label={`Listen on ${p.label}`}
+                            >
+                                {p.label}
+                            </a>
+                        ))}
+                    </div>
+                )
+            }
+
+            {
+                showTracklist &&
+                    release.tracklist &&
+                    release.tracklist.length > 0 && (
+                        <div class="release-spotlight__tracklist">
+                            <h3>Tracklist</h3>
+                            <ol>
+                                {release.tracklist.map((track) => (
+                                    <li>
+                                        <span class="track-title">
+                                            {track.title}
+                                        </span>
+                                        {track.duration && (
+                                            <span class="track-duration">
+                                                {track.duration}
+                                            </span>
+                                        )}
+                                    </li>
+                                ))}
+                            </ol>
+                        </div>
+                    )
+            }
+
+            {
+                showCredits &&
+                    release.credits &&
+                    release.credits.length > 0 && (
+                        <div class="release-spotlight__credits">
+                            <h3>Credits</h3>
+                            <dl>
+                                {release.credits.map((c) => (
+                                    <>
+                                        <dt>{c.role}</dt>
+                                        <dd>{c.name}</dd>
+                                    </>
+                                ))}
+                            </dl>
+                        </div>
+                    )
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .release-spotlight {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .release-spotlight__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+    @media (min-width: 768px) {
+        .release-spotlight__inner {
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+    }
+    .release-spotlight__artwork img {
+        width: 100%;
+        height: auto;
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    .release-spotlight__badge {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        background: var(--color-accent, #e44598);
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+    .release-spotlight__title {
+        font-size: clamp(1.75rem, 4vw, 3rem);
+        font-weight: 800;
+        margin: 0.25rem 0;
+    }
+    .release-spotlight__date {
+        font-size: 0.9rem;
+        opacity: 0.7;
+        margin-bottom: 1rem;
+    }
+    .release-spotlight__story {
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+    .release-spotlight__presave {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: var(--color-accent, #e44598);
+        color: #fff;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        transition: opacity 0.2s;
+    }
+    .release-spotlight__presave:hover {
+        opacity: 0.85;
+    }
+    .release-spotlight__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .release-spotlight__link {
+        padding: 0.4rem 1rem;
+        border-radius: 999px;
+        border: 1px solid currentColor;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition:
+            background 0.2s,
+            color 0.2s;
+    }
+    .release-spotlight__link:hover {
+        background: var(--color-accent, #e44598);
+        color: #fff;
+        border-color: var(--color-accent, #e44598);
+    }
+    .release-spotlight__tracklist ol {
+        list-style: none;
+        counter-reset: track;
+        padding: 0;
+    }
+    .release-spotlight__tracklist li {
+        counter-increment: track;
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .release-spotlight__tracklist li::before {
+        content: counter(track) ".";
+        margin-right: 0.75rem;
+        opacity: 0.5;
+        min-width: 1.5rem;
+    }
+    .track-duration {
+        opacity: 0.5;
+        font-size: 0.85rem;
+    }
+    .release-spotlight__credits dl {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.25rem 1rem;
+    }
+    .release-spotlight__credits dt {
+        font-weight: 600;
+    }
+</style>

@@ -1,0 +1,144 @@
+---
+/**
+ * DownloadsCenterBlock — Grid of downloadable assets (EPK, logos, etc.)
+ */
+import { fetchSanity } from "../../lib/sanity/client";
+import { ALL_DOWNLOADS_QUERY } from "../../lib/sanity/queries";
+import { urlFor } from "../../lib/sanity/image";
+import type { DownloadableAsset } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    assets?: DownloadableAsset[];
+}
+
+const { title = "Downloads", assets: passedAssets } = Astro.props;
+const assets =
+    passedAssets ||
+    (await fetchSanity<DownloadableAsset[]>(ALL_DOWNLOADS_QUERY)) ||
+    [];
+
+const categoryLabels: Record<string, string> = {
+    epk: "EPK",
+    logo: "Logos",
+    photo: "Photos",
+    rider: "Rider",
+    stagePlot: "Stage Plot",
+    misc: "Misc",
+};
+---
+
+<section class="downloads-center" aria-label={title}>
+    <div class="downloads-center__inner">
+        <h2 class="downloads-center__title">{title}</h2>
+
+        {
+            assets.length === 0 ? (
+                <p class="downloads-center__empty">
+                    No downloads available yet.
+                </p>
+            ) : (
+                <div class="downloads-center__grid">
+                    {assets.map((a) => (
+                        <a
+                            href={a.fileUrl || "#"}
+                            class="download-card"
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Download ${a.title}`}
+                        >
+                            {a.previewImage && (
+                                <img
+                                    src={urlFor(a.previewImage)}
+                                    alt={a.title}
+                                    loading="lazy"
+                                    class="download-card__img"
+                                />
+                            )}
+                            <div class="download-card__info">
+                                {a.category && (
+                                    <span class="download-card__cat">
+                                        {categoryLabels[a.category] ||
+                                            a.category}
+                                    </span>
+                                )}
+                                <h3 class="download-card__title">{a.title}</h3>
+                                {a.usageRights && (
+                                    <p class="download-card__rights">
+                                        {a.usageRights}
+                                    </p>
+                                )}
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .downloads-center {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .downloads-center__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .downloads-center__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .downloads-center__empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: 3rem 0;
+    }
+    .downloads-center__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
+    }
+    .download-card {
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        transition:
+            transform 0.2s,
+            box-shadow 0.2s;
+    }
+    .download-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+    .download-card__img {
+        width: 100%;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+    }
+    .download-card__info {
+        padding: 1rem;
+    }
+    .download-card__cat {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.5;
+    }
+    .download-card__title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0.15rem 0 0.25rem;
+    }
+    .download-card__rights {
+        font-size: 0.75rem;
+        opacity: 0.5;
+        margin: 0;
+    }
+</style>

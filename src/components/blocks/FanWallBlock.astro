@@ -1,0 +1,462 @@
+---
+/**
+ * FanWallBlock — Displays approved fan submissions in a masonry-like grid.
+ * Includes an inline submission form when submissionEnabled is true.
+ */
+import { fetchSanity } from "../../lib/sanity/client";
+import { APPROVED_FANS_QUERY } from "../../lib/sanity/queries";
+import { urlFor } from "../../lib/sanity/image";
+import type { FanSubmission } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    submissionEnabled?: boolean;
+    moderationNotice?: string;
+    instagramUrl?: string;
+}
+
+const {
+    title = "Fan Wall",
+    submissionEnabled = true,
+    moderationNotice = "All submissions are reviewed before appearing.",
+    instagramUrl = "https://instagram.com/amiiverse",
+} = Astro.props;
+
+const submissions =
+    (await fetchSanity<FanSubmission[]>(APPROVED_FANS_QUERY)) || [];
+---
+
+<section class="fan-wall" aria-label={title}>
+    <div class="fan-wall__inner">
+        <h2 class="fan-wall__title">{title}</h2>
+
+        {
+            submissions.length === 0 ? (
+                <div class="fan-wall__empty">
+                    <p>No submissions yet — be the first!</p>
+                    {submissionEnabled && (
+                        <button
+                            class="fan-wall__submit-btn"
+                            data-open-form
+                            type="button"
+                        >
+                            Submit Yours
+                        </button>
+                    )}
+                    {instagramUrl && (
+                        <p class="fan-wall__dm-link">
+                            Or{" "}
+                            <a
+                                href={instagramUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                DM us on Instagram
+                            </a>
+                        </p>
+                    )}
+                </div>
+            ) : (
+                <>
+                    <div class="fan-wall__grid">
+                        {submissions.map((sub) => (
+                            <div class="fan-card">
+                                {sub.image && (
+                                    <img
+                                        src={urlFor(sub.image)}
+                                        alt={`Fan art from ${sub.displayName}`}
+                                        loading="lazy"
+                                        class="fan-card__img"
+                                    />
+                                )}
+                                <blockquote class="fan-card__message">
+                                    {sub.message}
+                                </blockquote>
+                                <footer class="fan-card__meta">
+                                    <strong>{sub.displayName}</strong>
+                                    {sub.location && (
+                                        <span>{sub.location}</span>
+                                    )}
+                                </footer>
+                            </div>
+                        ))}
+                    </div>
+                    {submissionEnabled && (
+                        <div class="fan-wall__actions">
+                            <button
+                                class="fan-wall__submit-btn"
+                                data-open-form
+                                type="button"
+                            >
+                                Add Yours
+                            </button>
+                            {instagramUrl && (
+                                <p class="fan-wall__dm-link">
+                                    Or{" "}
+                                    <a
+                                        href={instagramUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        DM us on Instagram
+                                    </a>
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </>
+            )
+        }
+
+        {moderationNotice && <p class="fan-wall__notice">{moderationNotice}</p>}
+
+        <!-- Inline submission form (hidden by default) -->
+        {
+            submissionEnabled && (
+                <div
+                    class="fan-wall__form-overlay"
+                    id="fan-form-overlay"
+                    aria-hidden="true"
+                >
+                    <div class="fan-wall__form-card">
+                        <button
+                            class="fan-wall__form-close"
+                            data-close-form
+                            type="button"
+                            aria-label="Close"
+                        >
+                            ✕
+                        </button>
+                        <h3>Share Your Message</h3>
+                        <form id="fan-submission-form">
+                            <div class="fan-form__field">
+                                <label for="fan-name">Name *</label>
+                                <input
+                                    type="text"
+                                    id="fan-name"
+                                    name="displayName"
+                                    required
+                                    maxlength="100"
+                                />
+                            </div>
+                            <div class="fan-form__field">
+                                <label for="fan-message">Message *</label>
+                                <textarea
+                                    id="fan-message"
+                                    name="message"
+                                    required
+                                    maxlength="1000"
+                                    rows="4"
+                                />
+                            </div>
+                            <div class="fan-form__field">
+                                <label for="fan-location">
+                                    Location (optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    id="fan-location"
+                                    name="location"
+                                    maxlength="100"
+                                />
+                            </div>
+                            <button type="submit" class="fan-form__submit">
+                                Submit
+                            </button>
+                        </form>
+                        <div
+                            class="fan-form__status"
+                            id="fan-form-status"
+                            aria-live="polite"
+                        />
+                    </div>
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<script>
+    // Open / Close form overlay
+    const openBtns = document.querySelectorAll("[data-open-form]");
+    const closeBtns = document.querySelectorAll("[data-close-form]");
+    const overlay = document.getElementById("fan-form-overlay");
+
+    openBtns.forEach((btn) =>
+        btn.addEventListener("click", () => {
+            if (overlay) {
+                overlay.setAttribute("aria-hidden", "false");
+                overlay.style.display = "flex";
+                (overlay.querySelector("input") as HTMLInputElement)?.focus();
+            }
+        }),
+    );
+    closeBtns.forEach((btn) =>
+        btn.addEventListener("click", () => {
+            if (overlay) {
+                overlay.setAttribute("aria-hidden", "true");
+                overlay.style.display = "none";
+            }
+        }),
+    );
+    // Close on backdrop click
+    overlay?.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+            overlay.setAttribute("aria-hidden", "true");
+            overlay.style.display = "none";
+        }
+    });
+
+    // Handle form submission
+    const form = document.getElementById(
+        "fan-submission-form",
+    ) as HTMLFormElement;
+    const statusEl = document.getElementById("fan-form-status");
+
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const submitBtn = form.querySelector(
+            'button[type="submit"]',
+        ) as HTMLButtonElement;
+        const originalText = submitBtn.innerText;
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Submitting...";
+        if (statusEl) statusEl.textContent = "";
+
+        const formData = new FormData(form);
+
+        try {
+            const res = await fetch("/api/fan-submission", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await res.json();
+
+            if (res.ok) {
+                if (statusEl) {
+                    statusEl.textContent = "✅ Submitted for review!";
+                    statusEl.className =
+                        "fan-form__status fan-form__status--success";
+                }
+                form.reset();
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            } else {
+                if (statusEl) {
+                    statusEl.textContent =
+                        result.message || "Submission failed.";
+                    statusEl.className =
+                        "fan-form__status fan-form__status--error";
+                }
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        } catch {
+            if (statusEl) {
+                statusEl.textContent = "Network error. Please try again.";
+                statusEl.className = "fan-form__status fan-form__status--error";
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
+    });
+</script>
+
+<style>
+    .fan-wall {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .fan-wall__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .fan-wall__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .fan-wall__empty {
+        text-align: center;
+        padding: 3rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    .fan-wall__empty p {
+        opacity: 0.6;
+    }
+    .fan-wall__grid {
+        columns: 3 280px;
+        gap: 1.5rem;
+    }
+    .fan-card {
+        break-inside: avoid;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .fan-card__img {
+        width: 100%;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .fan-card__message {
+        margin: 0 0 0.75rem;
+        font-style: italic;
+        line-height: 1.6;
+    }
+    .fan-card__meta {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        display: flex;
+        gap: 0.5rem;
+    }
+    .fan-wall__actions {
+        text-align: center;
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .fan-wall__submit-btn {
+        padding: 0.75rem 2rem;
+        background: var(--btn-bg-primary, #15499d);
+        color: var(--btn-text-primary, #fff);
+        border: none;
+        border-radius: var(--radius-pill, 999px);
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
+    .fan-wall__submit-btn:hover {
+        transform: scale(1.03);
+    }
+    .fan-wall__submit-btn:active {
+        transform: scale(0.97);
+    }
+    .fan-wall__dm-link {
+        font-size: 0.85rem;
+        opacity: 0.6;
+    }
+    .fan-wall__dm-link a {
+        color: var(--color-accent, #e44598);
+        text-decoration: underline;
+    }
+    .fan-wall__notice {
+        text-align: center;
+        font-size: 0.8rem;
+        opacity: 0.5;
+        margin-top: 2rem;
+    }
+
+    /* ── Form Overlay ────────────────── */
+    .fan-wall__form-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    .fan-wall__form-card {
+        background: var(--bg-page, #fff);
+        border-radius: 1rem;
+        padding: 2rem;
+        max-width: 480px;
+        width: 100%;
+        position: relative;
+    }
+    .fan-wall__form-card h3 {
+        margin: 0 0 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-align: center;
+    }
+    .fan-wall__form-close {
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.15s;
+    }
+    .fan-wall__form-close:hover {
+        opacity: 1;
+    }
+    .fan-form__field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    .fan-form__field label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        opacity: 0.8;
+    }
+    .fan-form__field input,
+    .fan-form__field textarea {
+        padding: 0.6rem 0.75rem;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 0.5rem;
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        resize: vertical;
+        background: var(--input-bg, #fff);
+        color: var(--input-text, inherit);
+    }
+    .fan-form__field input:focus,
+    .fan-form__field textarea:focus {
+        outline: none;
+        border-color: var(--color-accent, #e44598);
+    }
+    .fan-form__submit {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--btn-bg-primary, #15499d);
+        color: var(--btn-text-primary, #fff);
+        border: none;
+        border-radius: 0.5rem;
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
+    .fan-form__submit:hover {
+        transform: scale(1.02);
+    }
+    .fan-form__submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .fan-form__status {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .fan-form__status--success {
+        color: #22c55e;
+    }
+    .fan-form__status--error {
+        color: #ef4444;
+    }
+</style>

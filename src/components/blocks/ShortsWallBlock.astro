@@ -1,0 +1,79 @@
+---
+/**
+ * ShortsWallBlock — Grid of YouTube Shorts embeds.
+ */
+interface Props {
+    title?: string;
+    embeds?: string[];
+}
+
+const { title = "Shorts", embeds = [] } = Astro.props;
+---
+
+<section class="shorts-wall" aria-label={title}>
+    <div class="shorts-wall__inner">
+        {title && <h2 class="shorts-wall__title">{title}</h2>}
+
+        {
+            embeds.length === 0 ? (
+                <p class="shorts-wall__empty">No shorts to display.</p>
+            ) : (
+                <div class="shorts-wall__grid">
+                    {embeds.map((url, i) => (
+                        <div class="short-embed">
+                            <iframe
+                                src={url.replace("shorts/", "embed/")}
+                                title={`Short ${i + 1}`}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                loading="lazy"
+                            />
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .shorts-wall {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .shorts-wall__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .shorts-wall__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .shorts-wall__empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: 3rem 0;
+    }
+    .shorts-wall__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .short-embed {
+        position: relative;
+        padding-bottom: 177.78%;
+        height: 0;
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+    .short-embed iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+</style>

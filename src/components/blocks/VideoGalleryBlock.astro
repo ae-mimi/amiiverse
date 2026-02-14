@@ -1,0 +1,122 @@
+---
+/**
+ * VideoGalleryBlock — Displays videos in a grid or carousel layout.
+ */
+import type { VideoGallerySection } from "../../lib/sanity/types";
+
+interface Props extends VideoGallerySection {}
+
+const { title, videos = [], layout = "grid" } = Astro.props;
+---
+
+<section class="video-gallery" aria-label={title || "Videos"}>
+    <div class="video-gallery__inner">
+        {title && <h2 class="video-gallery__title">{title}</h2>}
+
+        {
+            videos.length === 0 ? (
+                <p class="video-gallery__empty">No videos yet.</p>
+            ) : (
+                <div
+                    class={`video-gallery__items video-gallery__items--${layout}`}
+                >
+                    {videos.map((v) => (
+                        <div class="video-card">
+                            <div class="video-card__embed">
+                                <iframe
+                                    src={v.youtubeUrl
+                                        ?.replace("watch?v=", "embed/")
+                                        .replace(
+                                            "youtu.be/",
+                                            "youtube.com/embed/",
+                                        )}
+                                    title={v.title}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen
+                                    loading="lazy"
+                                />
+                            </div>
+                            <div class="video-card__info">
+                                <h3 class="video-card__title">{v.title}</h3>
+                                {v.videoType && (
+                                    <span class="video-card__type">
+                                        {v.videoType
+                                            .replace(/([A-Z])/g, " $1")
+                                            .trim()}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .video-gallery {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .video-gallery__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .video-gallery__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .video-gallery__empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: 3rem 0;
+    }
+    .video-gallery__items--grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+    .video-gallery__items--carousel {
+        display: flex;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 1rem;
+    }
+    .video-gallery__items--carousel .video-card {
+        min-width: 320px;
+        scroll-snap-align: start;
+        flex-shrink: 0;
+    }
+    .video-card__embed {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+    .video-card__embed iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+    .video-card__info {
+        padding: 0.75rem 0;
+    }
+    .video-card__title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    .video-card__type {
+        font-size: 0.75rem;
+        text-transform: capitalize;
+        opacity: 0.5;
+    }
+</style>

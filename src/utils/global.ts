@@ -1,5 +1,6 @@
 import settings from "../data/settings.json";
-import { getSanityContent, SETTINGS_QUERY } from "./sanity";
+import { fetchSanity as getSanityContent } from "../lib/sanity/client";
+import { SETTINGS_QUERY } from "../lib/sanity/queries";
 
 export interface SiteSettings {
     site_info: {
@@ -14,6 +15,11 @@ export interface SiteSettings {
     logo_yellow?: string;
     enable_follow_link?: boolean;
     keywords?: string[];
+    seo?: {
+        og_image?: string;
+        meta_title?: string;
+        meta_description?: string;
+    };
     favicons?: {
         ico?: string;
         svg?: string;

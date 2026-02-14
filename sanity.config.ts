@@ -32,6 +32,8 @@ const enUS_inputs = defineLocaleResourceBundle({
     },
 })
 
+import { colorInput } from '@sanity/color-input'
+
 export default defineConfig({
     name: 'default',
     title: 'Amiiverse CMS',
@@ -43,6 +45,7 @@ export default defineConfig({
         structureTool({
             structure: deskStructure,
         }),
+        colorInput(),
     ],
 
     schema: {
