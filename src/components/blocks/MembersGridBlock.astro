@@ -1,10 +1,11 @@
 ---
 import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
 import { urlFor } from "../../lib/sanity/image";
+import { ALL_MEMBERS_QUERY } from "../../lib/sanity/queries";
 import MemberCard from "../ui/MemberCard.astro";
 
 const { title } = Astro.props;
-const members = (await getSanityContent(`*[_type == "member"]`)) || [];
+const members = (await getSanityContent(ALL_MEMBERS_QUERY)) || [];
 ---
 
 <section class="members-grid-block">

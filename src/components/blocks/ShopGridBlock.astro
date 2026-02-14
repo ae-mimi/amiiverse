@@ -1,12 +1,13 @@
 ---
 import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
 import { urlFor } from "../../lib/sanity/image";
+import { ALL_SHOP_QUERY } from "../../lib/sanity/queries";
 import ShopCard from "../ui/ShopCard.astro";
 
 const { title, limit } = Astro.props;
 
 // Fetch shop items from Sanity
-const shopItems = await getSanityContent(`*[_type == "shop"]`);
+const shopItems = await getSanityContent(ALL_SHOP_QUERY);
 const items = shopItems || [];
 
 // Sort or filter if needed (Sanity order() in query is better, but simple array slice works for limit)

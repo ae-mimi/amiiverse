@@ -179,9 +179,13 @@ export const APPROVED_FANS_QUERY = `*[_type == "fanSubmission" && status == "app
 }`;
 
 // ── Timeline ────────────────────────────────────────────
-
 export const ALL_TIMELINE_QUERY = `*[_type == "timelineItem"] | order(date asc) {
   title, date, description, media
+}`;
+
+// ── Shop ────────────────────────────────────────────────
+export const ALL_SHOP_QUERY = `*[_type == "shop"] | order(_createdAt desc) {
+  title, price, url, image, category
 }`;
 
 // ── Legacy (kept for backward compat) ───────────────────

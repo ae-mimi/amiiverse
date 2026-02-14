@@ -8,7 +8,6 @@ import themeSettings from './objects/themeSettings'
 
 // ── Legacy schemas (kept for build) ─────────────────────
 import music from './music'
-import press from './press'
 import shop from './shop'
 import linkStack from './linkStack'
 import profileHeader from './profileHeader'
@@ -69,7 +68,6 @@ export const schemaTypes = [
 
     // Legacy (kept for backward-compat build)
     music,
-    press,
     shop,
     linkStack,
     profileHeader,

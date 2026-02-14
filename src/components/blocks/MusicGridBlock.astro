@@ -1,12 +1,11 @@
 ---
 import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
 import { urlFor } from "../../lib/sanity/image";
+import { LEGACY_MUSIC_QUERY } from "../../lib/sanity/queries";
 import MusicCard from "../ui/MusicCard.astro";
 
 const { title } = Astro.props;
-const musicItems = await getSanityContent(
-    `*[_type == "music"] | order(date desc)`,
-);
+const musicItems = await getSanityContent(LEGACY_MUSIC_QUERY);
 const sortedMusic = musicItems || [];
 ---
 

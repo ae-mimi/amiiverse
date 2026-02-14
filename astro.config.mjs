@@ -3,7 +3,6 @@ import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import sanity from '@sanity/astro';
-import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,7 +11,6 @@ export default defineConfig({
   adapter: cloudflare(),
   integrations: [
     icon(),
-    react(),
     sitemap(),
     sanity({
       projectId: 'pxn399gi',
