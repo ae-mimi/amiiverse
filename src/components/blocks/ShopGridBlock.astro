@@ -1,53 +1,236 @@
 ---
 import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
-import { urlFor } from "../../lib/sanity/image";
 import { ALL_SHOP_QUERY } from "../../lib/sanity/queries";
-import ShopCard from "../ui/ShopCard.astro";
+import ProductCard from "../shop/ProductCard.astro";
 
-const { title, limit } = Astro.props;
-
-// Fetch shop items from Sanity
+// Fetch all shop items once - client side will handle filtering/sorting
 const shopItems = await getSanityContent(ALL_SHOP_QUERY);
-const items = shopItems || [];
+// We want to pass all items to client, but for initial render we can just render them all
+// and let client script hide/show based on interaction.
+// Actually, it's better to render all and let CSS/JS handle display to avoid layout shift if possible,
+// or just standard server render and let JS take over.
+// Given requirements: "Client script inside ShopGridBlock only" implies we render everything and manipulate DOM.
 
-// Sort or filter if needed (Sanity order() in query is better, but simple array slice works for limit)
-const displayedItems = limit ? items.slice(0, limit) : items;
+const initialItems = shopItems || [];
 ---
 
-<section class="shop-grid-block">
-    <div class="container">
-        {title && <h2 class="section-title">{title}</h2>}
-        <div class="grid">
-            {
-                displayedItems.map((item: any) => (
-                    <ShopCard
-                        url={item.url}
-                        title={item.title}
-                        price={
-                            typeof item.price === "number"
-                                ? `₦${item.price.toLocaleString()}`
-                                : item.price
-                        }
-                        image={urlFor(item.image)}
-                        productId={item.productId}
-                    />
-                ))
-            }
+<section class="shopSection">
+    <h1 class="shopHeading">Shop</h1>
+
+    <!-- Filters (Simplified but functional) -->
+    <div class="shopTopBar" style="margin-bottom: 2rem;">
+        <div class="shopSearchWrap">
+            <label class="srOnly" for="shop-search">Search products</label>
+            <input
+                id="shop-search"
+                class="shopSearchInput"
+                type="search"
+                placeholder="Search"
+            />
+        </div>
+
+        <div class="shopSortWrap">
+            <label class="srOnly" for="shop-sort">Sort products</label>
+            <select id="shop-sort" class="shopSortSelect">
+                <option value="newest">Newest</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+            </select>
         </div>
     </div>
+
+    <div
+        class="shopChipsRow"
+        role="tablist"
+        aria-label="Shop filters"
+        style="margin-bottom: 2rem;"
+    >
+        <button class="chip isActive" data-filter="all">All</button>
+        <button class="chip" data-filter="physical">Physical</button>
+        <button class="chip" data-filter="digital">Digital</button>
+        <button class="chip" data-filter="new">New</button>
+        <button class="chip" data-filter="inStock">In stock</button>
+        <button class="chip" data-filter="limited">Limited</button>
+    </div>
+
+    <div class="row" data-grid>
+        {
+            initialItems.map((item: any) => (
+                <div class="col-12 col-md-6 col-lg-4 mb-4">
+                    <ProductCard
+                        url={item.url}
+                        title={item.title}
+                        price={item.price}
+                        image={item.image}
+                        productId={item.productId}
+                        productType={item.productType}
+                        stock={item.stock}
+                    />
+                </div>
+            ))
+        }
+    </div>
+
+    <p class="shopEmptyState" data-empty hidden>
+        No products match your search.
+    </p>
 </section>
 
-<style>
-    .shop-grid-block {
-        height: auto; /* Ensure it fits content */
-        padding-block: var(--space-lg);
-        background-color: var(--bg-page);
+<script>
+    function initShop() {
+        const searchInput = document.getElementById(
+            "shop-search",
+        ) as HTMLInputElement;
+        const sortSelect = document.getElementById(
+            "shop-sort",
+        ) as HTMLSelectElement;
+        const chips = document.querySelectorAll(".chip");
+        const grid = document.querySelector("[data-grid]");
+        const emptyState = document.querySelector("[data-empty]");
+        const cards = Array.from(
+            document.querySelectorAll(".card-product"),
+        ) as HTMLElement[];
+
+        let currentFilter = "all";
+        let searchQuery = "";
+        let currentSort = "newest";
+
+        function filterCards() {
+            let visibleCount = 0;
+
+            cards.forEach((card) => {
+                const title = (
+                    card.querySelector("h5")?.textContent || ""
+                ).toLowerCase();
+                const type = card.dataset.type || "";
+                const isNew = card.dataset.new === "true";
+                const isLimited = card.dataset.limited === "true";
+                const stockVal = card.dataset.stock;
+                // Treat null/undefined stock as in stock (infinite/untracked), 0 as out of stock
+                // data-stock attribute might be empty string if undefined was passed
+                const stock =
+                    stockVal && stockVal !== "" ? parseInt(stockVal, 10) : null;
+                const isInStock = stock === null || stock > 0;
+
+                // 1. Search filter
+                const matchesSearch = title.includes(searchQuery.toLowerCase());
+
+                // 2. Category/Chip filter
+                let matchesFilter = false;
+                if (currentFilter === "all") matchesFilter = true;
+                else if (currentFilter === "physical")
+                    matchesFilter = type === "physical";
+                else if (currentFilter === "digital")
+                    matchesFilter = type === "digital";
+                else if (currentFilter === "new") matchesFilter = isNew;
+                else if (currentFilter === "inStock") matchesFilter = isInStock;
+                else if (currentFilter === "limited") matchesFilter = isLimited;
+
+                if (matchesSearch && matchesFilter) {
+                    card.hidden = false;
+                    card.style.display = ""; // Reset display
+                    visibleCount++;
+                } else {
+                    card.hidden = true;
+                    card.style.display = "none"; // Ensure it's out of flow
+                }
+            });
+
+            // Show/hide empty state
+            if (emptyState) {
+                (emptyState as HTMLElement).hidden = visibleCount > 0;
+                (emptyState as HTMLElement).style.display =
+                    visibleCount > 0 ? "none" : "block";
+            }
+
+            // Re-apply sort to visible cards (technically we can sort DOM elements)
+            sortCards();
+        }
+
+        function sortCards() {
+            // Sort only affects DOM order
+            if (!grid) return;
+
+            // We need to sort ALL cards or JUST visible? DOM sort affects all usually.
+            // Let's sort all, visibility is handled by filter.
+
+            cards.sort((a, b) => {
+                const priceA = getPrice(a);
+                const priceB = getPrice(b);
+                // Creating a date from nothing is safest as 0
+                // We don't have createdAt on DOM directly for sorting "newest" perfectly unless we add it
+                // But typically sanity returns in order(_createdAt desc)
+                // So "newest" is just default DOM order... wait, if we shuffle them for price, we lose default.
+                // We should store original index or createdAt timestamp on card.
+
+                if (currentSort === "price-asc") {
+                    return priceA - priceB;
+                } else if (currentSort === "price-desc") {
+                    return priceB - priceA;
+                } else {
+                    // Newest / Default
+                    // Since we don't have explicit date in DOM, let's rely on original render order?
+                    // Or we can assume input DOM was sorted by date (which it is via GROQ)
+                    // We can add an index to cards on init.
+                    return (
+                        parseInt(a.dataset.originalIndex || "0") -
+                        parseInt(b.dataset.originalIndex || "0")
+                    );
+                }
+            });
+
+            cards.forEach((card) => grid.appendChild(card));
+        }
+
+        function getPrice(card: HTMLElement): number {
+            return parseFloat(card.dataset.price || "0");
+        }
+
+        // Init
+        cards.forEach((card, index) => {
+            card.dataset.originalIndex = index.toString();
+        });
+
+        // Event Listeners
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                searchQuery = (e.target as HTMLInputElement).value;
+                filterCards();
+            });
+        }
+
+        if (sortSelect) {
+            sortSelect.addEventListener("change", (e) => {
+                currentSort = (e.target as HTMLSelectElement).value;
+                sortCards();
+            });
+        }
+
+        chips.forEach((chip) => {
+            chip.addEventListener("click", () => {
+                // Toggle active state
+                chips.forEach((c) => c.classList.remove("isActive"));
+                chip.classList.add("isActive");
+
+                currentFilter = (chip as HTMLElement).dataset.filter || "all";
+                filterCards();
+            });
+        });
+
+        // Initial sweep
+        filterCards();
     }
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-        gap: clamp(30px, 3vw, 60px); /* Fluid gap */
-        justify-items: center;
+    // Run on load
+    initShop();
+
+    // Re-run on View Transitions if using Astro ViewTransitions (optional safety)
+    document.addEventListener("astro:page-load", initShop);
+</script>
+
+<style>
+    /* Scoped styles are minimal, most should be in global.css as requested */
+    .shopPage {
+        width: 100%;
     }
 </style>

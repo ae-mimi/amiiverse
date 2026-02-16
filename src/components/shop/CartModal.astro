@@ -1,0 +1,293 @@
+---
+
+---
+
+<div id="checkout-modal" class="checkoutOverlay" aria-hidden="true">
+    <div class="checkoutModal card shadow-lg border-0">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <!-- Left Side: Order Review (Astro Ecommerce Shopping Cart UI) -->
+                <div class="col-12 col-lg-7 p-4 p-md-5">
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-4"
+                    >
+                        <h4 class="font-weight-bold mb-0">Review Order</h4>
+                        <button class="modalClose" id="close-modal"
+                            >&times;</button
+                        >
+                    </div>
+
+                    <div id="modal-cart-items">
+                        <div class="d-flex gap-4 align-items-center mb-4">
+                            <img
+                                id="modal-img"
+                                src=""
+                                alt=""
+                                class="productCartThumb shadow-xs"
+                            />
+                            <div class="flex-grow-1">
+                                <h6
+                                    id="modal-product-title"
+                                    class="font-weight-bold mb-1"
+                                >
+                                </h6>
+                                <p class="text-xs text-secondary mb-0">
+                                    Type: <span id="modal-badge"></span>
+                                </p>
+                                <p class="text-xs text-secondary mb-0">
+                                    Qty: <span id="modal-qty">1</span>
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <p
+                                    id="modal-price"
+                                    class="font-weight-bold mb-0"
+                                >
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="horizontal dark" />
+
+                    <div class="order-summary mt-4">
+                        <div class="orderSummaryRow">
+                            <span class="text-secondary">Subtotal</span>
+                            <span id="modal-subtotal" class="font-weight-bold"
+                            ></span>
+                        </div>
+                        <div class="orderSummaryRow">
+                            <span class="text-secondary">Delivery</span>
+                            <span id="modal-delivery" class="text-sm"></span>
+                        </div>
+                        <div class="orderSummaryRow mt-3">
+                            <span class="font-weight-bold">Total</span>
+                            <span
+                                id="modal-total"
+                                class="font-weight-bold text-lg"
+                                style="color: var(--color-accent);"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Contact & Payment (Astro Ecommerce Checkout UI) -->
+                <div class="col-12 col-lg-5 bg-gray-100 p-4 p-md-5">
+                    <h5 class="font-weight-bold mb-4">Finalize Checkout</h5>
+
+                    <form id="checkout-form" class="checkoutForm">
+                        <input
+                            type="hidden"
+                            id="modal-product-id"
+                            name="productId"
+                        />
+                        <input
+                            type="hidden"
+                            id="modal-quantity"
+                            name="quantity"
+                        />
+
+                        <div class="mb-3">
+                            <label
+                                class="text-xs font-weight-bold text-secondary mb-1"
+                                >EMAIL ADDRESS</label
+                            >
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="formControl"
+                                placeholder="name@example.com"
+                                required
+                            />
+                        </div>
+
+                        <div id="phone-field-wrap" class="mb-4">
+                            <label
+                                class="text-xs font-weight-bold text-secondary mb-1"
+                                >PHONE NUMBER (OPTIONAL)</label
+                            >
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                class="formControl"
+                                placeholder="+234 ..."
+                            />
+                        </div>
+
+                        <div
+                            class="errorState mb-3 text-danger text-xs font-weight-bold"
+                            id="modal-error"
+                            hidden
+                        >
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn btn-dark btn-lg w-100 mb-3"
+                            id="checkout-submit"
+                        >
+                            Pay with Paystack
+                        </button>
+
+                        <p class="text-center text-xs text-secondary mb-0">
+                            Secure 256-bit encrypted checkout.<br />
+                            Prices in NGN (₦).
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    class CheckoutManager {
+        modal: HTMLElement;
+        form: HTMLFormElement;
+        submitBtn: HTMLButtonElement;
+
+        constructor() {
+            this.modal = document.getElementById("checkout-modal")!;
+            this.form = document.getElementById(
+                "checkout-form",
+            ) as HTMLFormElement;
+            this.submitBtn = document.getElementById(
+                "checkout-submit",
+            ) as HTMLButtonElement;
+
+            if (this.modal) this.init();
+        }
+
+        init() {
+            window.addEventListener("open-checkout", (e: any) =>
+                this.open(e.detail),
+            );
+            document
+                .getElementById("close-modal")
+                ?.addEventListener("click", () => this.close());
+            this.modal.addEventListener("click", (e) => {
+                if (e.target === this.modal) this.close();
+            });
+            document.addEventListener("keydown", (e) => {
+                if (
+                    e.key === "Escape" &&
+                    this.modal.classList.contains("isOpen")
+                )
+                    this.close();
+            });
+            this.form.addEventListener("submit", (e) => this.handleSubmit(e));
+        }
+
+        open(data: any) {
+            const { productId, title, price, image, productType, quantity } =
+                data;
+            const qty = quantity || 1;
+
+            (
+                this.modal.querySelector("#modal-product-title") as HTMLElement
+            ).innerText = title;
+            (this.modal.querySelector("#modal-img") as HTMLImageElement).src =
+                image || "";
+            (
+                this.modal.querySelector("#modal-badge") as HTMLElement
+            ).innerText = (productType || "Physical").toUpperCase();
+            (this.modal.querySelector("#modal-qty") as HTMLElement).innerText =
+                qty.toString();
+            (
+                this.modal.querySelector("#modal-price") as HTMLElement
+            ).innerText = `₦${price.toLocaleString()}`;
+
+            const subtotal = price * qty;
+            (
+                this.modal.querySelector("#modal-subtotal") as HTMLElement
+            ).innerText = `₦${subtotal.toLocaleString()}`;
+            (
+                this.modal.querySelector("#modal-delivery") as HTMLElement
+            ).innerText =
+                productType === "digital"
+                    ? "Instant (Email)"
+                    : "Physical Delivery";
+            (
+                this.modal.querySelector("#modal-total") as HTMLElement
+            ).innerText = `₦${subtotal.toLocaleString()}`;
+
+            (
+                this.modal.querySelector(
+                    "#modal-product-id",
+                ) as HTMLInputElement
+            ).value = productId;
+            (
+                this.modal.querySelector("#modal-quantity") as HTMLInputElement
+            ).value = qty.toString();
+
+            const phoneField = document.getElementById("phone-field-wrap");
+            if (phoneField) phoneField.hidden = productType === "digital";
+
+            this.modal.classList.add("isOpen");
+            this.modal.setAttribute("aria-hidden", "false");
+            document.body.style.overflow = "hidden";
+
+            setTimeout(
+                () => (document.getElementById("email") as HTMLElement).focus(),
+                100,
+            );
+        }
+
+        close() {
+            this.modal.classList.remove("isOpen");
+            this.modal.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = "";
+            this.resetState();
+        }
+
+        resetState() {
+            this.submitBtn.disabled = false;
+            this.submitBtn.innerText = "Pay with Paystack";
+            (document.getElementById("modal-error") as HTMLElement).hidden =
+                true;
+            this.form.reset();
+        }
+
+        async handleSubmit(e: Event) {
+            e.preventDefault();
+            this.submitBtn.disabled = true;
+            this.submitBtn.innerText = "Redirecting...";
+            const errorEl = document.getElementById(
+                "modal-error",
+            ) as HTMLElement;
+            errorEl.hidden = true;
+
+            const formData = new FormData(this.form);
+            const payload = {
+                productId: formData.get("productId"),
+                email: formData.get("email"),
+                phone: formData.get("phone"),
+                quantity: parseInt(formData.get("quantity") as string),
+            };
+
+            try {
+                const res = await fetch("/api/paystack/initialize", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+                if (res.ok && data.authorization_url) {
+                    window.location.href = data.authorization_url;
+                } else {
+                    throw new Error(data.error || "Payment could not start.");
+                }
+            } catch (err: any) {
+                errorEl.innerText =
+                    "Payment failed. Please check your connection and try again.";
+                errorEl.hidden = false;
+                this.submitBtn.disabled = false;
+                this.submitBtn.innerText = "Pay with Paystack";
+            }
+        }
+    }
+
+    new CheckoutManager();
+</script>

@@ -2,303 +2,105 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { fetchSanity } from "../../lib/sanity/client";
 import { urlFor } from "../../lib/sanity/image";
-import PortableText from "../../components/PortableText.astro";
+import ProductGallery from "../../components/shop/ProductGallery.astro";
+import ProductInfo from "../../components/shop/ProductInfo.astro";
+import { toPlainText } from "@portabletext/toolkit";
+
+export const prerender = false;
 
 const { slug } = Astro.params;
 
 const product = await fetchSanity(
-    `*[_type == "product" && slug.current == $slug][0]{
-        ...,
-        "productId": _id
-    }`,
-    { slug },
+   `*[_type == "product" && slug.current == $slug][0]{
+      ...,
+      "productId": _id
+  }`,
+   { slug },
 );
 
 if (!product) {
-    return Astro.redirect("/404");
+   return Astro.redirect("/404");
 }
 
-const allImages = [product.coverImage, ...(product.galleryImages || [])];
+const allImages = [product.coverImage, ...(product.galleryImages || [])].filter(
+   Boolean,
+);
+
+// Map Sanity content to Accordion Data
+const accordionData: Record<string, string> = {};
+
+if (product.description) {
+   accordionData["Product Description"] = toPlainText(product.description);
+}
+
+// Add fallback or extra info if available in schema
+accordionData["Shipping & Delivery"] =
+   "Delivery takes 2-5 working days within Nigeria. International shipping varies by location.";
+accordionData["Refund Policy"] =
+   "Items can be returned within 7 days of delivery if they are in original condition. Digital assets are non-refundable.";
+
+const stock = product.stock;
+const price = product.price;
 ---
 
 <BaseLayout
-    title={product.title}
-    description={product.description?.[0]?.children?.[0]?.text}
+   title={product.title}
+   description={product.shortDescription || "Shop item"}
 >
-    <main class="product-detail-page">
-        <div class="container py-lg">
-            <nav class="breadcrumb">
-                <a href="/shop">← Back to Shop</a>
-            </nav>
+   <main class="productPage py-5">
+      <!-- Breadcrumbs -->
+      <nav class="productBreadcrumb container mb-4" aria-label="Breadcrumb">
+         <a href="/shop" class="text-secondary text-sm">Shop</a>
+         <span class="mx-2 opacity-5">/</span>
+         <a
+            href={`/shop?filter=${product.productType || "physical"}`}
+            class="uppercase text-secondary text-sm"
+            >{product.productType || "Physical"}</a
+         >
+         <span class="mx-2 opacity-5">/</span>
+         <span class="current text-sm font-weight-bold">{product.title}</span>
+      </nav>
 
-            <div class="product-layout">
-                <!-- Left: Gallery -->
-                <div class="gallery-container">
-                    <div class="main-image-viewport">
-                        <img
-                            id="main-product-image"
-                            src={urlFor(product.coverImage)}
-                            alt={product.title}
-                        />
-                    </div>
-                    {
-                        allImages.length > 1 && (
-                            <div class="thumbnail-grid">
-                                {allImages.map((img: any, idx: number) => (
-                                    <button
-                                        class={`thumb-btn ${idx === 0 ? "active" : ""}`}
-                                        data-full-url={urlFor(img)}
-                                    >
-                                        <img
-                                            src={urlFor(img)}
-                                            alt={`View ${idx + 1}`}
-                                        />
-                                    </button>
-                                ))}
-                            </div>
-                        )
-                    }
-                </div>
-
-                <!-- Right: Product Info -->
-                <div class="product-sidebar">
-                    <div class="sticky-info">
-                        <div class="header-group">
-                            <span class="product-category"
-                                >{product.productType || "Official Merch"}</span
-                            >
-                            <h1 class="product-title">{product.title}</h1>
-                            <p class="product-price">
-                                ₦{product.price.toLocaleString()}
-                            </p>
-                        </div>
-
-                        <div class="purchase-actions">
-                            <button
-                                class="buy-now-btn-premium"
-                                data-product-id={product.productId}
-                                data-title={product.title}
-                            >
-                                BUY NOW
-                            </button>
-                            <p class="shipping-info">
-                                Complimentary shipping on orders over ₦50,000
-                            </p>
-                        </div>
-
-                        <div class="product-description content-prose">
-                            <h3>Details</h3>
-                            <PortableText value={product.description} />
-                        </div>
-                    </div>
-                </div>
+      <div class="container">
+         <div class="row g-5">
+            <!-- LEFT: Gallery -->
+            <div class="col-12 col-lg-7">
+               <ProductGallery images={allImages} title={product.title} />
             </div>
-        </div>
-    </main>
+
+            <!-- RIGHT: Buy Panel + Details -->
+            <div class="col-12 col-lg-5">
+               <ProductInfo
+                  title={product.title}
+                  price={price}
+                  productType={product.productType || "physical"}
+                  stock={stock}
+                  productId={product.productId}
+                  image={urlFor(allImages[0])}
+                  accordionData={accordionData}
+               />
+            </div>
+         </div>
+      </div>
+   </main>
 </BaseLayout>
 
-<script>
-    // Gallery Logic
-    const mainImg = document.getElementById(
-        "main-product-image",
-    ) as HTMLImageElement;
-    const thumbBtns = document.querySelectorAll(".thumb-btn");
-
-    thumbBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const url = (btn as HTMLElement).dataset.fullUrl;
-            if (url && mainImg) {
-                mainImg.src = url;
-                thumbBtns.forEach((b) => b.classList.remove("active"));
-                btn.classList.add("active");
-            }
-        });
-    });
-
-    // Checkout Trigger
-    const buyBtn = document.querySelector(".buy-now-btn-premium");
-    if (buyBtn) {
-        buyBtn.addEventListener("click", (e) => {
-            const button = e.currentTarget as HTMLButtonElement;
-            const productId = button.dataset.productId;
-            const title = button.dataset.title;
-
-            window.dispatchEvent(
-                new CustomEvent("open-checkout", {
-                    detail: { productId, title },
-                }),
-            );
-        });
-    }
-</script>
-
 <style>
-    .product-detail-page {
-        background-color: var(--bg-page);
-        color: var(--text-main);
-    }
-
-    .breadcrumb {
-        margin-bottom: 2rem;
-    }
-
-    .breadcrumb a {
-        color: var(--color-primary);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        transition: opacity 0.2s;
-    }
-
-    .breadcrumb a:hover {
-        opacity: 0.7;
-    }
-
-    .product-layout {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 4rem;
-        align-items: start;
-    }
-
-    @media (min-width: 1024px) {
-        .product-layout {
-            grid-template-columns: 1.2fr 0.8fr;
-        }
-    }
-
-    /* Gallery Styles */
-    .main-image-viewport {
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        overflow: hidden;
-        border-radius: var(--radius-card);
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .main-image-viewport img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .thumbnail-grid {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .thumb-btn {
-        aspect-ratio: 1 / 1;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        overflow: hidden;
-        background: none;
-        padding: 0;
-        cursor: pointer;
-        opacity: 0.6;
-        transition: all 0.2s;
-    }
-
-    .thumb-btn.active {
-        opacity: 1;
-        border-color: var(--color-primary);
-        border-width: 2px;
-    }
-
-    .thumb-btn img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    /* Sidebar Styles */
-    .sticky-info {
-        position: sticky;
-        top: 140px;
-    }
-
-    .header-group {
-        margin-bottom: 2.5rem;
-    }
-
-    .product-category {
-        display: block;
-        text-transform: uppercase;
-        color: var(--color-primary);
-        font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.5rem;
-    }
-
-    .product-title {
-        font-size: clamp(2rem, 3.5vw, 4rem);
-        line-height: 1.1;
-        margin-bottom: 1rem;
-    }
-
-    .product-price {
-        font-size: 2rem;
-        font-weight: 400;
-        color: var(--color-accent);
-    }
-
-    .purchase-actions {
-        margin-bottom: 3rem;
-        padding: 2.5rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: var(--radius-card);
-    }
-
-    .buy-now-btn-premium {
-        width: 100%;
-        background: var(--color-primary);
-        color: var(--color-bg);
-        border: none;
-        padding: 1.25rem;
-        font-family: var(--font-heading);
-        font-size: 1.5rem;
-        font-weight: bold;
-        border-radius: var(--radius-pill);
-        cursor: pointer;
-        transition: all 0.2s;
-        letter-spacing: 0.1em;
-    }
-
-    .buy-now-btn-premium:hover {
-        transform: scale(1.02);
-        filter: brightness(1.1);
-    }
-
-    .shipping-info {
-        text-align: center;
-        margin-top: 1rem;
-        font-size: 0.8rem;
-        opacity: 0.6;
-    }
-
-    .product-description h3 {
-        font-size: 1.2rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 0.5rem;
-    }
-
-    .content-prose {
-        line-height: 1.7;
-        font-size: 1.05rem;
-        opacity: 0.9;
-    }
-
-    .py-lg {
-        padding-block: 6rem;
-    }
+   .productBreadcrumb a {
+      text-decoration: none;
+   }
+   .productBreadcrumb .uppercase {
+      text-transform: uppercase;
+   }
+   .productPage {
+      min-height: 80vh;
+      background-color: var(--color-bg);
+   }
+   .opacity-5 {
+      opacity: 0.5;
+   }
+   .mx-2 {
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+   }
 </style>

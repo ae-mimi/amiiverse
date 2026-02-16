@@ -207,8 +207,21 @@ export const ALL_TIMELINE_QUERY = `*[_type == "timelineItem"] | order(date asc) 
 }`;
 
 // ── Shop ────────────────────────────────────────────────
-export const ALL_SHOP_QUERY = `*[_type == "product" && isActive == true] | order(_createdAt desc) {
-  title, price, "url": "/shop/" + slug.current, "image": coverImage, productType, "productId": _id
+export const ALL_SHOP_QUERY = `*[_type == "product" && isActive == true] | order(sortOrder asc, _createdAt desc) {
+  title, 
+  price, 
+  compareAtPrice,
+  "url": "/shop/" + slug.current, 
+  "image": coverImage, 
+  "galleryImages": galleryImages,
+  productType, 
+  "productId": _id,
+  stock,
+  badges,
+  shortDescription,
+  isFeatured,
+  sortOrder,
+  _createdAt
 }`;
 
 // ── Legacy (kept for backward compat) ───────────────────

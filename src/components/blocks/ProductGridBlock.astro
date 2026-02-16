@@ -1,8 +1,7 @@
 ---
 import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
-import { urlFor } from "../../lib/sanity/image";
 import { ALL_SHOP_QUERY } from "../../lib/sanity/queries";
-import ShopCard from "../ui/ShopCard.astro";
+import ProductCard from "../shop/ProductCard.astro";
 
 const { title, limit } = Astro.props;
 
@@ -13,19 +12,28 @@ const items = shopItems || [];
 const displayedItems = limit ? items.slice(0, limit) : items;
 ---
 
-<section class="product-grid-block">
+<section class="product-grid-block py-5">
     <div class="container">
-        {title && <h2 class="section-title uppercase">{title}</h2>}
-        <div class="grid">
+        {
+            title && (
+                <h2 class="section-title uppercase mb-4 text-center">
+                    {title}
+                </h2>
+            )
+        }
+        <div class="row">
             {
                 displayedItems.map((item: any) => (
-                    <ShopCard
-                        url={item.url}
-                        title={item.title}
-                        price={item.price}
-                        image={urlFor(item.image)}
-                        productId={item.productId}
-                    />
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <ProductCard
+                            url={item.url}
+                            title={item.title}
+                            price={item.price}
+                            image={item.image}
+                            productId={item.productId}
+                            productType={item.productType}
+                        />
+                    </div>
                 ))
             }
         </div>
@@ -34,20 +42,11 @@ const displayedItems = limit ? items.slice(0, limit) : items;
 
 <style>
     .product-grid-block {
-        padding-block: var(--space-xl);
         background-color: var(--bg-page);
     }
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: clamp(40px, 4vw, 80px);
-        justify-items: center;
-    }
-
-    @media (max-width: 640px) {
-        .grid {
-            grid-template-columns: 1fr;
-        }
+    .section-title {
+        font-family: var(--font-heading);
+        color: var(--color-primary);
+        font-size: 2.5rem;
     }
 </style>

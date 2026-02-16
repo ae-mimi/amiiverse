@@ -1,0 +1,99 @@
+---
+/**
+ * ProductInfo Component
+ * Displays product metadata, pricing, buy button, and expandable details.
+ */
+import ProductAccordion from "./ProductAccordion.astro";
+
+interface Props {
+    title: string;
+    price: number;
+    productType: string;
+    image: string;
+    productId: string;
+    stock?: number;
+    accordionData?: Record<string, string>;
+}
+
+const {
+    title,
+    price,
+    productType,
+    image,
+    productId,
+    stock,
+    accordionData = {},
+} = Astro.props;
+
+const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
+---
+
+<div class="product-info-panel h-100 d-flex flex-column py-4">
+    <div class="d-flex align-items-center mb-2">
+        <span
+            class={`badge ${productType === "digital" ? "bg-info" : "bg-primary"} me-2`}
+        >
+            {productType.toUpperCase()}
+        </span>
+        <span class="text-secondary text-sm">
+            {isSoldOut ? "Out of Stock" : "In Stock"}
+        </span>
+    </div>
+
+    <h2 class="mb-3 font-weight-bold text-4xl">{title}</h2>
+
+    <h4 class="mb-4 font-weight-bold text-2xl">₦{price.toLocaleString()}</h4>
+
+    <!-- Buy Actions -->
+    <div class="d-flex align-items-center mb-5 gap-3">
+        <button
+            id="pdp-buy-btn"
+            class="btn btn-dark btn-lg w-100"
+            data-product-id={productId}
+            data-title={title}
+            data-price={price}
+            data-image={image}
+            data-type={productType}
+            disabled={isSoldOut}
+        >
+            {isSoldOut ? "Sold Out" : "Buy Now"}
+        </button>
+    </div>
+
+    <!-- Expandable Details (Accordion) -->
+    {
+        Object.keys(accordionData).length > 0 && (
+            <ProductAccordion data={accordionData} />
+        )
+    }
+
+    <p class="text-xs text-secondary mt-5 opacity-7">
+        Secure checkout via Paystack. You will be redirected to complete
+        payment.
+    </p>
+</div>
+
+<script>
+    // Logic for the PDP buy button (triggers CartModal)
+    const buyBtn = document.getElementById("pdp-buy-btn");
+    if (buyBtn) {
+        buyBtn.addEventListener("click", () => {
+            const { productId, title, price, image, type } = (
+                buyBtn as HTMLElement
+            ).dataset;
+
+            window.dispatchEvent(
+                new CustomEvent("open-checkout", {
+                    detail: {
+                        productId,
+                        title,
+                        price: parseFloat(price || "0"),
+                        image,
+                        productType: type,
+                        quantity: 1,
+                    },
+                }),
+            );
+        });
+    }
+</script>

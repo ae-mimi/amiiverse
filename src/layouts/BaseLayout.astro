@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import SiteHeader from "../components/layout/SiteHeader.astro";
 import SiteFooter from "../components/layout/SiteFooter.astro";
+import "../styles/shop-ecommerce.css";
 import Analytics from "../components/seo/Analytics.astro";
 import JSONLD from "../components/seo/JSONLD.astro";
 
@@ -22,7 +23,7 @@ const radiusMap = {
     medium: "8px",
     large: "16px",
 };
-import CheckoutModal from "../components/ui/CheckoutModal.astro";
+import CartModal from "../components/shop/CartModal.astro";
 ---
 
 <html
@@ -132,7 +133,7 @@ import CheckoutModal from "../components/ui/CheckoutModal.astro";
             <slot />
         </main>
         <SiteFooter />
-        <CheckoutModal />
+        <CartModal />
     </body>
 </html>
 

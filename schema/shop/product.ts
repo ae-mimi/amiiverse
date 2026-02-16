@@ -76,6 +76,44 @@ export default defineType({
             validation: (Rule) => Rule.min(0),
         }),
         defineField({
+            name: 'shortDescription',
+            title: 'Short Description',
+            type: 'string',
+            validation: (Rule) => Rule.max(80).warning('Keep it short for grid view.'),
+        }),
+        defineField({
+            name: 'compareAtPrice',
+            title: 'Compare At Price (NGN)',
+            type: 'number',
+            description: 'Original price before discount.',
+            validation: (Rule) => Rule.min(0),
+        }),
+        defineField({
+            name: 'badges',
+            title: 'Badges',
+            type: 'array',
+            of: [{ type: 'string' }],
+            options: {
+                list: [
+                    { title: 'New', value: 'new' },
+                    { title: 'Limited', value: 'limited' },
+                    { title: 'Bestseller', value: 'bestseller' },
+                ],
+            },
+        }),
+        defineField({
+            name: 'isFeatured',
+            title: 'Featured Product',
+            type: 'boolean',
+            initialValue: false,
+        }),
+        defineField({
+            name: 'sortOrder',
+            title: 'Sort Order',
+            type: 'number',
+            description: 'Order of appearance in lists (lower numbers first).',
+        }),
+        defineField({
             name: 'isActive',
             title: 'Active',
             type: 'boolean',
