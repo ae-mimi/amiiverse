@@ -1,88 +1,116 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { fetchSanity } from "../../lib/sanity/client";
-import { urlFor } from "../../lib/sanity/image";
 import ProductGallery from "../../components/shop/ProductGallery.astro";
 import ProductInfo from "../../components/shop/ProductInfo.astro";
-import { toPlainText } from "@portabletext/toolkit";
 
 export const prerender = false;
 
-const { slug } = Astro.params;
-
-const product = await fetchSanity(
-   `*[_type == "product" && slug.current == $slug][0]{
-      ...,
-      "productId": _id
-  }`,
-   { slug },
-);
-
-if (!product) {
-   return Astro.redirect("/404");
+interface ShopProduct {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    price_ngn: number;
+    product_type: "physical" | "digital";
+    cover_image_url: string;
+    is_active: number;
 }
 
-const allImages = [product.coverImage, ...(product.galleryImages || [])].filter(
-   Boolean,
-);
+const { slug } = Astro.params;
+let product: ShopProduct | null = null;
+
+if (slug) {
+    try {
+        const apiUrl = new URL("/api/shop/product", Astro.url);
+        apiUrl.searchParams.set("slug", slug);
+
+        const response = await fetch(apiUrl.toString());
+        if (response.ok) {
+            const data = (await response.json()) as { product?: ShopProduct };
+            if (data.product) {
+                product = data.product;
+            }
+        }
+    } catch (error) {
+        console.error("[shop/[slug]] Failed to load product from D1 API", error);
+    }
+}
+
+const hasProduct = Boolean(product);
+const allImages = product?.cover_image_url ? [product.cover_image_url] : [];
+const price = Number(product?.price_ngn ?? 0);
+const productType = product?.product_type ?? "physical";
+const productId = product?.id ?? "";
 
 // Map Sanity content to Accordion Data
 const accordionData: Record<string, string> = {};
 
-if (product.description) {
-   accordionData["Product Description"] = toPlainText(product.description);
+if (product?.description) {
+    accordionData["Product Description"] = String(product.description);
 }
 
-// Add fallback or extra info if available in schema
 accordionData["Shipping & Delivery"] =
-   "Delivery takes 2-5 working days within Nigeria. International shipping varies by location.";
+    "Delivery takes 2-5 working days within Nigeria. International shipping varies by location.";
 accordionData["Refund Policy"] =
-   "Items can be returned within 7 days of delivery if they are in original condition. Digital assets are non-refundable.";
-
-const stock = product.stock;
-const price = product.price;
+    "Items can be returned within 7 days of delivery if they are in original condition. Digital assets are non-refundable.";
 ---
 
 <BaseLayout
-   title={product.title}
-   description={product.shortDescription || "Shop item"}
+   title={hasProduct ? product!.title : "Shop Product"}
+   description={String(product?.description || "Shop item")}
 >
-   <main class="productPage py-5">
-      <!-- Breadcrumbs -->
-      <nav class="productBreadcrumb container mb-4" aria-label="Breadcrumb">
-         <a href="/shop" class="text-secondary text-sm">Shop</a>
-         <span class="mx-2 opacity-5">/</span>
-         <a
-            href={`/shop?filter=${product.productType || "physical"}`}
-            class="uppercase text-secondary text-sm"
-            >{product.productType || "Physical"}</a
-         >
-         <span class="mx-2 opacity-5">/</span>
-         <span class="current text-sm font-weight-bold">{product.title}</span>
-      </nav>
+   {
+      hasProduct ? (
+         <main class="productPage py-5">
+            <!-- Breadcrumbs -->
+            <nav class="productBreadcrumb container mb-4" aria-label="Breadcrumb">
+               <a href="/shop" class="text-secondary text-sm">Shop</a>
+               <span class="mx-2 opacity-5">/</span>
+               <a
+                  href="/shop"
+                  class="uppercase text-secondary text-sm"
+                  >{productType || "Physical"}</a
+               >
+               <span class="mx-2 opacity-5">/</span>
+               <span class="current text-sm font-weight-bold">{product!.title}</span>
+            </nav>
 
-      <div class="container">
-         <div class="row g-5">
-            <!-- LEFT: Gallery -->
-            <div class="col-12 col-lg-7">
-               <ProductGallery images={allImages} title={product.title} />
-            </div>
+            <div class="container">
+               <div class="row g-5">
+                  <!-- LEFT: Gallery -->
+                  <div class="col-12 col-lg-7">
+                     <ProductGallery images={allImages} title={product!.title} />
+                  </div>
 
-            <!-- RIGHT: Buy Panel + Details -->
-            <div class="col-12 col-lg-5">
-               <ProductInfo
-                  title={product.title}
-                  price={price}
-                  productType={product.productType || "physical"}
-                  stock={stock}
-                  productId={product.productId}
-                  image={urlFor(allImages[0])}
-                  accordionData={accordionData}
-               />
+                  <!-- RIGHT: Buy Panel + Details -->
+                  <div class="col-12 col-lg-5">
+                     <ProductInfo
+                        title={product!.title}
+                        price={price}
+                        productType={productType}
+                        productId={productId}
+                        image={allImages[0] || ""}
+                        accordionData={accordionData}
+                     />
+                     {
+                        productType === "digital" && (
+                           <p class="digital-note mt-3">
+                              Instant download after payment confirmation.
+                           </p>
+                        )
+                     }
+                  </div>
+               </div>
             </div>
-         </div>
-      </div>
-   </main>
+         </main>
+      ) : (
+         <main class="productPage py-5">
+            <div class="container">
+               <p>No products available.</p>
+            </div>
+         </main>
+      )
+   }
 </BaseLayout>
 
 <style>
@@ -102,5 +130,10 @@ const price = product.price;
    .mx-2 {
       margin-left: 0.5rem;
       margin-right: 0.5rem;
+   }
+   .digital-note {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-primary);
    }
 </style>

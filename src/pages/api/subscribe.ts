@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
+import { getServerEnvValue } from "../../lib/server/cloudflareRuntimeEnv";
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
     const data = await request.formData();
     const email = data.get("email");
 
@@ -16,7 +17,7 @@ export const POST: APIRoute = async ({ request }) => {
         );
     }
 
-    const BREVO_API_KEY = import.meta.env.BREVO_API_KEY;
+    const BREVO_API_KEY = getServerEnvValue({ locals }, "BREVO_API_KEY");
 
     if (!BREVO_API_KEY) {
         console.error("BREVO_API_KEY is not set");

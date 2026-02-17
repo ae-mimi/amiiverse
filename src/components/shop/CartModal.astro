@@ -1,5 +1,4 @@
 ---
-
 ---
 
 <div id="checkout-modal" class="checkoutOverlay" aria-hidden="true">
@@ -17,36 +16,7 @@
                         >
                     </div>
 
-                    <div id="modal-cart-items">
-                        <div class="d-flex gap-4 align-items-center mb-4">
-                            <img
-                                id="modal-img"
-                                src=""
-                                alt=""
-                                class="productCartThumb shadow-xs"
-                            />
-                            <div class="flex-grow-1">
-                                <h6
-                                    id="modal-product-title"
-                                    class="font-weight-bold mb-1"
-                                >
-                                </h6>
-                                <p class="text-xs text-secondary mb-0">
-                                    Type: <span id="modal-badge"></span>
-                                </p>
-                                <p class="text-xs text-secondary mb-0">
-                                    Qty: <span id="modal-qty">1</span>
-                                </p>
-                            </div>
-                            <div class="text-end">
-                                <p
-                                    id="modal-price"
-                                    class="font-weight-bold mb-0"
-                                >
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="modal-cart-items"></div>
 
                     <hr class="horizontal dark" />
 
@@ -127,7 +97,7 @@
                             class="btn btn-dark btn-lg w-100 mb-3"
                             id="checkout-submit"
                         >
-                            Pay with Paystack
+                            Continue to Paystack
                         </button>
 
                         <p class="text-center text-xs text-secondary mb-0">
@@ -142,10 +112,23 @@
 </div>
 
 <script>
+    import { cartStore, type ClientCart, type ClientCartItem } from "../../lib/cart/cartStore";
+
+    function trackAnalyticsEvent(name: string, props: Record<string, unknown> = {}) {
+        if (typeof window === "undefined") return;
+        window.dispatchEvent(
+            new CustomEvent("analytics:event", {
+                detail: { name, props },
+            }),
+        );
+    }
+
     class CheckoutManager {
         modal: HTMLElement;
         form: HTMLFormElement;
         submitBtn: HTMLButtonElement;
+        cartItemsWrap: HTMLElement;
+        cart: ClientCart | null = null;
 
         constructor() {
             this.modal = document.getElementById("checkout-modal")!;
@@ -155,14 +138,19 @@
             this.submitBtn = document.getElementById(
                 "checkout-submit",
             ) as HTMLButtonElement;
+            this.cartItemsWrap = document.getElementById("modal-cart-items")!;
 
             if (this.modal) this.init();
         }
 
         init() {
-            window.addEventListener("open-checkout", (e: any) =>
-                this.open(e.detail),
-            );
+            cartStore.initCart().then((cart) => this.renderCart(cart));
+
+            window.addEventListener("open-checkout", (e: any) => this.open(e.detail));
+            window.addEventListener("cart:updated", (e: Event) => {
+                const customEvent = e as CustomEvent<ClientCart | null>;
+                this.renderCart(customEvent.detail ?? null);
+            });
             document
                 .getElementById("close-modal")
                 ?.addEventListener("click", () => this.close());
@@ -176,53 +164,179 @@
                 )
                     this.close();
             });
+            this.cartItemsWrap.addEventListener("click", (e) =>
+                this.handleCartActions(e),
+            );
             this.form.addEventListener("submit", (e) => this.handleSubmit(e));
         }
 
-        open(data: any) {
-            const { productId, title, price, image, productType, quantity } =
-                data;
-            const qty = quantity || 1;
+        formatNgn(value: number): string {
+            return `₦${value.toLocaleString()}`;
+        }
 
-            (
-                this.modal.querySelector("#modal-product-title") as HTMLElement
-            ).innerText = title;
-            (this.modal.querySelector("#modal-img") as HTMLImageElement).src =
-                image || "";
-            (
-                this.modal.querySelector("#modal-badge") as HTMLElement
-            ).innerText = (productType || "Physical").toUpperCase();
-            (this.modal.querySelector("#modal-qty") as HTMLElement).innerText =
-                qty.toString();
-            (
-                this.modal.querySelector("#modal-price") as HTMLElement
-            ).innerText = `₦${price.toLocaleString()}`;
+        getLineItemTitle(item: ClientCartItem): string {
+            return (
+                (item.title as string) ||
+                "Product"
+            );
+        }
 
-            const subtotal = price * qty;
-            (
-                this.modal.querySelector("#modal-subtotal") as HTMLElement
-            ).innerText = `₦${subtotal.toLocaleString()}`;
-            (
-                this.modal.querySelector("#modal-delivery") as HTMLElement
-            ).innerText =
-                productType === "digital"
-                    ? "Instant (Email)"
-                    : "Physical Delivery";
-            (
-                this.modal.querySelector("#modal-total") as HTMLElement
-            ).innerText = `₦${subtotal.toLocaleString()}`;
+        getLineItemType(item: ClientCartItem): string {
+            const rawType =
+                (item.metadata as Record<string, unknown> | undefined)?.productType ||
+                (item.metadata as Record<string, unknown> | undefined)?.type ||
+                "physical";
+            return String(rawType).toUpperCase();
+        }
 
+        getLineItemImage(item: ClientCartItem): string {
+            const itemMetadata = item.metadata as Record<string, unknown> | undefined;
+            const product = itemMetadata?.product as Record<string, unknown> | undefined;
+            return (
+                (item.thumbnail as string) ||
+                (product?.thumbnail as string) ||
+                ""
+            );
+        }
+
+        getLineItemUnitPrice(item: ClientCartItem): number {
+            const quantity = Number(item.quantity || 1);
+            const total = Number((item.total as number) ?? 0);
+            const unit = Number((item.unit_price as number) ?? 0);
+            if (unit > 0) return unit;
+            if (total > 0 && quantity > 0) return Math.round(total / quantity);
+            return 0;
+        }
+
+        getLineItemTotal(item: ClientCartItem): number {
+            const total = Number((item.total as number) ?? 0);
+            if (total > 0) return total;
+            return this.getLineItemUnitPrice(item) * Number(item.quantity || 1);
+        }
+
+        getCartItems(cart: ClientCart | null): ClientCartItem[] {
+            if (!cart?.items?.length) return [];
+            return cart.items as ClientCartItem[];
+        }
+
+        getSubtotal(cart: ClientCart | null): number {
+            const fromCart = Number((cart?.subtotal as number) ?? 0);
+            if (fromCart > 0) return fromCart;
+            return this.getCartItems(cart).reduce(
+                (sum, item) => sum + this.getLineItemTotal(item),
+                0,
+            );
+        }
+
+        getTotal(cart: ClientCart | null): number {
+            const fromCart = Number((cart?.total as number) ?? 0);
+            if (fromCart > 0) return fromCart;
+            return this.getSubtotal(cart);
+        }
+
+        renderCart(cart: ClientCart | null) {
+            this.cart = cart;
+            const items = this.getCartItems(cart);
+
+            if (items.length === 0) {
+                this.cartItemsWrap.innerHTML =
+                    '<p class="text-sm text-secondary mb-0">Your cart is empty.</p>';
+            } else {
+                this.cartItemsWrap.innerHTML = items
+                    .map((item) => {
+                        const image = this.getLineItemImage(item);
+                        const qty = Number(item.quantity || 1);
+                        return `
+                            <div class="d-flex gap-4 align-items-center mb-4" data-line-item-id="${item.id}">
+                                <img
+                                    src="${image}"
+                                    alt="${this.getLineItemTitle(item)}"
+                                    class="productCartThumb shadow-xs"
+                                />
+                                <div class="flex-grow-1">
+                                    <h6 class="font-weight-bold mb-1">${this.getLineItemTitle(item)}</h6>
+                                    <p class="text-xs text-secondary mb-1">Type: ${this.getLineItemType(item)}</p>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-dark py-1 px-2 mb-0" data-cart-dec="${item.id}">-</button>
+                                        <span class="text-xs text-secondary">Qty: ${qty}</span>
+                                        <button type="button" class="btn btn-sm btn-outline-dark py-1 px-2 mb-0" data-cart-inc="${item.id}">+</button>
+                                        <button type="button" class="btn btn-sm btn-link text-danger py-0 px-1 mb-0" data-cart-remove="${item.id}">Remove</button>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <p class="font-weight-bold mb-0">${this.formatNgn(this.getLineItemTotal(item))}</p>
+                                </div>
+                            </div>
+                        `;
+                    })
+                    .join("");
+            }
+
+            (this.modal.querySelector("#modal-subtotal") as HTMLElement).innerText =
+                this.formatNgn(this.getSubtotal(cart));
+            (this.modal.querySelector("#modal-delivery") as HTMLElement).innerText =
+                "Calculated at payment";
+            (this.modal.querySelector("#modal-total") as HTMLElement).innerText =
+                this.formatNgn(this.getTotal(cart));
+
+            const firstItem = items[0];
             (
-                this.modal.querySelector(
-                    "#modal-product-id",
-                ) as HTMLInputElement
-            ).value = productId;
+                this.modal.querySelector("#modal-product-id") as HTMLInputElement
+            ).value = String((firstItem?.id as string) || "");
             (
                 this.modal.querySelector("#modal-quantity") as HTMLInputElement
-            ).value = qty.toString();
+            ).value = String(Number(firstItem?.quantity || 1));
 
             const phoneField = document.getElementById("phone-field-wrap");
-            if (phoneField) phoneField.hidden = productType === "digital";
+            if (phoneField) phoneField.hidden = false;
+        }
+
+        async handleCartActions(e: Event) {
+            const target = e.target as HTMLElement;
+            if (!target) return;
+
+            const removeId = target.getAttribute("data-cart-remove");
+            if (removeId) {
+                const updated = await cartStore.removeLineItem(removeId);
+                this.renderCart(updated);
+                return;
+            }
+
+            const incId = target.getAttribute("data-cart-inc");
+            if (incId) {
+                const item = this.getCartItems(this.cart).find((entry) => entry.id === incId);
+                if (!item) return;
+                const nextQty = Number(item.quantity || 1) + 1;
+                const updated = await cartStore.updateQuantity(incId, nextQty);
+                this.renderCart(updated);
+                return;
+            }
+
+            const decId = target.getAttribute("data-cart-dec");
+            if (decId) {
+                const item = this.getCartItems(this.cart).find((entry) => entry.id === decId);
+                if (!item) return;
+                const nextQty = Number(item.quantity || 1) - 1;
+                const updated = await cartStore.updateQuantity(decId, nextQty);
+                this.renderCart(updated);
+            }
+        }
+
+        async open(data: any) {
+            const variantId = data?.variantId || data?.productId;
+            const quantity = Number(data?.quantity || 1);
+
+            const updatedCart = variantId
+                ? await cartStore.addToCart(String(variantId), quantity)
+                : await cartStore.getCart();
+            this.renderCart(updatedCart);
+
+            if (variantId) {
+                trackAnalyticsEvent("cart_add", {
+                    variantId: String(variantId),
+                    quantity,
+                });
+            }
 
             this.modal.classList.add("isOpen");
             this.modal.setAttribute("aria-hidden", "false");
@@ -243,10 +357,11 @@
 
         resetState() {
             this.submitBtn.disabled = false;
-            this.submitBtn.innerText = "Pay with Paystack";
+            this.submitBtn.innerText = "Continue to Paystack";
             (document.getElementById("modal-error") as HTMLElement).hidden =
                 true;
-            this.form.reset();
+            (document.getElementById("email") as HTMLInputElement).value = "";
+            (document.getElementById("phone") as HTMLInputElement).value = "";
         }
 
         async handleSubmit(e: Event) {
@@ -259,15 +374,24 @@
             errorEl.hidden = true;
 
             const formData = new FormData(this.form);
-            const payload = {
-                productId: formData.get("productId"),
-                email: formData.get("email"),
-                phone: formData.get("phone"),
-                quantity: parseInt(formData.get("quantity") as string),
-            };
 
             try {
-                const res = await fetch("/api/paystack/initialize", {
+                const cart = await cartStore.getCart();
+                if (!cart?.id) {
+                    throw new Error("No active cart found.");
+                }
+
+                const payload = {
+                    cartId: cart.id,
+                    email: String(formData.get("email") || ""),
+                    phone: String(formData.get("phone") || ""),
+                };
+
+                trackAnalyticsEvent("checkout_start", {
+                    cartId: cart.id,
+                });
+
+                const res = await fetch("/api/checkout/initialize", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
@@ -284,7 +408,7 @@
                     "Payment failed. Please check your connection and try again.";
                 errorEl.hidden = false;
                 this.submitBtn.disabled = false;
-                this.submitBtn.innerText = "Pay with Paystack";
+                this.submitBtn.innerText = "Continue to Paystack";
             }
         }
     }

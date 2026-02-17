@@ -1,12 +1,13 @@
 export const prerender = false;
 
-import { sanityWriteClient as sanityClient } from "../../lib/sanity/client";
+import type { APIRoute } from "astro";
+import { getSanityWriteClient } from "../../lib/sanity/write.server";
 
 // Simple in-memory rate limiter: 1 vote per IP per poll per 60 seconds
 const rateLimitMap = new Map<string, number>();
 const RATE_LIMIT_MS = 60_000;
 
-export async function POST({ request }: { request: Request }) {
+export const POST: APIRoute = async ({ request, locals }) => {
     let body: { pollSlug?: string; optionIndex?: number };
 
     try {
@@ -43,6 +44,7 @@ export async function POST({ request }: { request: Request }) {
     }
 
     try {
+        const sanityClient = getSanityWriteClient({ locals });
         // Fetch the poll document
         const poll = await sanityClient.fetch(
             `*[_type == "poll" && slug.current == $slug][0]{ _id, options, voteCounts, status }`,
@@ -98,4 +100,4 @@ export async function POST({ request }: { request: Request }) {
             { status: 500, headers: { "Content-Type": "application/json" } }
         );
     }
-}
+};

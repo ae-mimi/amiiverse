@@ -1,8 +1,9 @@
 export const prerender = false;
 
-import { sanityWriteClient as sanityClient } from "../../lib/sanity/client";
+import type { APIRoute } from "astro";
+import { getSanityWriteClient } from "../../lib/sanity/write.server";
 
-export async function POST({ request }: { request: Request }) {
+export const POST: APIRoute = async ({ request, locals }) => {
     const data = await request.formData();
     const displayName = (data.get("displayName") as string)?.trim();
     const message = (data.get("message") as string)?.trim();
@@ -24,6 +25,7 @@ export async function POST({ request }: { request: Request }) {
     }
 
     try {
+        const sanityClient = getSanityWriteClient({ locals });
         await sanityClient.create({
             _type: "fanSubmission",
             displayName,
@@ -45,4 +47,4 @@ export async function POST({ request }: { request: Request }) {
             { status: 500, headers: { "Content-Type": "application/json" } }
         );
     }
-}
+};

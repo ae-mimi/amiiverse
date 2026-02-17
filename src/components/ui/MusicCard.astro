@@ -3,11 +3,17 @@ import { urlFor } from "../../lib/sanity/image";
 import { Icon } from "astro-icon/components";
 
 const { item } = Astro.props;
+const coverUrl =
+    typeof item?.cover === "string"
+        ? item.cover
+        : typeof item?.cover_image_url === "string"
+          ? item.cover_image_url
+          : urlFor(item?.cover);
 ---
 
 <div class="music-item">
     <div class="cover-art">
-        <img src={urlFor(item.cover)} alt={item.title} loading="lazy" />
+        <img src={coverUrl} alt={item.title} loading="lazy" />
     </div>
     <div class="music-info">
         <h3 class="music-title">{item.title}</h3>

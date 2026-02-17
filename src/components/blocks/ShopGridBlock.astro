@@ -1,23 +1,35 @@
 ---
-import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
-import { ALL_SHOP_QUERY } from "../../lib/sanity/queries";
 import ProductCard from "../shop/ProductCard.astro";
 
-// Fetch all shop items once - client side will handle filtering/sorting
-const shopItems = await getSanityContent(ALL_SHOP_QUERY);
-// We want to pass all items to client, but for initial render we can just render them all
-// and let client script hide/show based on interaction.
-// Actually, it's better to render all and let CSS/JS handle display to avoid layout shift if possible,
-// or just standard server render and let JS take over.
-// Given requirements: "Client script inside ShopGridBlock only" implies we render everything and manipulate DOM.
+interface ShopProduct {
+    id: string;
+    slug: string;
+    title: string;
+    price_ngn: number;
+    product_type: "physical" | "digital";
+    cover_image_url: string;
+    is_active: number;
+}
 
-const initialItems = shopItems || [];
+let initialItems: ShopProduct[] = [];
+
+try {
+    const apiUrl = new URL("/api/shop/products", Astro.url);
+    apiUrl.searchParams.set("sort", "newest");
+
+    const response = await fetch(apiUrl.toString());
+    if (response.ok) {
+        const data = (await response.json()) as { products?: ShopProduct[] };
+        initialItems = Array.isArray(data.products) ? data.products : [];
+    }
+} catch (error) {
+    console.error("[ShopGridBlock] Failed to load initial products", error);
+}
 ---
 
 <section class="shopSection">
     <h1 class="shopHeading">Shop</h1>
 
-    <!-- Filters (Simplified but functional) -->
     <div class="shopTopBar" style="margin-bottom: 2rem;">
         <div class="shopSearchWrap">
             <label class="srOnly" for="shop-search">Search products</label>
@@ -33,8 +45,8 @@ const initialItems = shopItems || [];
             <label class="srOnly" for="shop-sort">Sort products</label>
             <select id="shop-sort" class="shopSortSelect">
                 <option value="newest">Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
             </select>
         </div>
     </div>
@@ -48,28 +60,35 @@ const initialItems = shopItems || [];
         <button class="chip isActive" data-filter="all">All</button>
         <button class="chip" data-filter="physical">Physical</button>
         <button class="chip" data-filter="digital">Digital</button>
-        <button class="chip" data-filter="new">New</button>
-        <button class="chip" data-filter="inStock">In stock</button>
-        <button class="chip" data-filter="limited">Limited</button>
     </div>
 
-    <div class="row" data-grid>
-        {
-            initialItems.map((item: any) => (
-                <div class="col-12 col-md-6 col-lg-4 mb-4">
-                    <ProductCard
-                        url={item.url}
-                        title={item.title}
-                        price={item.price}
-                        image={item.image}
-                        productId={item.productId}
-                        productType={item.productType}
-                        stock={item.stock}
-                    />
-                </div>
-            ))
-        }
-    </div>
+    {
+        initialItems.length > 0 ? (
+            <div class="row" data-grid>
+                {
+                    initialItems.map((item) => (
+                        <div
+                            class="col-12 col-md-6 col-lg-4 mb-4"
+                            data-grid-item
+                            data-type={item.product_type}
+                            data-price={item.price_ngn}
+                        >
+                            <ProductCard
+                                url={`/shop/${item.slug}`}
+                                title={item.title}
+                                price={item.price_ngn}
+                                image={item.cover_image_url}
+                                productId={item.id}
+                                productType={item.product_type}
+                            />
+                        </div>
+                    ))
+                }
+            </div>
+        ) : (
+            <div class="row" data-grid></div>
+        )
+    }
 
     <p class="shopEmptyState" data-empty hidden>
         No products match your search.
@@ -77,159 +96,204 @@ const initialItems = shopItems || [];
 </section>
 
 <script>
+    interface ShopProduct {
+        id: string;
+        slug: string;
+        title: string;
+        price_ngn: number;
+        product_type: "physical" | "digital";
+        cover_image_url: string;
+        is_active: number;
+    }
+
     function initShop() {
         const searchInput = document.getElementById(
             "shop-search",
-        ) as HTMLInputElement;
+        ) as HTMLInputElement | null;
         const sortSelect = document.getElementById(
             "shop-sort",
-        ) as HTMLSelectElement;
+        ) as HTMLSelectElement | null;
         const chips = document.querySelectorAll(".chip");
-        const grid = document.querySelector("[data-grid]");
-        const emptyState = document.querySelector("[data-empty]");
-        const cards = Array.from(
-            document.querySelectorAll(".card-product"),
-        ) as HTMLElement[];
+        const grid = document.querySelector("[data-grid]") as HTMLElement | null;
+        const emptyState = document.querySelector(
+            "[data-empty]",
+        ) as HTMLElement | null;
+
+        if (!grid || !emptyState) return;
 
         let currentFilter = "all";
         let searchQuery = "";
         let currentSort = "newest";
+        let searchDebounceTimer: number | null = null;
 
-        function filterCards() {
-            let visibleCount = 0;
+        function escapeHtml(value: string): string {
+            return value
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
 
-            cards.forEach((card) => {
-                const title = (
-                    card.querySelector("h5")?.textContent || ""
-                ).toLowerCase();
-                const type = card.dataset.type || "";
-                const isNew = card.dataset.new === "true";
-                const isLimited = card.dataset.limited === "true";
-                const stockVal = card.dataset.stock;
-                // Treat null/undefined stock as in stock (infinite/untracked), 0 as out of stock
-                // data-stock attribute might be empty string if undefined was passed
-                const stock =
-                    stockVal && stockVal !== "" ? parseInt(stockVal, 10) : null;
-                const isInStock = stock === null || stock > 0;
+        function formatPrice(price: number): string {
+            return `₦${price.toLocaleString()}`;
+        }
 
-                // 1. Search filter
-                const matchesSearch = title.includes(searchQuery.toLowerCase());
+        function getTypeBadge(type: string): string {
+            return type === "digital" ? "Digital Asset" : "Physical Product";
+        }
 
-                // 2. Category/Chip filter
-                let matchesFilter = false;
-                if (currentFilter === "all") matchesFilter = true;
-                else if (currentFilter === "physical")
-                    matchesFilter = type === "physical";
-                else if (currentFilter === "digital")
-                    matchesFilter = type === "digital";
-                else if (currentFilter === "new") matchesFilter = isNew;
-                else if (currentFilter === "inStock") matchesFilter = isInStock;
-                else if (currentFilter === "limited") matchesFilter = isLimited;
+        function setEmptyState(hasItems: boolean) {
+            if (!emptyState) return;
+            emptyState.hidden = hasItems;
+            emptyState.style.display = hasItems ? "none" : "block";
+        }
 
-                if (matchesSearch && matchesFilter) {
-                    card.hidden = false;
-                    card.style.display = ""; // Reset display
-                    visibleCount++;
-                } else {
-                    card.hidden = true;
-                    card.style.display = "none"; // Ensure it's out of flow
-                }
-            });
-
-            // Show/hide empty state
-            if (emptyState) {
-                (emptyState as HTMLElement).hidden = visibleCount > 0;
-                (emptyState as HTMLElement).style.display =
-                    visibleCount > 0 ? "none" : "block";
+        function renderProducts(items: ShopProduct[]) {
+            if (!items.length) {
+                if (grid) grid.innerHTML = "";
+                setEmptyState(false);
+                return;
             }
 
-            // Re-apply sort to visible cards (technically we can sort DOM elements)
-            sortCards();
-        }
-
-        function sortCards() {
-            // Sort only affects DOM order
             if (!grid) return;
+            grid.innerHTML = items
+                .map((item) => {
+                    const title = escapeHtml(String(item.title || "Untitled Product"));
+                    const slug = encodeURIComponent(String(item.slug || ""));
+                    const image = escapeHtml(String(item.cover_image_url || ""));
+                    const productType =
+                        item.product_type === "digital" ? "digital" : "physical";
+                    const price = Number(item.price_ngn || 0);
+                    const productId = escapeHtml(String(item.id || ""));
+                    const typeBadge = getTypeBadge(productType);
 
-            // We need to sort ALL cards or JUST visible? DOM sort affects all usually.
-            // Let's sort all, visibility is handled by filter.
+                    return `
+                        <div class="col-12 col-md-6 col-lg-4 mb-4" data-grid-item data-type="${productType}" data-price="${price}">
+                            <div class="card card-product card-plain" data-title="${title}" data-price="${price}">
+                                <div class="card-header">
+                                    <a href="/shop/${slug}" class="d-block">
+                                        ${image ? `<img src="${image}" alt="${title}" class="img-fluid border-radius-lg" loading="lazy" />` : `<div class="shopCardImagePlaceholder" style="background: #eee; aspect-ratio: 1/1; border-radius: 12px;"></div>`}
+                                    </a>
+                                </div>
+                                <div class="card-body pb-0">
+                                    <p class="text-sm mb-1 text-secondary">${typeBadge}</p>
+                                    <a href="/shop/${slug}" style="text-decoration: none;">
+                                        <h5 class="font-weight-bold">${title}</h5>
+                                    </a>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <p class="mb-0 text-sm font-weight-bold">${formatPrice(price)}</p>
+                                    </div>
+                                    <div class="shopCardActions d-flex gap-2 mb-3">
+                                        <button
+                                            class="btn btn-dark w-100"
+                                            data-quickbuy
+                                            data-product-id="${productId}"
+                                            data-title="${title}"
+                                            data-price="${price}"
+                                            data-image="${image}"
+                                            data-type="${productType}"
+                                        >
+                                            Quick Buy
+                                        </button>
+                                        <a href="/shop/${slug}" class="btn btn-outline-dark">View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join("");
 
-            cards.sort((a, b) => {
-                const priceA = getPrice(a);
-                const priceB = getPrice(b);
-                // Creating a date from nothing is safest as 0
-                // We don't have createdAt on DOM directly for sorting "newest" perfectly unless we add it
-                // But typically sanity returns in order(_createdAt desc)
-                // So "newest" is just default DOM order... wait, if we shuffle them for price, we lose default.
-                // We should store original index or createdAt timestamp on card.
+            setEmptyState(true);
+        }
 
-                if (currentSort === "price-asc") {
-                    return priceA - priceB;
-                } else if (currentSort === "price-desc") {
-                    return priceB - priceA;
-                } else {
-                    // Newest / Default
-                    // Since we don't have explicit date in DOM, let's rely on original render order?
-                    // Or we can assume input DOM was sorted by date (which it is via GROQ)
-                    // We can add an index to cards on init.
-                    return (
-                        parseInt(a.dataset.originalIndex || "0") -
-                        parseInt(b.dataset.originalIndex || "0")
-                    );
+        async function loadProducts() {
+            try {
+                const params = new URLSearchParams();
+                if (currentFilter === "physical" || currentFilter === "digital") {
+                    params.set("type", currentFilter);
                 }
+                if (searchQuery.trim()) {
+                    params.set("query", searchQuery.trim());
+                }
+                params.set("sort", currentSort);
+
+                const url = `/api/shop/products?${params.toString()}`;
+                const response = await fetch(url, { method: "GET" });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = (await response.json()) as {
+                    products?: ShopProduct[];
+                };
+                renderProducts(Array.isArray(data.products) ? data.products : []);
+            } catch (error) {
+                console.error("[shop-grid] failed to load products", error);
+                renderProducts([]);
+            }
+        }
+
+        if (grid) {
+            grid.addEventListener("click", (e) => {
+                const target = e.target as HTMLElement;
+                const button = target?.closest("[data-quickbuy]") as
+                    | HTMLButtonElement
+                    | null;
+                if (!button) return;
+
+                const { productId, title, price, image, type } = button.dataset;
+                window.dispatchEvent(
+                    new CustomEvent("open-checkout", {
+                        detail: {
+                            productId,
+                            title,
+                            price: parseFloat(price || "0"),
+                            image,
+                            productType: type,
+                            quantity: 1,
+                        },
+                    }),
+                );
             });
-
-            cards.forEach((card) => grid.appendChild(card));
         }
 
-        function getPrice(card: HTMLElement): number {
-            return parseFloat(card.dataset.price || "0");
-        }
-
-        // Init
-        cards.forEach((card, index) => {
-            card.dataset.originalIndex = index.toString();
-        });
-
-        // Event Listeners
         if (searchInput) {
             searchInput.addEventListener("input", (e) => {
                 searchQuery = (e.target as HTMLInputElement).value;
-                filterCards();
+                if (searchDebounceTimer) {
+                    window.clearTimeout(searchDebounceTimer);
+                }
+                searchDebounceTimer = window.setTimeout(() => {
+                    loadProducts();
+                }, 300);
             });
         }
 
         if (sortSelect) {
             sortSelect.addEventListener("change", (e) => {
-                currentSort = (e.target as HTMLSelectElement).value;
-                sortCards();
+                currentSort = (e.target as HTMLSelectElement).value || "newest";
+                loadProducts();
             });
         }
 
         chips.forEach((chip) => {
             chip.addEventListener("click", () => {
-                // Toggle active state
                 chips.forEach((c) => c.classList.remove("isActive"));
                 chip.classList.add("isActive");
 
                 currentFilter = (chip as HTMLElement).dataset.filter || "all";
-                filterCards();
+                loadProducts();
             });
         });
-
-        // Initial sweep
-        filterCards();
     }
 
-    // Run on load
     initShop();
-
-    // Re-run on View Transitions if using Astro ViewTransitions (optional safety)
     document.addEventListener("astro:page-load", initShop);
 </script>
 
 <style>
-    /* Scoped styles are minimal, most should be in global.css as requested */
     .shopPage {
         width: 100%;
     }

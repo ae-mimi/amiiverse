@@ -1,8 +1,10 @@
 export const prerender = false;
 
+import type { APIRoute } from "astro";
 import { sanityClient } from "sanity:client";
+import { getServerEnvValue } from "../../lib/server/cloudflareRuntimeEnv";
 
-export async function POST({ request }: { request: Request }) {
+export const POST: APIRoute = async ({ request, locals }) => {
     const data = await request.formData();
     const name = data.get("name") as string;
     const email = data.get("email") as string;
@@ -34,7 +36,7 @@ export async function POST({ request }: { request: Request }) {
         console.warn("Could not fetch dynamic admin email, using default.", e);
     }
 
-    const BREVO_API_KEY = import.meta.env.BREVO_API_KEY;
+    const BREVO_API_KEY = getServerEnvValue({ locals }, "BREVO_API_KEY");
 
     if (!BREVO_API_KEY) {
         console.error("BREVO_API_KEY is not set");
@@ -138,4 +140,4 @@ export async function POST({ request }: { request: Request }) {
             { status: 500 }
         );
     }
-}
+};
