@@ -16,6 +16,8 @@ const {
     buttonText = "JOIN US",
     successRedirect = "/newsletter-success",
 } = Astro.props;
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
 
 <section id="join-the-queue" class="newsletter-signup" aria-label={title}>
@@ -50,12 +52,43 @@ const {
                 />
             </div>
 
+            <label class="newsletter-signup__consent">
+                <input type="checkbox" name="consent" required />
+                <span>I agree to receive email updates and can unsubscribe anytime.</span>
+            </label>
+
+            {
+                turnstileSiteKey && (
+                    <div
+                        class="cf-turnstile"
+                        data-sitekey={turnstileSiteKey}
+                        data-theme="light"
+                    ></div>
+                )
+            }
+
+            <p class="newsletter-signup__meta">
+                By subscribing, you consent to fan-list emails and privacy-safe analytics.
+            </p>
+
+            <p class="newsletter-signup__status" aria-live="polite"></p>
+
             <button type="submit" class="newsletter-signup__btn"
                 >{buttonText}</button
             >
         </form>
     </div>
 </section>
+
+{
+    turnstileSiteKey && (
+        <script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            async
+            defer
+        ></script>
+    )
+}
 
 <script>
     const forms = document.querySelectorAll(".newsletter-signup__form");
@@ -67,18 +100,46 @@ const {
             const emailInput = formEl.querySelector(
                 'input[name="email"]',
             ) as HTMLInputElement;
+            const consentInput = formEl.querySelector(
+                'input[name="consent"]',
+            ) as HTMLInputElement;
+            const statusEl = formEl.querySelector(
+                ".newsletter-signup__status",
+            ) as HTMLParagraphElement;
+            const turnstileInput = formEl.querySelector(
+                'input[name="cf-turnstile-response"]',
+            ) as HTMLInputElement | null;
             const button = formEl.querySelector("button") as HTMLButtonElement;
             const originalText = button.innerText;
             const redirect =
                 formEl.dataset.successRedirect || "/newsletter-success";
 
-            if (!emailInput || !button) return;
+            if (!emailInput || !consentInput || !button || !statusEl) return;
+
+            if (!consentInput.checked) {
+                statusEl.textContent =
+                    "Please consent to email updates before subscribing.";
+                return;
+            }
+
+            if (
+                formEl.querySelector(".cf-turnstile") &&
+                !turnstileInput?.value
+            ) {
+                statusEl.textContent = "Please complete the captcha.";
+                return;
+            }
 
             button.disabled = true;
             button.innerText = "...";
+            statusEl.textContent = "";
 
             const formData = new FormData();
             formData.append("email", emailInput.value);
+            formData.append("consent", String(consentInput.checked));
+            if (turnstileInput?.value) {
+                formData.append("turnstileToken", turnstileInput.value);
+            }
 
             const nameInput = formEl.querySelector(
                 'input[name="name"]',
@@ -101,15 +162,23 @@ const {
                 const result = await response.json();
 
                 if (response.ok) {
+                    if (result.status === "queued") {
+                        statusEl.textContent =
+                            "Saved. Confirmation email may take a moment.";
+                        button.disabled = false;
+                        button.innerText = originalText;
+                        return;
+                    }
                     window.location.href = redirect;
                 } else {
-                    alert(result.message || "Subscription failed.");
+                    statusEl.textContent =
+                        result.message || "Subscription failed.";
                     button.disabled = false;
                     button.innerText = originalText;
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Network error.");
+                statusEl.textContent = "Network error. Please try again.";
                 button.disabled = false;
                 button.innerText = originalText;
             }
@@ -235,6 +304,41 @@ const {
     }
     .newsletter-signup__btn:active {
         transform: scale(0.98);
+    }
+
+    .newsletter-signup__consent {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 20px 1fr;
+        gap: 8px;
+        align-items: start;
+        font-family: var(--font-body);
+        font-size: clamp(12px, 1vw, 16px);
+        color: var(--text-main);
+    }
+
+    .newsletter-signup__consent input {
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+    }
+
+    .newsletter-signup__meta {
+        margin: 0;
+        width: 100%;
+        font-family: var(--font-body);
+        font-size: clamp(11px, 0.95vw, 14px);
+        line-height: 1.45;
+        color: var(--text-accent);
+    }
+
+    .newsletter-signup__status {
+        margin: 0;
+        min-height: 20px;
+        width: 100%;
+        font-family: var(--font-body);
+        font-size: clamp(12px, 1vw, 15px);
+        color: var(--text-main);
     }
 
     @media (max-width: 768px) {

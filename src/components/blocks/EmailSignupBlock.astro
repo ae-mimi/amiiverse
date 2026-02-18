@@ -18,6 +18,8 @@ const {
     formId,
     successMessage = "You're in! 🎉",
 } = Astro.props;
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
 
 <section class="email-signup" aria-label={title}>
@@ -42,10 +44,89 @@ const {
                 />
                 <button type="submit">Subscribe</button>
             </div>
+            <label class="email-signup__consent">
+                <input type="checkbox" name="consent" required />
+                <span>I agree to receive email updates and can unsubscribe anytime.</span>
+            </label>
+            {
+                turnstileSiteKey && (
+                    <div
+                        class="cf-turnstile"
+                        data-sitekey={turnstileSiteKey}
+                        data-theme="light"
+                    ></div>
+                )
+            }
             <p class="email-signup__status" aria-live="polite"></p>
         </form>
     </div>
 </section>
+
+{
+    turnstileSiteKey && (
+        <script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            async
+            defer
+        ></script>
+    )
+}
+
+<script>
+    const forms = document.querySelectorAll(".email-signup__form");
+    forms.forEach((form) => {
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formEl = event.currentTarget as HTMLFormElement;
+            const emailEl = formEl.querySelector(
+                'input[name="email"]',
+            ) as HTMLInputElement | null;
+            const consentEl = formEl.querySelector(
+                'input[name="consent"]',
+            ) as HTMLInputElement | null;
+            const turnstileEl = formEl.querySelector(
+                'input[name="cf-turnstile-response"]',
+            ) as HTMLInputElement | null;
+            const statusEl = formEl.querySelector(
+                ".email-signup__status",
+            ) as HTMLParagraphElement | null;
+            const button = formEl.querySelector("button") as HTMLButtonElement;
+
+            if (!emailEl || !consentEl || !statusEl || !button) return;
+
+            const data = new FormData();
+            data.append("email", emailEl.value);
+            data.append("consent", String(consentEl.checked));
+            if (turnstileEl?.value) {
+                data.append("turnstileToken", turnstileEl.value);
+            }
+
+            button.disabled = true;
+            statusEl.textContent = "Submitting...";
+            try {
+                const response = await fetch("/api/subscribe", {
+                    method: "POST",
+                    body: data,
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    statusEl.textContent =
+                        result.message || "Could not subscribe right now.";
+                    button.disabled = false;
+                    return;
+                }
+                statusEl.textContent =
+                    result.status === "duplicate"
+                        ? "You are already subscribed."
+                        : "Check your inbox to confirm your subscription.";
+                button.disabled = false;
+            } catch {
+                statusEl.textContent = "Network error. Please try again.";
+                button.disabled = false;
+            }
+        });
+    });
+</script>
 
 <style>
     .email-signup {
@@ -100,5 +181,13 @@ const {
         margin-top: 0.75rem;
         font-size: 0.85rem;
         min-height: 1.2em;
+    }
+    .email-signup__consent {
+        margin-top: 0.75rem;
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        gap: 0.5rem;
+        text-align: left;
+        font-size: 0.85rem;
     }
 </style>
