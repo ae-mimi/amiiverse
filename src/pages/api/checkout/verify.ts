@@ -1,5 +1,18 @@
 import type { APIRoute } from "astro";
-import { getServerEnvValue } from "../../../lib/server/cloudflareRuntimeEnv";
+import {
+    getCloudflareRuntimeEnv,
+    getServerEnvValue,
+} from "../../../lib/server/cloudflareRuntimeEnv";
+
+interface D1PreparedStatementLike {
+    bind: (...values: unknown[]) => D1PreparedStatementLike;
+    first: () => Promise<Record<string, unknown> | null>;
+    run: () => Promise<Record<string, unknown>>;
+}
+
+interface D1DatabaseLike {
+    prepare: (query: string) => D1PreparedStatementLike;
+}
 
 function jsonResponse(body: Record<string, unknown>, status = 200): Response {
     return new Response(JSON.stringify(body), {
@@ -8,43 +21,15 @@ function jsonResponse(body: Record<string, unknown>, status = 200): Response {
     });
 }
 
-async function medusaRequest<T = any>(
-    backendUrl: string,
-    path: string,
-    init: RequestInit,
-): Promise<T | null> {
-    if (!backendUrl) return null;
-
-    try {
-        const response = await fetch(`${backendUrl}${path}`, {
-            ...init,
-            headers: {
-                Accept: "application/json",
-                ...(init.body ? { "Content-Type": "application/json" } : {}),
-                ...(init.headers ?? {}),
-            },
-        });
-
-        if (!response.ok) return null;
-        return (await response.json()) as T;
-    } catch (error) {
-        console.error("[checkout/verify] Medusa request failed", error);
-        return null;
-    }
-}
-
 export const GET: APIRoute = async ({ url, locals }) => {
-    const MEDUSA_BACKEND_URL = getServerEnvValue(
-        { locals },
-        "PUBLIC_MEDUSA_BACKEND_URL",
-    ).replace(/\/+$/, "");
     const PAYSTACK_SECRET_KEY = getServerEnvValue(
         { locals },
         "PAYSTACK_SECRET_KEY",
     );
+    const runtimeEnv = getCloudflareRuntimeEnv({ locals });
+    const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
     const reference = url.searchParams.get("reference") || "";
-    const cartId = url.searchParams.get("cartId") || "";
 
     if (!reference) {
         return jsonResponse({ status: "no_reference" }, 400);
@@ -53,8 +38,25 @@ export const GET: APIRoute = async ({ url, locals }) => {
     if (!PAYSTACK_SECRET_KEY) {
         return jsonResponse({ error: "Missing PAYSTACK_SECRET_KEY" }, 500);
     }
+    if (!db) {
+        return jsonResponse({ error: "Missing D1 binding `DB`" }, 500);
+    }
 
     try {
+        const order = await db
+            .prepare(
+                `SELECT id, cart_id, email, amount_kobo, status
+                 FROM orders
+                 WHERE reference = ?
+                 LIMIT 1`,
+            )
+            .bind(reference)
+            .first();
+
+        if (!order) {
+            return jsonResponse({ status: "failed", message: "Order not found" }, 404);
+        }
+
         const paystackResponse = await fetch(
             `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
             {
@@ -75,6 +77,21 @@ export const GET: APIRoute = async ({ url, locals }) => {
         }
 
         if (paystackStatus !== "success") {
+            await db
+                .prepare(
+                    `UPDATE orders
+                     SET status = CASE WHEN status = 'paid' THEN status ELSE 'failed' END,
+                         paystack_raw_json = ?,
+                         updated_at = ?
+                     WHERE reference = ?`,
+                )
+                .bind(
+                    JSON.stringify(paystackData ?? {}),
+                    new Date().toISOString(),
+                    reference,
+                )
+                .run();
+
             return jsonResponse({
                 status: "failed",
                 reference,
@@ -82,56 +99,53 @@ export const GET: APIRoute = async ({ url, locals }) => {
             });
         }
 
-        let medusaCart: any = null;
+        const nowIso = new Date().toISOString();
+        const cartId = String(order.cart_id ?? "");
+        const transactionId = String(paystackData?.data?.id ?? "").trim();
+
+        await db
+            .prepare(
+                `UPDATE orders
+                 SET status = 'paid',
+                     paystack_transaction_id = CASE
+                         WHEN paystack_transaction_id IS NULL OR paystack_transaction_id = ''
+                         THEN ?
+                         ELSE paystack_transaction_id
+                     END,
+                     paystack_raw_json = ?,
+                     updated_at = ?
+                 WHERE reference = ?`,
+            )
+            .bind(
+                transactionId,
+                JSON.stringify(paystackData),
+                nowIso,
+                reference,
+            )
+            .run();
+
         if (cartId) {
-            const cartResponse = await medusaRequest<{ cart?: any }>(
-                MEDUSA_BACKEND_URL,
-                `/store/carts/${encodeURIComponent(cartId)}`,
-                { method: "GET" },
-            );
-            medusaCart = cartResponse?.cart ?? null;
-
-            if (medusaCart && !medusaCart.order_id && !medusaCart.completed_at) {
-                await medusaRequest(
-                    MEDUSA_BACKEND_URL,
-                    `/store/carts/${encodeURIComponent(cartId)}/complete`,
-                    {
-                        method: "POST",
-                        body: JSON.stringify({}),
-                    },
-                );
-
-                const refreshed = await medusaRequest<{ cart?: any }>(
-                    MEDUSA_BACKEND_URL,
-                    `/store/carts/${encodeURIComponent(cartId)}`,
-                    { method: "GET" },
-                );
-                medusaCart = refreshed?.cart ?? medusaCart;
-            }
+            await db
+                .prepare(
+                    `UPDATE carts
+                     SET status = 'checked_out', updated_at = ?
+                     WHERE id = ?`,
+                )
+                .bind(nowIso, cartId)
+                .run();
         }
 
-        const isMedusaConfirmed = Boolean(
-            medusaCart?.order_id || medusaCart?.completed_at,
-        );
-
         return jsonResponse({
-            status: isMedusaConfirmed ? "paid" : "pending",
+            status: "paid",
             reference,
             paystackStatus,
-            email: paystackData?.data?.customer?.email || medusaCart?.email || "",
-            amount:
-                paystackData?.data?.amount ??
-                medusaCart?.total ??
-                medusaCart?.subtotal ??
-                0,
-            currency:
-                paystackData?.data?.currency ||
-                medusaCart?.currency_code ||
-                "NGN",
-            medusa: {
-                cartId: medusaCart?.id || cartId || null,
-                orderId: medusaCart?.order_id || null,
-                completedAt: medusaCart?.completed_at || null,
+            email: paystackData?.data?.customer?.email || String(order.email || ""),
+            amount: paystackData?.data?.amount ?? Number(order.amount_kobo || 0),
+            currency: paystackData?.data?.currency || "NGN",
+            order: {
+                id: String(order.id || ""),
+                cartId: cartId || null,
+                transactionId: transactionId || null,
             },
         });
     } catch (error: any) {

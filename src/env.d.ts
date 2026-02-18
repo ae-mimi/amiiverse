@@ -10,8 +10,6 @@ interface ImportMetaEnv {
     readonly BREVO_LIST_ID?: string;
     readonly BREVO_DOUBLE_OPT_IN_TEMPLATE_ID?: string;
     readonly BREVO_DOUBLE_OPT_IN_REDIRECT?: string;
-    readonly MEDUSA_ADMIN_API_TOKEN?: string;
-    readonly PUBLIC_MEDUSA_BACKEND_URL?: string;
     readonly PUBLIC_TYPESENSE_HOST?: string;
     readonly PUBLIC_TYPESENSE_SEARCH_API_KEY?: string;
     readonly PUBLIC_TYPESENSE_SEARCH_KEY?: string;
@@ -39,8 +37,6 @@ declare namespace App {
                 BREVO_LIST_ID?: string;
                 BREVO_DOUBLE_OPT_IN_TEMPLATE_ID?: string;
                 BREVO_DOUBLE_OPT_IN_REDIRECT?: string;
-                MEDUSA_ADMIN_API_TOKEN?: string;
-                PUBLIC_MEDUSA_BACKEND_URL?: string;
                 PUBLIC_TYPESENSE_HOST?: string;
                 PUBLIC_TYPESENSE_SEARCH_API_KEY?: string;
                 PUBLIC_TYPESENSE_COLLECTION?: string;

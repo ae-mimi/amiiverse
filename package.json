@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "postinstall": "node scripts/patch-sanity-should-autoupdate.cjs",
     "deploy": "astro build && npx wrangler pages deploy dist",
     "test:subscribe": "node --experimental-strip-types scripts/testSubscribeFlow.ts",
     "index:products": "node --experimental-strip-types scripts/indexProducts.ts",
@@ -30,6 +31,7 @@
     "marked": "^17.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "sanity": "^5.10.0"
+    "sanity": "^5.10.0",
+    "styled-components": "^6.3.9"
   }
 }

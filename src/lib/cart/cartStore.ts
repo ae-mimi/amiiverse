@@ -1,5 +1,4 @@
 const CART_ID_STORAGE_KEY = "cart_id";
-const LEGACY_CART_ID_STORAGE_KEY = "medusa_cart_id";
 
 export interface ClientCartItem {
     id: string;
@@ -31,22 +30,17 @@ function isBrowser(): boolean {
 
 function getStoredCartId(): string | null {
     if (!isBrowser()) return null;
-    return (
-        window.localStorage.getItem(CART_ID_STORAGE_KEY) ||
-        window.localStorage.getItem(LEGACY_CART_ID_STORAGE_KEY)
-    );
+    return window.localStorage.getItem(CART_ID_STORAGE_KEY);
 }
 
 function setStoredCartId(cartId: string): void {
     if (!isBrowser()) return;
     window.localStorage.setItem(CART_ID_STORAGE_KEY, cartId);
-    window.localStorage.removeItem(LEGACY_CART_ID_STORAGE_KEY);
 }
 
 function clearStoredCartId(): void {
     if (!isBrowser()) return;
     window.localStorage.removeItem(CART_ID_STORAGE_KEY);
-    window.localStorage.removeItem(LEGACY_CART_ID_STORAGE_KEY);
 }
 
 function dispatchCartUpdated(cart: ClientCart | null): void {

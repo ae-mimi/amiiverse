@@ -2,28 +2,25 @@ type AnyObject = Record<string, any>;
 
 const env = (globalThis as any).process?.env ?? {};
 
-const MEDUSA_BACKEND_URL =
-    String(env.MEDUSA_BACKEND_URL || env.PUBLIC_MEDUSA_BACKEND_URL || "").replace(
-        /\/+$/,
-        "",
-    );
+const SHOP_PRODUCTS_API_URL = String(
+    env.SHOP_PRODUCTS_API_URL || "http://127.0.0.1:4321/api/shop/products",
+).replace(/\/+$/, "");
 const TYPESENSE_HOST = String(env.TYPESENSE_HOST || "").replace(/\/+$/, "");
 const TYPESENSE_ADMIN_API_KEY = String(env.TYPESENSE_ADMIN_API_KEY || "");
 const TYPESENSE_COLLECTION = String(env.TYPESENSE_COLLECTION || "products");
 
-interface MedusaProduct {
+interface ShopProduct {
     id: string;
     title?: string;
-    handle?: string;
-    thumbnail?: string;
-    metadata?: Record<string, unknown>;
-    variants?: Array<Record<string, unknown>>;
-    price?: number;
+    slug?: string;
+    cover_image_url?: string;
+    product_type?: string;
+    price_ngn?: number;
 }
 
 function assertConfig(): void {
     const missing: string[] = [];
-    if (!MEDUSA_BACKEND_URL) missing.push("MEDUSA_BACKEND_URL");
+    if (!SHOP_PRODUCTS_API_URL) missing.push("SHOP_PRODUCTS_API_URL");
     if (!TYPESENSE_HOST) missing.push("TYPESENSE_HOST");
     if (!TYPESENSE_ADMIN_API_KEY) missing.push("TYPESENSE_ADMIN_API_KEY");
 
@@ -34,40 +31,34 @@ function assertConfig(): void {
     }
 }
 
-function getProductPrice(product: MedusaProduct): number {
-    const amountCandidates = [
-        product?.variants?.[0]?.calculated_price?.calculated_amount,
-        product?.variants?.[0]?.calculated_price?.original_amount,
-        product?.variants?.[0]?.prices?.[0]?.amount,
-        product?.price,
-    ];
-
-    for (const candidate of amountCandidates) {
-        const numeric = Number(candidate);
-        if (Number.isFinite(numeric) && numeric > 0) return numeric;
-    }
-
-    return 0;
+function toPriceKobo(value: unknown): number {
+    const ngn = Number(value);
+    if (!Number.isFinite(ngn) || ngn <= 0) return 0;
+    return Math.round(ngn * 100);
 }
 
-async function fetchMedusaProducts(): Promise<MedusaProduct[]> {
-    const response = await fetch(`${MEDUSA_BACKEND_URL}/store/products`);
+async function fetchShopProducts(): Promise<ShopProduct[]> {
+    const response = await fetch(SHOP_PRODUCTS_API_URL);
     if (!response.ok) {
-        throw new Error(`Medusa request failed with status ${response.status}`);
+        throw new Error(
+            `Shop products request failed with status ${response.status}`,
+        );
     }
 
-    const data = (await response.json()) as { products?: MedusaProduct[] };
+    const data = (await response.json()) as { products?: ShopProduct[] };
     return data.products || [];
 }
 
-function toSearchDocument(product: MedusaProduct): AnyObject {
+function toSearchDocument(product: ShopProduct): AnyObject {
     return {
         id: product.id,
         title: product.title || "Untitled Product",
-        handle: product.handle || "",
-        thumbnail: product.thumbnail || "",
-        price: getProductPrice(product),
-        productType: String(product.metadata?.productType || "physical"),
+        handle: product.slug || "",
+        thumbnail: product.cover_image_url || "",
+        price: toPriceKobo(product.price_ngn),
+        productType: String(product.product_type || "physical"),
+        description: "",
+        tags: String(product.product_type || "physical"),
     };
 }
 
@@ -81,6 +72,8 @@ async function createCollectionIfMissing(): Promise<void> {
             { name: "thumbnail", type: "string", optional: true },
             { name: "price", type: "float" },
             { name: "productType", type: "string", optional: true },
+            { name: "description", type: "string", optional: true },
+            { name: "tags", type: "string", optional: true },
         ],
         default_sorting_field: "price",
     };
@@ -128,9 +121,9 @@ async function indexDocuments(docs: AnyObject[]): Promise<void> {
 
 async function run(): Promise<void> {
     assertConfig();
-    console.log("[indexProducts] Fetching products from Medusa...");
-    const medusaProducts = await fetchMedusaProducts();
-    const docs = medusaProducts
+    console.log("[indexProducts] Fetching products from shop API...");
+    const shopProducts = await fetchShopProducts();
+    const docs = shopProducts
         .map(toSearchDocument)
         .filter((doc) => doc.handle && doc.title);
 
@@ -146,4 +139,3 @@ run().catch((error) => {
     console.error("[indexProducts] Failed:", error);
     (globalThis as any).process?.exit?.(1);
 });
-

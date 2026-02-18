@@ -142,7 +142,8 @@ h6 {
   font-family: var(--font-heading);
   font-weight: var(--weight-regular);
   margin: 0;
-  text-wrap: balance;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 p {
@@ -298,7 +299,6 @@ select {
   gap: 1rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
-  scrollbar-width: thin;
 }
 
 .productThumbRow::-webkit-scrollbar {
@@ -632,7 +632,6 @@ select {
   overflow-x: auto;
   padding-bottom: 0.5rem;
   margin-bottom: 2rem;
-  scrollbar-width: none;
 }
 
 .shopChipsRow::-webkit-scrollbar {

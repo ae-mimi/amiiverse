@@ -4,9 +4,9 @@ export default defineCliConfig({
     api: {
         projectId: 'pxn399gi',
         dataset: 'production'
-    },
-    deployment: {
-    appId: 'cc38d9933uk2lc021vvm1upp',
+  },
+  deployment: {
+    appId: 'ajbupod10cgtjvy4ob9736eg',
     autoUpdates: true
   }
 })

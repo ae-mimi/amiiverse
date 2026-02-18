@@ -8,8 +8,6 @@ export interface CloudflareRuntimeEnv {
     BREVO_LIST_ID?: string;
     BREVO_DOUBLE_OPT_IN_TEMPLATE_ID?: string;
     BREVO_DOUBLE_OPT_IN_REDIRECT?: string;
-    MEDUSA_ADMIN_API_TOKEN?: string;
-    PUBLIC_MEDUSA_BACKEND_URL?: string;
     PUBLIC_TYPESENSE_HOST?: string;
     PUBLIC_TYPESENSE_SEARCH_API_KEY?: string;
     PUBLIC_TYPESENSE_COLLECTION?: string;
