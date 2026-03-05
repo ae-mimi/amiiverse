@@ -97,14 +97,14 @@
   --text-footer: var(--color-secondary);
 
   /* Buttons */
-  --btn-bg-primary: var(--color-primary);
-  --btn-text-primary: var(--color-secondary);
-  --btn-border: var(--color-primary);
+  --btn-bg-primary: var(--color-button-bg, var(--color-primary));
+  --btn-text-primary: var(--color-button-text, var(--color-secondary));
+  --btn-border: var(--color-button-bg, var(--color-primary));
 
   /* Inputs */
   --input-bg: var(--color-bg);
-  --input-border: var(--color-primary);
-  --input-text: var(--color-text);
+  --input-border: var(--color-input-border, var(--color-primary));
+  --input-text: var(--color-input-text, var(--color-text));
   --input-placeholder: rgba(30, 30, 46, 0.6);
   --input-border-width: 1px;
   --input-border-width-focus: 2px;
@@ -145,6 +145,11 @@ body {
   color: var(--text-main);
   transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
+}
+
+a {
+  color: var(--color-link, inherit);
+  text-decoration-color: var(--color-underline, currentColor);
 }
 
 h1,
@@ -543,8 +548,8 @@ select {
 
 .productBuyBtn {
   width: 100%;
-  background: var(--color-primary);
-  color: var(--color-bg);
+  background: var(--btn-bg-primary);
+  color: var(--btn-text-primary);
   border: none;
   padding: 1rem;
   border-radius: var(--radius-pill);
@@ -674,8 +679,8 @@ select {
 }
 
 .stickyBuyBtn {
-  background: var(--color-primary);
-  color: var(--color-bg);
+  background: var(--btn-bg-primary);
+  color: var(--btn-text-primary);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-pill);
@@ -769,9 +774,9 @@ select {
 }
 
 .chip.isActive {
-  background: var(--color-primary);
-  color: var(--color-bg);
-  border-color: var(--color-primary);
+  background: var(--btn-bg-primary);
+  color: var(--btn-text-primary);
+  border-color: var(--btn-border);
 }
 
 .shopEmptyState {

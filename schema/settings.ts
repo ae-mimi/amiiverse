@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon } from './icons'
+import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon, ThemeIcon } from './icons'
 
 export default defineType({
     name: 'settings',
@@ -8,10 +8,11 @@ export default defineType({
     icon: SettingsIcon,
     groups: [
         { name: 'general', title: 'General', icon: GeneralIcon, default: true },
-        { name: 'seo', title: 'SEO', icon: SEOIcon },
         { name: 'branding', title: 'Branding', icon: BrandingIcon },
+        { name: 'theme', title: 'Theme', icon: ThemeIcon },
         { name: 'navigation', title: 'Navigation', icon: NavigationIcon },
         { name: 'social', title: 'Social Media', icon: SocialIcon },
+        { name: 'seo', title: 'SEO', icon: SEOIcon },
     ],
     fields: [
         // ── General ──────────────────────────────────────────
@@ -39,15 +40,15 @@ export default defineType({
             type: 'array',
             of: [{ type: 'string' }],
             options: { layout: 'tags' },
-            group: 'general',
+            group: 'seo',
         }),
 
         defineField({
             name: 'theme',
-            title: 'Default Theme',
+            title: 'Default Theme & Palette',
             type: 'themeSettings',
-            group: 'general',
-            description: 'The base look and feel of the site.',
+            group: 'theme',
+            description: 'Controls color palette, typography, and core UI style across the site.',
             options: { collapsible: true, collapsed: false },
         }),
 
@@ -79,17 +80,17 @@ export default defineType({
         // ── Branding ─────────────────────────────────────────
         defineField({
             name: 'logo_navy',
-            title: 'Logo (Navy / Dark)',
+            title: 'Primary Logo (For Light Backgrounds)',
             type: 'image',
-            description: 'The dark version of the logo. Used on light backgrounds.',
+            description: 'Upload the main/darker logo variant to display on white or light sections.',
             group: 'branding',
             options: { hotspot: true },
         }),
         defineField({
             name: 'logo_yellow',
-            title: 'Logo (Yellow / Light)',
+            title: 'Secondary Logo (For Dark Backgrounds)',
             type: 'image',
-            description: 'The light version of the logo. Used on dark backgrounds.',
+            description: 'Upload the light/high-contrast logo variant for dark sections and overlays.',
             group: 'branding',
             options: { hotspot: true },
         }),
@@ -151,9 +152,9 @@ export default defineType({
         defineField({
             name: 'enable_follow_link',
             title: 'Show "FOLLOW" Button',
-            description: 'Toggles the special "FOLLOW" button in the mobile menu.',
+            description: 'Toggles the special "FOLLOW" item in site navigation.',
             type: 'boolean',
-            group: 'branding',
+            group: 'navigation',
             initialValue: false,
         }),
 
