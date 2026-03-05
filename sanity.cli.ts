@@ -9,7 +9,7 @@ export default defineCliConfig({
         dataset: sanityDataset,
     },
     deployment: {
-        appId: 'ajbupod10cgtjvy4ob9736eg',
+        appId: 'aviiysjatn84yq1fp6j7lv8w',
         autoUpdates: true,
     },
 })
