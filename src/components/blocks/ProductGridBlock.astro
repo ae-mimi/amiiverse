@@ -1,0 +1,52 @@
+---
+import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
+import { ALL_SHOP_QUERY } from "../../lib/sanity/queries";
+import ProductCard from "../shop/ProductCard.astro";
+
+const { title, limit } = Astro.props;
+
+// Fetch shop items from Sanity
+const shopItems = await getSanityContent(ALL_SHOP_QUERY);
+const items = shopItems || [];
+
+const displayedItems = limit ? items.slice(0, limit) : items;
+---
+
+<section class="product-grid-block py-5">
+    <div class="container">
+        {
+            title && (
+                <h2 class="section-title uppercase mb-4 text-center">
+                    {title}
+                </h2>
+            )
+        }
+        <div class="row">
+            {
+                displayedItems.map((item: any) => (
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <ProductCard
+                            url={item.url}
+                            title={item.title}
+                            price={item.price}
+                            image={item.image}
+                            productId={item.productId}
+                            productType={item.productType}
+                        />
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .product-grid-block {
+        background-color: var(--bg-page);
+    }
+    .section-title {
+        font-family: var(--font-heading);
+        color: var(--color-primary);
+        font-size: 2.5rem;
+    }
+</style>

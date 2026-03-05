@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon } from './icons'
+import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon } from './icons'
 
 export default defineType({
     name: 'settings',
@@ -8,6 +8,7 @@ export default defineType({
     icon: SettingsIcon,
     groups: [
         { name: 'general', title: 'General', icon: GeneralIcon, default: true },
+        { name: 'seo', title: 'SEO', icon: SEOIcon },
         { name: 'branding', title: 'Branding', icon: BrandingIcon },
         { name: 'navigation', title: 'Navigation', icon: NavigationIcon },
         { name: 'social', title: 'Social Media', icon: SocialIcon },
@@ -39,6 +40,40 @@ export default defineType({
             of: [{ type: 'string' }],
             options: { layout: 'tags' },
             group: 'general',
+        }),
+
+        defineField({
+            name: 'theme',
+            title: 'Default Theme',
+            type: 'themeSettings',
+            group: 'general',
+            description: 'The base look and feel of the site.',
+            options: { collapsible: true, collapsed: false },
+        }),
+
+        // ── SEO Defaults ────────────────────────────────────────
+        defineField({
+            name: 'defaultSeo',
+            title: 'Default SEO',
+            type: 'seo',
+            group: 'seo',
+            description: 'Fallback SEO settings used when a page does not have its own SEO configured.',
+        }),
+
+        // ── Announcement Bar ────────────────────────────────────
+        defineField({
+            name: 'announcementBar',
+            title: 'Announcement Bar',
+            type: 'object',
+            group: 'general',
+            description: 'A small banner across the top of the site. Great for release announcements.',
+            options: { collapsible: true, collapsed: true },
+            fields: [
+                defineField({ name: 'enabled', title: 'Enabled', type: 'boolean', initialValue: false }),
+                defineField({ name: 'text', title: 'Message', type: 'string', description: 'Short announcement text.' }),
+                defineField({ name: 'link', title: 'Link', type: 'link' }),
+                defineField({ name: 'closable', title: 'Allow Dismiss', type: 'boolean', initialValue: true, description: 'Let visitors close the bar.' }),
+            ],
         }),
 
         // ── Branding ─────────────────────────────────────────
@@ -85,9 +120,9 @@ export default defineType({
 
         // ── Navigation ───────────────────────────────────────
         defineField({
-            name: 'nav',
-            title: 'Header Menu',
-            description: 'Links that appear in the top navigation bar. Drag to reorder.',
+            name: 'navigationItems',
+            title: 'Navigation Menu',
+            description: 'Define all site links here. Select where each link should appear.',
             type: 'array',
             group: 'navigation',
             of: [
@@ -95,17 +130,26 @@ export default defineType({
                     type: 'object',
                     title: 'Menu Link',
                     fields: [
-                        defineField({ name: 'label', type: 'string', title: 'Label', description: 'The text visitors see.', validation: (rule) => rule.required() }),
-                        defineField({ name: 'href', type: 'string', title: 'URL', description: 'Where this link goes (e.g. /about or https://...).', validation: (rule) => rule.required() }),
-                        defineField({ name: 'is_special', type: 'boolean', title: 'Highlight this link?', description: 'Makes the link stand out visually (e.g. bold / accent color).', initialValue: false }),
-                        defineField({ name: 'disabled', type: 'boolean', title: 'Disable this link?', description: 'Keeps the link visible but not clickable (e.g. "Coming Soon").', initialValue: false }),
+                        defineField({ name: 'link', type: 'link', title: 'Link Target', validation: (rule) => rule.required() }),
+                        defineField({ name: 'showInHeader', type: 'boolean', title: 'Show in Header', initialValue: true }),
+                        defineField({ name: 'showInFooter', type: 'boolean', title: 'Show in Footer', initialValue: true }),
+                        defineField({ name: 'is_special', type: 'boolean', title: 'Highlight this link?', description: 'Makes it stand out visually.', initialValue: false }),
+                        defineField({ name: 'disabled', type: 'boolean', title: 'Disable this link?', description: 'Visible but not clickable.', initialValue: false }),
                     ],
                     preview: {
-                        select: { title: 'label', subtitle: 'href', disabled: 'disabled' },
-                        prepare({ title, subtitle, disabled }) {
+                        select: {
+                            label: 'link.label',
+                            type: 'link.type',
+                            url: 'link.url',
+                            internal: 'link.internalRef.slug.current',
+                            header: 'showInHeader',
+                            footer: 'showInFooter',
+                        },
+                        prepare({ label, type, url, internal, header, footer }) {
+                            const locations = [header && 'Header', footer && 'Footer'].filter(Boolean).join(' + ')
                             return {
-                                title: title || 'Untitled Link',
-                                subtitle: disabled ? `${subtitle} (disabled)` : subtitle,
+                                title: label || 'Untitled Link',
+                                subtitle: `${locations || 'Hidden'} — ${type === 'internal' ? `/${internal || ''}` : url || 'No URL'}`,
                             }
                         },
                     },
@@ -119,34 +163,22 @@ export default defineType({
             group: 'navigation',
             fields: [
                 defineField({
+                    name: 'businessName',
+                    title: 'Business Name',
+                    type: 'string',
+                    description: 'Displayed in the footer for compliance.',
+                }),
+                defineField({
+                    name: 'contactEmail',
+                    title: 'Contact Email',
+                    type: 'string',
+                    description: 'Visible contact email for customers.',
+                }),
+                defineField({
                     name: 'copyright',
                     title: 'Copyright Text',
                     type: 'string',
                     description: 'Text at the bottom of every page (e.g. "© 2026 amii").',
-                }),
-                defineField({
-                    name: 'links',
-                    title: 'Footer Menu',
-                    description: 'Links below the logo in the footer. Drag to reorder.',
-                    type: 'array',
-                    of: [
-                        {
-                            type: 'object',
-                            title: 'Footer Link',
-                            fields: [
-                                defineField({ name: 'label', type: 'string', title: 'Label', validation: (rule) => rule.required() }),
-                                defineField({ name: 'href', type: 'string', title: 'URL', validation: (rule) => rule.required() }),
-                                defineField({ name: 'is_special', type: 'boolean', title: 'Highlight this link?', initialValue: false }),
-                                defineField({ name: 'disabled', type: 'boolean', title: 'Disable this link?', initialValue: false }),
-                            ],
-                            preview: {
-                                select: { title: 'label', subtitle: 'href' },
-                                prepare({ title, subtitle }) {
-                                    return { title: title || 'Untitled Link', subtitle }
-                                },
-                            },
-                        },
-                    ],
                 }),
             ],
         }),

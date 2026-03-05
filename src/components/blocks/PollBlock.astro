@@ -1,0 +1,280 @@
+---
+/**
+ * PollBlock — Displays a poll with voting, localStorage prevention, and results.
+ */
+
+interface PollData {
+    question: string;
+    slug?: { current: string };
+    options?: string[];
+    voteCounts?: number[];
+    status?: string;
+}
+
+interface Props {
+    poll?: PollData;
+}
+
+const { poll } = Astro.props;
+
+if (!poll || !poll.options || poll.options.length === 0) return null;
+
+const pollSlug = poll.slug?.current || "";
+const initialCounts = poll.voteCounts || new Array(poll.options.length).fill(0);
+const initialTotal = initialCounts.reduce((a: number, b: number) => a + b, 0);
+---
+
+<section
+    class="poll-block"
+    aria-label={`Poll: ${poll.question}`}
+    data-poll-slug={pollSlug}
+>
+    <div class="poll-block__inner">
+        <h2 class="poll-block__question">{poll.question}</h2>
+
+        <div class="poll-block__options" role="group" aria-label="Poll options">
+            {
+                poll.options.map((option, i) => {
+                    const pct =
+                        initialTotal > 0
+                            ? Math.round(
+                                  (initialCounts[i] / initialTotal) * 100,
+                              )
+                            : 0;
+                    return (
+                        <button
+                            class="poll-option"
+                            data-option-index={i}
+                            type="button"
+                        >
+                            <span class="poll-option__label">{option}</span>
+                            <span
+                                class="poll-option__bar"
+                                style={`width: 0%`}
+                            />
+                            <span class="poll-option__pct">{pct}%</span>
+                        </button>
+                    );
+                })
+            }
+        </div>
+
+        <p class="poll-block__total" data-total>
+            {initialTotal}
+            {initialTotal === 1 ? "vote" : "votes"}
+        </p>
+
+        {
+            poll.status === "closed" && (
+                <p class="poll-block__closed">This poll is closed.</p>
+            )
+        }
+
+        <p class="poll-block__status" data-vote-status aria-live="polite"></p>
+    </div>
+</section>
+
+<script>
+    const pollSection = document.querySelector(".poll-block") as HTMLElement;
+    if (pollSection) {
+        const pollSlug = pollSection.dataset.pollSlug || "";
+        const lsKey = `poll_voted_${pollSlug}`;
+        const buttons =
+            pollSection.querySelectorAll<HTMLButtonElement>(".poll-option");
+        const totalEl = pollSection.querySelector(
+            "[data-total]",
+        ) as HTMLElement;
+        const statusEl = pollSection.querySelector(
+            "[data-vote-status]",
+        ) as HTMLElement;
+
+        // Check if already voted
+        const alreadyVoted = localStorage.getItem(lsKey);
+
+        if (alreadyVoted !== null) {
+            // Show results immediately if already voted
+            showResults(JSON.parse(alreadyVoted));
+        }
+
+        buttons.forEach((btn) => {
+            btn.addEventListener("click", async () => {
+                if (alreadyVoted !== null) return; // Already voted
+
+                const idx = parseInt(btn.dataset.optionIndex || "0", 10);
+
+                // Disable all buttons
+                buttons.forEach((b) => {
+                    b.disabled = true;
+                    b.classList.add("poll-option--disabled");
+                });
+
+                if (statusEl) statusEl.textContent = "Submitting vote...";
+
+                try {
+                    const res = await fetch("/api/poll-vote", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ pollSlug, optionIndex: idx }),
+                    });
+
+                    const result = await res.json();
+
+                    if (res.ok) {
+                        // Store in localStorage to prevent re-voting
+                        const voteData = {
+                            voteCounts: result.voteCounts,
+                            totalVotes: result.totalVotes,
+                            selected: idx,
+                        };
+                        localStorage.setItem(lsKey, JSON.stringify(voteData));
+
+                        showResults(voteData);
+                        if (statusEl)
+                            statusEl.textContent = "✅ Vote recorded!";
+                    } else {
+                        if (statusEl)
+                            statusEl.textContent =
+                                result.message || "Vote failed.";
+                        buttons.forEach((b) => {
+                            b.disabled = false;
+                            b.classList.remove("poll-option--disabled");
+                        });
+                    }
+                } catch {
+                    if (statusEl)
+                        statusEl.textContent = "Network error. Try again.";
+                    buttons.forEach((b) => {
+                        b.disabled = false;
+                        b.classList.remove("poll-option--disabled");
+                    });
+                }
+            });
+        });
+
+        function showResults(data: {
+            voteCounts: number[];
+            totalVotes: number;
+            selected: number;
+        }) {
+            const { voteCounts, totalVotes, selected } = data;
+
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                btn.classList.add("poll-option--voted");
+
+                const pct =
+                    totalVotes > 0
+                        ? Math.round((voteCounts[i] / totalVotes) * 100)
+                        : 0;
+                const bar = btn.querySelector(
+                    ".poll-option__bar",
+                ) as HTMLElement;
+                const pctLabel = btn.querySelector(
+                    ".poll-option__pct",
+                ) as HTMLElement;
+
+                if (bar) bar.style.width = `${pct}%`;
+                if (pctLabel) pctLabel.textContent = `${pct}%`;
+
+                if (i === selected) {
+                    btn.classList.add("poll-option--selected");
+                }
+            });
+
+            if (totalEl) {
+                totalEl.textContent = `${totalVotes} ${totalVotes === 1 ? "vote" : "votes"}`;
+            }
+        }
+    }
+</script>
+
+<style>
+    .poll-block {
+        padding: clamp(2rem, 5vw, 3rem) 0;
+        text-align: center;
+    }
+    .poll-block__inner {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .poll-block__question {
+        font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    .poll-block__options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .poll-option {
+        position: relative;
+        padding: 0.85rem 1.25rem;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        background: transparent;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+            border-color 0.2s,
+            background 0.2s;
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        overflow: hidden;
+    }
+    .poll-option__label {
+        position: relative;
+        z-index: 1;
+    }
+    .poll-option__bar {
+        position: absolute;
+        inset: 0;
+        background: rgba(228, 69, 152, 0.12);
+        width: 0%;
+        transition: width 0.6s ease;
+        border-radius: 0.5rem;
+    }
+    .poll-option__pct {
+        position: relative;
+        z-index: 1;
+        font-weight: 600;
+        font-size: 0.9rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .poll-option:hover:not(:disabled) {
+        border-color: var(--color-accent);
+        background: rgba(228, 69, 152, 0.05);
+    }
+    .poll-option--voted .poll-option__pct {
+        opacity: 1;
+    }
+    .poll-option--selected {
+        border-color: var(--color-accent);
+        background: rgba(228, 69, 152, 0.08);
+    }
+    .poll-option--disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    .poll-block__total {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        opacity: 0.6;
+    }
+    .poll-block__closed {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        opacity: 0.6;
+        font-weight: 600;
+    }
+    .poll-block__status {
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        min-height: 1.4em;
+    }
+</style>

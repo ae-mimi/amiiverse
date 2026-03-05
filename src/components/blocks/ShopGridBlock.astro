@@ -1,46 +1,300 @@
 ---
-import { getSanityContent, urlFor } from "../../utils/sanity";
-import ShopCard from "../ui/ShopCard.astro";
+import ProductCard from "../shop/ProductCard.astro";
 
-const { title, limit } = Astro.props;
+interface ShopProduct {
+    id: string;
+    slug: string;
+    title: string;
+    price_ngn: number;
+    product_type: "physical" | "digital";
+    cover_image_url: string;
+    is_active: number;
+}
 
-// Fetch shop items from Sanity
-const shopItems = await getSanityContent(`*[_type == "shop"]`);
-const items = shopItems || [];
+let initialItems: ShopProduct[] = [];
 
-// Sort or filter if needed (Sanity order() in query is better, but simple array slice works for limit)
-const displayedItems = limit ? items.slice(0, limit) : items;
+try {
+    const apiUrl = new URL("/api/shop/products", Astro.url);
+    apiUrl.searchParams.set("sort", "newest");
+
+    const response = await fetch(apiUrl.toString());
+    if (response.ok) {
+        const data = (await response.json()) as { products?: ShopProduct[] };
+        initialItems = Array.isArray(data.products) ? data.products : [];
+    }
+} catch (error) {
+    console.error("[ShopGridBlock] Failed to load initial products", error);
+}
 ---
 
-<section class="shop-grid-block">
-    <div class="container">
-        {title && <h2 class="section-title">{title}</h2>}
-        <div class="grid">
-            {
-                displayedItems.map((item: any) => (
-                    <ShopCard
-                        url={item.url}
-                        title={item.title}
-                        price={item.price}
-                        image={urlFor(item.image)}
-                    />
-                ))
-            }
+<section class="shopSection">
+    <h1 class="shopHeading">Shop</h1>
+
+    <div class="shopTopBar" style="margin-bottom: 2rem;">
+        <div class="shopSearchWrap">
+            <label class="srOnly" for="shop-search">Search products</label>
+            <input
+                id="shop-search"
+                class="shopSearchInput input-shape-pill"
+                type="search"
+                placeholder="Search"
+            />
+        </div>
+
+        <div class="shopSortWrap">
+            <label class="srOnly" for="shop-sort">Sort products</label>
+            <select id="shop-sort" class="shopSortSelect input-shape-pill">
+                <option value="newest">Newest</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+            </select>
         </div>
     </div>
-</section>
 
-<style>
-    .shop-grid-block {
-        height: auto; /* Ensure it fits content */
-        padding-block: var(--space-lg);
-        background-color: var(--bg-page);
+    <div
+        class="shopChipsRow"
+        role="tablist"
+        aria-label="Shop filters"
+        style="margin-bottom: 2rem;"
+    >
+        <button class="chip isActive" data-filter="all">All</button>
+        <button class="chip" data-filter="physical">Physical</button>
+        <button class="chip" data-filter="digital">Digital</button>
+    </div>
+
+    {
+        initialItems.length > 0 ? (
+            <div class="row" data-grid>
+                {
+                    initialItems.map((item) => (
+                        <div
+                            class="col-12 col-md-6 col-lg-4 mb-4"
+                            data-grid-item
+                            data-type={item.product_type}
+                            data-price={item.price_ngn}
+                        >
+                            <ProductCard
+                                url={`/shop/${item.slug}`}
+                                title={item.title}
+                                price={item.price_ngn}
+                                image={item.cover_image_url}
+                                productId={item.id}
+                                productType={item.product_type}
+                            />
+                        </div>
+                    ))
+                }
+            </div>
+        ) : (
+            <div class="row" data-grid></div>
+        )
     }
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-        gap: clamp(30px, 3vw, 60px); /* Fluid gap */
-        justify-items: center;
+    <p class="shopEmptyState" data-empty hidden>
+        No products match your search.
+    </p>
+</section>
+
+<script>
+    interface ShopProduct {
+        id: string;
+        slug: string;
+        title: string;
+        price_ngn: number;
+        product_type: "physical" | "digital";
+        cover_image_url: string;
+        is_active: number;
+    }
+
+    function initShop() {
+        const searchInput = document.getElementById(
+            "shop-search",
+        ) as HTMLInputElement | null;
+        const sortSelect = document.getElementById(
+            "shop-sort",
+        ) as HTMLSelectElement | null;
+        const chips = document.querySelectorAll(".chip");
+        const grid = document.querySelector("[data-grid]") as HTMLElement | null;
+        const emptyState = document.querySelector(
+            "[data-empty]",
+        ) as HTMLElement | null;
+
+        if (!grid || !emptyState) return;
+
+        let currentFilter = "all";
+        let searchQuery = "";
+        let currentSort = "newest";
+        let searchDebounceTimer: number | null = null;
+
+        function escapeHtml(value: string): string {
+            return value
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function formatPrice(price: number): string {
+            return `₦${price.toLocaleString()}`;
+        }
+
+        function getTypeBadge(type: string): string {
+            return type === "digital" ? "Digital Asset" : "Physical Product";
+        }
+
+        function setEmptyState(hasItems: boolean) {
+            if (!emptyState) return;
+            emptyState.hidden = hasItems;
+            emptyState.style.display = hasItems ? "none" : "block";
+        }
+
+        function renderProducts(items: ShopProduct[]) {
+            if (!items.length) {
+                if (grid) grid.innerHTML = "";
+                setEmptyState(false);
+                return;
+            }
+
+            if (!grid) return;
+            grid.innerHTML = items
+                .map((item) => {
+                    const title = escapeHtml(String(item.title || "Untitled Product"));
+                    const slug = encodeURIComponent(String(item.slug || ""));
+                    const image = escapeHtml(String(item.cover_image_url || ""));
+                    const productType =
+                        item.product_type === "digital" ? "digital" : "physical";
+                    const price = Number(item.price_ngn || 0);
+                    const productId = escapeHtml(String(item.id || ""));
+                    const typeBadge = getTypeBadge(productType);
+
+                    return `
+                        <div class="col-12 col-md-6 col-lg-4 mb-4" data-grid-item data-type="${productType}" data-price="${price}">
+                            <div class="card card-product card-plain" data-title="${title}" data-price="${price}">
+                                <div class="card-header">
+                                    <a href="/shop/${slug}" class="d-block">
+                                        ${image ? `<img src="${image}" alt="${title}" class="img-fluid border-radius-lg" loading="lazy" />` : `<div class="shopCardImagePlaceholder" style="background: #eee; aspect-ratio: 1/1; border-radius: 12px;"></div>`}
+                                    </a>
+                                </div>
+                                <div class="card-body pb-0">
+                                    <p class="text-sm mb-1 text-secondary">${typeBadge}</p>
+                                    <a href="/shop/${slug}" style="text-decoration: none;">
+                                        <h5 class="font-weight-bold">${title}</h5>
+                                    </a>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <p class="mb-0 text-sm font-weight-bold">${formatPrice(price)}</p>
+                                    </div>
+                                    <div class="shopCardActions d-flex gap-2 mb-3">
+                                        <button
+                                            class="btn btn-dark w-100"
+                                            data-quickbuy
+                                            data-product-id="${productId}"
+                                            data-title="${title}"
+                                            data-price="${price}"
+                                            data-image="${image}"
+                                            data-type="${productType}"
+                                        >
+                                            Quick Buy
+                                        </button>
+                                        <a href="/shop/${slug}" class="btn btn-outline-dark">View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join("");
+
+            setEmptyState(true);
+        }
+
+        async function loadProducts() {
+            try {
+                const params = new URLSearchParams();
+                if (currentFilter === "physical" || currentFilter === "digital") {
+                    params.set("type", currentFilter);
+                }
+                if (searchQuery.trim()) {
+                    params.set("query", searchQuery.trim());
+                }
+                params.set("sort", currentSort);
+
+                const url = `/api/shop/products?${params.toString()}`;
+                const response = await fetch(url, { method: "GET" });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = (await response.json()) as {
+                    products?: ShopProduct[];
+                };
+                renderProducts(Array.isArray(data.products) ? data.products : []);
+            } catch (error) {
+                console.error("[shop-grid] failed to load products", error);
+                renderProducts([]);
+            }
+        }
+
+        if (grid) {
+            grid.addEventListener("click", (e) => {
+                const target = e.target as HTMLElement;
+                const button = target?.closest("[data-quickbuy]") as
+                    | HTMLButtonElement
+                    | null;
+                if (!button) return;
+
+                const { productId, title, price, image, type } = button.dataset;
+                window.dispatchEvent(
+                    new CustomEvent("open-checkout", {
+                        detail: {
+                            productId,
+                            title,
+                            price: parseFloat(price || "0"),
+                            image,
+                            productType: type,
+                            quantity: 1,
+                        },
+                    }),
+                );
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                searchQuery = (e.target as HTMLInputElement).value;
+                if (searchDebounceTimer) {
+                    window.clearTimeout(searchDebounceTimer);
+                }
+                searchDebounceTimer = window.setTimeout(() => {
+                    loadProducts();
+                }, 300);
+            });
+        }
+
+        if (sortSelect) {
+            sortSelect.addEventListener("change", (e) => {
+                currentSort = (e.target as HTMLSelectElement).value || "newest";
+                loadProducts();
+            });
+        }
+
+        chips.forEach((chip) => {
+            chip.addEventListener("click", () => {
+                chips.forEach((c) => c.classList.remove("isActive"));
+                chip.classList.add("isActive");
+
+                currentFilter = (chip as HTMLElement).dataset.filter || "all";
+                loadProducts();
+            });
+        });
+    }
+
+    initShop();
+    document.addEventListener("astro:page-load", initShop);
+</script>
+
+<style>
+    .shopPage {
+        width: 100%;
     }
 </style>

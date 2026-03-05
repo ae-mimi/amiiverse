@@ -1,0 +1,75 @@
+---
+/**
+ * MediaTextBlock — Image + text side-by-side with configurable layout.
+ */
+import { urlFor } from "../../lib/sanity/image";
+
+interface Props {
+    heading?: string;
+    content?: string;
+    image?: any;
+    layout?: "imageLeft" | "imageRight";
+}
+
+const { heading, content, image, layout = "imageLeft" } = Astro.props;
+---
+
+<section
+    class={`media-text media-text--${layout}`}
+    aria-label={heading || "Media and text"}
+>
+    <div class="media-text__inner">
+        {
+            image && (
+                <div class="media-text__media">
+                    <img
+                        src={urlFor(image)}
+                        alt={heading || ""}
+                        loading="lazy"
+                    />
+                </div>
+            )
+        }
+        <div class="media-text__content">
+            {heading && <h2 class="media-text__heading">{heading}</h2>}
+            {content && <p class="media-text__body">{content}</p>}
+        </div>
+    </div>
+</section>
+
+<style>
+    .media-text {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .media-text__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        align-items: center;
+    }
+    @media (min-width: 768px) {
+        .media-text__inner {
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .media-text--imageRight .media-text__media {
+            order: 2;
+        }
+    }
+    .media-text__media img {
+        width: 100%;
+        border-radius: 0.75rem;
+    }
+    .media-text__heading {
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+    }
+    .media-text__body {
+        line-height: 1.7;
+        opacity: 0.85;
+    }
+</style>

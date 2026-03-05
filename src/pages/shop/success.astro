@@ -1,0 +1,359 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+import { getCloudflareRuntimeEnv } from "../../lib/server/cloudflareRuntimeEnv";
+
+interface D1PreparedStatementLike {
+    bind: (...values: unknown[]) => D1PreparedStatementLike;
+    first: () => Promise<Record<string, unknown> | null>;
+    run: () => Promise<Record<string, unknown>>;
+}
+
+interface D1DatabaseLike {
+    prepare: (query: string) => D1PreparedStatementLike;
+}
+
+type ViewState = "paid" | "failed" | "error" | "no_reference";
+
+const reference = String(Astro.url.searchParams.get("reference") || "").trim();
+const runtimeEnv = getCloudflareRuntimeEnv({ locals: Astro.locals });
+const db = runtimeEnv.DB as D1DatabaseLike | undefined;
+
+let state: ViewState = "no_reference";
+let message = "";
+let orderEmail = "";
+let amountKobo = 0;
+let transactionId = "";
+
+function formatAmountKobo(kobo: number): string {
+    return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+    }).format(kobo / 100);
+}
+
+if (!reference) {
+    state = "no_reference";
+    message = "No payment reference was provided.";
+} else if (!db) {
+    state = "error";
+    message = "Server configuration error during payment verification.";
+} else {
+    try {
+        const orderRow = await db
+            .prepare(
+                `SELECT id, cart_id, email, amount_kobo, status
+                 FROM orders
+                 WHERE reference = ?
+                 LIMIT 1`,
+            )
+            .bind(reference)
+            .first();
+
+        if (!orderRow) {
+            state = "failed";
+            message = "Order reference was not found.";
+        } else {
+            const verifyResponse = await fetch(
+                `${new URL(Astro.request.url).origin}/api/checkout/verify?reference=${encodeURIComponent(reference)}`,
+            );
+
+            const verifyJson = await verifyResponse.json().catch(() => null);
+            const paymentSuccess =
+                verifyResponse.ok && String(verifyJson?.status || "") === "paid";
+
+            const nowIso = new Date().toISOString();
+            const cartId = String(orderRow.cart_id || "");
+            orderEmail = String(orderRow.email || verifyJson?.email || "");
+            amountKobo = Number(orderRow.amount_kobo || verifyJson?.amount || 0);
+            transactionId = String(verifyJson?.order?.transactionId ?? "").trim();
+
+            if (paymentSuccess) {
+                await db
+                    .prepare(
+                        `UPDATE orders
+                         SET status = 'paid',
+                             provider_transaction_id = CASE
+                                 WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
+                                 THEN ?
+                                 ELSE provider_transaction_id
+                             END,
+                             paystack_transaction_id = CASE
+                                 WHEN paystack_transaction_id IS NULL OR paystack_transaction_id = ''
+                                 THEN ?
+                                 ELSE paystack_transaction_id
+                             END,
+                             provider_raw_json = ?,
+                             paystack_raw_json = ?,
+                             updated_at = ?
+                         WHERE reference = ?`,
+                    )
+                    .bind(
+                        transactionId,
+                        transactionId,
+                        JSON.stringify(verifyJson),
+                        JSON.stringify(verifyJson),
+                        nowIso,
+                        reference,
+                    )
+                    .run();
+
+                if (cartId) {
+                    await db
+                        .prepare(
+                            `UPDATE carts
+                             SET status = 'checked_out', updated_at = ?
+                             WHERE id = ?`,
+                        )
+                        .bind(nowIso, cartId)
+                        .run();
+                }
+
+                state = "paid";
+                message = "Payment confirmed and order marked as paid.";
+            } else {
+                const currentStatus = String(orderRow.status || "pending");
+                if (currentStatus !== "paid") {
+                    await db
+                        .prepare(
+                            `UPDATE orders
+                             SET status = 'failed',
+                                 provider_raw_json = ?,
+                                 paystack_raw_json = ?,
+                                 updated_at = ?
+                             WHERE reference = ?`,
+                        )
+                        .bind(
+                            JSON.stringify(verifyJson ?? {}),
+                            JSON.stringify(verifyJson ?? {}),
+                            nowIso,
+                            reference,
+                        )
+                        .run();
+                }
+
+                state = "failed";
+                message =
+                    String(verifyJson?.message || "").trim() ||
+                    "Payment verification failed.";
+            }
+        }
+    } catch (error) {
+        console.error("[shop/success] verification error", error);
+        state = "error";
+        message = "Something went wrong while verifying your payment.";
+    }
+}
+---
+
+<BaseLayout title="Order Status">
+    <main class="success-page">
+        <div class="container py-xl text-center">
+            {
+                state === "paid" && (
+                    <section class="status-card success">
+                        <div class="icon-wrapper success">
+                            <Icon name="lucide:check-circle" class="status-icon" />
+                        </div>
+                        <h1 class="uppercase">Payment Successful</h1>
+                        <p class="status-message">
+                            Your payment has been confirmed.
+                        </p>
+
+                        <div class="order-summary mt-lg">
+                            <div class="detail-row">
+                                <span>Reference</span>
+                                <code class="ref-code">{reference}</code>
+                            </div>
+                            <div class="detail-row">
+                                <span>Email</span>
+                                <strong>{orderEmail || "N/A"}</strong>
+                            </div>
+                            <div class="detail-row">
+                                <span>Amount Paid</span>
+                                <strong>{formatAmountKobo(amountKobo)}</strong>
+                            </div>
+                            <div class="detail-row">
+                                <span>Transaction ID</span>
+                                <code class="ref-code">{transactionId || "N/A"}</code>
+                            </div>
+                        </div>
+
+                        <div class="actions-group mt-lg">
+                            <a href="/shop" class="btn-action secondary">Back to Shop</a>
+                        </div>
+                    </section>
+                )
+            }
+
+            {
+                state === "failed" && (
+                    <section class="status-card failed">
+                        <div class="icon-wrapper failed">
+                            <Icon name="lucide:x-circle" class="status-icon" />
+                        </div>
+                        <h1 class="uppercase">Payment Failed</h1>
+                        <p class="status-message">{message}</p>
+                        <p>
+                            Reference: <code class="ref-code">{reference}</code>
+                        </p>
+                        <div class="actions-group mt-lg">
+                            <a href="/shop" class="btn-action primary">Try Again</a>
+                        </div>
+                    </section>
+                )
+            }
+
+            {
+                state === "error" && (
+                    <section class="status-card error">
+                        <div class="icon-wrapper error">
+                            <Icon name="lucide:alert-triangle" class="status-icon" />
+                        </div>
+                        <h1 class="uppercase">Verification Error</h1>
+                        <p class="status-message">{message}</p>
+                        <p>
+                            Reference: <code class="ref-code">{reference || "N/A"}</code>
+                        </p>
+                        <div class="actions-group mt-lg">
+                            <a href="/shop" class="btn-action secondary">Go to Shop</a>
+                        </div>
+                    </section>
+                )
+            }
+
+            {
+                state === "no_reference" && (
+                    <section class="status-card">
+                        <h1 class="uppercase">Invalid Session</h1>
+                        <p class="status-message">{message}</p>
+                        <div class="actions-group mt-lg">
+                            <a href="/shop" class="btn-action secondary">Go to Shop</a>
+                        </div>
+                    </section>
+                )
+            }
+        </div>
+    </main>
+</BaseLayout>
+
+{
+    state === "paid" && (
+        <script>
+            window.localStorage.removeItem("cart_id");
+        </script>
+    )
+}
+
+<style>
+    .success-page {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        background-color: var(--bg-page);
+    }
+
+    .status-card {
+        background: rgba(255, 255, 255, 0.02);
+        padding: clamp(2rem, 5vw, 4rem);
+        border-radius: var(--radius-card);
+        max-width: 680px;
+        margin: 0 auto;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .icon-wrapper {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    .icon-wrapper.success {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+    .icon-wrapper.failed {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    .icon-wrapper.error {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+    .status-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    h1 {
+        font-size: 2rem;
+        letter-spacing: 0.08em;
+        margin-bottom: 1rem;
+        color: var(--color-primary);
+    }
+
+    .status-message {
+        font-size: 1rem;
+        opacity: 0.85;
+        max-width: 48ch;
+        margin: 0 auto 1.5rem;
+    }
+
+    .order-summary {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.5rem;
+        border-radius: 16px;
+        text-align: left;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.8rem;
+    }
+    .detail-row:last-child {
+        margin-bottom: 0;
+    }
+    .detail-row span {
+        opacity: 0.65;
+    }
+
+    .ref-code {
+        font-family: monospace;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 2px 6px;
+        border-radius: 4px;
+        word-break: break-all;
+    }
+
+    .actions-group {
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-action {
+        padding: 0.85rem 1.35rem;
+        border-radius: var(--radius-pill);
+        font-family: var(--font-heading);
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .btn-action.primary {
+        background: var(--color-primary);
+        color: var(--color-bg);
+    }
+    .btn-action.secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--color-text);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .py-xl {
+        padding-block: 6rem;
+    }
+</style>

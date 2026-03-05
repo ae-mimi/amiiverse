@@ -1,12 +1,12 @@
 ---
-import NewsletterForm from "../forms/NewsletterForm.astro";
+import NewsletterSignupBlock from "./NewsletterSignupBlock.astro";
 import PlayerWidget from "../ui/PlayerWidget.astro";
 
 const { widget_type } = Astro.props;
 ---
 
 <section class="widget-section container">
-    {widget_type === "newsletter" && <NewsletterForm />}
+    {widget_type === "newsletter" && <NewsletterSignupBlock />}
     {
         widget_type === "player" && (
             <PlayerWidget track={Astro.props.music_item} />

@@ -1,11 +1,86 @@
-import music from './music'
-import member from './member'
-import shop from './shop'
-import press from './press'
+// ── Reusable objects ────────────────────────────────────
+import seo from './objects/seo'
+import link from './objects/link'
+import platformLinks from './objects/platformLinks'
+import navItem from './objects/navItem'
+import navGroup from './objects/navGroup'
+import themeSettings from './objects/themeSettings'
+import { color, hslaColor, hsvaColor, rgbaColor } from '@sanity/color-input'
+
+// ── Legacy schemas (kept for build) ─────────────────────
+import linkStack from './linkStack'
+import profileHeader from './profileHeader'
+
+// ── Document schemas ────────────────────────────────────
 import page from './page'
 import settings from './settings'
-import profileHeader from './profileHeader'
-import linkStack from './linkStack'
-import theme from './theme'
+import member from './member'
+import release from './documents/release'
+import track from './documents/track'
+import video from './documents/video'
+import gallery from './documents/gallery'
+import event from './documents/event'
+import post from './documents/post'
+import downloadableAsset from './documents/downloadableAsset'
+import timelineItem from './documents/timelineItem'
+import fanSubmission from './documents/fanSubmission'
+import poll from './documents/poll'
+import campaign from './documents/campaign'
+import redirect from './documents/redirect'
+import pressMention from './documents/pressMention'
+import product from './shop/product'
+import order from './shop/order'
 
-export const schemaTypes = [music, member, shop, press, page, settings, profileHeader, linkStack, theme]
+export const schemaTypes = [
+    // Color input schema types (explicit registration)
+    color,
+    hslaColor,
+    hsvaColor,
+    rgbaColor,
+
+    // Objects (must come first — used by documents)
+    seo,
+    link,
+    platformLinks,
+    navItem,
+    navGroup,
+
+    // Settings & Pages
+    settings,
+    page,
+
+    // Music & Media
+    release,
+    track,
+    video,
+    gallery,
+
+    // People & Events
+    member,
+    event,
+
+    // Press & Downloads
+    pressMention,
+    downloadableAsset,
+
+    // Community & Engagement
+    post,
+    fanSubmission,
+    poll,
+
+    // Campaigns & Admin
+    campaign,
+    redirect,
+    timelineItem,
+
+    // Legacy (kept for backward-compat build)
+    linkStack,
+    profileHeader,
+
+    // New objects
+    themeSettings,
+
+    // Shop System
+    product,
+    order,
+]

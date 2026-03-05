@@ -3,17 +3,43 @@ import { Icon } from "astro-icon/components";
 
 import { fetchGlobalSettings } from "../../utils/global";
 const settings = await fetchGlobalSettings();
-const links = settings.nav || [];
+
+// Process header links from unified navigationItems
+const links = (settings.navigationItems || [])
+    .filter((item) => item.showInHeader)
+    .map((item) => {
+        const { link, is_special, disabled } = item;
+        let href = "#";
+        if (link?.type === "internal")
+            href = `/${link.internalRef?.slug || ""}`;
+        else if (link?.type === "external") href = link.url || "#";
+        else if (link?.type === "email") href = `mailto:${link.url || ""}`;
+
+        return {
+            label: link?.label || "Untitled",
+            href,
+            is_special,
+            disabled,
+        };
+    });
 
 import Navigation from "../ui/Navigation.astro";
-import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
 ---
 
 <header class="site-header">
     <div class="header-inner">
         <!-- Left: Logo -->
         <a href="/" class="logo-link" aria-label="amii Home">
-            <ThemeAwareLogo className="header-logo" />
+            {
+                settings.site_info?.logo_navy && (
+                    <img
+                        src={settings.site_info.logo_navy || ""}
+                        alt="amii Logo"
+                        class="header-logo"
+                        loading="eager"
+                    />
+                )
+            }
         </a>
     </div>
 
@@ -53,7 +79,7 @@ import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
 </header>
 
 <!-- Mobile Navigation Overlay -->
-<div id="mobile-menu-overlay">
+<div id="mobile-menu-overlay" aria-hidden="true" inert>
     <!-- Close Button Removed (Reused Toggle) -->
 
     <Navigation
@@ -210,7 +236,7 @@ import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
             height: auto;
             min-height: 54px;
             padding: 16px 8px;
-            background-color: var(--color-yellow-500);
+            background-color: var(--color-bg); /* was yellow-500 */
             border-bottom: none;
         }
 
@@ -229,7 +255,7 @@ import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
             border: none;
             cursor: pointer;
             padding: 0;
-            color: var(--color-navy-500);
+            color: var(--color-primary); /* was navy-500 */
         }
     }
 
@@ -240,7 +266,7 @@ import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: var(--color-yellow-500);
+        background-color: var(--color-bg); /* was yellow-500 */
         opacity: 0;
         pointer-events: none;
         display: none;
@@ -263,7 +289,7 @@ import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
         align-items: center;
         width: 33px;
         height: 33px;
-        color: var(--color-navy-500);
+        color: var(--color-primary); /* was navy-500 */
         transition: transform 0.2s;
     }
 
@@ -330,15 +356,21 @@ import ThemeAwareLogo from "../ui/ThemeAwareLogo.astro";
         // Toggle Logic
         menuToggle.addEventListener("click", () => {
             if (!isMenuOpen) {
+                mobileMenu.removeAttribute("inert");
+                mobileMenu.setAttribute("aria-hidden", "false");
                 tl.play();
                 document.body.style.overflow = "hidden"; // Prevent scrolling
                 isMenuOpen = true;
                 menuToggle.setAttribute("aria-label", "Close Menu");
+                menuToggle.setAttribute("aria-expanded", "true");
             } else {
                 tl.reverse();
                 document.body.style.overflow = ""; // Restore scrolling
                 isMenuOpen = false;
                 menuToggle.setAttribute("aria-label", "Open Menu");
+                menuToggle.setAttribute("aria-expanded", "false");
+                mobileMenu.setAttribute("aria-hidden", "true");
+                mobileMenu.setAttribute("inert", "");
             }
         });
     }

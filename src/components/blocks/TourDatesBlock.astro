@@ -1,0 +1,189 @@
+---
+/**
+ * TourDatesBlock — Shows upcoming events from the events library.
+ */
+import { fetchSanity } from "../../lib/sanity/client";
+import {
+    UPCOMING_EVENTS_QUERY,
+    ALL_EVENTS_QUERY,
+} from "../../lib/sanity/queries";
+import { formatDateTime } from "../../lib/utils/format";
+import type { EventDoc } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    upcomingOnly?: boolean;
+    showFilters?: boolean;
+}
+
+const {
+    title = "Tour Dates",
+    upcomingOnly = true,
+    showFilters = false,
+} = Astro.props;
+const query = upcomingOnly ? UPCOMING_EVENTS_QUERY : ALL_EVENTS_QUERY;
+const events = (await fetchSanity<EventDoc[]>(query)) || [];
+
+const statusConfig: Record<string, { label: string; class: string }> = {
+    announced: { label: "Announced", class: "status--announced" },
+    onSale: { label: "On Sale", class: "status--onsale" },
+    soldOut: { label: "Sold Out", class: "status--soldout" },
+    cancelled: { label: "Cancelled", class: "status--cancelled" },
+    postponed: { label: "Postponed", class: "status--postponed" },
+};
+---
+
+<section class="tour-dates" aria-label={title}>
+    <div class="tour-dates__inner">
+        <h2 class="tour-dates__title">{title}</h2>
+
+        {
+            events.length === 0 ? (
+                <p class="tour-dates__empty">
+                    No upcoming events — check back soon!
+                </p>
+            ) : (
+                <div class="tour-dates__list" role="list">
+                    {events.map((evt) => {
+                        const status =
+                            statusConfig[evt.status || "announced"] ||
+                            statusConfig.announced;
+                        return (
+                            <div class="event-row" role="listitem">
+                                <div class="event-row__date">
+                                    <time datetime={evt.startDateTime}>
+                                        {formatDateTime(evt.startDateTime)}
+                                    </time>
+                                </div>
+                                <div class="event-row__info">
+                                    <h3 class="event-row__name">{evt.title}</h3>
+                                    <p class="event-row__venue">
+                                        {evt.venueName}
+                                        {evt.city ? ` — ${evt.city}` : ""}
+                                        {evt.country ? `, ${evt.country}` : ""}
+                                    </p>
+                                </div>
+                                <div class="event-row__actions">
+                                    <span
+                                        class={`event-status ${status.class}`}
+                                    >
+                                        {status.label}
+                                    </span>
+                                    {evt.ticketUrl &&
+                                        evt.status !== "cancelled" && (
+                                            <a
+                                                href={evt.ticketUrl}
+                                                class="event-row__ticket"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                aria-label={`Get tickets for ${evt.title}`}
+                                            >
+                                                Tickets
+                                            </a>
+                                        )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .tour-dates {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+    .tour-dates__inner {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .tour-dates__title {
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .tour-dates__empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: 3rem 0;
+    }
+    .event-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        align-items: center;
+        padding: 1.25rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    @media (max-width: 600px) {
+        .event-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+    }
+    .event-row__date {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        white-space: nowrap;
+    }
+    .event-row__name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .event-row__venue {
+        font-size: 0.85rem;
+        opacity: 0.6;
+        margin: 0.15rem 0 0;
+    }
+    .event-row__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .event-status {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-weight: 600;
+    }
+    .status--announced {
+        background: #eee;
+        color: #555;
+    }
+    .status--onsale {
+        background: #d4edda;
+        color: #155724;
+    }
+    .status--soldout {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    .status--cancelled {
+        background: #333;
+        color: #fff;
+    }
+    .status--postponed {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .event-row__ticket {
+        padding: 0.4rem 1rem;
+        background: var(--color-accent);
+        color: #fff;
+        border-radius: 0.4rem;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: opacity 0.2s;
+    }
+    .event-row__ticket:hover {
+        opacity: 0.85;
+    }
+</style>

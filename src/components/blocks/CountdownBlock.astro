@@ -94,10 +94,10 @@ const isAlreadyPast = targetMs <= Date.now();
     }
 
     .countdown-label {
-        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-family: var(--font-heading, sans-serif);
         font-size: clamp(1.5rem, 3vw, 2.5rem);
         margin-bottom: var(--space-md);
-        color: var(--color-text, #15499d);
+        color: var(--color-text);
     }
 
     .countdown-digits {
@@ -114,11 +114,11 @@ const isAlreadyPast = targetMs <= Date.now();
     }
 
     .digit {
-        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-family: var(--font-heading, sans-serif);
         font-size: clamp(2.5rem, 6vw, 5rem);
         font-weight: 800;
         line-height: 1;
-        color: var(--color-text, #15499d);
+        color: var(--color-text);
         min-width: 2ch;
     }
 
@@ -128,7 +128,7 @@ const isAlreadyPast = targetMs <= Date.now();
         letter-spacing: 0.1em;
         opacity: 0.5;
         margin-top: 4px;
-        color: var(--color-text, #15499d);
+        color: var(--color-text);
     }
 
     .countdown-sep {
@@ -136,13 +136,13 @@ const isAlreadyPast = targetMs <= Date.now();
         font-weight: 300;
         opacity: 0.3;
         align-self: flex-start;
-        color: var(--color-text, #15499d);
+        color: var(--color-text);
     }
 
     .countdown-finished {
-        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-family: var(--font-heading, sans-serif);
         font-size: clamp(2rem, 5vw, 4rem);
-        color: var(--color-text, #15499d);
+        color: var(--color-text);
         animation: pulse 2s ease-in-out infinite;
     }
 

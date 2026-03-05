@@ -1,11 +1,10 @@
 ---
-import { getSanityContent } from "../../utils/sanity";
+import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
+import { ALL_PRESS_QUERY } from "../../lib/sanity/queries";
 import PressItem from "../ui/PressItem.astro";
 
 const { title } = Astro.props;
-const pressItems = await getSanityContent(
-    `*[_type == "press"] | order(date desc)`,
-);
+const pressItems = await getSanityContent(ALL_PRESS_QUERY);
 const sortedPress = pressItems || [];
 ---
 

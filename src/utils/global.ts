@@ -1,12 +1,16 @@
 import settings from "../data/settings.json";
-import { getSanityContent, SETTINGS_QUERY } from "./sanity";
+import { fetchSanity as getSanityContent } from "../lib/sanity/client";
+import {
+    ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY,
+    SETTINGS_QUERY,
+} from "../lib/sanity/queries";
 
 export interface SiteSettings {
     site_info: {
         title: string;
         description: string;
-        logo_navy: string;
-        logo_yellow: string;
+        logo_navy?: string;
+        logo_yellow?: string;
     };
     title?: string;
     description?: string;
@@ -14,6 +18,11 @@ export interface SiteSettings {
     logo_yellow?: string;
     enable_follow_link?: boolean;
     keywords?: string[];
+    seo?: {
+        og_image?: string;
+        meta_title?: string;
+        meta_description?: string;
+    };
     favicons?: {
         ico?: string;
         svg?: string;
@@ -22,20 +31,24 @@ export interface SiteSettings {
         manifest192?: string;
         manifest512?: string;
     };
-    nav: {
-        label: string;
-        href: string;
+    navigationItems: {
+        showInHeader: boolean;
+        showInFooter: boolean;
         is_special?: boolean;
         disabled?: boolean;
+        link: {
+            label?: string;
+            type: 'internal' | 'external' | 'download' | 'email' | 'phone';
+            url?: string;
+            internalRef?: {
+                slug: string;
+            };
+        };
     }[];
     footer: {
+        businessName?: string;
+        contactEmail?: string;
         copyright: string;
-        links: {
-            label: string;
-            href: string;
-            is_special?: boolean;
-            disabled?: boolean;
-        }[];
     };
     socials: {
         platform: string;
@@ -50,6 +63,10 @@ export function getGlobalSettings(): SiteSettings {
 
 export async function fetchGlobalSettings(): Promise<SiteSettings> {
     const sanitySettings = await getSanityContent(SETTINGS_QUERY);
+    const campaignLogoOverride = await getSanityContent<{
+        logo_navy?: string;
+        logo_yellow?: string;
+    }>(ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY);
 
     if (sanitySettings) {
         // Merge sanity settings over default settings to ensure structure
@@ -59,12 +76,30 @@ export async function fetchGlobalSettings(): Promise<SiteSettings> {
 
         // We'll use a spread to override defaults with sanity data.
         // Note: Arrays like 'nav' and 'socials' will be replaced entirely, which is usually desired behavior for CMS.
-        return {
+        const merged = {
             ...settings,
             ...sanitySettings,
             site_info: { ...settings.site_info, ...sanitySettings.site_info },
             footer: { ...settings.footer, ...sanitySettings.footer },
         } as SiteSettings;
+
+        if (campaignLogoOverride?.logo_navy) {
+            merged.logo_navy = campaignLogoOverride.logo_navy;
+            merged.site_info = {
+                ...merged.site_info,
+                logo_navy: campaignLogoOverride.logo_navy,
+            };
+        }
+
+        if (campaignLogoOverride?.logo_yellow) {
+            merged.logo_yellow = campaignLogoOverride.logo_yellow;
+            merged.site_info = {
+                ...merged.site_info,
+                logo_yellow: campaignLogoOverride.logo_yellow,
+            };
+        }
+
+        return merged;
     }
 
     return settings as SiteSettings;

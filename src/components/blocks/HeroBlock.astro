@@ -1,5 +1,5 @@
 ---
-import { urlFor } from "../../utils/sanity";
+import { urlFor } from "../../lib/sanity/image";
 
 const {
     title,
@@ -66,7 +66,7 @@ const {
 
     .hero-title {
         font-size: clamp(3rem, 10vw, 8rem); /* Massive scaling for 4K */
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         text-transform: uppercase;
         line-height: 0.9;
         margin-bottom: 1rem;
@@ -77,7 +77,7 @@ const {
         width: 90%; /* Ensure it doesn't touch edges on small screens */
         margin-inline: auto;
         margin-bottom: 0.5rem;
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         font-size: clamp(1rem, 1.5vw, 1.5rem); /* Fluid subtitle */
         line-height: 1.5;
     }
@@ -91,7 +91,7 @@ const {
     }
 
     .btn-text-link {
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         font-weight: 900;
         text-transform: uppercase;
         text-decoration: underline;

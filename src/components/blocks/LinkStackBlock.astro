@@ -46,27 +46,27 @@ const { links = [] } = Astro.props;
         border-radius: 999px;
         text-decoration: none;
         font-weight: 900;
-        border: 3px solid var(--color-navy-500);
+        border: 3px solid var(--color-primary);
         transition:
             transform 0.2s,
             box-shadow 0.2s;
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         background: transparent;
     }
 
     .link-btn:hover {
         transform: scale(1.02);
-        box-shadow: 4px 4px 0 var(--color-navy-500);
+        box-shadow: 4px 4px 0 var(--color-primary);
     }
 
     .type-primary {
-        background-color: var(--color-navy-500);
-        color: var(--color-yellow-500);
+        background-color: var(--color-primary);
+        color: var(--color-secondary);
     }
 
     .type-secondary {
-        background-color: var(--color-navy-500);
-        border-color: var(--color-navy-500);
-        color: var(--color-yellow-500);
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-secondary);
     }
 </style>

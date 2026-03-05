@@ -1,63 +1,70 @@
 {
   "enable_follow_link": false,
   "site_info": {
-    "title": "amiiverse",
-    "description": "Welcome to the amiiverse.",
-    "logo_navy": "/assets/uploads/amii-logo_op-navy.webp",
-    "logo_yellow": "/assets/uploads/amii-logo_op-yellow.webp",
-    "favicon": "/favicon.svg"
+    "title": "amii",
+    "description": "Welcome to amii.",
+    "logo_navy": "",
+    "logo_yellow": ""
   },
-  "nav": [
+  "navigationItems": [
     {
-      "label": "HOME",
-      "href": "/"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/",
+        "label": "HOME"
+      }
     },
     {
-      "label": "MUSIC",
-      "href": "/music"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/music",
+        "label": "MUSIC"
+      }
     },
     {
-      "label": "ABOUT",
-      "href": "/about"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/about",
+        "label": "ABOUT"
+      }
     },
     {
-      "label": "PRESS",
-      "href": "/press"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/press",
+        "label": "PRESS"
+      }
     },
     {
-      "label": "CONTACT",
-      "href": "/contact"
+      "showInHeader": true,
+      "showInFooter": true,
+      "link": {
+        "type": "external",
+        "url": "/contact",
+        "label": "CONTACT"
+      }
+    },
+    {
+      "showInHeader": true,
+      "showInFooter": true,
+      "is_special": true,
+      "link": {
+        "type": "external",
+        "url": "/follow",
+        "label": "FOLLOW"
+      }
     }
   ],
   "footer": {
-    "copyright": "Copyright \u00A9 amii",
-    "links": [
-      {
-        "label": "HOME",
-        "href": "/"
-      },
-      {
-        "label": "MUSIC",
-        "href": "/music"
-      },
-      {
-        "label": "ABOUT",
-        "href": "/about"
-      },
-      {
-        "label": "PRESS",
-        "href": "/press"
-      },
-      {
-        "label": "CONTACT",
-        "href": "/contact"
-      },
-      {
-        "label": "FOLLOW",
-        "href": "/follow",
-        "is_special": true
-      }
-    ]
+    "copyright": "© {currentYear} amii<br/>Operated by MAPDY LTD"
   },
   "socials": [
     {

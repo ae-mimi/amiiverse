@@ -32,12 +32,15 @@ const enUS_inputs = defineLocaleResourceBundle({
     },
 })
 
+const sanityProjectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'pxn399gi'
+const sanityDataset = process.env.PUBLIC_SANITY_DATASET || 'production'
+
 export default defineConfig({
     name: 'default',
     title: 'Amiiverse CMS',
 
-    projectId: 'pxn399gi',
-    dataset: 'production',
+    projectId: sanityProjectId,
+    dataset: sanityDataset,
 
     plugins: [
         structureTool({

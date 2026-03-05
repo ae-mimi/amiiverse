@@ -1,0 +1,106 @@
+---
+/**
+ * ProductGallery Component
+ * Displays a main product image and a list of thumbnails.
+ */
+import { urlFor } from "../../lib/sanity/image";
+
+interface Props {
+    images: any[];
+    title: string;
+}
+
+const { images, title } = Astro.props;
+
+if (!images || images.length === 0) {
+    return null;
+}
+
+const mainImage = urlFor(images[0], (builder) =>
+    builder.width(800).height(800).fit("crop"),
+);
+---
+
+<div class="product-gallery-container w-100">
+    <!-- Main Image -->
+    <div class="main-image-wrap mb-4">
+        <img
+            id="pdp-main-image"
+            src={mainImage}
+            alt={title}
+            class="w-100 rounded-3 shadow-sm aspect-square object-cover"
+        />
+    </div>
+
+    <!-- Thumbnails Container -->
+    {
+        images.length > 1 && (
+            <div class="thumbnails-row row g-3">
+                {images.map((img, idx) => {
+                    const thumbUrl = urlFor(img, (builder) =>
+                        builder.width(200).height(200).fit("crop"),
+                    );
+                    const fullUrl = urlFor(img, (builder) =>
+                        builder.width(800).height(800).fit("crop"),
+                    );
+
+                    return (
+                        <div class="col-3">
+                            <img
+                                src={thumbUrl}
+                                alt={`${title} thumb ${idx + 1}`}
+                                class={`pdp-thumb w-100 rounded-2 shadow-xs cursor-pointer ${idx === 0 ? "active" : ""}`}
+                                data-full={fullUrl}
+                                loading="lazy"
+                            />
+                        </div>
+                    );
+                })}
+            </div>
+        )
+    }
+</div>
+
+<style>
+    .pdp-thumb {
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        border: 2px solid transparent;
+        transition:
+            border-color 0.2s,
+            opacity 0.2s;
+        cursor: pointer;
+    }
+    .pdp-thumb:hover {
+        opacity: 0.8;
+    }
+    .pdp-thumb.active {
+        border-color: var(--color-primary);
+    }
+    .aspect-square {
+        aspect-ratio: 1/1;
+    }
+    .object-cover {
+        object-fit: cover;
+    }
+</style>
+
+<script>
+    const mainImage = document.getElementById(
+        "pdp-main-image",
+    ) as HTMLImageElement;
+    const thumbnails = document.querySelectorAll(".pdp-thumb");
+
+    thumbnails.forEach((thumb) => {
+        thumb.addEventListener("click", () => {
+            const fullUrl = (thumb as HTMLElement).dataset.full;
+            if (fullUrl && mainImage) {
+                mainImage.src = fullUrl;
+
+                // Update active state
+                thumbnails.forEach((t) => t.classList.remove("active"));
+                thumb.classList.add("active");
+            }
+        });
+    });
+</script>

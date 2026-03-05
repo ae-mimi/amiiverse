@@ -2,7 +2,7 @@
 import { fetchGlobalSettings } from "../../utils/global";
 
 const settings = await fetchGlobalSettings();
-const siteUrl = Astro.site ? Astro.site.toString() : "https://amiiverse.com";
+const siteUrl = Astro.site ? Astro.site.toString() : "https://weareamii.com";
 
 // Structured Data for "MusicGroup" (Perfect for amii)
 const schema = {
@@ -10,15 +10,11 @@ const schema = {
     "@type": "MusicGroup",
     name: settings.title || "amii",
     url: siteUrl,
-    logo: settings.logo_navy
-        ? settings.logo_navy
-        : `${siteUrl}/favicon-96x96.png`,
-    image: [
-        `${siteUrl}/android-icon-192x192.png`,
-        `${siteUrl}/apple-touch-icon.png`,
-    ],
+    logo:
+        settings.site_info?.logo_navy || settings.site_info?.logo_yellow || "",
+    image: settings.seo?.og_image ? [settings.seo.og_image] : [],
     description:
-        settings.description ||
+        settings.site_info?.description ||
         "amii is a Nigerian girl group re-defining the sound of Afropop.",
     sameAs: settings.socials?.map((s: any) => s.url) || [],
     genre: ["Afropop", "Alté", "Nigerian Pop"],

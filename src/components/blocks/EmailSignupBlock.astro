@@ -1,0 +1,190 @@
+---
+/**
+ * EmailSignupBlock — Newsletter / mailing-list signup form.
+ * Supports Brevo or generic form action.
+ */
+interface Props {
+    title?: string;
+    subtitle?: string;
+    provider?: string;
+    formId?: string;
+    successMessage?: string;
+}
+
+const {
+    title = "Stay in the Loop",
+    subtitle,
+    provider,
+    formId,
+    successMessage = "You're in! 🎉",
+} = Astro.props;
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
+---
+
+<section class="email-signup" aria-label={title}>
+    <div class="email-signup__inner">
+        <h2 class="email-signup__title">{title}</h2>
+        {subtitle && <p class="email-signup__subtitle">{subtitle}</p>}
+
+        <form
+            class="email-signup__form"
+            data-provider={provider}
+            data-form-id={formId}
+            data-success={successMessage}
+        >
+            <div class="email-signup__field">
+                <input
+                    type="email"
+                    name="email"
+                    class="input-shape-rounded"
+                    placeholder="Your email address"
+                    required
+                    aria-label="Email address"
+                    autocomplete="email"
+                />
+                <button type="submit">Subscribe</button>
+            </div>
+            <label class="email-signup__consent">
+                <input type="checkbox" name="consent" required />
+                <span>I agree to receive email updates and can unsubscribe anytime.</span>
+            </label>
+            {
+                turnstileSiteKey && (
+                    <div
+                        class="cf-turnstile"
+                        data-sitekey={turnstileSiteKey}
+                        data-theme="light"
+                    ></div>
+                )
+            }
+            <p class="email-signup__status" aria-live="polite"></p>
+        </form>
+    </div>
+</section>
+
+{
+    turnstileSiteKey && (
+        <script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            async
+            defer
+        ></script>
+    )
+}
+
+<script>
+    const forms = document.querySelectorAll(".email-signup__form");
+    forms.forEach((form) => {
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formEl = event.currentTarget as HTMLFormElement;
+            const emailEl = formEl.querySelector(
+                'input[name="email"]',
+            ) as HTMLInputElement | null;
+            const consentEl = formEl.querySelector(
+                'input[name="consent"]',
+            ) as HTMLInputElement | null;
+            const turnstileEl = formEl.querySelector(
+                'input[name="cf-turnstile-response"]',
+            ) as HTMLInputElement | null;
+            const statusEl = formEl.querySelector(
+                ".email-signup__status",
+            ) as HTMLParagraphElement | null;
+            const button = formEl.querySelector("button") as HTMLButtonElement;
+
+            if (!emailEl || !consentEl || !statusEl || !button) return;
+
+            const data = new FormData();
+            data.append("email", emailEl.value);
+            data.append("consent", String(consentEl.checked));
+            if (turnstileEl?.value) {
+                data.append("turnstileToken", turnstileEl.value);
+            }
+
+            button.disabled = true;
+            statusEl.textContent = "Submitting...";
+            try {
+                const response = await fetch("/api/subscribe", {
+                    method: "POST",
+                    body: data,
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    statusEl.textContent =
+                        result.message || "Could not subscribe right now.";
+                    button.disabled = false;
+                    return;
+                }
+                statusEl.textContent =
+                    result.status === "duplicate"
+                        ? "You are already subscribed."
+                        : "Check your inbox to confirm your subscription.";
+                button.disabled = false;
+            } catch {
+                statusEl.textContent = "Network error. Please try again.";
+                button.disabled = false;
+            }
+        });
+    });
+</script>
+
+<style>
+    .email-signup {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+        text-align: center;
+    }
+    .email-signup__inner {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .email-signup__title {
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+    .email-signup__subtitle {
+        opacity: 0.7;
+        margin-bottom: 1.5rem;
+    }
+    .email-signup__field {
+        display: flex;
+        gap: 0.5rem;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+    .email-signup__field input {
+        flex: 1;
+        font-size: 1rem;
+        --field-padding-block: 0.75rem;
+        --field-padding-inline: 1rem;
+        --field-border-width: 2px;
+    }
+    .email-signup__field button {
+        padding: 0.75rem 1.5rem;
+        background: var(--color-accent);
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .email-signup__field button:hover {
+        opacity: 0.85;
+    }
+    .email-signup__status {
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        min-height: 1.2em;
+    }
+    .email-signup__consent {
+        margin-top: 0.75rem;
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        gap: 0.5rem;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+</style>

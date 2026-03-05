@@ -1,0 +1,58 @@
+---
+/**
+ * CreditsBlock — Displays credits from a referenced release.
+ */
+import type { CreditsBlockSection } from "../../lib/sanity/types";
+
+interface Props extends CreditsBlockSection {}
+
+const { release } = Astro.props;
+
+if (!release || !release.credits || release.credits.length === 0) return null;
+---
+
+<section class="credits-block" aria-label={`Credits for ${release.title}`}>
+    <div class="credits-block__inner">
+        <h2 class="credits-block__title">Credits — {release.title}</h2>
+        <dl class="credits-block__list">
+            {
+                release.credits.map((c) => (
+                    <>
+                        <dt>{c.role}</dt>
+                        <dd>{c.name}</dd>
+                    </>
+                ))
+            }
+        </dl>
+    </div>
+</section>
+
+<style>
+    .credits-block {
+        padding: clamp(2rem, 5vw, 3rem) 0;
+    }
+    .credits-block__inner {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    .credits-block__title {
+        font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .credits-block__list {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem 2rem;
+    }
+    .credits-block__list dt {
+        font-weight: 600;
+        text-align: right;
+        opacity: 0.7;
+    }
+    .credits-block__list dd {
+        margin: 0;
+    }
+</style>

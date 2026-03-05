@@ -1,5 +1,5 @@
 ---
-import { urlFor } from "../../utils/sanity";
+import { urlFor } from "../../lib/sanity/image";
 const { heading, content, image } = Astro.props;
 ---
 
@@ -32,7 +32,7 @@ const { heading, content, image } = Astro.props;
 
     .section-heading {
         font-size: clamp(2.5rem, 5vw, 6rem); /* Fluid heading */
-        color: var(--color-navy-500);
+        color: var(--color-primary);
         margin-block: 1rem;
         line-height: 1.1;
     }
@@ -49,6 +49,6 @@ const { heading, content, image } = Astro.props;
         margin-inline: auto;
         border-radius: 50%;
         overflow: hidden;
-        border: 4px solid var(--color-navy-500);
+        border: 4px solid var(--color-primary);
     }
 </style>

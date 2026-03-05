@@ -1,5 +1,5 @@
 ---
-import { urlFor } from "../../utils/sanity";
+import { urlFor } from "../../lib/sanity/image";
 
 const { heading, description, button_text, button_link, bg_image } =
     Astro.props;
@@ -31,7 +31,7 @@ const bgUrl = bg_image ? urlFor(bg_image) : null;
         text-align: center;
         background-size: cover;
         background-position: center;
-        background-color: var(--color-text, #15499d);
+        background-color: var(--color-text);
         overflow: hidden;
     }
 
@@ -56,10 +56,10 @@ const bgUrl = bg_image ? urlFor(bg_image) : null;
     }
 
     .cta-heading {
-        font-family: var(--font-heading, "Starbim", sans-serif);
+        font-family: var(--font-heading, sans-serif);
         font-size: clamp(1.75rem, 4vw, 3rem);
         margin: 0;
-        color: var(--color-bg, #fdf38a);
+        color: var(--color-bg);
     }
 
     .cta-description {
@@ -67,7 +67,7 @@ const bgUrl = bg_image ? urlFor(bg_image) : null;
         max-width: 600px;
         margin: 0;
         opacity: 0.85;
-        color: var(--color-bg, #fdf38a);
+        color: var(--color-bg);
     }
 
     .cta-button {
@@ -75,8 +75,8 @@ const bgUrl = bg_image ? urlFor(bg_image) : null;
         margin-top: var(--space-sm);
         padding: 14px 36px;
         border-radius: var(--btn-radius, 999px);
-        background: var(--color-bg, #fdf38a);
-        color: var(--color-text, #15499d);
+        background: var(--color-bg);
+        color: var(--color-text);
         font-weight: 700;
         font-size: 1rem;
         text-decoration: none;

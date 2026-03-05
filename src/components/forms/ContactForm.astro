@@ -8,12 +8,12 @@ const {
 <div id="contact" class="contact-form-container">
     <div class="header-group">
         <h2 class="form-title">{title}</h2>
-        <p class="form-subtitle" style="color: var(--color-pink-500);">
+        <p class="form-subtitle" style="color: var(--color-accent);">
             {subtitle}
         </p>
     </div>
 
-    <form class="contact-form" action="#" method="POST">
+    <form id="contact-form" class="contact-form" action="#" method="POST">
         <div class="input-group">
             <div class="input-wrapper">
                 <label for="name">NAME</label>
@@ -21,6 +21,7 @@ const {
                     type="text"
                     id="name"
                     name="name"
+                    class="input-shape-rounded"
                     required
                     placeholder=" "
                 />
@@ -32,6 +33,7 @@ const {
                     type="email"
                     id="email"
                     name="email"
+                    class="input-shape-rounded"
                     required
                     placeholder=" "
                 />
@@ -39,7 +41,7 @@ const {
 
             <div class="input-wrapper message-wrapper">
                 <label for="message">MESSAGE</label>
-                <textarea id="message" name="message" required placeholder=" "
+                <textarea id="message" name="message" class="input-shape-rounded" required placeholder=" "
                 ></textarea>
             </div>
         </div>
@@ -134,19 +136,10 @@ const {
         height: clamp(46px, 4vw, 64px); /* Fluid Input Height */
         left: auto;
         top: auto;
-        background: var(--input-bg);
-        border: 1px solid var(--input-border);
-        border-radius: var(--radius-sm);
         font-family: var(--font-body);
         font-size: clamp(16px, 1.2vw, 20px); /* Fluid Font */
-        color: var(--input-text);
-        padding: 10px;
-        outline: none;
-    }
-
-    input:focus,
-    textarea:focus {
-        border-width: 2px;
+        --field-padding-block: 10px;
+        --field-padding-inline: 10px;
     }
 
     /* Message specific height */

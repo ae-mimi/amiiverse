@@ -28,19 +28,19 @@ const isGradient = style === "gradient";
     hr {
         border: none;
         height: 2px;
-        background: var(--color-text, #333);
+        background: var(--color-text);
         opacity: 0.2;
     }
 
     hr.dashed {
         background: none;
-        border-top: 2px dashed var(--color-text, #333);
+        border-top: 2px dashed var(--color-text);
         opacity: 0.2;
     }
 
     hr.dotted {
         background: none;
-        border-top: 2px dotted var(--color-text, #333);
+        border-top: 2px dotted var(--color-text);
         opacity: 0.2;
     }
 
@@ -48,7 +48,7 @@ const isGradient = style === "gradient";
         background: linear-gradient(
             90deg,
             transparent 0%,
-            var(--color-text, #333) 50%,
+            var(--color-text) 50%,
             transparent 100%
         );
         opacity: 0.15;

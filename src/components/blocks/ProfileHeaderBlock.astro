@@ -1,5 +1,5 @@
 ---
-import { urlFor } from "../../utils/sanity";
+import { urlFor } from "../../lib/sanity/image";
 
 interface Props {
     avatar: any;
@@ -8,14 +8,12 @@ interface Props {
 }
 
 const { avatar, handle, bio } = Astro.props;
-const avatarUrl = avatar
-    ? urlFor(avatar)
-    : "/assets/placeholder-group-square.jpg";
+const avatarUrl = avatar ? urlFor(avatar) : null;
 ---
 
 <div class="profile-header text-center">
     <div class="avatar">
-        <img src={avatarUrl} alt={handle || "Profile"} />
+        {avatarUrl && <img src={avatarUrl} alt={handle || "Profile"} />}
     </div>
     <h1 class="handle">{handle}</h1>
     <p class="bio">{bio}</p>
@@ -36,7 +34,7 @@ const avatarUrl = avatar
         overflow: hidden;
         margin-inline: auto;
         margin-bottom: 1rem;
-        border: 3px solid var(--color-navy-500);
+        border: 3px solid var(--color-primary);
     }
     .avatar img {
         width: 100%;
@@ -49,5 +47,6 @@ const avatarUrl = avatar
         font-weight: 900;
         font-size: 1.5rem;
         margin-bottom: 0.5rem;
+        color: var(--color-primary);
     }
 </style>

@@ -1,0 +1,360 @@
+# Phase 1 — Cloudflare Setup Checklist
+
+**Project:** amiiverse
+**Stack:** Astro + Cloudflare Pages + Pages Functions + D1 + R2 + KV + Paystack + Sanity
+
+This document defines the required infrastructure before Phase 1 ecommerce integration will work.
+
+---
+
+# 1. Required Accounts
+
+You must have:
+
+* Cloudflare account with access to:
+
+  * Workers & Pages
+  * D1
+  * R2
+  * KV
+  * Turnstile
+* Paystack account (test keys enabled)
+* Sanity project already configured
+* GitHub repo connected to Cloudflare Pages
+
+---
+
+# 2. Cloudflare Resources to Create
+
+## 2.1 Create D1 Database
+
+Cloudflare Dashboard → Workers & Pages → D1 → Create database
+
+Name:
+
+```
+amiiverse-db
+```
+
+After creation:
+
+* Copy Database ID
+* Decide data location (cannot change later)
+
+You will bind this to Pages as:
+
+```
+DB
+```
+
+---
+
+## 2.2 Create R2 Bucket
+
+Cloudflare Dashboard → R2 → Create bucket
+
+Name:
+
+```
+amiiverse-assets
+```
+
+This bucket will store:
+
+* Digital products
+* Protected downloads
+* Optional future media
+
+Bind as:
+
+```
+ASSETS_BUCKET
+```
+
+---
+
+## 2.3 Create KV Namespace (Optional but Recommended)
+
+Cloudflare Dashboard → Workers & Pages → KV → Create namespace
+
+Name:
+
+```
+amiiverse-kv
+```
+
+Use for:
+
+* Rate limiting downloads
+* Temporary tokens
+* Anti-spam flags
+
+Bind as:
+
+```
+CACHE
+```
+
+---
+
+## 2.4 Create Turnstile Widget
+
+Cloudflare Dashboard → Turnstile → Add site
+
+Domain:
+
+```
+weareamii.com
+```
+
+You will receive:
+
+* Site key (public)
+* Secret key (server-only)
+
+Use Turnstile for:
+
+* Newsletter form
+* Fan wall
+* Checkout protection
+
+---
+
+# 3. Configure Cloudflare Pages Project
+
+Go to:
+
+Cloudflare → Workers & Pages → Pages → Your Project → Settings
+
+---
+
+## 3.1 Add Bindings
+
+Under Settings → Functions → Bindings:
+
+Add:
+
+D1 Binding:
+
+```
+Variable name: DB
+Database: amiiverse-db
+```
+
+R2 Binding:
+
+```
+Variable name: ASSETS_BUCKET
+Bucket: amiiverse-assets
+```
+
+KV Binding (if using):
+
+```
+Variable name: CACHE
+Namespace: amiiverse-kv
+```
+
+---
+
+## 3.2 Add Environment Variables
+
+Under Settings → Environment Variables:
+
+### Server-side (Do NOT prefix with PUBLIC_)
+
+```
+PAYSTACK_SECRET_KEY=sk_test_...
+SANITY_WRITE_TOKEN=...
+ADMIN_SYNC_TOKEN=...
+TURNSTILE_SECRET_KEY=...
+```
+
+### Public (Safe for frontend)
+
+```
+PAYSTACK_PUBLIC_KEY=pk_test_...
+PUBLIC_TURNSTILE_SITE_KEY=...
+PUBLIC_SITE_URL=https://weareamii.com
+```
+
+Never expose:
+
+* Secret keys
+* Admin tokens
+* D1 or R2 credentials
+
+---
+
+# 4. Wrangler Setup (Local Development)
+
+Install Wrangler globally:
+
+```
+npm install -g wrangler
+```
+
+Login:
+
+```
+wrangler login
+```
+
+Create or update `wrangler.toml` in project root:
+
+```toml
+name = "amiiverse"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "amiiverse-db"
+database_id = "YOUR_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "ASSETS_BUCKET"
+bucket_name = "amiiverse-assets"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_KV_ID"
+```
+
+---
+
+# 5. Database Migration Workflow
+
+## 5.1 Local Migration
+
+Run:
+
+```
+wrangler d1 execute amiiverse-db --local --file=./db/schema.sql
+```
+
+## 5.2 Production Migration
+
+Run:
+
+```
+wrangler d1 execute amiiverse-db --file=./db/schema.sql
+```
+
+Important:
+
+* Local D1 is separate from production D1.
+* Always test migrations locally first.
+
+---
+
+# 6. Paystack Webhook Setup
+
+In Paystack Dashboard → API & Webhooks:
+
+Set webhook URL to:
+
+```
+https://weareamii.com/api/paystack/webhook
+```
+
+Ensure:
+
+* Endpoint verifies Paystack signature
+* Endpoint is deployed before testing
+
+Use Cloudflare preview URL for test environment.
+
+---
+
+# 7. R2 Digital Download Flow
+
+Digital products must:
+
+* Store only R2 object key in D1
+* Never expose raw R2 public URLs
+* Serve via signed URL or Worker stream
+* Validate paid order before serving file
+
+---
+
+# 8. Deployment Order
+
+Always deploy in this order:
+
+1. Apply D1 migrations
+2. Confirm bindings exist
+3. Deploy Pages
+4. Test:
+
+   * Shop grid
+   * Cart persistence
+   * Checkout
+   * Webhook
+   * Digital download
+5. Only then merge to main
+
+---
+
+# 9. Sanity Sync Requirement
+
+After adding or editing products in Sanity:
+
+Call:
+
+```
+POST /api/admin/sync-products
+```
+
+With header:
+
+```
+X-ADMIN-TOKEN: <ADMIN_SYNC_TOKEN>
+```
+
+This updates D1 cache and search tables.
+
+---
+
+# 10. Minimum Runtime Requirements
+
+Before declaring Phase 1 complete:
+
+* Products load from D1
+* Cart persists across refresh
+* Orders recorded in D1
+* Paystack verification updates order status
+* Digital downloads protected
+* No secrets exposed in frontend bundle
+
+---
+
+# 11. Security Rules
+
+Never:
+
+* Commit `.env`
+* Expose SECRET keys with PUBLIC_ prefix
+* Return raw D1 or R2 keys to frontend
+* Trust client-provided totals for checkout
+
+Always:
+
+* Compute totals server-side
+* Validate webhook signatures
+* Confirm order status before download
+
+---
+
+# Phase 1 Infrastructure Status Checklist
+
+Mark complete before launch:
+
+[ ] D1 created
+[ ] R2 bucket created
+[ ] KV namespace created
+[ ] Turnstile widget created
+[ ] Bindings configured
+[ ] Env vars added
+[ ] Migrations applied
+[ ] Webhook configured
+[ ] End-to-end test successful

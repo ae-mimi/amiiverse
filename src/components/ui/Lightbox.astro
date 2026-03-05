@@ -1,0 +1,104 @@
+---
+
+---
+
+<dialog id="product-lightbox" class="lightbox">
+    <div class="lightbox-content">
+        <button class="lightbox-close" aria-label="Close lightbox"
+            >&times;</button
+        >
+        <img id="lightbox-img" src="" alt="" />
+    </div>
+</dialog>
+
+<script>
+    const lightbox = document.getElementById(
+        "product-lightbox",
+    ) as HTMLDialogElement;
+    const closeBtn = document.querySelector(".lightbox-close");
+    const lightboxImg = document.getElementById(
+        "lightbox-img",
+    ) as HTMLImageElement;
+
+    if (lightbox) {
+        // Open event
+        window.addEventListener("open-lightbox", (e: any) => {
+            const src = e.detail.src;
+            const alt = e.detail.alt;
+            if (lightboxImg) {
+                lightboxImg.src = src;
+                lightboxImg.alt = alt;
+            }
+            lightbox.showModal();
+        });
+
+        // Close events
+        closeBtn?.addEventListener("click", () => lightbox.close());
+
+        lightbox.addEventListener("click", (e) => {
+            if (e.target === lightbox) lightbox.close();
+        });
+    }
+</script>
+
+<style>
+    .lightbox {
+        border: none;
+        padding: 0;
+        margin: auto;
+        background: transparent;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: visible;
+    }
+
+    .lightbox::backdrop {
+        background: rgba(0, 0, 0, 0.9);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .lightbox[open]::backdrop {
+        opacity: 1;
+    }
+
+    .lightbox-content {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transform: scale(0.95);
+        transition: all 0.3s ease;
+    }
+
+    .lightbox[open] .lightbox-content {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .lightbox img {
+        max-width: 90vw;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+    }
+
+    .lightbox-close:hover {
+        transform: scale(1.1);
+    }
+</style>

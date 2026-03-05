@@ -35,18 +35,18 @@ const repeatedText = Array(repeats).fill(`${text}\u2003\u2605\u2003`).join("");
     }
 
     .variant-default {
-        color: var(--color-text, #333);
+        color: var(--color-text);
         opacity: 0.8;
     }
 
     .variant-bold {
-        background: var(--color-text, #333);
-        color: var(--color-bg, #fff);
+        background: var(--color-text);
+        color: var(--color-bg);
         padding: 1.25rem 0;
     }
 
     .variant-subtle {
-        color: var(--color-text, #333);
+        color: var(--color-text);
         opacity: 0.3;
         font-size: clamp(0.85rem, 2vw, 1.2rem);
     }

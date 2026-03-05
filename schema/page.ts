@@ -1,12 +1,17 @@
 import { defineField, defineType } from 'sanity'
 import {
-  PageIcon,
+  PageIcon, SettingsIcon, SEOIcon,
   HeroHomeIcon, HeroPredebutIcon, HeroPageIcon,
   IntroIcon, RichTextIcon, GalleryIcon, VideoIcon,
   CTAIcon, CountdownIcon, FAQIcon, TestimonialIcon,
   MusicGridIcon, MembersGridIcon, ShopGridIcon, PressGridIcon, EventsIcon,
   WidgetIcon, ContactFormIcon, ContactInfoIcon,
   SpacerIcon, DividerIcon, MarqueeIcon, LyricIcon,
+  ReleaseSpotlightIcon, DiscographyGridIcon, VideoGalleryIcon,
+  TourDatesIcon, EmailSignupIcon, FanWallIcon, DownloadsCenterIcon,
+  TimelineBlockIcon, MediaTextIcon, SmartLinksIcon, CreditsIcon,
+  ShortsWallIcon, NewsFeedIcon, PressCoverageIcon, PollBlockIcon,
+  NewsletterSignupIcon,
 } from './icons'
 
 export default defineType({
@@ -14,12 +19,18 @@ export default defineType({
   title: 'Page',
   type: 'document',
   icon: PageIcon,
+  groups: [
+    { name: 'content', title: 'Content', icon: PageIcon, default: true },
+    { name: 'settings', title: 'Settings', icon: SettingsIcon },
+    { name: 'seo', title: 'SEO', icon: SEOIcon },
+  ],
   fields: [
     defineField({
       name: 'title',
       title: 'Page Title',
       type: 'string',
       description: 'The name of this page — also appears in the browser tab.',
+      group: 'content',
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -27,14 +38,44 @@ export default defineType({
       title: 'URL Slug',
       type: 'slug',
       description: 'The URL for this page. Click "Generate" to create from the title.',
+      group: 'content',
       options: { source: 'title', maxLength: 96 },
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'blocks',
-      title: 'Page Content',
+      name: 'pageType',
+      title: 'Page Type',
+      type: 'string',
+      group: 'settings',
+      description: 'Helps the site know what kind of page this is.',
+      options: {
+        list: [
+          { title: 'Home', value: 'home' },
+          { title: 'Music', value: 'music' },
+          { title: 'Videos', value: 'videos' },
+          { title: 'Tour', value: 'tour' },
+          { title: 'About', value: 'about' },
+          { title: 'Press / EPK', value: 'press' },
+          { title: 'Community', value: 'community' },
+          { title: 'News', value: 'news' },
+          { title: 'Store', value: 'store' },
+          { title: 'Custom', value: 'custom' },
+        ],
+        layout: 'dropdown',
+      },
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+      group: 'seo',
+    }),
+    defineField({
+      name: 'sections',
+      title: 'Page Sections',
       description: 'Build your page by adding sections below. Drag to reorder them.',
       type: 'array',
+      group: 'content',
       of: [
         // ═══════════════════════════════════════
         //  HEROES — Large banners at the top
@@ -44,15 +85,15 @@ export default defineType({
           name: 'hero',
           title: 'Homepage Banner',
           icon: HeroHomeIcon,
-          description: 'A large banner with your photo, headline, and buttons — best as the first section on your homepage.',
+          description: 'A large banner with your photo, headline, and buttons.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Headline', description: 'The big text visitors see first.', validation: (rule) => rule.required() }),
-            defineField({ name: 'subtitle', type: 'string', title: 'Subtitle', description: 'A short line below the headline.' }),
-            defineField({ name: 'description', type: 'text', title: 'Description', rows: 3, description: 'A paragraph introducing your group.' }),
-            defineField({ name: 'image', type: 'image', title: 'Banner Image', description: 'The main photo displayed in the banner.', options: { hotspot: true } }),
-            defineField({ name: 'cta_primary', type: 'string', title: 'Primary Button Text', description: 'Label for the main button, e.g. "Listen Now".' }),
-            defineField({ name: 'cta_primary_link', type: 'string', title: 'Primary Button Link', description: 'Where the button goes — a page URL or external link.' }),
-            defineField({ name: 'cta_secondary', type: 'string', title: 'Secondary Button Text', description: 'Label for a second, less prominent button.' }),
+            defineField({ name: 'title', type: 'string', title: 'Headline', validation: (rule) => rule.required() }),
+            defineField({ name: 'subtitle', type: 'string', title: 'Subtitle' }),
+            defineField({ name: 'description', type: 'text', title: 'Description', rows: 3 }),
+            defineField({ name: 'image', type: 'image', title: 'Banner Image', options: { hotspot: true } }),
+            defineField({ name: 'cta_primary', type: 'string', title: 'Primary Button Text' }),
+            defineField({ name: 'cta_primary_link', type: 'string', title: 'Primary Button Link' }),
+            defineField({ name: 'cta_secondary', type: 'string', title: 'Secondary Button Text' }),
             defineField({ name: 'cta_secondary_link', type: 'string', title: 'Secondary Button Link' }),
           ],
           preview: {
@@ -67,13 +108,13 @@ export default defineType({
           name: 'predebut_hero',
           title: 'Pre-Debut Teaser',
           icon: HeroPredebutIcon,
-          description: 'A teaser banner with "Loading..." animation and a sign-up button — use before your official debut.',
+          description: 'A teaser banner with animation and a sign-up button.',
           fields: [
-            defineField({ name: 'top_text', type: 'string', title: 'Top Text', description: 'Text shown above the image.', initialValue: 'we are amii' }),
-            defineField({ name: 'image', type: 'image', title: 'Teaser Image', description: 'Your pre-debut concept photo.', options: { hotspot: true } }),
-            defineField({ name: 'status_text', type: 'string', title: 'Animated Status', description: 'Text that animates below the image (e.g. "LOADING...").', initialValue: 'LOADING...' }),
-            defineField({ name: 'cta_text', type: 'string', title: 'Button Text', description: 'The call-to-action button label.', initialValue: 'JOIN THE QUEUE' }),
-            defineField({ name: 'cta_link', type: 'string', title: 'Button Link', description: 'Where the button leads (e.g. sign-up page).' }),
+            defineField({ name: 'top_text', type: 'string', title: 'Top Text', initialValue: 'we are amii' }),
+            defineField({ name: 'image', type: 'image', title: 'Teaser Image', options: { hotspot: true } }),
+            defineField({ name: 'status_text', type: 'string', title: 'Animated Status', initialValue: 'LOADING...' }),
+            defineField({ name: 'cta_text', type: 'string', title: 'Button Text', initialValue: 'JOIN THE QUEUE' }),
+            defineField({ name: 'cta_link', type: 'string', title: 'Button Link' }),
           ],
           preview: {
             select: { title: 'top_text', subtitle: 'status_text' },
@@ -87,10 +128,10 @@ export default defineType({
           name: 'page_hero',
           title: 'Page Header',
           icon: HeroPageIcon,
-          description: 'A simple title and subtitle at the top of an inner page — use for About, Contact, Press, etc.',
+          description: 'A simple title and subtitle at the top of an inner page.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Page Title', description: 'The heading displayed at the top.', validation: (rule) => rule.required() }),
-            defineField({ name: 'subtitle', type: 'string', title: 'Subtitle', description: 'An optional short description below the title.' }),
+            defineField({ name: 'title', type: 'string', title: 'Page Title', validation: (rule) => rule.required() }),
+            defineField({ name: 'subtitle', type: 'string', title: 'Subtitle' }),
           ],
           preview: {
             select: { title: 'title' },
@@ -108,11 +149,11 @@ export default defineType({
           name: 'intro',
           title: 'Intro Section',
           icon: IntroIcon,
-          description: 'Text with an optional image beside it — great for introducing yourself, your story, or a new era.',
+          description: 'Text with an optional image beside it.',
           fields: [
-            defineField({ name: 'heading', type: 'string', title: 'Heading', description: 'The title of this section.' }),
-            defineField({ name: 'content', type: 'text', title: 'Body Text', rows: 5, description: 'Tell your story, describe an era, or introduce something new.' }),
-            defineField({ name: 'image', type: 'image', title: 'Photo', description: 'An image shown next to the text.', options: { hotspot: true } }),
+            defineField({ name: 'heading', type: 'string', title: 'Heading' }),
+            defineField({ name: 'content', type: 'text', title: 'Body Text', rows: 5 }),
+            defineField({ name: 'image', type: 'image', title: 'Photo', options: { hotspot: true } }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -123,43 +164,62 @@ export default defineType({
         },
         {
           type: 'object',
-          name: 'rich_text',
-          title: 'Text Block',
-          icon: RichTextIcon,
-          description: 'A simple text area — for paragraphs, announcements, or any written content.',
+          name: 'media_text',
+          title: 'Media + Text',
+          icon: MediaTextIcon,
+          description: 'Side-by-side media and text block — flexible layout.',
           fields: [
-            defineField({ name: 'body', type: 'text', title: 'Content', rows: 10, description: 'Write whatever you like. This is a free-form text area.' }),
+            defineField({ name: 'heading', type: 'string', title: 'Heading' }),
+            defineField({ name: 'content', type: 'text', title: 'Body Text', rows: 5 }),
+            defineField({ name: 'image', type: 'image', title: 'Image', options: { hotspot: true } }),
+            defineField({
+              name: 'layout',
+              type: 'string',
+              title: 'Layout',
+              options: { list: [{ title: 'Image Left', value: 'imageLeft' }, { title: 'Image Right', value: 'imageRight' }], layout: 'radio' },
+              initialValue: 'imageLeft',
+            }),
           ],
           preview: {
-            select: { body: 'body' },
-            prepare({ body }) {
-              return {
-                title: body ? body.substring(0, 60) + '…' : 'Text Block',
-                subtitle: 'Plain text',
-              }
+            select: { title: 'heading' },
+            prepare({ title }) {
+              return { title: title || 'Media + Text', subtitle: 'Side-by-side layout' }
             },
           },
         },
         {
           type: 'object',
-          name: 'gallery',
+          name: 'rich_text',
+          title: 'Text Block',
+          icon: RichTextIcon,
+          description: 'A simple text area for paragraphs, announcements, or written content.',
+          fields: [
+            defineField({ name: 'body', type: 'text', title: 'Content', rows: 10 }),
+          ],
+          preview: {
+            select: { body: 'body' },
+            prepare({ body }) {
+              return { title: body ? body.substring(0, 60) + '…' : 'Text Block', subtitle: 'Plain text' }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'gallery_block',
           title: 'Photo Gallery',
           icon: GalleryIcon,
-          description: 'A grid of photos — concept photos, behind-the-scenes shots, era teasers, event highlights.',
+          description: 'A grid of photos.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Gallery Title', description: 'A heading above the photos (e.g. "Concept Photos").' }),
+            defineField({ name: 'title', type: 'string', title: 'Gallery Title' }),
             defineField({
               name: 'images',
               type: 'array',
               title: 'Photos',
-              description: 'Upload your images here. Drag to reorder. Click on an image to set a crop focus point.',
               of: [{
-                type: 'image',
-                options: { hotspot: true },
-                fields: [
-                  defineField({ name: 'alt', type: 'string', title: 'Alt Text', description: 'A short description for accessibility (e.g. "Group photo on stage").' }),
-                  defineField({ name: 'caption', type: 'string', title: 'Caption', description: 'Optional text shown below the photo.' }),
-                ],
+                type: 'image', options: { hotspot: true }, fields: [
+                  defineField({ name: 'alt', type: 'string', title: 'Alt Text' }),
+                  defineField({ name: 'caption', type: 'string', title: 'Caption' }),
+                ]
               }],
               validation: (rule) => rule.min(1),
             }),
@@ -167,7 +227,6 @@ export default defineType({
               name: 'columns',
               type: 'number',
               title: 'Layout',
-              description: 'How many photos per row.',
               options: { list: [{ title: '2 per row', value: 2 }, { title: '3 per row', value: 3 }, { title: '4 per row', value: 4 }] },
               initialValue: 3,
             }),
@@ -185,11 +244,11 @@ export default defineType({
           name: 'video_embed',
           title: 'Video',
           icon: VideoIcon,
-          description: 'Embed a YouTube or Vimeo video — music videos, dance practices, vlogs, behind-the-scenes.',
+          description: 'Embed a YouTube or Vimeo video.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'An optional heading above the video.' }),
-            defineField({ name: 'video_url', type: 'url', title: 'Video Link', description: 'Paste the YouTube or Vimeo URL here. Example: https://youtube.com/watch?v=...', validation: (rule) => rule.required() }),
-            defineField({ name: 'caption', type: 'string', title: 'Caption', description: 'Optional text shown below the video.' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title' }),
+            defineField({ name: 'video_url', type: 'url', title: 'Video Link', validation: (rule) => rule.required() }),
+            defineField({ name: 'caption', type: 'string', title: 'Caption' }),
           ],
           preview: {
             select: { title: 'title', url: 'video_url' },
@@ -207,13 +266,13 @@ export default defineType({
           name: 'cta_banner',
           title: 'Promo Banner',
           icon: CTAIcon,
-          description: 'An eye-catching banner to promote something — pre-save a song, buy tickets, shop merch, or any call-to-action.',
+          description: 'An eye-catching banner to promote something.',
           fields: [
-            defineField({ name: 'heading', type: 'string', title: 'Headline', description: 'What are you promoting? Keep it short and punchy.', validation: (rule) => rule.required() }),
-            defineField({ name: 'description', type: 'text', title: 'Description', rows: 3, description: 'A sentence or two with more details.' }),
-            defineField({ name: 'button_text', type: 'string', title: 'Button Text', description: 'What should the button say? (e.g. "Pre-Save Now", "Get Tickets")', validation: (rule) => rule.required() }),
-            defineField({ name: 'button_link', type: 'string', title: 'Button Link', description: 'Where the button leads — a URL or page path.', validation: (rule) => rule.required() }),
-            defineField({ name: 'bg_image', type: 'image', title: 'Background Photo', description: 'An optional photo behind the text. A dark overlay is added automatically.', options: { hotspot: true } }),
+            defineField({ name: 'heading', type: 'string', title: 'Headline', validation: (rule) => rule.required() }),
+            defineField({ name: 'description', type: 'text', title: 'Description', rows: 3 }),
+            defineField({ name: 'button_text', type: 'string', title: 'Button Text', validation: (rule) => rule.required() }),
+            defineField({ name: 'button_link', type: 'string', title: 'Button Link', validation: (rule) => rule.required() }),
+            defineField({ name: 'bg_image', type: 'image', title: 'Background Photo', options: { hotspot: true } }),
           ],
           preview: {
             select: { title: 'heading', subtitle: 'button_text' },
@@ -227,11 +286,11 @@ export default defineType({
           name: 'countdown',
           title: 'Countdown Timer',
           icon: CountdownIcon,
-          description: 'A live countdown ticking toward a date — debut day, album drop, concert, or comeback.',
+          description: 'A live countdown ticking toward a date.',
           fields: [
-            defineField({ name: 'label', type: 'string', title: 'Label', description: 'What are you counting down to? (e.g. "Debut in...", "Album drops in...")', validation: (rule) => rule.required() }),
-            defineField({ name: 'target_date', type: 'datetime', title: 'Target Date & Time', description: 'Set the exact date and time the countdown reaches zero.', validation: (rule) => rule.required() }),
-            defineField({ name: 'finished_text', type: 'string', title: 'Message After Countdown', description: 'What to show when the timer hits zero (e.g. "OUT NOW!", "We\'re here!").', initialValue: 'OUT NOW!' }),
+            defineField({ name: 'label', type: 'string', title: 'Label', validation: (rule) => rule.required() }),
+            defineField({ name: 'target_date', type: 'datetime', title: 'Target Date & Time', validation: (rule) => rule.required() }),
+            defineField({ name: 'finished_text', type: 'string', title: 'Message After Countdown', initialValue: 'OUT NOW!' }),
           ],
           preview: {
             select: { title: 'label', date: 'target_date' },
@@ -244,28 +303,22 @@ export default defineType({
         {
           type: 'object',
           name: 'faq',
-          title: 'FAQ / Questions & Answers',
+          title: 'FAQ',
           icon: FAQIcon,
-          description: 'A list of questions that visitors can click to expand and see the answer — great for fan questions, event info, or group FAQ.',
+          description: 'A list of expandable questions and answers.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'A heading above the questions.', initialValue: 'Frequently Asked Questions' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Frequently Asked Questions' }),
             defineField({
               name: 'items',
               type: 'array',
               title: 'Questions',
-              description: 'Add your questions and answers here.',
               of: [{
                 type: 'object',
                 fields: [
                   defineField({ name: 'question', type: 'string', title: 'Question', validation: (rule) => rule.required() }),
                   defineField({ name: 'answer', type: 'text', title: 'Answer', rows: 4, validation: (rule) => rule.required() }),
                 ],
-                preview: {
-                  select: { title: 'question' },
-                  prepare({ title }) {
-                    return { title: title || 'New Question' }
-                  },
-                },
+                preview: { select: { title: 'question' }, prepare({ title }) { return { title: title || 'New Question' } } },
               }],
               validation: (rule) => rule.min(1),
             }),
@@ -283,20 +336,19 @@ export default defineType({
           name: 'testimonials',
           title: 'Press Quotes & Endorsements',
           icon: TestimonialIcon,
-          description: 'Showcase what the press, industry, or fans are saying about you — quotes displayed as cards.',
+          description: 'Showcase quotes from press, industry, or fans.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'A heading above the quotes.', initialValue: 'What People Are Saying' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'What People Are Saying' }),
             defineField({
               name: 'quotes',
               type: 'array',
               title: 'Quotes',
-              description: 'Add quotes, reviews, or endorsements.',
               of: [{
                 type: 'object',
                 fields: [
-                  defineField({ name: 'quote', type: 'text', title: 'Quote', rows: 3, description: 'The actual quote text.', validation: (rule) => rule.required() }),
-                  defineField({ name: 'author', type: 'string', title: 'Who Said It', description: 'Name of the person or publication.' }),
-                  defineField({ name: 'source', type: 'string', title: 'Source', description: 'Where it was published (e.g. "Billboard", "NME", "Twitter").' }),
+                  defineField({ name: 'quote', type: 'text', title: 'Quote', rows: 3, validation: (rule) => rule.required() }),
+                  defineField({ name: 'author', type: 'string', title: 'Who Said It' }),
+                  defineField({ name: 'source', type: 'string', title: 'Source' }),
                 ],
                 preview: {
                   select: { title: 'author', quote: 'quote' },
@@ -318,6 +370,166 @@ export default defineType({
         },
 
         // ═══════════════════════════════════════
+        //  MUSIC PROMOTION
+        // ═══════════════════════════════════════
+        {
+          type: 'object',
+          name: 'release_spotlight',
+          title: 'Release Spotlight',
+          icon: ReleaseSpotlightIcon,
+          description: 'Feature a specific release with artwork, tracklist, and streaming links.',
+          fields: [
+            defineField({ name: 'release', type: 'reference', title: 'Release', to: [{ type: 'release' }], validation: (rule) => rule.required() }),
+            defineField({ name: 'showTracklist', type: 'boolean', title: 'Show Tracklist', initialValue: true }),
+            defineField({ name: 'showCredits', type: 'boolean', title: 'Show Credits', initialValue: false }),
+            defineField({ name: 'showPreSave', type: 'boolean', title: 'Show Pre-Save', initialValue: false }),
+          ],
+          preview: {
+            select: { release: 'release.title' },
+            prepare({ release }) {
+              return { title: `Release: ${release || 'None selected'}`, subtitle: 'Release Spotlight' }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'discography_grid',
+          title: 'Discography Grid',
+          icon: DiscographyGridIcon,
+          description: 'Show all releases in a filterable grid.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Discography' }),
+            defineField({ name: 'filtersEnabled', type: 'boolean', title: 'Show Filters', initialValue: true }),
+            defineField({
+              name: 'defaultFilter',
+              type: 'string',
+              title: 'Default Filter',
+              options: { list: [{ title: 'All', value: 'all' }, { title: 'Singles', value: 'singles' }, { title: 'EPs', value: 'eps' }, { title: 'Albums', value: 'albums' }] },
+              initialValue: 'all',
+            }),
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare({ title }) { return { title: title || 'Discography', subtitle: 'Auto-generated from releases' } },
+          },
+        },
+        {
+          type: 'object',
+          name: 'smart_links',
+          title: 'Smart Links',
+          icon: SmartLinksIcon,
+          description: 'Platform buttons for a specific release.',
+          fields: [
+            defineField({ name: 'release', type: 'reference', title: 'Release', to: [{ type: 'release' }] }),
+          ],
+          preview: {
+            select: { release: 'release.title' },
+            prepare({ release }) { return { title: `Smart Links: ${release || 'None'}` } },
+          },
+        },
+        {
+          type: 'object',
+          name: 'credits_block',
+          title: 'Credits',
+          icon: CreditsIcon,
+          description: 'Display production credits for a release.',
+          fields: [
+            defineField({ name: 'release', type: 'reference', title: 'Release', to: [{ type: 'release' }] }),
+          ],
+          preview: {
+            select: { release: 'release.title' },
+            prepare({ release }) { return { title: `Credits: ${release || 'None'}` } },
+          },
+        },
+
+        // ═══════════════════════════════════════
+        //  VIDEO AND CONTENT
+        // ═══════════════════════════════════════
+        {
+          type: 'object',
+          name: 'video_gallery',
+          title: 'Video Gallery',
+          icon: VideoGalleryIcon,
+          description: 'Display multiple videos in a grid or carousel.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title' }),
+            defineField({ name: 'videos', type: 'array', title: 'Videos', of: [{ type: 'reference', to: [{ type: 'video' }] }] }),
+            defineField({
+              name: 'layout',
+              type: 'string',
+              title: 'Layout',
+              options: { list: [{ title: 'Grid', value: 'grid' }, { title: 'Carousel', value: 'carousel' }], layout: 'radio' },
+              initialValue: 'grid',
+            }),
+          ],
+          preview: {
+            select: { title: 'title', videos: 'videos' },
+            prepare({ title, videos }) {
+              const count = videos?.length || 0
+              return { title: title || 'Video Gallery', subtitle: `${count} video${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'shorts_wall',
+          title: 'Shorts / Reels Wall',
+          icon: ShortsWallIcon,
+          description: 'Embed TikTok, IG Reels, or YT Shorts.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title' }),
+            defineField({
+              name: 'embeds',
+              type: 'array',
+              title: 'Embed URLs',
+              of: [{ type: 'url' }],
+            }),
+          ],
+          preview: {
+            select: { title: 'title', embeds: 'embeds' },
+            prepare({ title, embeds }) {
+              const count = embeds?.length || 0
+              return { title: title || 'Shorts Wall', subtitle: `${count} embed${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'news_feed',
+          title: 'News Feed',
+          icon: NewsFeedIcon,
+          description: 'Display recent news posts.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Latest News' }),
+            defineField({ name: 'limit', type: 'number', title: 'Max Posts', initialValue: 6 }),
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare({ title }) { return { title: title || 'News Feed', subtitle: 'Auto-generated from posts' } },
+          },
+        },
+
+        // ═══════════════════════════════════════
+        //  TOUR AND EVENTS
+        // ═══════════════════════════════════════
+        {
+          type: 'object',
+          name: 'tour_dates',
+          title: 'Tour Dates',
+          icon: TourDatesIcon,
+          description: 'Show upcoming events from the Events library.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Tour Dates' }),
+            defineField({ name: 'upcomingOnly', type: 'boolean', title: 'Show Upcoming Only', initialValue: true }),
+            defineField({ name: 'showFilters', type: 'boolean', title: 'Show Filters', initialValue: false }),
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare({ title }) { return { title: title || 'Tour Dates', subtitle: 'Auto-generated from events' } },
+          },
+        },
+
+        // ═══════════════════════════════════════
         //  COLLECTIONS — Auto-display content
         // ═══════════════════════════════════════
         {
@@ -325,15 +537,13 @@ export default defineType({
           name: 'music_grid',
           title: 'Music Releases',
           icon: MusicGridIcon,
-          description: 'Automatically shows all your songs/releases in a grid — pulls from your Music library.',
+          description: 'Automatically shows all your songs/releases in a grid.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'Heading above the music grid.', initialValue: 'Music' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Music' }),
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) {
-              return { title: title || 'Music', subtitle: 'Auto-generated from Music library' }
-            },
+            prepare({ title }) { return { title: title || 'Music', subtitle: 'Auto-generated from Music library' } },
           },
         },
         {
@@ -341,15 +551,14 @@ export default defineType({
           name: 'members_grid',
           title: 'Member Profiles',
           icon: MembersGridIcon,
-          description: 'Automatically shows your group members with photos, names, and roles — pulls from your Members library.',
+          description: 'Automatically shows group members with photos, names, and roles.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'Heading above the members grid.', initialValue: 'Members' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Members' }),
+            defineField({ name: 'members', type: 'array', title: 'Specific Members (optional)', of: [{ type: 'reference', to: [{ type: 'member' }] }], description: 'Leave empty to show all members.' }),
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) {
-              return { title: title || 'Members', subtitle: 'Auto-generated from Members library' }
-            },
+            prepare({ title }) { return { title: title || 'Members', subtitle: 'Member profiles' } },
           },
         },
         {
@@ -357,69 +566,133 @@ export default defineType({
           name: 'shop_grid',
           title: 'Shop / Merch',
           icon: ShopGridIcon,
-          description: 'Shows your merch and products in a grid — pulls from your Shop library.',
+          description: 'Shows merch and products in a grid.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'Heading above the shop grid.', initialValue: 'Shop' }),
-            defineField({ name: 'limit', type: 'number', title: 'Max Items', description: 'How many products to show. Leave empty to show all.', initialValue: 12 }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Shop' }),
+            defineField({ name: 'limit', type: 'number', title: 'Max Items', initialValue: 12 }),
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) {
-              return { title: title || 'Shop', subtitle: 'Auto-generated from Shop library' }
-            },
+            prepare({ title }) { return { title: title || 'Shop', subtitle: 'Auto-generated from Shop library' } },
           },
         },
+
+        // ═══════════════════════════════════════
+        //  PRESS AND DOWNLOADS
+        // ═══════════════════════════════════════
         {
           type: 'object',
           name: 'press_grid',
           title: 'Press Coverage',
           icon: PressGridIcon,
-          description: 'Shows your press mentions and articles — pulls from your Press library.',
+          description: 'Shows press mentions from the Press library.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'Heading above the press list.', initialValue: 'Press' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Press' }),
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) {
-              return { title: title || 'Press', subtitle: 'Auto-generated from Press library' }
+            prepare({ title }) { return { title: title || 'Press', subtitle: 'Auto-generated from Press library' } },
+          },
+        },
+        {
+          type: 'object',
+          name: 'press_quotes',
+          title: 'Press Quotes',
+          icon: PressCoverageIcon,
+          description: 'Feature specific press mentions with pull quotes.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'In the Press' }),
+            defineField({ name: 'items', type: 'array', title: 'Mentions', of: [{ type: 'reference', to: [{ type: 'pressMention' }] }] }),
+          ],
+          preview: {
+            select: { title: 'title', items: 'items' },
+            prepare({ title, items }) {
+              const count = items?.length || 0
+              return { title: title || 'Press Quotes', subtitle: `${count} mention${count !== 1 ? 's' : ''}` }
             },
           },
         },
         {
           type: 'object',
-          name: 'events',
-          title: 'Tour Dates & Events',
-          icon: EventsIcon,
-          description: 'List upcoming shows, concerts, fan meetings, and appearances — each event can have ticket links and a status badge.',
+          name: 'downloads_center',
+          title: 'Downloads Center',
+          icon: DownloadsCenterIcon,
+          description: 'Display downloadable assets (EPK, logos, photos, riders).',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'Heading above the event list.', initialValue: 'Tour Dates' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Downloads' }),
+            defineField({ name: 'assets', type: 'array', title: 'Assets', of: [{ type: 'reference', to: [{ type: 'downloadableAsset' }] }] }),
+          ],
+          preview: {
+            select: { title: 'title', assets: 'assets' },
+            prepare({ title, assets }) {
+              const count = assets?.length || 0
+              return { title: title || 'Downloads', subtitle: `${count} file${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+
+        // ═══════════════════════════════════════
+        //  COMMUNITY
+        // ═══════════════════════════════════════
+        {
+          type: 'object',
+          name: 'fan_wall',
+          title: 'Fan Wall',
+          icon: FanWallIcon,
+          description: 'Display approved fan submissions.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Fan Wall' }),
+            defineField({ name: 'submissionEnabled', type: 'boolean', title: 'Allow Submissions', initialValue: true }),
+            defineField({ name: 'moderationNotice', type: 'text', title: 'Moderation Notice', rows: 2 }),
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare({ title }) { return { title: title || 'Fan Wall' } },
+          },
+        },
+        {
+          type: 'object',
+          name: 'poll_block',
+          title: 'Poll',
+          icon: PollBlockIcon,
+          description: 'Embed an interactive poll.',
+          fields: [
+            defineField({ name: 'poll', type: 'reference', title: 'Poll', to: [{ type: 'poll' }] }),
+          ],
+          preview: {
+            select: { question: 'poll.question' },
+            prepare({ question }) { return { title: question || 'Poll', subtitle: 'Interactive poll' } },
+          },
+        },
+
+        // ═══════════════════════════════════════
+        //  EVENTS (inline — kept for backward compat)
+        // ═══════════════════════════════════════
+        {
+          type: 'object',
+          name: 'events',
+          title: 'Events (Inline)',
+          icon: EventsIcon,
+          description: 'Inline event list — prefer Tour Dates block for new pages.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Tour Dates' }),
             defineField({
               name: 'event_list',
               type: 'array',
               title: 'Events',
-              description: 'Add your events here. Each one appears as a row with the date, venue, and a ticket button.',
               of: [{
                 type: 'object',
                 fields: [
-                  defineField({ name: 'name', type: 'string', title: 'Event Name', description: 'What is this event called?', validation: (rule) => rule.required() }),
+                  defineField({ name: 'name', type: 'string', title: 'Event Name', validation: (rule) => rule.required() }),
                   defineField({ name: 'date', type: 'datetime', title: 'Date & Time', validation: (rule) => rule.required() }),
-                  defineField({ name: 'venue', type: 'string', title: 'Venue', description: 'Name of the venue (e.g. "Madison Square Garden").' }),
-                  defineField({ name: 'city', type: 'string', title: 'City', description: 'Which city is this in?' }),
-                  defineField({ name: 'ticket_url', type: 'url', title: 'Ticket Link', description: 'Paste the link where fans can buy tickets.' }),
+                  defineField({ name: 'venue', type: 'string', title: 'Venue' }),
+                  defineField({ name: 'city', type: 'string', title: 'City' }),
+                  defineField({ name: 'ticket_url', type: 'url', title: 'Ticket Link' }),
                   defineField({
                     name: 'status',
                     type: 'string',
-                    title: 'Ticket Status',
-                    description: 'Is this event on sale, sold out, or something else?',
-                    options: {
-                      list: [
-                        { title: 'On Sale', value: 'on_sale' },
-                        { title: 'Sold Out', value: 'sold_out' },
-                        { title: 'Cancelled', value: 'cancelled' },
-                        { title: 'Coming Soon', value: 'coming_soon' },
-                      ],
-                      layout: 'dropdown',
-                    },
+                    title: 'Status',
+                    options: { list: [{ title: 'On Sale', value: 'on_sale' }, { title: 'Sold Out', value: 'sold_out' }, { title: 'Cancelled', value: 'cancelled' }, { title: 'Coming Soon', value: 'coming_soon' }], layout: 'dropdown' },
                     initialValue: 'on_sale',
                   }),
                 ],
@@ -444,44 +717,96 @@ export default defineType({
         },
 
         // ═══════════════════════════════════════
+        //  TIMELINE
+        // ═══════════════════════════════════════
+        {
+          type: 'object',
+          name: 'timeline',
+          title: 'Timeline',
+          icon: TimelineBlockIcon,
+          description: 'Display group history milestones.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Our Journey' }),
+            defineField({ name: 'items', type: 'array', title: 'Milestones', of: [{ type: 'reference', to: [{ type: 'timelineItem' }] }] }),
+          ],
+          preview: {
+            select: { title: 'title', items: 'items' },
+            prepare({ title, items }) {
+              const count = items?.length || 0
+              return { title: title || 'Timeline', subtitle: `${count} milestone${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+
+        // ═══════════════════════════════════════
         //  WIDGETS — Interactive elements
         // ═══════════════════════════════════════
         {
           type: 'object',
           name: 'widget',
-          title: 'Newsletter or Music Player',
+          title: 'Music Player',
           icon: WidgetIcon,
-          description: 'Add a newsletter sign-up form or an embedded music player to your page.',
+          description: 'An embedded music player for a specific song.',
           fields: [
             defineField({
               name: 'widget_type',
               type: 'string',
-              title: 'What to show',
-              description: 'Choose either a newsletter sign-up form or a music player.',
-              options: {
-                list: [
-                  { title: 'Newsletter Sign-Up', value: 'newsletter' },
-                  { title: 'Music Player', value: 'player' },
-                ],
-                layout: 'radio',
-              },
-              validation: (rule) => rule.required(),
+              title: 'Widget Type',
+              options: { list: [{ title: 'Music Player', value: 'player' }], layout: 'radio' },
+              initialValue: 'player',
             }),
             defineField({
               name: 'music_item',
               title: 'Song to Play',
               type: 'reference',
-              to: [{ type: 'music' }],
+              to: [{ type: 'track' }],
               description: 'Pick a song from your Music library.',
-              hidden: ({ parent }) => parent?.widget_type !== 'player',
             }),
           ],
           preview: {
-            select: { type: 'widget_type', song: 'music_item.title' },
-            prepare({ type, song }) {
-              if (type === 'player') return { title: `Music Player: ${song || 'No song selected'}`, subtitle: 'Widget' }
-              return { title: 'Newsletter Sign-Up', subtitle: 'Widget' }
-            },
+            select: { song: 'music_item.title' },
+            prepare({ song }) { return { title: `Music Player: ${song || 'No song selected'}`, subtitle: 'Widget' } },
+          },
+        },
+        {
+          type: 'object',
+          name: 'email_signup',
+          title: 'Email Sign-Up',
+          icon: EmailSignupIcon,
+          description: 'Newsletter subscription form.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Stay Updated' }),
+            defineField({ name: 'subtitle', type: 'text', title: 'Subtitle', rows: 2 }),
+            defineField({
+              name: 'provider',
+              type: 'string',
+              title: 'Provider',
+              options: { list: [{ title: 'Brevo', value: 'brevo' }, { title: 'Mailchimp', value: 'mailchimp' }, { title: 'Custom', value: 'custom' }] },
+              initialValue: 'brevo',
+            }),
+            defineField({ name: 'formId', type: 'string', title: 'Form / List ID' }),
+            defineField({ name: 'successMessage', type: 'string', title: 'Success Message', initialValue: "You're in! 🎉" }),
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare({ title }) { return { title: title || 'Email Sign-Up', subtitle: 'Newsletter form' } },
+          },
+        },
+        {
+          type: 'object',
+          name: 'newsletter_signup',
+          title: 'Newsletter Sign-Up',
+          icon: NewsletterSignupIcon,
+          description: 'A sign-up form that collects name and email for your mailing list.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Heading', initialValue: 'JOIN THE AMII-GOS' }),
+            defineField({ name: 'subtitle', type: 'text', title: 'Subtitle', rows: 2, initialValue: 'Get early access, updates, and behind-the-scenes' }),
+            defineField({ name: 'buttonText', type: 'string', title: 'Button Text', initialValue: 'JOIN US' }),
+            defineField({ name: 'successRedirect', type: 'string', title: 'Success Redirect URL', initialValue: '/newsletter-success', description: 'Where to send users after signing up.' }),
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare({ title }) { return { title: title || 'Newsletter Sign-Up', subtitle: 'Name + email form' } },
           },
         },
         {
@@ -489,16 +814,14 @@ export default defineType({
           name: 'contact_form',
           title: 'Contact Form',
           icon: ContactFormIcon,
-          description: 'A form where visitors can send you a message — name, email, and message fields.',
+          description: 'A form where visitors can send you a message.',
           fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'Heading above the form.', initialValue: 'Contact Us' }),
-            defineField({ name: 'endpoint', type: 'string', title: 'Custom API Endpoint', description: 'Only change this if you use a custom form handler. Leave blank for default.' }),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Contact Us' }),
+            defineField({ name: 'endpoint', type: 'string', title: 'Custom API Endpoint' }),
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) {
-              return { title: title || 'Contact Form', subtitle: 'Email form' }
-            },
+            prepare({ title }) { return { title: title || 'Contact Form', subtitle: 'Email form' } },
           },
         },
         {
@@ -506,21 +829,19 @@ export default defineType({
           name: 'contact_section',
           title: 'Contact Info & Emails',
           icon: ContactInfoIcon,
-          description: 'Displays your contact emails (management, press, bookings) and social links alongside a form.',
+          description: 'Displays contact emails and social links alongside a form.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Heading', initialValue: 'SAY HELLO' }),
-            defineField({ name: 'subtitle', type: 'string', title: 'Subheading', initialValue: 'Have a question...' }),
-            defineField({ name: 'management_email', type: 'string', title: 'Management Email', initialValue: 'mgmt@amiiverse.com' }),
-            defineField({ name: 'press_email', type: 'string', title: 'Press Email', initialValue: 'press@amiiverse.com' }),
-            defineField({ name: 'bookings_email', type: 'string', title: 'Bookings Email', initialValue: 'bookings@amiiverse.com' }),
-            defineField({ name: 'inquiries_email', type: 'string', title: 'General Email', initialValue: 'hello@amiiverse.com' }),
-            defineField({ name: 'show_socials', type: 'boolean', title: 'Show Social Media Icons', description: 'Display your social media links in this section.', initialValue: true }),
+            defineField({ name: 'subtitle', type: 'string', title: 'Subheading' }),
+            defineField({ name: 'management_email', type: 'string', title: 'Management Email', initialValue: 'mgmt@weareamii.com' }),
+            defineField({ name: 'press_email', type: 'string', title: 'Press Email', initialValue: 'press@weareamii.com' }),
+            defineField({ name: 'bookings_email', type: 'string', title: 'Bookings Email', initialValue: 'bookings@weareamii.com' }),
+            defineField({ name: 'inquiries_email', type: 'string', title: 'General Email', initialValue: 'hello@weareamii.com' }),
+            defineField({ name: 'show_socials', type: 'boolean', title: 'Show Social Icons', initialValue: true }),
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) {
-              return { title: title || 'Contact Info', subtitle: 'Emails & social links' }
-            },
+            prepare({ title }) { return { title: title || 'Contact Info', subtitle: 'Emails & social links' } },
           },
         },
 
@@ -531,35 +852,28 @@ export default defineType({
         { type: 'link_stack' },
 
         // ═══════════════════════════════════════
-        //  LAYOUT
+        //  LAYOUT & DECORATIVE
         // ═══════════════════════════════════════
         {
           type: 'object',
           name: 'spacer',
           title: 'Spacer',
           icon: SpacerIcon,
-          description: 'Add empty space between sections to create breathing room.',
+          description: 'Add empty space between sections.',
           fields: [
             defineField({
               name: 'size',
               type: 'string',
-              title: 'How much space?',
-              options: {
-                list: [
-                  { title: 'A little', value: 'sm' },
-                  { title: 'Medium', value: 'md' },
-                  { title: 'A lot', value: 'lg' },
-                ],
-                layout: 'radio',
-              },
+              title: 'Size',
+              options: { list: [{ title: 'Small', value: 'sm' }, { title: 'Medium', value: 'md' }, { title: 'Large', value: 'lg' }], layout: 'radio' },
               initialValue: 'md',
             }),
           ],
           preview: {
             select: { size: 'size' },
             prepare({ size }) {
-              const label = { sm: 'Small gap', md: 'Medium gap', lg: 'Large gap' }[(size || 'md') as 'sm' | 'md' | 'lg']
-              return { title: label || 'Spacer', subtitle: 'Empty space' }
+              const label = { sm: 'Small', md: 'Medium', lg: 'Large' }[(size || 'md') as 'sm' | 'md' | 'lg']
+              return { title: `${label} Spacer` }
             },
           },
         },
@@ -568,46 +882,27 @@ export default defineType({
           name: 'divider',
           title: 'Divider Line',
           icon: DividerIcon,
-          description: 'A horizontal line to visually separate sections — choose solid, dashed, dotted, or gradient.',
+          description: 'A horizontal line to separate sections.',
           fields: [
             defineField({
               name: 'style',
               type: 'string',
-              title: 'Line Style',
-              description: 'How the line looks.',
-              options: {
-                list: [
-                  { title: 'Solid line', value: 'solid' },
-                  { title: 'Dashed line', value: 'dashed' },
-                  { title: 'Dotted line', value: 'dotted' },
-                  { title: 'Gradient fade', value: 'gradient' },
-                ],
-                layout: 'radio',
-              },
+              title: 'Style',
+              options: { list: [{ title: 'Solid', value: 'solid' }, { title: 'Dashed', value: 'dashed' }, { title: 'Dotted', value: 'dotted' }, { title: 'Gradient', value: 'gradient' }], layout: 'radio' },
               initialValue: 'solid',
             }),
             defineField({
               name: 'width',
               type: 'string',
               title: 'Width',
-              description: 'How wide the line stretches.',
-              options: {
-                list: [
-                  { title: 'Short (centered)', value: 'short' },
-                  { title: 'Medium', value: 'medium' },
-                  { title: 'Full width', value: 'full' },
-                ],
-                layout: 'radio',
-              },
+              options: { list: [{ title: 'Short', value: 'short' }, { title: 'Medium', value: 'medium' }, { title: 'Full', value: 'full' }], layout: 'radio' },
               initialValue: 'medium',
             }),
           ],
           preview: {
             select: { style: 'style', width: 'width' },
             prepare({ style, width }) {
-              const styleLabel = { solid: 'Solid', dashed: 'Dashed', dotted: 'Dotted', gradient: 'Gradient' }[(style || 'solid') as 'solid' | 'dashed' | 'dotted' | 'gradient']
-              const widthLabel = { short: 'Short', medium: 'Medium', full: 'Full' }[(width || 'medium') as 'short' | 'medium' | 'full']
-              return { title: `${styleLabel} Divider`, subtitle: `${widthLabel} width` }
+              return { title: `${style || 'Solid'} Divider`, subtitle: `${width || 'Medium'} width` }
             },
           },
         },
@@ -616,51 +911,27 @@ export default defineType({
           name: 'marquee',
           title: 'Scrolling Ticker',
           icon: MarqueeIcon,
-          description: 'Text that scrolls across the screen on repeat — great for announcements, hype text, or aesthetic flair.',
+          description: 'Text that scrolls across the screen on repeat.',
           fields: [
-            defineField({
-              name: 'text',
-              type: 'string',
-              title: 'Ticker Text',
-              description: 'The text that scrolls. It repeats automatically. (e.g. "NEW SINGLE OUT NOW ★ TOUR 2026 ★")',
-              validation: (rule) => rule.required(),
-            }),
+            defineField({ name: 'text', type: 'string', title: 'Ticker Text', validation: (rule) => rule.required() }),
             defineField({
               name: 'speed',
               type: 'string',
-              title: 'Scroll Speed',
-              options: {
-                list: [
-                  { title: 'Slow & smooth', value: 'slow' },
-                  { title: 'Normal', value: 'normal' },
-                  { title: 'Fast & energetic', value: 'fast' },
-                ],
-                layout: 'radio',
-              },
+              title: 'Speed',
+              options: { list: [{ title: 'Slow', value: 'slow' }, { title: 'Normal', value: 'normal' }, { title: 'Fast', value: 'fast' }], layout: 'radio' },
               initialValue: 'normal',
             }),
             defineField({
               name: 'variant',
               type: 'string',
               title: 'Style',
-              description: 'How the ticker looks.',
-              options: {
-                list: [
-                  { title: 'Default (matches page)', value: 'default' },
-                  { title: 'Bold (inverted colors)', value: 'bold' },
-                  { title: 'Subtle (muted text)', value: 'subtle' },
-                ],
-                layout: 'radio',
-              },
+              options: { list: [{ title: 'Default', value: 'default' }, { title: 'Bold', value: 'bold' }, { title: 'Subtle', value: 'subtle' }], layout: 'radio' },
               initialValue: 'default',
             }),
           ],
           preview: {
-            select: { text: 'text', speed: 'speed' },
-            prepare({ text, speed }) {
-              const speedLabel = { slow: 'Slow', normal: 'Normal', fast: 'Fast' }[(speed || 'normal') as 'slow' | 'normal' | 'fast']
-              return { title: text || 'Scrolling Ticker', subtitle: `${speedLabel} speed` }
-            },
+            select: { text: 'text' },
+            prepare({ text }) { return { title: text || 'Scrolling Ticker' } },
           },
         },
         {
@@ -668,34 +939,15 @@ export default defineType({
           name: 'lyric_highlight',
           title: 'Lyric / Quote Highlight',
           icon: LyricIcon,
-          description: 'A big, stylized standalone quote — perfect for song lyrics, group mottos, taglines, or inspirational text.',
+          description: 'A big, stylized standalone quote or lyric.',
           fields: [
-            defineField({
-              name: 'text',
-              type: 'text',
-              title: 'Quote Text',
-              rows: 3,
-              description: 'The text to display big and bold.',
-              validation: (rule) => rule.required(),
-            }),
-            defineField({
-              name: 'attribution',
-              type: 'string',
-              title: 'Source (optional)',
-              description: 'Where the quote is from — a song title, the group name, etc.',
-            }),
+            defineField({ name: 'text', type: 'text', title: 'Quote Text', rows: 3, validation: (rule) => rule.required() }),
+            defineField({ name: 'attribution', type: 'string', title: 'Source' }),
             defineField({
               name: 'alignment',
               type: 'string',
-              title: 'Text Alignment',
-              options: {
-                list: [
-                  { title: 'Left', value: 'left' },
-                  { title: 'Center', value: 'center' },
-                  { title: 'Right', value: 'right' },
-                ],
-                layout: 'radio',
-              },
+              title: 'Alignment',
+              options: { list: [{ title: 'Left', value: 'left' }, { title: 'Center', value: 'center' }, { title: 'Right', value: 'right' }], layout: 'radio' },
               initialValue: 'center',
             }),
           ],
@@ -713,9 +965,9 @@ export default defineType({
     }),
   ],
   preview: {
-    select: { title: 'title', slug: 'slug.current' },
-    prepare({ title, slug }) {
-      return { title: title || 'Untitled Page', subtitle: slug ? `/${slug}` : 'No URL set' }
+    select: { title: 'title', slug: 'slug.current', pageType: 'pageType' },
+    prepare({ title, slug, pageType }) {
+      return { title: title || 'Untitled Page', subtitle: `${pageType ? `[${pageType}] ` : ''}/${slug || ''}` }
     },
   },
 })
