@@ -1,5 +1,4 @@
 ---
-import { Icon } from "astro-icon/components";
 import { fetchGlobalSettings } from "../../utils/global";
 
 const settings = await fetchGlobalSettings();
@@ -71,10 +70,7 @@ import Navigation from "../ui/Navigation.astro";
                             target="_blank"
                             aria-label={social.platform}
                         >
-                            <Icon
-                                name={`simple-icons:${social.icon}`}
-                                class={`social-icon icon-${social.icon}`}
-                            />
+                            <span class="social-pill">{social.platform}</span>
                         </a>
                     ))
                 }
@@ -209,6 +205,14 @@ import Navigation from "../ui/Navigation.astro";
         width: 20px;
         height: 20px;
         color: inherit;
+    }
+
+    .site-footer .social-pill {
+        font-size: 11px;
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
     }
 
     /* Copyright & Compliance */
