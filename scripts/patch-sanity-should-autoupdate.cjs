@@ -14,6 +14,10 @@ const buggyInstalledAssign =
   "installed = semver.coerce(manifestPath ? semver.parse((await readPackageManifest(manifestPath)).version) : semver.coerce(manifestVersion));";
 const fixedInstalledAssign =
   "installed = manifestPath ? semver.parse((await readPackageManifest(manifestPath)).version) ?? semver.coerce(manifestVersion) : semver.coerce(manifestVersion);";
+const buggyInstalledAssignV513 =
+  "installed = semver.coerce(manifestPath ? semver.parse((await readPackageManifest(manifestPath)).version) : semver.coerce(manifestVersion));";
+const fixedInstalledAssignV513 =
+  "installed = manifestPath ? semver.parse((await readPackageManifest(manifestPath)).version) ?? semver.coerce(manifestVersion) : semver.coerce(manifestVersion);";
 
 const buggyThrow =
   "if (!installed)\n      throw new Error(`Failed to parse installed version for ${pkg}`);";
@@ -26,7 +30,8 @@ if (!fs.existsSync(filePath)) {
 
 const source = fs.readFileSync(filePath, "utf8");
 
-if (source.includes(fixedInstalledAssign) && source.includes(fixedThrow)) {
+const hasFixedInstalled = source.includes(fixedInstalledAssign) || source.includes(fixedInstalledAssignV513);
+if (hasFixedInstalled && source.includes(fixedThrow)) {
   console.log("[patch-sanity] Already patched");
   process.exit(0);
 }
@@ -36,6 +41,11 @@ let didPatch = false;
 
 if (output.includes(buggyInstalledAssign)) {
   output = output.replace(buggyInstalledAssign, fixedInstalledAssign);
+  didPatch = true;
+}
+
+if (output.includes(buggyInstalledAssignV513)) {
+  output = output.replace(buggyInstalledAssignV513, fixedInstalledAssignV513);
   didPatch = true;
 }
 
