@@ -211,6 +211,9 @@ Path:
    - `weareamii.com`
    - `www.weareamii.com`
 
+Note:
+- `cms.weareamii.com` is for Sanity Studio and should not be added to this Pages project.
+
 ## 4B) DNS records
 Path:
 1. Cloudflare -> your zone `weareamii.com`
@@ -223,6 +226,11 @@ What to keep/add:
    - Name: `www`
    - Target: `weareamii.com`
    - Proxy: ON (orange cloud)
+3. Add `cms` record for Sanity Studio custom domain:
+   - Type: `CNAME`
+   - Name: `cms`
+   - Target: `cname.sanity.io`
+   - Proxy: OFF (DNS only)
 
 Do not do this:
 - Do not enter `https://` in DNS target/content.
@@ -230,6 +238,21 @@ Do not do this:
 
 Success check:
 - `www` CNAME exists and is proxied.
+- `cms` CNAME exists and is DNS-only.
+
+---
+
+## Step 4C: Connect `cms.weareamii.com` to Sanity Studio
+
+Path:
+1. Open Sanity project manage page: `https://www.sanity.io/manage/project/pxn399gi`
+2. Open `Studio` -> `Host`
+3. Add custom domain: `cms.weareamii.com`
+4. Complete verification/SSL prompts in Sanity
+
+Success check:
+1. `https://cms.weareamii.com` opens Sanity Studio login
+2. `https://weareamii.com/admin` redirects to Studio
 
 ---
 
