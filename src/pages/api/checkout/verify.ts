@@ -1,8 +1,13 @@
 import type { APIRoute } from "astro";
 import {
     getCloudflareRuntimeEnv,
-    getServerEnvValue,
 } from "../../../lib/server/cloudflareRuntimeEnv";
+import {
+    getPaymentProvider,
+    getPaymentSecretKey,
+    verifyProviderPayment,
+    type PaymentProvider,
+} from "../../../lib/server/paymentGateway";
 
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
@@ -22,10 +27,7 @@ function jsonResponse(body: Record<string, unknown>, status = 200): Response {
 }
 
 export const GET: APIRoute = async ({ url, locals }) => {
-    const PAYSTACK_SECRET_KEY = getServerEnvValue(
-        { locals },
-        "PAYSTACK_SECRET_KEY",
-    );
+    const configuredProvider = getPaymentProvider({ locals });
     const runtimeEnv = getCloudflareRuntimeEnv({ locals });
     const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
@@ -35,9 +37,6 @@ export const GET: APIRoute = async ({ url, locals }) => {
         return jsonResponse({ status: "no_reference" }, 400);
     }
 
-    if (!PAYSTACK_SECRET_KEY) {
-        return jsonResponse({ error: "Missing PAYSTACK_SECRET_KEY" }, 500);
-    }
     if (!db) {
         return jsonResponse({ error: "Missing D1 binding `DB`" }, 500);
     }
@@ -45,7 +44,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     try {
         const order = await db
             .prepare(
-                `SELECT id, cart_id, email, amount_kobo, status
+                `SELECT id, cart_id, email, amount_kobo, status, payment_provider
                  FROM orders
                  WHERE reference = ?
                  LIMIT 1`,
@@ -57,36 +56,51 @@ export const GET: APIRoute = async ({ url, locals }) => {
             return jsonResponse({ status: "failed", message: "Order not found" }, 404);
         }
 
-        const paystackResponse = await fetch(
-            `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+        const orderProviderValue = String(order.payment_provider || "").toLowerCase();
+        const provider: PaymentProvider =
+            orderProviderValue === "flutterwave" || orderProviderValue === "paystack"
+                ? (orderProviderValue as PaymentProvider)
+                : configuredProvider;
+        const providerSecretKey = getPaymentSecretKey({ locals }, provider);
+
+        if (!providerSecretKey) {
+            return jsonResponse(
+                {
+                    error:
+                        provider === "flutterwave"
+                            ? "Missing FLUTTERWAVE_SECRET_KEY"
+                            : "Missing PAYSTACK_SECRET_KEY",
                 },
-            },
-        );
+                500,
+            );
+        }
 
-        const paystackData = await paystackResponse.json();
-        const paystackStatus = paystackData?.data?.status;
+        const verification = await verifyProviderPayment({
+            provider,
+            secretKey: providerSecretKey,
+            reference,
+        });
 
-        if (!paystackResponse.ok || !paystackData?.status) {
+        if (!verification.ok) {
             return jsonResponse({
                 status: "error",
-                message: paystackData?.message || "Paystack verification failed",
+                message: verification.error || "Payment verification failed",
             });
         }
 
-        if (paystackStatus !== "success") {
+        if (!verification.paid) {
             await db
                 .prepare(
                     `UPDATE orders
                      SET status = CASE WHEN status = 'paid' THEN status ELSE 'failed' END,
+                         provider_raw_json = ?,
                          paystack_raw_json = ?,
                          updated_at = ?
                      WHERE reference = ?`,
                 )
                 .bind(
-                    JSON.stringify(paystackData ?? {}),
+                    JSON.stringify(verification.raw ?? {}),
+                    JSON.stringify(verification.raw ?? {}),
                     new Date().toISOString(),
                     reference,
                 )
@@ -95,30 +109,41 @@ export const GET: APIRoute = async ({ url, locals }) => {
             return jsonResponse({
                 status: "failed",
                 reference,
-                paystackStatus,
+                provider,
+                providerStatus: verification.providerStatus,
             });
         }
 
         const nowIso = new Date().toISOString();
         const cartId = String(order.cart_id ?? "");
-        const transactionId = String(paystackData?.data?.id ?? "").trim();
+        const transactionId = verification.transactionId;
 
         await db
             .prepare(
                 `UPDATE orders
                  SET status = 'paid',
+                     provider_transaction_id = CASE
+                         WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
+                         THEN ?
+                         ELSE provider_transaction_id
+                     END,
                      paystack_transaction_id = CASE
                          WHEN paystack_transaction_id IS NULL OR paystack_transaction_id = ''
                          THEN ?
                          ELSE paystack_transaction_id
                      END,
+                     provider_raw_json = ?,
                      paystack_raw_json = ?,
+                     payment_provider = ?,
                      updated_at = ?
                  WHERE reference = ?`,
             )
             .bind(
                 transactionId,
-                JSON.stringify(paystackData),
+                transactionId,
+                JSON.stringify(verification.raw),
+                JSON.stringify(verification.raw),
+                provider,
                 nowIso,
                 reference,
             )
@@ -138,10 +163,11 @@ export const GET: APIRoute = async ({ url, locals }) => {
         return jsonResponse({
             status: "paid",
             reference,
-            paystackStatus,
-            email: paystackData?.data?.customer?.email || String(order.email || ""),
-            amount: paystackData?.data?.amount ?? Number(order.amount_kobo || 0),
-            currency: paystackData?.data?.currency || "NGN",
+            provider,
+            providerStatus: verification.providerStatus,
+            email: verification.email || String(order.email || ""),
+            amount: verification.amountKobo || Number(order.amount_kobo || 0),
+            currency: verification.currency || "NGN",
             order: {
                 id: String(order.id || ""),
                 cartId: cartId || null,

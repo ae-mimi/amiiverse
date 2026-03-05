@@ -125,6 +125,16 @@ export const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
   }
 }`;
 
+export const ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY = `*[
+  _type == "campaign" &&
+  status == "live" &&
+  (!defined(startDate) || startDate <= now()) &&
+  (!defined(endDate) || endDate >= now())
+][0]{
+  "logo_navy": themeOverride.logo_navy.asset->url,
+  "logo_yellow": themeOverride.logo_yellow.asset->url
+}`;
+
 // ── Releases ────────────────────────────────────────────
 
 export const ALL_RELEASES_QUERY = `*[_type == "release"] | order(releaseDate desc) {

@@ -1,6 +1,6 @@
 import { defineField, defineType } from 'sanity'
 import {
-  PageIcon,
+  PageIcon, SettingsIcon, SEOIcon,
   HeroHomeIcon, HeroPredebutIcon, HeroPageIcon,
   IntroIcon, RichTextIcon, GalleryIcon, VideoIcon,
   CTAIcon, CountdownIcon, FAQIcon, TestimonialIcon,
@@ -20,9 +20,9 @@ export default defineType({
   type: 'document',
   icon: PageIcon,
   groups: [
-    { name: 'content', title: 'Content', default: true },
-    { name: 'settings', title: 'Settings' },
-    { name: 'seo', title: 'SEO' },
+    { name: 'content', title: 'Content', icon: PageIcon, default: true },
+    { name: 'settings', title: 'Settings', icon: SettingsIcon },
+    { name: 'seo', title: 'SEO', icon: SEOIcon },
   ],
   fields: [
     defineField({
@@ -833,10 +833,10 @@ export default defineType({
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Heading', initialValue: 'SAY HELLO' }),
             defineField({ name: 'subtitle', type: 'string', title: 'Subheading' }),
-            defineField({ name: 'management_email', type: 'string', title: 'Management Email', initialValue: 'mgmt@amiiverse.com' }),
-            defineField({ name: 'press_email', type: 'string', title: 'Press Email', initialValue: 'press@amiiverse.com' }),
-            defineField({ name: 'bookings_email', type: 'string', title: 'Bookings Email', initialValue: 'bookings@amiiverse.com' }),
-            defineField({ name: 'inquiries_email', type: 'string', title: 'General Email', initialValue: 'hello@amiiverse.com' }),
+            defineField({ name: 'management_email', type: 'string', title: 'Management Email', initialValue: 'mgmt@weareamii.com' }),
+            defineField({ name: 'press_email', type: 'string', title: 'Press Email', initialValue: 'press@weareamii.com' }),
+            defineField({ name: 'bookings_email', type: 'string', title: 'Bookings Email', initialValue: 'bookings@weareamii.com' }),
+            defineField({ name: 'inquiries_email', type: 'string', title: 'General Email', initialValue: 'hello@weareamii.com' }),
             defineField({ name: 'show_socials', type: 'boolean', title: 'Show Social Icons', initialValue: true }),
           ],
           preview: {

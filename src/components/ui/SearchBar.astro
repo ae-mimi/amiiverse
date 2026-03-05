@@ -5,7 +5,7 @@
     <label class="srOnly" for="site-search-input">Search products</label>
     <input
         id="site-search-input"
-        class="header-search-input"
+        class="header-search-input input-shape-pill"
         type="search"
         placeholder="Search products"
         autocomplete="off"
@@ -117,12 +117,13 @@
 
     .header-search-input {
         width: 100%;
-        border: 1px solid var(--color-primary);
-        border-radius: 999px;
-        padding: 8px 14px;
-        background: transparent;
-        color: var(--text-nav);
         font-size: 0.85rem;
+        --field-padding-block: 8px;
+        --field-padding-inline: 14px;
+        --field-bg: transparent;
+        --field-text-color: var(--text-nav);
+        --field-border-color: var(--color-primary);
+        --input-focus-ring-color: color-mix(in srgb, var(--color-primary), transparent 75%);
     }
 
     .header-search-results {

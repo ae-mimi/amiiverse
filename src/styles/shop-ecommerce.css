@@ -495,9 +495,9 @@
 
 .formControl {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    --field-padding-block: 0.75rem;
+    --field-padding-inline: 0.75rem;
+    --field-border-color: color-mix(in srgb, var(--input-border), transparent 75%);
 }
 
 .horizontal.dark {

@@ -106,6 +106,20 @@
   --input-border: var(--color-primary);
   --input-text: var(--color-text);
   --input-placeholder: rgba(30, 30, 46, 0.6);
+  --input-border-width: 1px;
+  --input-border-width-focus: 2px;
+  --input-focus-ring-size: 3px;
+  --input-focus-ring-color: color-mix(in srgb, var(--input-border), transparent 75%);
+  --field-radius-default: var(--radius-sm);
+  --input-focus-ring-size-rounded: 3px;
+  --input-focus-ring-color-rounded: color-mix(in srgb, var(--input-border), transparent 75%);
+  --input-focus-ring-size-pill: 2px;
+  --input-focus-ring-color-pill: color-mix(in srgb, var(--input-border), transparent 82%);
+  --input-focus-ring-size-rect: 2px;
+  --input-focus-ring-color-rect: color-mix(in srgb, var(--input-border), transparent 62%);
+  --input-border-width-focus-pill: 2px;
+  --input-border-width-focus-rounded: 2px;
+  --input-border-width-focus-rect: 2px;
   /* Fallback */
 
   /* Graphics */
@@ -164,6 +178,105 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+/* Unified form controls (text-like only) */
+:where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+    textarea,
+    select
+  ) {
+  width: 100%;
+  background: var(--field-bg, var(--input-bg));
+  color: var(--field-text-color, var(--input-text));
+  border: var(--field-border-width, var(--input-border-width)) solid
+    var(--field-border-color, var(--input-border));
+  border-radius: var(--field-radius, var(--field-radius-default));
+  padding: var(--field-padding-block, 0.65rem) var(--field-padding-inline, 0.85rem);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+:where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+    textarea,
+    select
+  )::placeholder {
+  color: var(--input-placeholder);
+}
+
+:where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+    textarea,
+    select
+  ):focus {
+  outline: none;
+  border-width: var(--field-border-width-focus, var(--input-border-width-focus));
+  box-shadow: 0 0 0 var(--input-focus-ring-size) var(--input-focus-ring-color);
+}
+
+:where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+    textarea,
+    select
+  ):disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Shape utilities: apply directly on the field */
+.input-shape-rounded {
+  --field-radius: var(--radius-sm);
+  --field-border-width-focus: var(--input-border-width-focus-rounded);
+  --input-focus-ring-size: var(--input-focus-ring-size-rounded);
+  --input-focus-ring-color: var(--input-focus-ring-color-rounded);
+}
+
+.input-shape-pill {
+  --field-radius: var(--radius-pill);
+  --field-border-width-focus: var(--input-border-width-focus-pill);
+  --input-focus-ring-size: var(--input-focus-ring-size-pill);
+  --input-focus-ring-color: var(--input-focus-ring-color-pill);
+}
+
+.input-shape-rect {
+  --field-radius: 0;
+  --field-border-width-focus: var(--input-border-width-focus-rect);
+  --input-focus-ring-size: var(--input-focus-ring-size-rect);
+  --input-focus-ring-color: var(--input-focus-ring-color-rect);
+}
+
+/* Shape utilities: apply on a container */
+.field-shape-rounded :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+    textarea,
+    select
+  ) {
+  --field-radius: var(--radius-sm);
+  --field-border-width-focus: var(--input-border-width-focus-rounded);
+  --input-focus-ring-size: var(--input-focus-ring-size-rounded);
+  --input-focus-ring-color: var(--input-focus-ring-color-rounded);
+}
+
+.field-shape-pill :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+    textarea,
+    select
+  ) {
+  --field-radius: var(--radius-pill);
+  --field-border-width-focus: var(--input-border-width-focus-pill);
+  --input-focus-ring-size: var(--input-focus-ring-size-pill);
+  --input-focus-ring-color: var(--input-focus-ring-color-pill);
+}
+
+.field-shape-rect :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+    textarea,
+    select
+  ) {
+  --field-radius: 0;
+  --field-border-width-focus: var(--input-border-width-focus-rect);
+  --input-focus-ring-size: var(--input-focus-ring-size-rect);
+  --input-focus-ring-color: var(--input-focus-ring-color-rect);
 }
 
 /* Utilities */
@@ -606,20 +719,20 @@ select {
 
 .shopSearchInput {
   width: 100%;
-  padding: 0.8rem 1rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: var(--color-bg);
+  --field-padding-block: 0.8rem;
+  --field-padding-inline: 1rem;
+  --field-bg: var(--color-bg);
+  --field-border-color: color-mix(in srgb, var(--input-border), transparent 80%);
   font-family: inherit;
   font-size: 1rem;
   color: var(--color-primary);
 }
 
 .shopSortSelect {
-  padding: 0.8rem 1.5rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: var(--color-bg);
+  --field-padding-block: 0.8rem;
+  --field-padding-inline: 1.5rem;
+  --field-bg: var(--color-bg);
+  --field-border-color: color-mix(in srgb, var(--input-border), transparent 80%);
   font-family: inherit;
   font-size: 1rem;
   cursor: pointer;

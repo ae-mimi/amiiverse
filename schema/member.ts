@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { MemberIcon } from './icons'
+import { MemberIcon, GeneralIcon, ThemeIcon, RichTextIcon, SocialIcon } from './icons'
 
 export default defineType({
     name: 'member',
@@ -7,10 +7,10 @@ export default defineType({
     type: 'document',
     icon: MemberIcon,
     groups: [
-        { name: 'profile', title: 'Profile', default: true },
-        { name: 'identity', title: 'Identity & Virtues' },
-        { name: 'bio', title: 'Biography' },
-        { name: 'socials', title: 'Socials' },
+        { name: 'profile', title: 'Profile', icon: GeneralIcon, default: true },
+        { name: 'identity', title: 'Identity & Virtues', icon: ThemeIcon },
+        { name: 'bio', title: 'Biography', icon: RichTextIcon },
+        { name: 'socials', title: 'Socials', icon: SocialIcon },
     ],
     fields: [
         // ── Profile ─────────────────────────────────

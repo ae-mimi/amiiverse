@@ -246,14 +246,14 @@ const initialTotal = initialCounts.reduce((a: number, b: number) => a + b, 0);
         transition: opacity 0.3s;
     }
     .poll-option:hover:not(:disabled) {
-        border-color: var(--color-accent, #e44598);
+        border-color: var(--color-accent);
         background: rgba(228, 69, 152, 0.05);
     }
     .poll-option--voted .poll-option__pct {
         opacity: 1;
     }
     .poll-option--selected {
-        border-color: var(--color-accent, #e44598);
+        border-color: var(--color-accent);
         background: rgba(228, 69, 152, 0.08);
     }
     .poll-option--disabled {

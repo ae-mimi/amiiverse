@@ -1,15 +1,24 @@
 import { defineField, defineType } from 'sanity'
+import {
+    ReleaseIcon,
+    GeneralIcon,
+    SmartLinksIcon,
+    RichTextIcon,
+    GalleryIcon,
+    SEOIcon,
+} from '../icons'
 
 export default defineType({
     name: 'release',
     title: 'Release',
     type: 'document',
+    icon: ReleaseIcon,
     groups: [
-        { name: 'info', title: 'Release Info', default: true },
-        { name: 'links', title: 'Links & Streaming' },
-        { name: 'content', title: 'Story & Credits' },
-        { name: 'media', title: 'Media' },
-        { name: 'seo', title: 'SEO' },
+        { name: 'info', title: 'Release Info', icon: GeneralIcon, default: true },
+        { name: 'links', title: 'Links & Streaming', icon: SmartLinksIcon },
+        { name: 'content', title: 'Story & Credits', icon: RichTextIcon },
+        { name: 'media', title: 'Media', icon: GalleryIcon },
+        { name: 'seo', title: 'SEO', icon: SEOIcon },
     ],
     fields: [
         // ── Info ─────────────────────────────────────

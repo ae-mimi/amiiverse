@@ -340,7 +340,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
         });
     }
 
-    const BREVO_LIST_ID = getServerEnvValue({ locals }, "BREVO_LIST_ID");
+    const BREVO_LIST_ID =
+        getServerEnvValue({ locals }, "BREVO_NEWSLETTER_LIST_ID") ||
+        getServerEnvValue({ locals }, "BREVO_LIST_ID");
     const BREVO_DOUBLE_OPT_IN_TEMPLATE_ID = getServerEnvValue(
         { locals },
         "BREVO_DOUBLE_OPT_IN_TEMPLATE_ID",

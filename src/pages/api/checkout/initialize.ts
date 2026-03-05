@@ -1,8 +1,12 @@
 import type { APIRoute } from "astro";
 import {
     getCloudflareRuntimeEnv,
-    getServerEnvValue,
 } from "../../../lib/server/cloudflareRuntimeEnv";
+import {
+    getPaymentProvider,
+    getPaymentSecretKey,
+    initializeProviderPayment,
+} from "../../../lib/server/paymentGateway";
 
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
@@ -43,15 +47,21 @@ function createOrderId(): string {
 
 export const POST: APIRoute = async ({ request, locals }) => {
     try {
-        const PAYSTACK_SECRET_KEY = getServerEnvValue(
-            { locals },
-            "PAYSTACK_SECRET_KEY",
-        );
+        const provider = getPaymentProvider({ locals });
+        const providerSecretKey = getPaymentSecretKey({ locals }, provider);
         const runtimeEnv = getCloudflareRuntimeEnv({ locals });
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
-        if (!PAYSTACK_SECRET_KEY) {
-            return jsonResponse({ error: "Missing PAYSTACK_SECRET_KEY" }, 500);
+        if (!providerSecretKey) {
+            return jsonResponse(
+                {
+                    error:
+                        provider === "flutterwave"
+                            ? "Missing FLUTTERWAVE_SECRET_KEY"
+                            : "Missing PAYSTACK_SECRET_KEY",
+                },
+                500,
+            );
         }
         if (!db) {
             return jsonResponse({ error: "Missing D1 binding `DB`" }, 500);
@@ -60,6 +70,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const body = await request.json().catch(() => ({}));
         const cartId = String(body?.cartId || "").trim();
         const email = String(body?.email || "").trim().toLowerCase();
+        const phone = String(body?.phone || "").trim();
 
         if (!cartId || !email) {
             return jsonResponse({ error: "cartId and email are required" }, 400);
@@ -116,12 +127,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
                     reference,
                     email,
                     amount_kobo,
+                    payment_provider,
                     status,
                     created_at,
                     updated_at
-                ) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
             )
-            .bind(orderId, cartId, reference, email, amountKobo, nowIso, nowIso)
+            .bind(
+                orderId,
+                cartId,
+                reference,
+                email,
+                amountKobo,
+                provider,
+                nowIso,
+                nowIso,
+            )
             .run();
 
         await db
@@ -133,54 +154,48 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .bind(email, nowIso, cartId)
             .run();
 
-        const paystackResponse = await fetch(
-            "https://api.paystack.co/transaction/initialize",
-            {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                    amount: amountKobo,
-                    reference,
-                    callback_url: callbackUrl,
-                    metadata: {
-                        orderId,
-                        cartId,
-                        source: "d1_checkout",
-                    },
-                }),
-            },
-        );
+        const initialization = await initializeProviderPayment({
+            provider,
+            secretKey: providerSecretKey,
+            email,
+            amountKobo,
+            reference,
+            callbackUrl,
+            orderId,
+            cartId,
+            phone,
+        });
 
-        const paystackData = await paystackResponse.json().catch(() => null);
-        const authorizationUrl = paystackData?.data?.authorization_url;
-
-        if (!paystackResponse.ok || !paystackData?.status || !authorizationUrl) {
+        if (!initialization.ok) {
             await db
                 .prepare(
                     `UPDATE orders
-                     SET status = 'failed', paystack_raw_json = ?, updated_at = ?
+                     SET status = 'failed',
+                         provider_raw_json = ?,
+                         paystack_raw_json = ?,
+                         updated_at = ?
                      WHERE id = ?`,
                 )
-                .bind(JSON.stringify(paystackData ?? {}), new Date().toISOString(), orderId)
+                .bind(
+                    JSON.stringify(initialization.raw ?? {}),
+                    JSON.stringify(initialization.raw ?? {}),
+                    new Date().toISOString(),
+                    orderId,
+                )
                 .run();
 
             return jsonResponse(
                 {
-                    error:
-                        paystackData?.message ||
-                        "Unable to initialize Paystack transaction",
+                    error: initialization.error || "Unable to initialize transaction",
                 },
                 502,
             );
         }
 
         return jsonResponse({
-            authorization_url: authorizationUrl,
+            authorization_url: initialization.authorizationUrl,
             reference,
+            provider,
         });
     } catch (error: any) {
         console.error("[checkout/initialize] Unexpected error", error);

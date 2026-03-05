@@ -23,8 +23,8 @@ const DEFAULT_THEME: Theme = {
     mutedTextColor: '#64748B',
     buttonStyle: 'filled',
     borderRadiusScale: 'medium',
-    headingFont: 'Inter',
-    bodyFont: 'Inter',
+    headingFont: 'Starbim',
+    bodyFont: 'Archivo',
 };
 
 export async function getActiveTheme(): Promise<Theme> {

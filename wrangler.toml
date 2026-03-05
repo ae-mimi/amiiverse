@@ -1,0 +1,7 @@
+name = "amiiverse"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "amiiverse-db"
+database_id = "b837948d-b000-4a20-ab73-c5bd63b74820"

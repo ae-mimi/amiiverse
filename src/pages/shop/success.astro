@@ -1,10 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
-import {
-    getCloudflareRuntimeEnv,
-    getServerEnvValue,
-} from "../../lib/server/cloudflareRuntimeEnv";
+import { getCloudflareRuntimeEnv } from "../../lib/server/cloudflareRuntimeEnv";
 
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
@@ -19,10 +16,6 @@ interface D1DatabaseLike {
 type ViewState = "paid" | "failed" | "error" | "no_reference";
 
 const reference = String(Astro.url.searchParams.get("reference") || "").trim();
-const PAYSTACK_SECRET_KEY = getServerEnvValue(
-    { locals: Astro.locals },
-    "PAYSTACK_SECRET_KEY",
-);
 const runtimeEnv = getCloudflareRuntimeEnv({ locals: Astro.locals });
 const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
@@ -42,7 +35,7 @@ function formatAmountKobo(kobo: number): string {
 if (!reference) {
     state = "no_reference";
     message = "No payment reference was provided.";
-} else if (!db || !PAYSTACK_SECRET_KEY) {
+} else if (!db) {
     state = "error";
     message = "Server configuration error during payment verification.";
 } else {
@@ -62,46 +55,43 @@ if (!reference) {
             message = "Order reference was not found.";
         } else {
             const verifyResponse = await fetch(
-                `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
-                    },
-                },
+                `${new URL(Astro.request.url).origin}/api/checkout/verify?reference=${encodeURIComponent(reference)}`,
             );
 
             const verifyJson = await verifyResponse.json().catch(() => null);
-            const paystackSuccess =
-                verifyResponse.ok &&
-                Boolean(verifyJson?.status) &&
-                String(verifyJson?.data?.status || "") === "success";
+            const paymentSuccess =
+                verifyResponse.ok && String(verifyJson?.status || "") === "paid";
 
             const nowIso = new Date().toISOString();
             const cartId = String(orderRow.cart_id || "");
-            orderEmail = String(
-                orderRow.email || verifyJson?.data?.customer?.email || "",
-            );
-            amountKobo = Number(
-                orderRow.amount_kobo || verifyJson?.data?.amount || 0,
-            );
-            transactionId = String(verifyJson?.data?.id ?? "").trim();
+            orderEmail = String(orderRow.email || verifyJson?.email || "");
+            amountKobo = Number(orderRow.amount_kobo || verifyJson?.amount || 0);
+            transactionId = String(verifyJson?.order?.transactionId ?? "").trim();
 
-            if (paystackSuccess) {
+            if (paymentSuccess) {
                 await db
                     .prepare(
                         `UPDATE orders
                          SET status = 'paid',
+                             provider_transaction_id = CASE
+                                 WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
+                                 THEN ?
+                                 ELSE provider_transaction_id
+                             END,
                              paystack_transaction_id = CASE
                                  WHEN paystack_transaction_id IS NULL OR paystack_transaction_id = ''
                                  THEN ?
                                  ELSE paystack_transaction_id
                              END,
+                             provider_raw_json = ?,
                              paystack_raw_json = ?,
                              updated_at = ?
                          WHERE reference = ?`,
                     )
                     .bind(
                         transactionId,
+                        transactionId,
+                        JSON.stringify(verifyJson),
                         JSON.stringify(verifyJson),
                         nowIso,
                         reference,
@@ -128,11 +118,13 @@ if (!reference) {
                         .prepare(
                             `UPDATE orders
                              SET status = 'failed',
+                                 provider_raw_json = ?,
                                  paystack_raw_json = ?,
                                  updated_at = ?
                              WHERE reference = ?`,
                         )
                         .bind(
+                            JSON.stringify(verifyJson ?? {}),
                             JSON.stringify(verifyJson ?? {}),
                             nowIso,
                             reference,

@@ -37,6 +37,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
                     type="text"
                     id="newsletter-name"
                     name="name"
+                    class="input-shape-rounded"
                     autocomplete="name"
                 />
             </div>
@@ -47,6 +48,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
                     type="email"
                     id="newsletter-email"
                     name="email"
+                    class="input-shape-rounded"
                     required
                     autocomplete="email"
                 />
@@ -219,7 +221,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 
     .newsletter-signup__title {
         margin: 0;
-        font-family: var(--font-heading), sans-serif;
+        font-family: var(--font-heading, sans-serif);
         font-weight: var(--weight-black);
         font-size: clamp(36px, 3vw, 72px);
         line-height: 1.1;
@@ -228,7 +230,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 
     .newsletter-signup__subtitle {
         margin: 0;
-        font-family: var(--font-body), sans-serif;
+        font-family: var(--font-body, sans-serif);
         font-weight: var(--weight-regular);
         font-size: clamp(12px, 1vw, 20px);
         line-height: 1.5;
@@ -261,20 +263,11 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
     .newsletter-signup__field input {
         width: 100%;
         height: clamp(44px, 4vw, 64px);
-        background: var(--input-bg);
-        border: 1px solid var(--input-border);
-        border-radius: var(--radius-sm);
-        padding: 0 1rem;
         font-family: var(--font-body);
         font-size: clamp(16px, 1.2vw, 24px);
-        color: var(--input-text);
-        outline: none;
         box-sizing: border-box;
-        transition: border-width 0.1s;
-    }
-
-    .newsletter-signup__field input:focus {
-        border-width: 2px;
+        --field-padding-block: 0;
+        --field-padding-inline: 1rem;
     }
 
     .newsletter-signup__btn {

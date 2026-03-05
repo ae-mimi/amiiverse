@@ -4,7 +4,7 @@ const {
     subtitle,
     backgroundColor = "transparent",
     borderColor = "none",
-    subtitleColor = "#666666",
+    subtitleColor = "var(--text-muted)",
 } = Astro.props;
 ---
 
@@ -45,7 +45,7 @@ const {
     }
 
     .hero-title {
-        font-family: "Starbim", sans-serif;
+        font-family: var(--font-heading, sans-serif);
         font-style: normal;
         font-weight: 400;
         font-size: clamp(48px, 6vw, 140px); /* Fluid 4K scaling */
@@ -53,12 +53,12 @@ const {
         display: flex;
         align-items: center;
         text-align: center;
-        color: #15499d;
+        color: var(--color-primary);
         margin: 0;
     }
 
     .hero-subtitle {
-        font-family: "Archivo", sans-serif;
+        font-family: var(--font-body, sans-serif);
         font-style: normal;
         font-weight: 400;
         font-size: clamp(16px, 1.5vw, 32px); /* Fluid 4K scaling */

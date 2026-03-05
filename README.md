@@ -30,9 +30,17 @@ Set these in Cloudflare Pages project settings (`Settings -> Environment variabl
 Server-only secrets:
 
 - `ADMIN_SYNC_TOKEN`
+- `PAYMENT_PROVIDER` (`flutterwave` or `paystack`, defaults to `flutterwave`)
 - `PAYSTACK_SECRET_KEY`
+- `FLUTTERWAVE_SECRET_KEY` (required when `PAYMENT_PROVIDER=flutterwave`)
+- `FLUTTERWAVE_WEBHOOK_HASH` (required for `POST /api/flutterwave/webhook`)
 - `SANITY_WRITE_TOKEN`
 - `BREVO_API_KEY`
+- `BREVO_NEWSLETTER_LIST_ID` (preferred, falls back to `BREVO_LIST_ID`)
+- `BREVO_CONTACT_LIST_ID` (optional but recommended)
+- `BREVO_LIST_ID` (legacy fallback)
+- `BREVO_DOUBLE_OPT_IN_TEMPLATE_ID`
+- `BREVO_DOUBLE_OPT_IN_REDIRECT`
 - `TYPESENSE_ADMIN_API_KEY`
 
 Public (safe to expose to client, must use `PUBLIC_` prefix):
@@ -40,8 +48,8 @@ Public (safe to expose to client, must use `PUBLIC_` prefix):
 - `PUBLIC_TYPESENSE_HOST`
 - `PUBLIC_TYPESENSE_SEARCH_API_KEY`
 - `PUBLIC_TYPESENSE_COLLECTION`
-- `PUBLIC_PLAUSIBLE_DOMAIN`
-- `PUBLIC_PLAUSIBLE_SRC`
+- `PUBLIC_SANITY_PROJECT_ID`
+- `PUBLIC_SANITY_DATASET`
 
 ### 3. Cloudflare bindings (no raw credentials in code)
 
@@ -88,10 +96,14 @@ Replace `<YOUR_D1_DB_NAME>` with the D1 binding/database name configured in Clou
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0001_shop.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0002_add_r2_key.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0003_music_search.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0004_fan_leads.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0005_payment_provider.sql`
 - Apply migration to remote D1:
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0001_shop.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0002_add_r2_key.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0003_music_search.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0004_fan_leads.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0005_payment_provider.sql`
 
 ### Optional verification
 

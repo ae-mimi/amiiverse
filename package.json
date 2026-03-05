@@ -11,6 +11,7 @@
     "test:subscribe": "node --experimental-strip-types scripts/testSubscribeFlow.ts",
     "index:products": "node --experimental-strip-types scripts/indexProducts.ts",
     "sync:products:local": "node --experimental-strip-types scripts/syncProductsLocal.ts",
+    "sanity:normalize-theme-colors": "node scripts/normalizeThemeColorObjects.cjs",
     "astro": "astro"
   },
   "dependencies": {

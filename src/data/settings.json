@@ -1,8 +1,8 @@
 {
   "enable_follow_link": false,
   "site_info": {
-    "title": "amiiverse",
-    "description": "Welcome to the amiiverse.",
+    "title": "amii",
+    "description": "Welcome to amii.",
     "logo_navy": "",
     "logo_yellow": ""
   },
@@ -64,7 +64,7 @@
     }
   ],
   "footer": {
-    "copyright": "Copyright © {currentYear} amii"
+    "copyright": "© {currentYear} amii<br/>Operated by MAPDY LTD"
   },
   "socials": [
     {

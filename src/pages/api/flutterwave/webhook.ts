@@ -14,84 +14,49 @@ interface D1DatabaseLike {
     prepare: (query: string) => D1PreparedStatementLike;
 }
 
-interface PaystackWebhookEvent {
+interface FlutterwaveWebhookEvent {
     event?: string;
     data?: {
         id?: number | string;
-        reference?: string;
+        tx_ref?: string;
         status?: string;
     };
 }
 
-function toHex(bytes: Uint8Array): string {
-    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-function constantTimeEquals(a: string, b: string): boolean {
-    if (a.length !== b.length) return false;
-
-    let mismatch = 0;
-    for (let i = 0; i < a.length; i += 1) {
-        mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
-    }
-
-    return mismatch === 0;
-}
-
-async function verifySignature(
-    rawBody: string,
-    signature: string,
-    paystackSecretKey: string,
-): Promise<boolean> {
-    if (!paystackSecretKey) return false;
-
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-        "raw",
-        encoder.encode(paystackSecretKey),
-        { name: "HMAC", hash: "SHA-512" },
-        false,
-        ["sign"],
-    );
-
-    const hmac = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
-    const expectedSignature = toHex(new Uint8Array(hmac));
-
-    return constantTimeEquals(expectedSignature, signature.toLowerCase());
-}
-
 export const POST: APIRoute = async ({ request, locals }) => {
     try {
-        const PAYSTACK_SECRET_KEY = getServerEnvValue(
+        const FLUTTERWAVE_WEBHOOK_HASH = getServerEnvValue(
             { locals },
-            "PAYSTACK_SECRET_KEY",
+            "FLUTTERWAVE_WEBHOOK_HASH",
         );
         const runtimeEnv = getCloudflareRuntimeEnv({ locals });
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
-        if (!PAYSTACK_SECRET_KEY) {
-            return new Response("Missing PAYSTACK_SECRET_KEY", { status: 500 });
+        if (!FLUTTERWAVE_WEBHOOK_HASH) {
+            return new Response("Missing FLUTTERWAVE_WEBHOOK_HASH", { status: 500 });
         }
         if (!db) {
             return new Response("Missing D1 binding `DB`", { status: 500 });
         }
 
-        const signature = request.headers.get("x-paystack-signature") || "";
+        const signature = request.headers.get("verif-hash") || "";
         if (!signature) {
             return new Response("Missing signature", { status: 400 });
         }
-
-        const rawBody = await request.text();
-        if (!(await verifySignature(rawBody, signature, PAYSTACK_SECRET_KEY))) {
+        if (signature !== FLUTTERWAVE_WEBHOOK_HASH) {
             return new Response("Invalid signature", { status: 401 });
         }
 
-        const event = JSON.parse(rawBody) as PaystackWebhookEvent;
-        if (String(event.event || "") !== "charge.success") {
+        const rawBody = await request.text();
+        const event = JSON.parse(rawBody) as FlutterwaveWebhookEvent;
+        const eventName = String(event.event || "").toLowerCase();
+        const txStatus = String(event.data?.status || "").toLowerCase();
+
+        if (eventName !== "charge.completed" && txStatus !== "successful") {
             return new Response("Event ignored", { status: 200 });
         }
 
-        const reference = String(event.data?.reference || "").trim();
+        const reference = String(event.data?.tx_ref || "").trim();
         if (!reference) {
             return new Response("Missing transaction reference", { status: 400 });
         }
@@ -103,7 +68,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .prepare(
                 `UPDATE orders
                  SET status = 'paid',
-                     payment_provider = 'paystack',
+                     payment_provider = 'flutterwave',
                      provider_transaction_id = CASE
                          WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
                          THEN ?
@@ -145,7 +110,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
         return new Response("Webhook processed", { status: 200 });
     } catch (error) {
-        console.error("[paystack/webhook] processing error", error);
+        console.error("[flutterwave/webhook] processing error", error);
         return new Response("Webhook error", { status: 500 });
     }
 };

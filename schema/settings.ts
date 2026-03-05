@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon } from './icons'
+import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon } from './icons'
 
 export default defineType({
     name: 'settings',
@@ -8,7 +8,7 @@ export default defineType({
     icon: SettingsIcon,
     groups: [
         { name: 'general', title: 'General', icon: GeneralIcon, default: true },
-        { name: 'seo', title: 'SEO' },
+        { name: 'seo', title: 'SEO', icon: SEOIcon },
         { name: 'branding', title: 'Branding', icon: BrandingIcon },
         { name: 'navigation', title: 'Navigation', icon: NavigationIcon },
         { name: 'social', title: 'Social Media', icon: SocialIcon },

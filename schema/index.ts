@@ -5,6 +5,7 @@ import platformLinks from './objects/platformLinks'
 import navItem from './objects/navItem'
 import navGroup from './objects/navGroup'
 import themeSettings from './objects/themeSettings'
+import { color, hslaColor, hsvaColor, rgbaColor } from '@sanity/color-input'
 
 // ── Legacy schemas (kept for build) ─────────────────────
 import linkStack from './linkStack'
@@ -31,6 +32,12 @@ import product from './shop/product'
 import order from './shop/order'
 
 export const schemaTypes = [
+    // Color input schema types (explicit registration)
+    color,
+    hslaColor,
+    hsvaColor,
+    rgbaColor,
+
     // Objects (must come first — used by documents)
     seo,
     link,

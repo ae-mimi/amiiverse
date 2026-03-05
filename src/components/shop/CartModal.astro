@@ -65,7 +65,7 @@
                                 type="email"
                                 id="email"
                                 name="email"
-                                class="formControl"
+                                class="formControl input-shape-rect"
                                 placeholder="name@example.com"
                                 required
                             />
@@ -80,7 +80,7 @@
                                 type="tel"
                                 id="phone"
                                 name="phone"
-                                class="formControl"
+                                class="formControl input-shape-rect"
                                 placeholder="+234 ..."
                             />
                         </div>
@@ -97,7 +97,7 @@
                             class="btn btn-dark btn-lg w-100 mb-3"
                             id="checkout-submit"
                         >
-                            Continue to Paystack
+                            Continue to Payment
                         </button>
 
                         <p class="text-center text-xs text-secondary mb-0">
@@ -357,7 +357,7 @@
 
         resetState() {
             this.submitBtn.disabled = false;
-            this.submitBtn.innerText = "Continue to Paystack";
+            this.submitBtn.innerText = "Continue to Payment";
             (document.getElementById("modal-error") as HTMLElement).hidden =
                 true;
             (document.getElementById("email") as HTMLInputElement).value = "";
@@ -408,7 +408,7 @@
                     "Payment failed. Please check your connection and try again.";
                 errorEl.hidden = false;
                 this.submitBtn.disabled = false;
-                this.submitBtn.innerText = "Continue to Paystack";
+                this.submitBtn.innerText = "Continue to Payment";
             }
         }
     }

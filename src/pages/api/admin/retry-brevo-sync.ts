@@ -141,7 +141,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const BREVO_API_KEY = getServerEnvValue({ locals }, "BREVO_API_KEY");
-    const BREVO_LIST_ID = getServerEnvValue({ locals }, "BREVO_LIST_ID");
+    const BREVO_LIST_ID =
+        getServerEnvValue({ locals }, "BREVO_NEWSLETTER_LIST_ID") ||
+        getServerEnvValue({ locals }, "BREVO_LIST_ID");
     const BREVO_DOUBLE_OPT_IN_TEMPLATE_ID = getServerEnvValue(
         { locals },
         "BREVO_DOUBLE_OPT_IN_TEMPLATE_ID",
@@ -221,4 +223,3 @@ export const POST: APIRoute = async ({ request, locals }) => {
         failed,
     });
 };
-

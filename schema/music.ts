@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { MusicIcon } from './icons'
+import { MusicIcon, GeneralIcon, CreditsIcon, SmartLinksIcon } from './icons'
 
 export default defineType({
     name: 'music',
@@ -7,9 +7,9 @@ export default defineType({
     type: 'document',
     icon: MusicIcon,
     groups: [
-        { name: 'info', title: 'Track Info', default: true },
-        { name: 'credits', title: 'Credits' },
-        { name: 'streaming', title: 'Streaming Links' },
+        { name: 'info', title: 'Track Info', icon: GeneralIcon, default: true },
+        { name: 'credits', title: 'Credits', icon: CreditsIcon },
+        { name: 'streaming', title: 'Streaming Links', icon: SmartLinksIcon },
     ],
     fields: [
         defineField({

@@ -25,7 +25,7 @@ const footerLinks = (settings.navigationItems || [])
     });
 
 const currentYear = new Date().getFullYear();
-const copyrightText = (copyright || "© {currentYear} amii").replace(
+const copyrightText = (copyright || "© {currentYear} amii<br/>Operated by MAPDY LTD").replace(
     "{currentYear}",
     currentYear.toString(),
 );
@@ -248,7 +248,7 @@ import Navigation from "../ui/Navigation.astro";
     }
 
     .site-footer .footer-copyright p {
-        font-family: "Archivo", sans-serif;
+        font-family: var(--font-body, sans-serif);
         font-weight: 600;
         font-size: clamp(14px, 0.9vw, 18px);
         line-height: 1.4;

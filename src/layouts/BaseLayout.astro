@@ -14,20 +14,31 @@ interface Props {
     description?: string;
 }
 
-const { title, description = "Welcome to the amiiverse." } = Astro.props;
+const { title, description = "Welcome to amii." } = Astro.props;
 
 const settings = await fetchGlobalSettings();
 const theme = await getActiveTheme();
-const plausibleDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN || "";
-const plausibleSrc =
-    import.meta.env.PUBLIC_PLAUSIBLE_SRC || "https://plausible.io/js/script.js";
-const shouldLoadPlausible = import.meta.env.PROD && Boolean(plausibleDomain);
 
 const radiusMap = {
     small: "4px",
     medium: "8px",
     large: "16px",
 };
+
+function toCssFontStack(fontValue: string | undefined, fallback: string): string {
+    const raw = (fontValue || "").trim();
+    if (!raw) return fallback;
+
+    // If user provided a full font stack, keep it.
+    if (raw.includes(",")) return raw;
+
+    // Quote multi-word names for valid CSS font-family syntax.
+    const normalized = /\s/.test(raw) ? `"${raw}"` : raw;
+    return `${normalized}, sans-serif`;
+}
+
+const headingFontStack = toCssFontStack(theme.headingFont, `"Starbim", sans-serif`);
+const bodyFontStack = toCssFontStack(theme.bodyFont, `"Archivo", sans-serif`);
 ---
 
 <html
@@ -41,8 +52,8 @@ const radiusMap = {
         --color-text: ${theme.textColor};
         --color-text-muted: ${theme.mutedTextColor};
         --radius-scale: ${radiusMap[theme.borderRadiusScale || "medium"]};
-        --font-heading: ${theme.headingFont};
-        --font-body: ${theme.bodyFont};
+        --font-heading: ${headingFontStack};
+        --font-body: ${bodyFontStack};
     `}
 >
     <head>
@@ -92,7 +103,7 @@ const radiusMap = {
         <link rel="manifest" href="/manifest.json" />
 
         <meta name="generator" content={Astro.generator} />
-        <title>{title} | amiiverse</title>
+        <title>{title} | amii</title>
 
         <!-- Open Graph / SEO -->
         <meta property="og:type" content="website" />
@@ -104,7 +115,7 @@ const radiusMap = {
             )
         }
         <meta property="og:url" content={Astro.url} />
-        <meta property="og:site_name" content="amiiverse" />
+        <meta property="og:site_name" content="amii" />
 
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image" />
@@ -129,41 +140,7 @@ const radiusMap = {
         <!-- Structured Data -->
         <JSONLD />
 
-        <Analytics />
-
-        {
-            shouldLoadPlausible && (
-                <>
-                    <script
-                        defer
-                        data-domain={plausibleDomain}
-                        src={plausibleSrc}
-                    ></script>
-                    <script is:inline>
-                        {`
-                            window.plausible =
-                                window.plausible ||
-                                function () {
-                                    (window.plausible.q = window.plausible.q || []).push(arguments);
-                                };
-
-                            window.addEventListener("analytics:event", function (event) {
-                                var detail = (event && event.detail) || {};
-                                var eventName = detail.name;
-                                if (!eventName || typeof window.plausible !== "function") return;
-
-                                if (detail.props && typeof detail.props === "object") {
-                                    window.plausible(eventName, { props: detail.props });
-                                } else {
-                                    window.plausible(eventName);
-                                }
-                            });
-                        `}
-                    </script>
-                </>
-            )
-        }
-    </head>
+        <Analytics />`n    </head>
     <body>
         <SiteHeader />
         <main>

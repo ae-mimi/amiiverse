@@ -303,7 +303,7 @@ const hasAudio = !!track.audio_url;
         height: 55px;
         border-radius: 13px;
         text-decoration: none;
-        font-family: "Archivo", sans-serif;
+        font-family: var(--font-body, sans-serif);
         font-weight: 600;
         font-size: 15px;
         letter-spacing: 2px;
@@ -314,14 +314,14 @@ const hasAudio = !!track.audio_url;
     }
 
     .btn-spotify {
-        background: #15499d;
-        color: #fdf38a;
-        box-shadow: 0 4px 10px rgba(21, 73, 157, 0.3);
+        background: var(--color-primary);
+        color: var(--color-secondary);
+        box-shadow: 0 4px 10px color-mix(in srgb, var(--color-primary), transparent 70%);
     }
 
     .btn-platforms {
         background: transparent;
-        color: #15499d;
+        color: var(--color-primary);
         border: 1px solid transparent;
     }
 
@@ -375,7 +375,7 @@ const hasAudio = !!track.audio_url;
         box-shadow:
             0px 6px 10px 4px rgba(0, 0, 0, 0.15),
             0px 2px 3px rgba(0, 0, 0, 0.3);
-        background-color: #ddd;
+        background-color: color-mix(in srgb, var(--color-text), transparent 85%);
     }
 
     .album-art img {
@@ -419,7 +419,7 @@ const hasAudio = !!track.audio_url;
         background: none;
         border: none;
         cursor: pointer;
-        color: #15499d;
+        color: var(--color-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -447,7 +447,7 @@ const hasAudio = !!track.audio_url;
     }
 
     .ctrl-btn--playing {
-        color: var(--color-accent, #e44598);
+        color: var(--color-accent);
     }
 
     [data-icon] {
@@ -458,7 +458,7 @@ const hasAudio = !!track.audio_url;
     .progress-bar {
         width: 100%;
         height: 6px;
-        background: #f5f3e9;
+        background: color-mix(in srgb, var(--color-text), transparent 90%);
         border-radius: 8px;
         position: relative;
         cursor: pointer;
@@ -466,7 +466,7 @@ const hasAudio = !!track.audio_url;
 
     .progress-fill {
         height: 100%;
-        background: #15499d;
+        background: var(--color-primary);
         border-radius: 8px;
         transition: width 0.1s linear;
     }
@@ -476,7 +476,7 @@ const hasAudio = !!track.audio_url;
         top: 50%;
         width: 14px;
         height: 14px;
-        background: #15499d;
+        background: var(--color-primary);
         border-radius: 50%;
         transform: translate(-50%, -50%);
         transition: left 0.1s linear;
@@ -492,7 +492,7 @@ const hasAudio = !!track.audio_url;
         display: flex;
         justify-content: space-between;
         font-size: 12px;
-        color: #15499d;
+        color: var(--color-primary);
         font-weight: 600;
         opacity: 0.8;
     }
@@ -513,11 +513,11 @@ const hasAudio = !!track.audio_url;
     }
 
     .track-title {
-        font-family: "Archivo", sans-serif;
+        font-family: var(--font-body, sans-serif);
         font-weight: 600;
         font-size: clamp(26px, 2.5vw, 42px);
         line-height: 1.2;
-        color: #15499d;
+        color: var(--color-primary);
     }
 
     .credits-section {
@@ -527,17 +527,17 @@ const hasAudio = !!track.audio_url;
     }
 
     .credits-section h4 {
-        font-family: "Archivo", sans-serif;
+        font-family: var(--font-body, sans-serif);
         font-weight: 600;
         font-size: clamp(19px, 1.5vw, 24px);
-        color: #15499d;
+        color: var(--color-primary);
     }
 
     .credits-text {
-        font-family: "Archivo", sans-serif;
+        font-family: var(--font-body, sans-serif);
         font-size: clamp(15px, 1.2vw, 20px);
         line-height: 1.6;
-        color: #15499d;
+        color: var(--color-primary);
     }
 
     .credits-text p {
@@ -558,7 +558,7 @@ const hasAudio = !!track.audio_url;
     }
 
     .platform-icons a {
-        color: #15499d;
+        color: var(--color-primary);
         font-size: 24px;
         transition:
             color 0.2s,
@@ -566,7 +566,7 @@ const hasAudio = !!track.audio_url;
     }
 
     .platform-icons a:hover {
-        color: #e44598;
+        color: var(--color-accent);
         transform: translateY(-2px);
     }
 </style>

@@ -68,7 +68,7 @@ This bucket will store:
 Bind as:
 
 ```
-R2_BUCKET
+ASSETS_BUCKET
 ```
 
 ---
@@ -92,7 +92,7 @@ Use for:
 Bind as:
 
 ```
-KV
+CACHE
 ```
 
 ---
@@ -104,7 +104,7 @@ Cloudflare Dashboard → Turnstile → Add site
 Domain:
 
 ```
-amiiverse.com
+weareamii.com
 ```
 
 You will receive:
@@ -144,14 +144,14 @@ Database: amiiverse-db
 R2 Binding:
 
 ```
-Variable name: R2_BUCKET
+Variable name: ASSETS_BUCKET
 Bucket: amiiverse-assets
 ```
 
 KV Binding (if using):
 
 ```
-Variable name: KV
+Variable name: CACHE
 Namespace: amiiverse-kv
 ```
 
@@ -175,7 +175,7 @@ TURNSTILE_SECRET_KEY=...
 ```
 PAYSTACK_PUBLIC_KEY=pk_test_...
 PUBLIC_TURNSTILE_SITE_KEY=...
-PUBLIC_SITE_URL=https://amiiverse.com
+PUBLIC_SITE_URL=https://weareamii.com
 ```
 
 Never expose:
@@ -212,11 +212,11 @@ database_name = "amiiverse-db"
 database_id = "YOUR_DATABASE_ID"
 
 [[r2_buckets]]
-binding = "R2_BUCKET"
+binding = "ASSETS_BUCKET"
 bucket_name = "amiiverse-assets"
 
 [[kv_namespaces]]
-binding = "KV"
+binding = "CACHE"
 id = "YOUR_KV_ID"
 ```
 
@@ -254,7 +254,7 @@ In Paystack Dashboard → API & Webhooks:
 Set webhook URL to:
 
 ```
-https://amiiverse.com/api/paystack/webhook
+https://weareamii.com/api/paystack/webhook
 ```
 
 Ensure:

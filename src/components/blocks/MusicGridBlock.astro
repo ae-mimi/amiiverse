@@ -40,7 +40,7 @@ try {
                     <label class="srOnly" for="music-search">Search music</label>
                     <input
                         id="music-search"
-                        class="music-search-input"
+                        class="music-search-input input-shape-pill"
                         type="search"
                         placeholder="Search songs"
                         autocomplete="off"
@@ -184,11 +184,11 @@ try {
 
     .music-search-input {
         width: 100%;
-        padding: 0.85rem 1.1rem;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--text-main);
+        --field-padding-block: 0.85rem;
+        --field-padding-inline: 1.1rem;
+        --field-bg: color-mix(in srgb, var(--color-bg), var(--color-white) 4%);
+        --field-text-color: var(--text-main);
+        --field-border-color: color-mix(in srgb, var(--input-border), transparent 75%);
     }
 
     .music-list {
