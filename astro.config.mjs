@@ -3,7 +3,6 @@ import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import sanity from '@sanity/astro';
-import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,14 +13,12 @@ export default defineConfig({
   }),
   integrations: [
     icon(),
-    react(),
     sitemap(),
     sanity({
       projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'pxn399gi',
       dataset: process.env.PUBLIC_SANITY_DATASET || 'production',
       useCdn: false, // set to true for production if you want caching
-      studioBasePath: '/admin',
-      studioRouterHistory: 'hash',
+      studioBasePath: null,
     }),
   ],
   image: {
