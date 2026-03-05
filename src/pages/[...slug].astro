@@ -9,17 +9,58 @@ const { slug } = Astro.params;
 const currentSlug = slug === undefined ? "home" : slug;
 
 const page = await fetchSanity<Page>(PAGE_QUERY, { slug: currentSlug });
-
 if (!page) {
-    return Astro.redirect("/404");
+    Astro.response.status = 404;
 }
 
-const sections = page.sections || [];
-const title = page.title;
+const sections = page?.sections || [];
+const title = page?.title || "Page Not Found";
 ---
 
 <BaseLayout title={title}>
-    <div class="page-container">
-        <PageBuilder sections={sections} />
-    </div>
+    {
+        page ? (
+            <div class="page-container">
+                <PageBuilder sections={sections} />
+            </div>
+        ) : (
+            <div class="container error-container text-center">
+                <h1 class="error-code">404</h1>
+                <h2 class="error-msg">LOST IN THE AMIIVERSE?</h2>
+                <p>This page doesn't exist (yet).</p>
+                <a href="/" class="btn btn-primary mt-4">RETURN HOME</a>
+            </div>
+        )
+    }
 </BaseLayout>
+
+<style>
+    .error-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-block: var(--space-xl);
+    }
+
+    .error-code {
+        font-family: var(--font-heading);
+        font-size: clamp(6rem, 15vw, 12rem);
+        line-height: 1;
+        font-weight: 900;
+        color: var(--color-pink-500);
+        text-shadow: 4px 4px 0 var(--color-navy-500);
+    }
+
+    .error-msg {
+        font-family: var(--font-heading);
+        font-size: clamp(1.5rem, 5vw, 3rem);
+        color: var(--color-navy-500);
+        margin-bottom: 1rem;
+    }
+
+    .mt-4 {
+        margin-top: 2rem;
+    }
+</style>
