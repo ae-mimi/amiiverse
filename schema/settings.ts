@@ -101,7 +101,13 @@ export default defineType({
             group: 'branding',
             options: { collapsible: true, collapsed: true },
             fields: [
-                defineField({ name: 'ico', title: 'ICO (32×32 — Legacy browsers)', type: 'image', description: 'For older browsers like Internet Explorer.' }),
+                defineField({
+                    name: 'ico',
+                    title: 'ICO (32×32 — Legacy browsers)',
+                    type: 'file',
+                    description: 'For older browsers like Internet Explorer.',
+                    options: { accept: '.ico' },
+                }),
                 defineField({ name: 'svg', title: 'SVG (Modern browsers)', type: 'image', description: 'Scalable icon for Chrome, Firefox, Safari.' }),
                 defineField({ name: 'png96', title: 'PNG (96×96)', type: 'image', description: 'Standard icon used on most devices.' }),
                 defineField({ name: 'apple', title: 'Apple Touch Icon (180×180)', type: 'image', description: 'Used when someone adds the site to their iPhone home screen.' }),
