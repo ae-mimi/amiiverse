@@ -347,6 +347,7 @@ export interface SiteSettings {
         apple?: string;
         manifest192?: string;
         manifest512?: string;
+        webmanifest?: string;
     };
     enable_follow_link?: boolean;
     nav?: {

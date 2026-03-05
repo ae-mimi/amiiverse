@@ -89,7 +89,8 @@ export const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
     "png96": favicons.png96.asset->url,
     "apple": favicons.apple.asset->url,
     "manifest192": favicons.manifest192.asset->url,
-    "manifest512": favicons.manifest512.asset->url
+    "manifest512": favicons.manifest512.asset->url,
+    "webmanifest": favicons.webmanifest.asset->url
   },
   "seo": {
     "meta_title": defaultSeo.metaTitle,

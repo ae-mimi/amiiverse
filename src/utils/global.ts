@@ -30,6 +30,7 @@ export interface SiteSettings {
         apple?: string;
         manifest192?: string;
         manifest512?: string;
+        webmanifest?: string;
     };
     navigationItems: {
         showInHeader: boolean;
@@ -153,6 +154,7 @@ function normalizeSettings(input: unknown): SiteSettings {
             apple: asString(favicons.apple, settings.favicons?.apple || ""),
             manifest192: asString(favicons.manifest192, settings.favicons?.manifest192 || ""),
             manifest512: asString(favicons.manifest512, settings.favicons?.manifest512 || ""),
+            webmanifest: asString(favicons.webmanifest, settings.favicons?.webmanifest || ""),
         },
         navigationItems: asArray<any>(raw.navigationItems)
             .filter((item) => item && typeof item === "object")

@@ -101,7 +101,7 @@ const bodyFontStack = toCssFontStack(theme.bodyFont, `"Archivo", sans-serif`);
             )
         }
 
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href={settings.favicons?.webmanifest || "/manifest.json"} />
 
         <meta name="generator" content={Astro.generator} />
         <title>{title} | amii</title>
