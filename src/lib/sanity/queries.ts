@@ -132,8 +132,25 @@ export const ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY = `*[
   (!defined(startDate) || startDate <= now()) &&
   (!defined(endDate) || endDate >= now())
 ][0]{
-  "logo_navy": themeOverride.logo_navy.asset->url,
-  "logo_yellow": themeOverride.logo_yellow.asset->url
+  "logo_navy": coalesce(branding.logo_navy.asset->url, themeOverride.logo_navy.asset->url),
+  "logo_yellow": coalesce(branding.logo_yellow.asset->url, themeOverride.logo_yellow.asset->url)
+}`;
+
+export const ACTIVE_CAMPAIGN_FAVICON_OVERRIDE_QUERY = `*[
+  _type == "campaign" &&
+  status == "live" &&
+  (!defined(startDate) || startDate <= now()) &&
+  (!defined(endDate) || endDate >= now())
+][0]{
+  "favicons": {
+    "ico": branding.favicons.ico.asset->url,
+    "svg": branding.favicons.svg.asset->url,
+    "png96": branding.favicons.png96.asset->url,
+    "apple": branding.favicons.apple.asset->url,
+    "manifest192": branding.favicons.manifest192.asset->url,
+    "manifest512": branding.favicons.manifest512.asset->url,
+    "webmanifest": branding.favicons.webmanifest.asset->url
+  }
 }`;
 
 // ── Releases ────────────────────────────────────────────

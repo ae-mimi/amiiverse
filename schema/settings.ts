@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon, ThemeIcon } from './icons'
+import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon } from './icons'
 
 export default defineType({
     name: 'settings',
@@ -8,8 +8,7 @@ export default defineType({
     icon: SettingsIcon,
     groups: [
         { name: 'general', title: 'General', icon: GeneralIcon, default: true },
-        { name: 'branding', title: 'Branding', icon: BrandingIcon },
-        { name: 'theme', title: 'Theme', icon: ThemeIcon },
+        { name: 'branding', title: 'Branding & Theme', icon: BrandingIcon },
         { name: 'navigation', title: 'Navigation', icon: NavigationIcon },
         { name: 'social', title: 'Social Media', icon: SocialIcon },
         { name: 'seo', title: 'SEO', icon: SEOIcon },
@@ -47,7 +46,7 @@ export default defineType({
             name: 'theme',
             title: 'Default Theme & Palette',
             type: 'themeSettings',
-            group: 'theme',
+            group: 'branding',
             description: 'Controls color palette, typography, and core UI style across the site.',
             options: { collapsible: true, collapsed: false },
         }),

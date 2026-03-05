@@ -1,6 +1,7 @@
 import settings from "../data/settings.json";
 import { fetchSanity as getSanityContent } from "../lib/sanity/client";
 import {
+    ACTIVE_CAMPAIGN_FAVICON_OVERRIDE_QUERY,
     ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY,
     SETTINGS_QUERY,
 } from "../lib/sanity/queries";
@@ -68,6 +69,9 @@ export async function fetchGlobalSettings(): Promise<SiteSettings> {
         logo_navy?: string;
         logo_yellow?: string;
     }>(ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY);
+    const campaignFaviconOverride = await getSanityContent<{
+        favicons?: SiteSettings["favicons"];
+    }>(ACTIVE_CAMPAIGN_FAVICON_OVERRIDE_QUERY);
 
     if (sanitySettings) {
         // Merge sanity settings over default settings to ensure structure
@@ -82,6 +86,7 @@ export async function fetchGlobalSettings(): Promise<SiteSettings> {
             ...sanitySettings,
             site_info: { ...settings.site_info, ...sanitySettings.site_info },
             footer: { ...settings.footer, ...sanitySettings.footer },
+            favicons: { ...settings.favicons, ...sanitySettings.favicons },
         };
 
         if (campaignLogoOverride?.logo_navy) {
@@ -97,6 +102,13 @@ export async function fetchGlobalSettings(): Promise<SiteSettings> {
             merged.site_info = {
                 ...merged.site_info,
                 logo_yellow: campaignLogoOverride.logo_yellow,
+            };
+        }
+
+        if (campaignFaviconOverride?.favicons) {
+            merged.favicons = {
+                ...merged.favicons,
+                ...campaignFaviconOverride.favicons,
             };
         }
 

@@ -1,6 +1,6 @@
 import { defineField, defineType } from 'sanity'
 import {
-  PageIcon, SettingsIcon, SEOIcon,
+  PageIcon, SEOIcon,
   HeroHomeIcon, HeroPredebutIcon, HeroPageIcon,
   IntroIcon, RichTextIcon, GalleryIcon, VideoIcon,
   CTAIcon, CountdownIcon, FAQIcon, TestimonialIcon,
@@ -21,7 +21,6 @@ export default defineType({
   icon: PageIcon,
   groups: [
     { name: 'content', title: 'Content', icon: PageIcon, default: true },
-    { name: 'settings', title: 'Settings', icon: SettingsIcon },
     { name: 'seo', title: 'SEO', icon: SEOIcon },
   ],
   fields: [
@@ -46,7 +45,7 @@ export default defineType({
       name: 'pageType',
       title: 'Page Type',
       type: 'string',
-      group: 'settings',
+      group: 'content',
       description: 'Helps the site know what kind of page this is.',
       options: {
         list: [
