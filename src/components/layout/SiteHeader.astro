@@ -1,4 +1,5 @@
 ---
+import { Icon } from "astro-icon/components";
 import { fetchGlobalSettings } from "../../utils/global";
 const settings = await fetchGlobalSettings();
 
@@ -57,7 +58,10 @@ import Navigation from "../ui/Navigation.astro";
                         aria-label={social.platform}
                         target="_blank"
                     >
-                        <span class="social-pill">{social.platform}</span>
+                        <Icon
+                            name={`simple-icons:${social.icon}`}
+                            class={`icon-social icon-${social.icon}`}
+                        />
                     </a>
                 ))
             }
@@ -66,8 +70,8 @@ import Navigation from "../ui/Navigation.astro";
         <!-- Mobile Menu Toggle (Contains both icons for perfect alignment) -->
         <button id="menu-toggle" aria-label="Toggle Menu">
             <div class="icon-container">
-                <span class="icon-menu" aria-hidden="true">☰</span>
-                <span class="icon-close" aria-hidden="true">✕</span>
+                <Icon name="lucide:menu" class="icon-menu" />
+                <Icon name="lucide:x" class="icon-close" />
             </div>
         </button>
     </div>
@@ -92,7 +96,10 @@ import Navigation from "../ui/Navigation.astro";
                     aria-label={social.platform}
                     target="_blank"
                 >
-                    <span class="social-pill">{social.platform}</span>
+                    <Icon
+                        name={`simple-icons:${social.icon}`}
+                        class={`icon-social icon-${social.icon}`}
+                    />
                 </a>
             ))
         }
@@ -181,14 +188,6 @@ import Navigation from "../ui/Navigation.astro";
         width: auto;
         height: 20px;
         transition: transform 0.2s;
-    }
-
-    .social-pill {
-        font-size: 11px;
-        line-height: 1;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
     }
 
     .icon-youtube {
