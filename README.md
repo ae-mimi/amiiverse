@@ -30,9 +30,7 @@ Set these in Cloudflare Pages project settings (`Settings -> Environment variabl
 Server-only secrets:
 
 - `ADMIN_SYNC_TOKEN`
-- `PAYMENT_PROVIDER` (`flutterwave` or `paystack`, defaults to `flutterwave`)
-- `PAYSTACK_SECRET_KEY`
-- `FLUTTERWAVE_SECRET_KEY` (required when `PAYMENT_PROVIDER=flutterwave`)
+- `FLUTTERWAVE_SECRET_KEY`
 - `FLUTTERWAVE_WEBHOOK_HASH` (required for `POST /api/flutterwave/webhook`)
 - `SANITY_WRITE_TOKEN`
 - `BREVO_API_KEY`

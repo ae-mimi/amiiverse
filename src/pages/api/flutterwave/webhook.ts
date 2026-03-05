@@ -23,6 +23,42 @@ interface FlutterwaveWebhookEvent {
     };
 }
 
+function constantTimeEquals(a: string, b: string): boolean {
+    if (a.length !== b.length) return false;
+    let mismatch = 0;
+    for (let i = 0; i < a.length; i += 1) {
+        mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    }
+    return mismatch === 0;
+}
+
+function toBase64(bytes: Uint8Array): string {
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary);
+}
+
+async function verifyFlutterwaveSignature(
+    rawBody: string,
+    signature: string,
+    secretHash: string,
+): Promise<boolean> {
+    if (!rawBody || !signature || !secretHash) return false;
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(secretHash),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"],
+    );
+    const hmac = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
+    const computed = toBase64(new Uint8Array(hmac));
+
+    return constantTimeEquals(computed, signature);
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
     try {
         const FLUTTERWAVE_WEBHOOK_HASH = getServerEnvValue(
@@ -39,15 +75,32 @@ export const POST: APIRoute = async ({ request, locals }) => {
             return new Response("Missing D1 binding `DB`", { status: 500 });
         }
 
-        const signature = request.headers.get("verif-hash") || "";
-        if (!signature) {
+        const rawBody = await request.text();
+        const hmacSignature = String(
+            request.headers.get("flutterwave-signature") || "",
+        ).trim();
+        const legacySignature = String(request.headers.get("verif-hash") || "").trim();
+
+        const hasSignature = Boolean(hmacSignature || legacySignature);
+        if (!hasSignature) {
             return new Response("Missing signature", { status: 400 });
         }
-        if (signature !== FLUTTERWAVE_WEBHOOK_HASH) {
+
+        const hmacValid = hmacSignature
+            ? await verifyFlutterwaveSignature(
+                  rawBody,
+                  hmacSignature,
+                  FLUTTERWAVE_WEBHOOK_HASH,
+              )
+            : false;
+        const legacyValid = legacySignature
+            ? constantTimeEquals(legacySignature, FLUTTERWAVE_WEBHOOK_HASH)
+            : false;
+
+        if (!hmacValid && !legacyValid) {
             return new Response("Invalid signature", { status: 401 });
         }
 
-        const rawBody = await request.text();
         const event = JSON.parse(rawBody) as FlutterwaveWebhookEvent;
         const eventName = String(event.event || "").toLowerCase();
         const txStatus = String(event.data?.status || "").toLowerCase();
@@ -74,17 +127,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
                          THEN ?
                          ELSE provider_transaction_id
                      END,
-                     paystack_transaction_id = CASE
-                         WHEN paystack_transaction_id IS NULL OR paystack_transaction_id = ''
-                         THEN ?
-                         ELSE paystack_transaction_id
-                     END,
                      provider_raw_json = ?,
-                     paystack_raw_json = ?,
                      updated_at = ?
                  WHERE reference = ? AND status != 'paid'`,
             )
-            .bind(transactionId, transactionId, rawBody, rawBody, nowIso, reference)
+            .bind(transactionId, rawBody, nowIso, reference)
             .run();
 
         const orderRow = await db

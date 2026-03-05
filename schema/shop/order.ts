@@ -51,8 +51,8 @@ export default defineType({
             initialValue: 'pending',
         }),
         defineField({
-            name: 'paystackResponse',
-            title: 'Paystack Response',
+            name: 'paymentResponse',
+            title: 'Flutterwave Response',
             type: 'object',
             options: {
                 collapsed: true,
@@ -61,7 +61,7 @@ export default defineType({
             fields: [
                 { name: 'data', type: 'text', title: 'Raw Response Data' }
             ],
-            description: 'The raw response received from Paystack API.',
+            description: 'The raw response received from Flutterwave API.',
         }),
         defineField({
             name: 'createdAt',

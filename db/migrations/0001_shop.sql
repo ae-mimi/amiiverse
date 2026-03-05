@@ -40,8 +40,6 @@ CREATE TABLE IF NOT EXISTS orders (
     email TEXT NOT NULL,
     amount_kobo INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed')),
-    paystack_transaction_id TEXT,
-    paystack_raw_json TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     FOREIGN KEY (cart_id) REFERENCES carts (id)

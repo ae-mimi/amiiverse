@@ -1,7 +1,7 @@
 # Phase 1 — Cloudflare Setup Checklist
 
 **Project:** amiiverse
-**Stack:** Astro + Cloudflare Pages + Pages Functions + D1 + R2 + KV + Paystack + Sanity
+**Stack:** Astro + Cloudflare Pages + Pages Functions + D1 + R2 + KV + Flutterwave + Sanity
 
 This document defines the required infrastructure before Phase 1 ecommerce integration will work.
 
@@ -18,7 +18,7 @@ You must have:
   * R2
   * KV
   * Turnstile
-* Paystack account (test keys enabled)
+* Flutterwave account (test mode enabled)
 * Sanity project already configured
 * GitHub repo connected to Cloudflare Pages
 
@@ -164,7 +164,8 @@ Under Settings → Environment Variables:
 ### Server-side (Do NOT prefix with PUBLIC_)
 
 ```
-PAYSTACK_SECRET_KEY=sk_test_...
+FLUTTERWAVE_SECRET_KEY=...
+FLUTTERWAVE_WEBHOOK_HASH=...
 SANITY_WRITE_TOKEN=...
 ADMIN_SYNC_TOKEN=...
 TURNSTILE_SECRET_KEY=...
@@ -173,7 +174,6 @@ TURNSTILE_SECRET_KEY=...
 ### Public (Safe for frontend)
 
 ```
-PAYSTACK_PUBLIC_KEY=pk_test_...
 PUBLIC_TURNSTILE_SITE_KEY=...
 PUBLIC_SITE_URL=https://weareamii.com
 ```
@@ -247,19 +247,19 @@ Important:
 
 ---
 
-# 6. Paystack Webhook Setup
+# 6. Flutterwave Webhook Setup
 
-In Paystack Dashboard → API & Webhooks:
+In Flutterwave Dashboard -> Settings -> Webhooks:
 
 Set webhook URL to:
 
 ```
-https://weareamii.com/api/paystack/webhook
+https://weareamii.com/api/flutterwave/webhook
 ```
 
 Ensure:
 
-* Endpoint verifies Paystack signature
+* Endpoint verifies Flutterwave `verif-hash`
 * Endpoint is deployed before testing
 
 Use Cloudflare preview URL for test environment.
@@ -322,7 +322,7 @@ Before declaring Phase 1 complete:
 * Products load from D1
 * Cart persists across refresh
 * Orders recorded in D1
-* Paystack verification updates order status
+* Flutterwave verification updates order status
 * Digital downloads protected
 * No secrets exposed in frontend bundle
 

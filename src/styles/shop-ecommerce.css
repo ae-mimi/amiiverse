@@ -461,6 +461,7 @@
 }
 
 .checkoutModal {
+    position: relative;
     width: 90%;
     max-width: 900px;
     max-height: 90vh;
@@ -485,6 +486,13 @@
 .modalClose:hover {
     background: rgba(0, 0, 0, 0.1);
     transform: rotate(90deg);
+}
+
+.modalCloseFloating {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 5;
 }
 
 .productCartThumb {

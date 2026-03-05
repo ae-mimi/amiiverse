@@ -45,8 +45,6 @@ Now get webhook hash:
 3. Copy that exact value
    - This becomes: `FLUTTERWAVE_WEBHOOK_HASH`
 
-Set provider value:
-- `PAYMENT_PROVIDER=flutterwave`
 
 ### 1B) Sanity values
 You need these 3:
@@ -130,10 +128,6 @@ These are used by subscribe/contact sync endpoints.
 - `TYPESENSE_ADMIN_API_KEY` -> admin key (Secret)
 - `TYPESENSE_COLLECTION` -> collection name (Text)
 
-### 1H) Legacy/optional payment vars
-- `PAYSTACK_SECRET_KEY` is only needed if you still use Paystack fallback routes.
-- If fully on Flutterwave, you can leave Paystack keys unset.
-
 ### Is Typesense part of Phase 1?
 Short answer: **No, not mandatory for Phase 1 checkout/payment/download flow**.
 
@@ -155,15 +149,14 @@ Add these in Production.
 In Cloudflare, each env var can be `Text` or `Secret`.
 
 Use `Text` for:
-1. `PAYMENT_PROVIDER=flutterwave`
-2. `PUBLIC_SITE_URL=https://weareamii.com`
-3. `PUBLIC_SANITY_PROJECT_ID=<from Sanity>`
-4. `PUBLIC_SANITY_DATASET=<from Sanity>`
-5. `PUBLIC_TURNSTILE_SITE_KEY=<from Turnstile>`
-6. `BREVO_NEWSLETTER_LIST_ID=<from Brevo newsletter list>` (or `BREVO_LIST_ID` legacy fallback)
-7. `BREVO_CONTACT_LIST_ID=<from Brevo contact list>` (recommended)
-8. `BREVO_DOUBLE_OPT_IN_TEMPLATE_ID=<from Brevo template>`
-9. `BREVO_DOUBLE_OPT_IN_REDIRECT=https://weareamii.com/newsletter-success`
+1. `PUBLIC_SITE_URL=https://weareamii.com`
+2. `PUBLIC_SANITY_PROJECT_ID=<from Sanity>`
+3. `PUBLIC_SANITY_DATASET=<from Sanity>`
+4. `PUBLIC_TURNSTILE_SITE_KEY=<from Turnstile>`
+5. `BREVO_NEWSLETTER_LIST_ID=<from Brevo newsletter list>` (or `BREVO_LIST_ID` legacy fallback)
+6. `BREVO_CONTACT_LIST_ID=<from Brevo contact list>` (recommended)
+7. `BREVO_DOUBLE_OPT_IN_TEMPLATE_ID=<from Brevo template>`
+8. `BREVO_DOUBLE_OPT_IN_REDIRECT=https://weareamii.com/newsletter-success`
 
 Use `Secret` for:
 1. `FLUTTERWAVE_SECRET_KEY=<from Flutterwave>`
@@ -305,6 +298,11 @@ Set:
 3. Secret hash: same exact value as Cloudflare env `FLUTTERWAVE_WEBHOOK_HASH`
 4. Save
 
+Verification note:
+- Primary verification uses `flutterwave-signature` (HMAC-SHA256).
+- Legacy fallback supports `verif-hash` for compatibility.
+- Keep `FLUTTERWAVE_WEBHOOK_HASH` configured because it is used for webhook verification.
+
 Do not switch webhook version unless your backend is updated for that version.
 
 Success check:
@@ -423,6 +421,7 @@ Store all production secrets in a safe password manager or vault.
 
 ### Webhook signature/hash failing
 - `FLUTTERWAVE_WEBHOOK_HASH` in Cloudflare must match Flutterwave `Secret hash` exactly.
+- Backend accepts either `flutterwave-signature` (preferred) or legacy `verif-hash` header.
 
 ### Changes not applying
 - Redeploy Pages after env edits.

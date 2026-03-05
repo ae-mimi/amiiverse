@@ -4,8 +4,6 @@
 
 interface ImportMetaEnv {
     readonly ADMIN_SYNC_TOKEN?: string;
-    readonly PAYMENT_PROVIDER?: string;
-    readonly PAYSTACK_SECRET_KEY?: string;
     readonly FLUTTERWAVE_SECRET_KEY?: string;
     readonly FLUTTERWAVE_WEBHOOK_HASH?: string;
     readonly SANITY_WRITE_TOKEN?: string;
@@ -36,8 +34,6 @@ declare namespace App {
         runtime?: {
             env?: {
                 ADMIN_SYNC_TOKEN?: string;
-                PAYMENT_PROVIDER?: string;
-                PAYSTACK_SECRET_KEY?: string;
                 FLUTTERWAVE_SECRET_KEY?: string;
                 FLUTTERWAVE_WEBHOOK_HASH?: string;
                 SANITY_WRITE_TOKEN?: string;

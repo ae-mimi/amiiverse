@@ -3,7 +3,6 @@ import {
     getCloudflareRuntimeEnv,
 } from "../../../lib/server/cloudflareRuntimeEnv";
 import {
-    getPaymentProvider,
     getPaymentSecretKey,
     initializeProviderPayment,
 } from "../../../lib/server/paymentGateway";
@@ -47,21 +46,12 @@ function createOrderId(): string {
 
 export const POST: APIRoute = async ({ request, locals }) => {
     try {
-        const provider = getPaymentProvider({ locals });
-        const providerSecretKey = getPaymentSecretKey({ locals }, provider);
+        const providerSecretKey = getPaymentSecretKey({ locals });
         const runtimeEnv = getCloudflareRuntimeEnv({ locals });
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
         if (!providerSecretKey) {
-            return jsonResponse(
-                {
-                    error:
-                        provider === "flutterwave"
-                            ? "Missing FLUTTERWAVE_SECRET_KEY"
-                            : "Missing PAYSTACK_SECRET_KEY",
-                },
-                500,
-            );
+            return jsonResponse({ error: "Missing FLUTTERWAVE_SECRET_KEY" }, 500);
         }
         if (!db) {
             return jsonResponse({ error: "Missing D1 binding `DB`" }, 500);
@@ -139,7 +129,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 reference,
                 email,
                 amountKobo,
-                provider,
+                "flutterwave",
                 nowIso,
                 nowIso,
             )
@@ -155,7 +145,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .run();
 
         const initialization = await initializeProviderPayment({
-            provider,
             secretKey: providerSecretKey,
             email,
             amountKobo,
@@ -172,12 +161,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
                     `UPDATE orders
                      SET status = 'failed',
                          provider_raw_json = ?,
-                         paystack_raw_json = ?,
                          updated_at = ?
                      WHERE id = ?`,
                 )
                 .bind(
-                    JSON.stringify(initialization.raw ?? {}),
                     JSON.stringify(initialization.raw ?? {}),
                     new Date().toISOString(),
                     orderId,
@@ -195,7 +182,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return jsonResponse({
             authorization_url: initialization.authorizationUrl,
             reference,
-            provider,
+            provider: "flutterwave",
         });
     } catch (error: any) {
         console.error("[checkout/initialize] Unexpected error", error);

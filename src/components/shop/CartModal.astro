@@ -3,17 +3,20 @@
 
 <div id="checkout-modal" class="checkoutOverlay" aria-hidden="true">
     <div class="checkoutModal card shadow-lg border-0">
+        <button
+            type="button"
+            class="modalClose modalCloseFloating"
+            id="close-modal"
+            aria-label="Close checkout"
+        >
+            &times;
+        </button>
         <div class="card-body p-0">
             <div class="row g-0">
                 <!-- Left Side: Order Review (Astro Ecommerce Shopping Cart UI) -->
                 <div class="col-12 col-lg-7 p-4 p-md-5">
-                    <div
-                        class="d-flex justify-content-between align-items-center mb-4"
-                    >
+                    <div class="d-flex align-items-center mb-4">
                         <h4 class="font-weight-bold mb-0">Review Order</h4>
-                        <button class="modalClose" id="close-modal"
-                            >&times;</button
-                        >
                     </div>
 
                     <div id="modal-cart-items"></div>
@@ -44,7 +47,7 @@
                 <div class="col-12 col-lg-5 bg-gray-100 p-4 p-md-5">
                     <h5 class="font-weight-bold mb-4">Finalize Checkout</h5>
 
-                    <form id="checkout-form" class="checkoutForm">
+                    <form id="checkout-form" class="checkoutForm" autocomplete="on">
                         <input
                             type="hidden"
                             id="modal-product-id"
@@ -67,6 +70,8 @@
                                 name="email"
                                 class="formControl input-shape-rect"
                                 placeholder="name@example.com"
+                                autocomplete="email"
+                                inputmode="email"
                                 required
                             />
                         </div>
@@ -82,6 +87,8 @@
                                 name="phone"
                                 class="formControl input-shape-rect"
                                 placeholder="+234 ..."
+                                autocomplete="tel"
+                                inputmode="tel"
                             />
                         </div>
 
@@ -391,11 +398,23 @@
                     cartId: cart.id,
                 });
 
-                const res = await fetch("/api/checkout/initialize", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                });
+                const controller = new AbortController();
+                const timeoutId = window.setTimeout(
+                    () => controller.abort(),
+                    20000,
+                );
+
+                let res: Response;
+                try {
+                    res = await fetch("/api/checkout/initialize", {
+                        signal: controller.signal,
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    });
+                } finally {
+                    window.clearTimeout(timeoutId);
+                }
 
                 const data = await res.json();
                 if (res.ok && data.authorization_url) {

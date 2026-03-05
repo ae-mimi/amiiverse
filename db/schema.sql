@@ -40,12 +40,10 @@ CREATE TABLE IF NOT EXISTS orders (
     reference TEXT UNIQUE NOT NULL,
     email TEXT NOT NULL,
     amount_kobo INTEGER NOT NULL,
-    payment_provider TEXT NOT NULL DEFAULT 'paystack' CHECK (payment_provider IN ('paystack', 'flutterwave')),
+    payment_provider TEXT NOT NULL DEFAULT 'flutterwave' CHECK (payment_provider = 'flutterwave'),
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed')),
     provider_transaction_id TEXT,
     provider_raw_json TEXT,
-    paystack_transaction_id TEXT,
-    paystack_raw_json TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     FOREIGN KEY (cart_id) REFERENCES carts (id)

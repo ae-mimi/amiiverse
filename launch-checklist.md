@@ -16,7 +16,6 @@ Use this checklist to finish setup for `weareamii.com` + Flutterwave + Cloudflar
 
 ## 3. Cloudflare Environment Variables (Production)
 ### 3.1 Required Now
-- [ ] `PAYMENT_PROVIDER=flutterwave` (`Text`)
 - [ ] `FLUTTERWAVE_SECRET_KEY=...` (`Secret`)
 - [ ] `FLUTTERWAVE_WEBHOOK_HASH=...` (`Secret`)
 - [ ] `PUBLIC_SITE_URL=https://weareamii.com` (`Text`)
@@ -43,7 +42,6 @@ Use this checklist to finish setup for `weareamii.com` + Flutterwave + Cloudflar
   - `TYPESENSE_COLLECTION` (`Text`)
 
 ### 3.3 Cleanup
-- [ ] (Optional) Any old `PAYSTACK_*` env vars removed if no longer needed
 - [ ] (Optional) Any old `PUBLIC_PLAUSIBLE_*` env vars removed
 
 ## 4. Flutterwave Webhook
@@ -51,6 +49,7 @@ Use this checklist to finish setup for `weareamii.com` + Flutterwave + Cloudflar
   - `https://weareamii.com/api/flutterwave/webhook`
 - [ ] Secret hash generated and saved in Flutterwave
 - [ ] Same value copied to Cloudflare env var: `FLUTTERWAVE_WEBHOOK_HASH`
+- [ ] Webhook signature verification uses `flutterwave-signature` (preferred), with legacy `verif-hash` fallback
 - [ ] Saved webhook settings in Flutterwave
 - [ ] Do not switch webhook version unless backend is updated for it
 

@@ -78,20 +78,12 @@ if (!reference) {
                                  THEN ?
                                  ELSE provider_transaction_id
                              END,
-                             paystack_transaction_id = CASE
-                                 WHEN paystack_transaction_id IS NULL OR paystack_transaction_id = ''
-                                 THEN ?
-                                 ELSE paystack_transaction_id
-                             END,
                              provider_raw_json = ?,
-                             paystack_raw_json = ?,
                              updated_at = ?
                          WHERE reference = ?`,
                     )
                     .bind(
                         transactionId,
-                        transactionId,
-                        JSON.stringify(verifyJson),
                         JSON.stringify(verifyJson),
                         nowIso,
                         reference,
@@ -119,12 +111,10 @@ if (!reference) {
                             `UPDATE orders
                              SET status = 'failed',
                                  provider_raw_json = ?,
-                                 paystack_raw_json = ?,
                                  updated_at = ?
                              WHERE reference = ?`,
                         )
                         .bind(
-                            JSON.stringify(verifyJson ?? {}),
                             JSON.stringify(verifyJson ?? {}),
                             nowIso,
                             reference,
