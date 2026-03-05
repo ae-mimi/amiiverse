@@ -7,3 +7,15 @@ pages_build_output_dir = "dist"
 binding = "DB"
 database_name = "amiiverse-db"
 database_id = "b837948d-b000-4a20-ab73-c5bd63b74820"
+
+[[r2_buckets]]
+binding = "ASSETS_BUCKET"
+bucket_name = "amiiverse-assets"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "d581198e6b2548278f265b84a06156a1"
+
+[[kv_namespaces]]
+binding = "SESSION"
+id = "d581198e6b2548278f265b84a06156a1"
