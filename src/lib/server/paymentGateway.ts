@@ -4,7 +4,8 @@ import { getServerEnvValue } from "./cloudflareRuntimeEnv";
 interface PaymentInitInput {
     secretKey: string;
     email: string;
-    amountKobo: number;
+    amountMinor: number;
+    currency: "NGN" | "USD" | "GBP";
     reference: string;
     callbackUrl: string;
     orderId: string;
@@ -31,7 +32,7 @@ export interface PaymentVerificationResult {
     transactionId: string;
     raw: any;
     email: string;
-    amountKobo: number;
+    amountMinor: number;
     currency: string;
     error?: string;
 }
@@ -53,8 +54,8 @@ export async function initializeProviderPayment(
         },
         body: JSON.stringify({
             tx_ref: input.reference,
-            amount: Number((input.amountKobo / 100).toFixed(2)),
-            currency: "NGN",
+            amount: Number((input.amountMinor / 100).toFixed(2)),
+            currency: input.currency,
             redirect_url: input.callbackUrl,
             customer: {
                 email: input.email,
@@ -121,7 +122,7 @@ export async function verifyProviderPayment(
         transactionId: String(flutterwaveData?.data?.id ?? "").trim(),
         raw: flutterwaveData ?? {},
         email: String(flutterwaveData?.data?.customer?.email || "").trim(),
-        amountKobo: Number.isFinite(amount) ? Math.round(amount * 100) : 0,
+        amountMinor: Number.isFinite(amount) ? Math.round(amount * 100) : 0,
         currency: String(flutterwaveData?.data?.currency || "NGN"),
         error: flutterwaveData?.message || "Flutterwave verification failed",
     };

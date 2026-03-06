@@ -18,11 +18,15 @@ export interface D1DatabaseLike {
 export interface CartItemDto {
     id: string;
     product_id: string;
+    variant_id: string;
+    sku: string;
     quantity: number;
     unit_price: number;
+    unit_price_minor: number;
     total: number;
     title: string;
     thumbnail: string;
+    currency: string;
     metadata: {
         productType: "physical" | "digital";
     };
@@ -32,7 +36,9 @@ export interface CartDto {
     id: string;
     email: string | null;
     status: "open" | "checked_out" | "abandoned";
-    currency_code: "NGN";
+    currency_code: string;
+    country: string;
+    region: string;
     subtotal: number;
     total: number;
     items: CartItemDto[];
@@ -68,7 +74,7 @@ export async function getCartDto(
 ): Promise<CartDto | null> {
     const cart = await db
         .prepare(
-            `SELECT id, email, status
+            `SELECT id, email, status, currency, country, region
              FROM carts
              WHERE id = ?
              LIMIT 1`,
@@ -83,8 +89,11 @@ export async function getCartDto(
             `SELECT
                 id,
                 product_id,
+                variant_id,
+                sku_snapshot,
                 quantity,
                 unit_price_ngn,
+                currency_code,
                 title_snapshot,
                 product_type_snapshot,
                 cover_image_snapshot
@@ -102,11 +111,15 @@ export async function getCartDto(
         return {
             id: String(row.id ?? ""),
             product_id: String(row.product_id ?? ""),
+            variant_id: String(row.variant_id ?? row.product_id ?? ""),
+            sku: String(row.sku_snapshot ?? ""),
             quantity,
             unit_price: unitPrice,
+            unit_price_minor: unitPrice,
             total: quantity * unitPrice,
             title: String(row.title_snapshot ?? "Product"),
             thumbnail: String(row.cover_image_snapshot ?? ""),
+            currency: String(row.currency_code ?? "NGN"),
             metadata: {
                 productType:
                     String(row.product_type_snapshot ?? "physical") === "digital"
@@ -122,7 +135,9 @@ export async function getCartDto(
         id: String(cart.id),
         email: cart.email ? String(cart.email) : null,
         status: String(cart.status || "open") as CartDto["status"],
-        currency_code: "NGN",
+        currency_code: String(cart.currency || "NGN"),
+        country: String(cart.country || "NG"),
+        region: String(cart.region || ""),
         subtotal,
         total: subtotal,
         items,

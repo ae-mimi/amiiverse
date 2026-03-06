@@ -2,6 +2,7 @@ import type { APIContext } from "astro";
 
 export interface CloudflareRuntimeEnv {
     ADMIN_SYNC_TOKEN?: string;
+    PHASE2_ECOM_ENABLED?: string;
     FLUTTERWAVE_SECRET_KEY?: string;
     FLUTTERWAVE_WEBHOOK_HASH?: string;
     SANITY_WRITE_TOKEN?: string;
