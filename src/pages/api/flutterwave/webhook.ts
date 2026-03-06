@@ -1,12 +1,15 @@
+import { createHash } from "node:crypto";
 import type { APIRoute } from "astro";
 import {
     getCloudflareRuntimeEnv,
     getServerEnvValue,
 } from "../../../lib/server/cloudflareRuntimeEnv";
+import { canTransitionOrderStatus } from "../../../lib/server/ecom";
 
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
     first: () => Promise<Record<string, unknown> | null>;
+    all: () => Promise<{ results?: Array<Record<string, unknown>> }>;
     run: () => Promise<Record<string, unknown>>;
 }
 
@@ -15,6 +18,7 @@ interface D1DatabaseLike {
 }
 
 interface FlutterwaveWebhookEvent {
+    id?: string;
     event?: string;
     data?: {
         id?: number | string;
@@ -26,9 +30,7 @@ interface FlutterwaveWebhookEvent {
 function constantTimeEquals(a: string, b: string): boolean {
     if (a.length !== b.length) return false;
     let mismatch = 0;
-    for (let i = 0; i < a.length; i += 1) {
-        mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
-    }
+    for (let i = 0; i < a.length; i += 1) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
     return mismatch === 0;
 }
 
@@ -55,20 +57,16 @@ async function verifyFlutterwaveSignature(
     );
     const hmac = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
     const computed = toBase64(new Uint8Array(hmac));
-
     return constantTimeEquals(computed, signature);
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
     try {
-        const FLUTTERWAVE_WEBHOOK_HASH = getServerEnvValue(
-            { locals },
-            "FLUTTERWAVE_WEBHOOK_HASH",
-        );
+        const webhookSecret = getServerEnvValue({ locals }, "FLUTTERWAVE_WEBHOOK_HASH");
         const runtimeEnv = getCloudflareRuntimeEnv({ locals });
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
-        if (!FLUTTERWAVE_WEBHOOK_HASH) {
+        if (!webhookSecret) {
             return new Response("Missing FLUTTERWAVE_WEBHOOK_HASH", { status: 500 });
         }
         if (!db) {
@@ -80,23 +78,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
             request.headers.get("flutterwave-signature") || "",
         ).trim();
         const legacySignature = String(request.headers.get("verif-hash") || "").trim();
-
-        const hasSignature = Boolean(hmacSignature || legacySignature);
-        if (!hasSignature) {
+        if (!hmacSignature && !legacySignature) {
             return new Response("Missing signature", { status: 400 });
         }
 
         const hmacValid = hmacSignature
-            ? await verifyFlutterwaveSignature(
-                  rawBody,
-                  hmacSignature,
-                  FLUTTERWAVE_WEBHOOK_HASH,
-              )
+            ? await verifyFlutterwaveSignature(rawBody, hmacSignature, webhookSecret)
             : false;
         const legacyValid = legacySignature
-            ? constantTimeEquals(legacySignature, FLUTTERWAVE_WEBHOOK_HASH)
+            ? constantTimeEquals(legacySignature, webhookSecret)
             : false;
-
         if (!hmacValid && !legacyValid) {
             return new Response("Invalid signature", { status: 401 });
         }
@@ -104,54 +95,123 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const event = JSON.parse(rawBody) as FlutterwaveWebhookEvent;
         const eventName = String(event.event || "").toLowerCase();
         const txStatus = String(event.data?.status || "").toLowerCase();
-
         if (eventName !== "charge.completed" && txStatus !== "successful") {
             return new Response("Event ignored", { status: 200 });
         }
 
         const reference = String(event.data?.tx_ref || "").trim();
-        if (!reference) {
-            return new Response("Missing transaction reference", { status: 400 });
-        }
+        if (!reference) return new Response("Missing tx_ref", { status: 400 });
 
-        const transactionId = String(event.data?.id ?? "").trim();
+        const payloadHash = createHash("sha256").update(rawBody).digest("hex");
+        const eventKey = String(event.id || event.data?.id || reference).trim();
         const nowIso = new Date().toISOString();
 
-        await db
+        const dedupe = await db
             .prepare(
-                `UPDATE orders
-                 SET status = 'paid',
-                     payment_provider = 'flutterwave',
-                     provider_transaction_id = CASE
-                         WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
-                         THEN ?
-                         ELSE provider_transaction_id
-                     END,
-                     provider_raw_json = ?,
-                     updated_at = ?
-                 WHERE reference = ? AND status != 'paid'`,
+                `INSERT INTO webhook_events (
+                    id, provider, event_key, reference, payload_hash, processed_at
+                 ) VALUES (?, 'flutterwave', ?, ?, ?, ?)
+                 ON CONFLICT(provider, event_key) DO NOTHING`,
             )
-            .bind(transactionId, rawBody, nowIso, reference)
+            .bind(
+                `wh_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+                eventKey,
+                reference,
+                payloadHash,
+                nowIso,
+            )
             .run();
 
-        const orderRow = await db
+        const meta = dedupe as Record<string, unknown>;
+        if (Number(meta?.changes ?? 0) === 0) {
+            return new Response("Already processed", { status: 200 });
+        }
+
+        const order = await db
             .prepare(
-                `SELECT cart_id
+                `SELECT id, cart_id, status
                  FROM orders
                  WHERE reference = ?
                  LIMIT 1`,
             )
             .bind(reference)
             .first();
+        if (!order) return new Response("Order not found", { status: 404 });
 
-        if (orderRow?.cart_id) {
+        const orderId = String(order.id || "");
+        const currentStatus = String(order.status || "pending_payment");
+        const transactionId = String(event.data?.id ?? "").trim();
+
+        if (canTransitionOrderStatus(currentStatus, "paid") || currentStatus === "paid") {
+            await db
+                .prepare(
+                    `UPDATE orders
+                     SET status = CASE
+                         WHEN status = 'pending_payment' THEN 'fulfillment_pending'
+                         ELSE status
+                     END,
+                         payment_provider = 'flutterwave',
+                         provider_transaction_id = CASE
+                             WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
+                             THEN ?
+                             ELSE provider_transaction_id
+                         END,
+                         provider_raw_json = ?,
+                         updated_at = ?
+                     WHERE id = ?`,
+                )
+                .bind(transactionId, rawBody, nowIso, orderId)
+                .run();
+        }
+
+        await db
+            .prepare(
+                `UPDATE payments
+                 SET provider_tx_id = CASE
+                     WHEN provider_tx_id IS NULL OR provider_tx_id = ''
+                     THEN ?
+                     ELSE provider_tx_id
+                 END,
+                     status = 'paid',
+                     raw_json = ?,
+                     updated_at = ?
+                 WHERE reference = ?`,
+            )
+            .bind(transactionId, rawBody, nowIso, reference)
+            .run();
+
+        const items = await db
+            .prepare(
+                `SELECT variant_id, quantity
+                 FROM order_items
+                 WHERE order_id = ?`,
+            )
+            .bind(orderId)
+            .all();
+        for (const item of items.results ?? []) {
+            const variantId = String(item.variant_id || "").trim();
+            const qty = Math.max(0, Number(item.quantity ?? 0));
+            if (!variantId || qty <= 0) continue;
+            await db
+                .prepare(
+                    `UPDATE inventory
+                     SET reserved = CASE WHEN reserved >= ? THEN reserved - ? ELSE 0 END,
+                         on_hand = CASE WHEN on_hand >= ? THEN on_hand - ? ELSE 0 END,
+                         updated_at = ?
+                     WHERE variant_id = ?`,
+                )
+                .bind(qty, qty, qty, qty, nowIso, variantId)
+                .run();
+        }
+
+        if (order.cart_id) {
             await db
                 .prepare(
                     `UPDATE carts
                      SET status = 'checked_out', updated_at = ?
                      WHERE id = ?`,
                 )
-                .bind(nowIso, String(orderRow.cart_id))
+                .bind(nowIso, String(order.cart_id))
                 .run();
         }
 

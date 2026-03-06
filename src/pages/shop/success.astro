@@ -62,66 +62,14 @@ if (!reference) {
             const paymentSuccess =
                 verifyResponse.ok && String(verifyJson?.status || "") === "paid";
 
-            const nowIso = new Date().toISOString();
-            const cartId = String(orderRow.cart_id || "");
             orderEmail = String(orderRow.email || verifyJson?.email || "");
             amountKobo = Number(orderRow.amount_kobo || verifyJson?.amount || 0);
             transactionId = String(verifyJson?.order?.transactionId ?? "").trim();
 
             if (paymentSuccess) {
-                await db
-                    .prepare(
-                        `UPDATE orders
-                         SET status = 'paid',
-                             provider_transaction_id = CASE
-                                 WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
-                                 THEN ?
-                                 ELSE provider_transaction_id
-                             END,
-                             provider_raw_json = ?,
-                             updated_at = ?
-                         WHERE reference = ?`,
-                    )
-                    .bind(
-                        transactionId,
-                        JSON.stringify(verifyJson),
-                        nowIso,
-                        reference,
-                    )
-                    .run();
-
-                if (cartId) {
-                    await db
-                        .prepare(
-                            `UPDATE carts
-                             SET status = 'checked_out', updated_at = ?
-                             WHERE id = ?`,
-                        )
-                        .bind(nowIso, cartId)
-                        .run();
-                }
-
                 state = "paid";
                 message = "Payment confirmed and order marked as paid.";
             } else {
-                const currentStatus = String(orderRow.status || "pending");
-                if (currentStatus !== "paid") {
-                    await db
-                        .prepare(
-                            `UPDATE orders
-                             SET status = 'failed',
-                                 provider_raw_json = ?,
-                                 updated_at = ?
-                             WHERE reference = ?`,
-                        )
-                        .bind(
-                            JSON.stringify(verifyJson ?? {}),
-                            nowIso,
-                            reference,
-                        )
-                        .run();
-                }
-
                 state = "failed";
                 message =
                     String(verifyJson?.message || "").trim() ||

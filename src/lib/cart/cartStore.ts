@@ -3,8 +3,12 @@ const CART_ID_STORAGE_KEY = "cart_id";
 export interface ClientCartItem {
     id: string;
     product_id?: string;
+    variant_id?: string;
+    sku?: string;
     quantity: number;
     unit_price?: number;
+    unit_price_minor?: number;
+    currency?: string;
     total?: number;
     title?: string;
     thumbnail?: string;

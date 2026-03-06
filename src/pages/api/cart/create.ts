@@ -18,8 +18,8 @@ export const POST: APIRoute = async ({ locals }) => {
 
         await db
             .prepare(
-                `INSERT INTO carts (id, email, status, created_at, updated_at)
-                 VALUES (?, NULL, 'open', ?, ?)`,
+                `INSERT INTO carts (id, email, currency, country, region, status, created_at, updated_at)
+                 VALUES (?, NULL, 'NGN', 'NG', '', 'open', ?, ?)`,
             )
             .bind(cartId, nowIso, nowIso)
             .run();
