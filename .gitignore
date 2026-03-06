@@ -11,6 +11,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
 
 
 # environment variables
@@ -31,8 +32,15 @@ SRS & More/
 # local tool state
 .wrangler/
 .sanity/
+.vite/
+.cache/
+coverage/
+*.tsbuildinfo
+vitest-report/
 
 # editor/workstation local files
 .vscode/
 npx/
 npx
+tmp_*.txt
+*.tmp

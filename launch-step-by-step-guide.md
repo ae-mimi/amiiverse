@@ -384,6 +384,10 @@ Success check:
 8. Test download rules:
    - unpaid reference should fail
    - paid digital reference should work
+9. Test reservation release:
+   - create checkout and stop before payment
+   - run `GET /api/cron/release-expired-reservations` after TTL window
+   - confirm order status moves to `failed` and reserved stock is released
 
 ---
 

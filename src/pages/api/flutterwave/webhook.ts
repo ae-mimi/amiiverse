@@ -141,6 +141,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const orderId = String(order.id || "");
         const currentStatus = String(order.status || "pending_payment");
         const transactionId = String(event.data?.id ?? "").trim();
+        const shouldCaptureStock = currentStatus === "pending_payment";
 
         if (canTransitionOrderStatus(currentStatus, "paid") || currentStatus === "paid") {
             await db
@@ -180,39 +181,41 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .bind(transactionId, rawBody, nowIso, reference)
             .run();
 
-        const items = await db
-            .prepare(
-                `SELECT variant_id, quantity
-                 FROM order_items
-                 WHERE order_id = ?`,
-            )
-            .bind(orderId)
-            .all();
-        for (const item of items.results ?? []) {
-            const variantId = String(item.variant_id || "").trim();
-            const qty = Math.max(0, Number(item.quantity ?? 0));
-            if (!variantId || qty <= 0) continue;
-            await db
+        if (shouldCaptureStock) {
+            const items = await db
                 .prepare(
-                    `UPDATE inventory
-                     SET reserved = CASE WHEN reserved >= ? THEN reserved - ? ELSE 0 END,
-                         on_hand = CASE WHEN on_hand >= ? THEN on_hand - ? ELSE 0 END,
-                         updated_at = ?
-                     WHERE variant_id = ?`,
+                    `SELECT variant_id, quantity
+                     FROM order_items
+                     WHERE order_id = ?`,
                 )
-                .bind(qty, qty, qty, qty, nowIso, variantId)
-                .run();
-        }
+                .bind(orderId)
+                .all();
+            for (const item of items.results ?? []) {
+                const variantId = String(item.variant_id || "").trim();
+                const qty = Math.max(0, Number(item.quantity ?? 0));
+                if (!variantId || qty <= 0) continue;
+                await db
+                    .prepare(
+                        `UPDATE inventory
+                         SET reserved = CASE WHEN reserved >= ? THEN reserved - ? ELSE 0 END,
+                             on_hand = CASE WHEN on_hand >= ? THEN on_hand - ? ELSE 0 END,
+                             updated_at = ?
+                         WHERE variant_id = ?`,
+                    )
+                    .bind(qty, qty, qty, qty, nowIso, variantId)
+                    .run();
+            }
 
-        if (order.cart_id) {
-            await db
-                .prepare(
-                    `UPDATE carts
-                     SET status = 'checked_out', updated_at = ?
-                     WHERE id = ?`,
-                )
-                .bind(nowIso, String(order.cart_id))
-                .run();
+            if (order.cart_id) {
+                await db
+                    .prepare(
+                        `UPDATE carts
+                         SET status = 'checked_out', updated_at = ?
+                         WHERE id = ?`,
+                    )
+                    .bind(nowIso, String(order.cart_id))
+                    .run();
+            }
         }
 
         return new Response("Webhook processed", { status: 200 });

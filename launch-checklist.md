@@ -74,6 +74,7 @@ Use this checklist to finish setup for `weareamii.com` + Flutterwave + Cloudflar
 - [ ] Checkout redirects to Flutterwave
 - [ ] Successful payment marks order as `paid` in D1
 - [ ] Webhook request is accepted (no signature/hash errors)
+- [ ] Expired pending checkouts release reservations via `/api/cron/release-expired-reservations`
 - [ ] Download endpoint blocks unpaid orders
 - [ ] Download endpoint works for paid digital orders
 

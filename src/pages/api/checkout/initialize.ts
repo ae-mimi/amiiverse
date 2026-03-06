@@ -14,6 +14,7 @@ import {
     getPaymentSecretKey,
     initializeProviderPayment,
 } from "../../../lib/server/paymentGateway";
+import { releaseOrderReservations } from "../../../lib/server/inventory";
 
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
@@ -300,6 +301,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         });
 
         if (!initialization.ok) {
+            await releaseOrderReservations(db, orderId, nowIso);
             await db
                 .prepare(
                     `UPDATE orders
@@ -310,9 +312,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 )
                 .bind(
                     JSON.stringify(initialization.raw ?? {}),
-                    new Date().toISOString(),
+                    nowIso,
                     orderId,
                 )
+                .run();
+
+            await db
+                .prepare(
+                    `UPDATE payments
+                     SET status = 'failed', raw_json = ?, updated_at = ?
+                     WHERE order_id = ?`,
+                )
+                .bind(JSON.stringify(initialization.raw ?? {}), nowIso, orderId)
                 .run();
 
             return jsonResponse(
