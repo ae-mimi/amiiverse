@@ -1,7 +1,15 @@
 import type { APIRoute } from "astro";
+import { getCloudflareRuntimeEnv } from "../../../lib/server/cloudflareRuntimeEnv";
+import { createId } from "../../../lib/server/cart";
 import {
-    getCloudflareRuntimeEnv,
-} from "../../../lib/server/cloudflareRuntimeEnv";
+    buildQuote,
+    getCartLines,
+    getVariantAvailability,
+    normalizeCountry,
+    normalizeCurrency,
+    normalizeRegion,
+} from "../../../lib/server/ecom";
+import { checkoutInitSchema } from "../../../lib/server/ecomValidation";
 import {
     getPaymentSecretKey,
     initializeProviderPayment,
@@ -17,14 +25,6 @@ interface D1DatabaseLike {
     prepare: (query: string) => D1PreparedStatementLike;
 }
 
-interface CartWithTotalsRow {
-    id: string;
-    email?: string | null;
-    status: "open" | "checked_out" | "abandoned";
-    total_ngn: number;
-    item_count: number;
-}
-
 function jsonResponse(body: Record<string, unknown>, status = 200): Response {
     return new Response(JSON.stringify(body), {
         status,
@@ -32,20 +32,26 @@ function jsonResponse(body: Record<string, unknown>, status = 200): Response {
     });
 }
 
-function createReference(): string {
-    const random = Math.random().toString(36).slice(2, 10);
-    return `amii_${Date.now()}_${random}`;
+function normalizeIdempotencyKey(value: string | null): string {
+    return String(value || "")
+        .trim()
+        .slice(0, 180);
 }
 
-function createOrderId(): string {
-    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-        return crypto.randomUUID();
-    }
-    return `ord_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-}
+export const prerender = false;
 
 export const POST: APIRoute = async ({ request, locals }) => {
     try {
+        const idempotencyKey = normalizeIdempotencyKey(
+            request.headers.get("Idempotency-Key"),
+        );
+        if (!idempotencyKey) {
+            return jsonResponse(
+                { error: "Missing Idempotency-Key header" },
+                400,
+            );
+        }
+
         const providerSecretKey = getPaymentSecretKey({ locals });
         const runtimeEnv = getCloudflareRuntimeEnv({ locals });
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
@@ -58,96 +64,234 @@ export const POST: APIRoute = async ({ request, locals }) => {
         }
 
         const body = await request.json().catch(() => ({}));
-        const cartId = String(body?.cartId || "").trim();
-        const email = String(body?.email || "").trim().toLowerCase();
-        const phone = String(body?.phone || "").trim();
-
-        if (!cartId || !email) {
-            return jsonResponse({ error: "cartId and email are required" }, 400);
+        const parsed = checkoutInitSchema.safeParse(body);
+        if (!parsed.success) {
+            return jsonResponse(
+                { error: "Invalid payload", details: parsed.error.flatten() },
+                400,
+            );
         }
 
-        const cartRow = (await db
+        const cartId = parsed.data.cartId;
+        const email = parsed.data.email.toLowerCase();
+        const phone = String(parsed.data.phone || "").trim();
+        const currency = normalizeCurrency(parsed.data.currency);
+        const country = normalizeCountry(parsed.data.country);
+        const region = normalizeRegion(parsed.data.region);
+        const quoteHash = parsed.data.quoteHash;
+
+        const existingByIdempotency = await db
             .prepare(
-                `SELECT
-                    c.id,
-                    c.email,
-                    c.status,
-                    COALESCE(SUM(ci.quantity * ci.unit_price_ngn), 0) AS total_ngn,
-                    COUNT(ci.id) AS item_count
-                 FROM carts c
-                 LEFT JOIN cart_items ci ON ci.cart_id = c.id
-                 WHERE c.id = ?
-                 GROUP BY c.id, c.email, c.status
+                `SELECT reference
+                 FROM orders
+                 WHERE cart_id = ? AND idempotency_key = ?
+                 LIMIT 1`,
+            )
+            .bind(cartId, idempotencyKey)
+            .first();
+        if (existingByIdempotency?.reference) {
+            return jsonResponse({
+                status: "replayed",
+                reference: String(existingByIdempotency.reference),
+            });
+        }
+
+        const cartRow = await db
+            .prepare(
+                `SELECT id, status
+                 FROM carts
+                 WHERE id = ?
                  LIMIT 1`,
             )
             .bind(cartId)
-            .first()) as CartWithTotalsRow | null;
-
-        if (!cartRow) {
-            return jsonResponse({ error: "Cart not found" }, 404);
+            .first();
+        if (!cartRow) return jsonResponse({ error: "Cart not found" }, 404);
+        if (String(cartRow.status || "") !== "open") {
+            return jsonResponse({ error: "Cart is not open" }, 409);
         }
 
-        if (cartRow.status !== "open") {
+        const quote = await buildQuote(db, { cartId, currency, country, region });
+        if (quote.quote_hash !== quoteHash) {
             return jsonResponse(
-                { error: `Cart is not open (status: ${cartRow.status})` },
+                {
+                    error: "Quote mismatch. Please refresh totals.",
+                    expectedQuoteHash: quote.quote_hash,
+                },
                 409,
             );
         }
 
-        if (Number(cartRow.item_count || 0) <= 0) {
+        const lines = await getCartLines(db, cartId);
+        if (!lines.length) {
             return jsonResponse({ error: "Cart has no items" }, 400);
         }
 
-        const totalNgn = Number(cartRow.total_ngn || 0);
-        const amountKobo = Math.round(totalNgn * 100);
-        if (!Number.isFinite(amountKobo) || amountKobo <= 0) {
-            return jsonResponse({ error: "Cart total must be greater than zero" }, 400);
+        for (const line of lines) {
+            const available = await getVariantAvailability(db, line.variant_id);
+            if (available < line.quantity) {
+                return jsonResponse(
+                    {
+                        error: "Insufficient stock for one or more variants",
+                        variantId: line.variant_id,
+                        available,
+                    },
+                    409,
+                );
+            }
         }
 
         const nowIso = new Date().toISOString();
-        const reference = createReference();
-        const orderId = createOrderId();
+        const reference = `amii_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        const orderId = createId("ord");
+        const quoteId = createId("quote");
         const callbackUrl = `${new URL(request.url).origin}/shop/success?reference=${encodeURIComponent(reference)}`;
+
+        await db
+            .prepare(
+                `INSERT INTO quotes (
+                    id,
+                    cart_id,
+                    quote_hash,
+                    subtotal_minor,
+                    shipping_minor,
+                    tax_minor,
+                    total_minor,
+                    currency,
+                    fx_rate,
+                    expires_at,
+                    created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            )
+            .bind(
+                quoteId,
+                cartId,
+                quote.quote_hash,
+                quote.subtotal.amount_minor,
+                quote.shipping.amount_minor,
+                quote.tax.amount_minor,
+                quote.total.amount_minor,
+                quote.total.currency,
+                quote.fx_rate,
+                quote.expires_at,
+                nowIso,
+            )
+            .run();
 
         await db
             .prepare(
                 `INSERT INTO orders (
                     id,
                     cart_id,
+                    quote_id,
                     reference,
+                    idempotency_key,
                     email,
                     amount_kobo,
+                    currency_code,
+                    subtotal_minor,
+                    shipping_minor,
+                    tax_minor,
+                    total_minor,
                     payment_provider,
                     status,
                     created_at,
                     updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'flutterwave', 'pending_payment', ?, ?)`,
             )
             .bind(
                 orderId,
                 cartId,
+                quoteId,
                 reference,
+                idempotencyKey,
                 email,
-                amountKobo,
-                "flutterwave",
+                quote.total.amount_minor,
+                quote.total.currency,
+                quote.subtotal.amount_minor,
+                quote.shipping.amount_minor,
+                quote.tax.amount_minor,
+                quote.total.amount_minor,
                 nowIso,
                 nowIso,
             )
+            .run();
+
+        for (const line of lines) {
+            const lineTotal = line.base_price_minor_ngn * line.quantity;
+            await db
+                .prepare(
+                    `INSERT INTO order_items (
+                        id,
+                        order_id,
+                        variant_id,
+                        product_id,
+                        sku,
+                        title_snapshot,
+                        cover_image_snapshot,
+                        unit_price_minor,
+                        quantity,
+                        total_minor,
+                        currency,
+                        metadata_json,
+                        created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                )
+                .bind(
+                    createId("oit"),
+                    orderId,
+                    line.variant_id,
+                    line.product_id,
+                    line.sku || null,
+                    line.title,
+                    line.image || null,
+                    line.base_price_minor_ngn,
+                    line.quantity,
+                    lineTotal,
+                    "NGN",
+                    JSON.stringify({ productType: line.product_type }),
+                    nowIso,
+                )
+                .run();
+
+            await db
+                .prepare(
+                    `UPDATE inventory
+                     SET reserved = reserved + ?, updated_at = ?
+                     WHERE variant_id = ?`,
+                )
+                .bind(line.quantity, nowIso, line.variant_id)
+                .run();
+        }
+
+        await db
+            .prepare(
+                `INSERT INTO payments (
+                    id,
+                    order_id,
+                    provider,
+                    reference,
+                    status,
+                    created_at,
+                    updated_at
+                ) VALUES (?, ?, 'flutterwave', ?, 'pending', ?, ?)`,
+            )
+            .bind(createId("pay"), orderId, reference, nowIso, nowIso)
             .run();
 
         await db
             .prepare(
                 `UPDATE carts
-                 SET email = ?, updated_at = ?
+                 SET email = ?, currency = ?, country = ?, region = ?, updated_at = ?
                  WHERE id = ?`,
             )
-            .bind(email, nowIso, cartId)
+            .bind(email, currency, country, region, nowIso, cartId)
             .run();
 
         const initialization = await initializeProviderPayment({
             secretKey: providerSecretKey,
             email,
-            amountKobo,
+            amountMinor: quote.total.amount_minor,
+            currency: quote.total.currency,
             reference,
             callbackUrl,
             orderId,
@@ -179,10 +323,28 @@ export const POST: APIRoute = async ({ request, locals }) => {
             );
         }
 
+        await db
+            .prepare(
+                `UPDATE payments
+                 SET status = 'initialized',
+                     raw_json = ?,
+                     updated_at = ?
+                 WHERE order_id = ?`,
+            )
+            .bind(JSON.stringify(initialization.raw ?? {}), nowIso, orderId)
+            .run();
+
         return jsonResponse({
             authorization_url: initialization.authorizationUrl,
             reference,
             provider: "flutterwave",
+            quoteHash: quote.quote_hash,
+            totals: {
+                subtotal: quote.subtotal,
+                shipping: quote.shipping,
+                tax: quote.tax,
+                total: quote.total,
+            },
         });
     } catch (error: any) {
         console.error("[checkout/initialize] Unexpected error", error);

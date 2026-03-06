@@ -173,9 +173,85 @@ export const POST: APIRoute = async ({ request, locals }) => {
             const updatedAt =
                 (product._updatedAt ?? new Date().toISOString()).trim();
 
+            const variantId = `${product._id}_default`;
             return [
+                db.prepare(
+                    `INSERT INTO products (
+                        id,
+                        slug,
+                        title,
+                        description,
+                        product_type,
+                        cover_image_url,
+                        r2_key,
+                        is_active,
+                        created_at,
+                        updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(id) DO UPDATE SET
+                        slug = excluded.slug,
+                        title = excluded.title,
+                        description = excluded.description,
+                        product_type = excluded.product_type,
+                        cover_image_url = excluded.cover_image_url,
+                        r2_key = excluded.r2_key,
+                        is_active = excluded.is_active,
+                        updated_at = excluded.updated_at`,
+                ).bind(
+                    product._id,
+                    slug,
+                    title,
+                    description,
+                    productType,
+                    coverImageUrl,
+                    r2Key || null,
+                    isActive,
+                    updatedAt,
+                    updatedAt,
+                ),
+                db.prepare(
+                    `INSERT INTO product_variants (
+                        id,
+                        product_id,
+                        sku,
+                        title,
+                        options_json,
+                        base_price_minor_ngn,
+                        weight_grams,
+                        is_active,
+                        created_at,
+                        updated_at
+                    ) VALUES (?, ?, ?, ?, '{}', ?, 0, ?, ?, ?)
+                    ON CONFLICT(id) DO UPDATE SET
+                        product_id = excluded.product_id,
+                        sku = excluded.sku,
+                        title = excluded.title,
+                        base_price_minor_ngn = excluded.base_price_minor_ngn,
+                        is_active = excluded.is_active,
+                        updated_at = excluded.updated_at`,
+                ).bind(
+                    variantId,
+                    product._id,
+                    `${slug}-default`,
+                    `${title} Default`,
+                    priceNgn,
+                    isActive,
+                    updatedAt,
+                    updatedAt,
+                ),
+                db.prepare(
+                    `INSERT INTO inventory (
+                        variant_id,
+                        on_hand,
+                        reserved,
+                        safety_stock,
+                        updated_at
+                    ) VALUES (?, 1000000, 0, 0, ?)
+                    ON CONFLICT(variant_id) DO UPDATE SET
+                        updated_at = excluded.updated_at`,
+                ).bind(variantId, updatedAt),
                 db
-                .prepare(
+                    .prepare(
                     `INSERT INTO products_cache (
                         id,
                         slug,
@@ -198,19 +274,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
                         r2_key = excluded.r2_key,
                         is_active = excluded.is_active,
                         updated_at = excluded.updated_at`,
-                )
-                .bind(
-                    product._id,
-                    slug,
-                    title,
-                    description,
-                    priceNgn,
-                    productType,
-                    coverImageUrl,
-                    r2Key || null,
-                    isActive,
-                    updatedAt,
-                ),
+                    )
+                    .bind(
+                        product._id,
+                        slug,
+                        title,
+                        description,
+                        priceNgn,
+                        productType,
+                        coverImageUrl,
+                        r2Key || null,
+                        isActive,
+                        updatedAt,
+                    ),
             ];
         });
 

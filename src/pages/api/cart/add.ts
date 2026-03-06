@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { sanityClient } from "sanity:client";
 import {
     createId,
     type D1DatabaseLike,
@@ -7,6 +6,13 @@ import {
     getD1FromContext,
     jsonResponse,
 } from "../../../lib/server/cart";
+import {
+    getVariantAvailability,
+    normalizeCountry,
+    normalizeCurrency,
+    normalizeRegion,
+} from "../../../lib/server/ecom";
+import { addToCartSchema } from "../../../lib/server/ecomValidation";
 
 export const prerender = false;
 
@@ -16,125 +22,22 @@ function normalizeQuantity(value: unknown): number {
     return Math.max(1, Math.floor(parsed));
 }
 
-interface SanityPortableTextSpan {
-    _type?: string;
-    text?: string;
-}
-
-interface SanityPortableTextBlock {
-    _type?: string;
-    children?: SanityPortableTextSpan[];
-}
-
-interface SanityProductFallback {
-    _id: string;
-    slug?: string;
-    title?: string;
-    shortDescription?: string;
-    description?: SanityPortableTextBlock[];
-    price?: number;
-    productType?: string;
-    coverImageUrl?: string;
-    isActive?: boolean;
-}
-
-function sanitizeProductType(value: string | undefined): "physical" | "digital" {
-    return value === "digital" ? "digital" : "physical";
-}
-
-function toPlainText(blocks: SanityPortableTextBlock[] | undefined): string {
-    if (!Array.isArray(blocks) || blocks.length === 0) return "";
-
-    return blocks
-        .filter((block) => block?._type === "block")
-        .map((block) =>
-            (block.children ?? [])
-                .filter((child) => child?._type === "span")
-                .map((child) => (child.text ?? "").trim())
-                .filter(Boolean)
-                .join(" "),
-        )
-        .filter(Boolean)
-        .join("\n")
-        .trim();
-}
-
-async function fetchSanityProductById(
-    productId: string,
-): Promise<SanityProductFallback | null> {
-    const query = `*[_type == "product" && _id == $productId][0]{
-      _id,
-      "slug": slug.current,
-      title,
-      shortDescription,
-      description,
-      price,
-      productType,
-      "coverImageUrl": coverImage.asset->url,
-      isActive
-    }`;
-
-    const product = await sanityClient.fetch<SanityProductFallback | null>(query, {
-        productId,
-    });
-
-    return product ?? null;
-}
-
-async function upsertFallbackProductToCache(
+async function findDefaultVariantIdByProductId(
     db: D1DatabaseLike,
-    product: SanityProductFallback,
-): Promise<void> {
-    const id = String(product._id ?? "").trim();
-    const slug = String(product.slug ?? "").trim();
-    const title = String(product.title ?? "").trim();
-    if (!id || !slug || !title) return;
-
-    const description =
-        String(product.shortDescription ?? "").trim() ||
-        toPlainText(product.description);
-    const priceNgn = Number.isFinite(Number(product.price))
-        ? Math.round(Number(product.price))
-        : 0;
-    const productType = sanitizeProductType(product.productType);
-    const coverImageUrl = String(product.coverImageUrl ?? "").trim();
-    const isActive = product.isActive === false ? 0 : 1;
-
-    await db
+    productId: string,
+): Promise<string> {
+    const fallback = `${productId}_default`;
+    const row = await db
         .prepare(
-            `INSERT INTO products_cache (
-                id,
-                slug,
-                title,
-                description,
-                price_ngn,
-                product_type,
-                cover_image_url,
-                is_active,
-                updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET
-                slug = excluded.slug,
-                title = excluded.title,
-                description = excluded.description,
-                price_ngn = excluded.price_ngn,
-                product_type = excluded.product_type,
-                cover_image_url = excluded.cover_image_url,
-                is_active = excluded.is_active,
-                updated_at = excluded.updated_at`,
+            `SELECT id
+             FROM product_variants
+             WHERE id = ? OR product_id = ?
+             ORDER BY CASE WHEN id = ? THEN 0 ELSE 1 END
+             LIMIT 1`,
         )
-        .bind(
-            id,
-            slug,
-            title,
-            description,
-            priceNgn,
-            productType,
-            coverImageUrl,
-            isActive,
-            new Date().toISOString(),
-        )
-        .run();
+        .bind(fallback, productId, fallback)
+        .first();
+    return String(row?.id || fallback);
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -143,12 +46,33 @@ export const POST: APIRoute = async ({ request, locals }) => {
         if (!db) return jsonResponse({ error: "Missing D1 binding `DB`" }, 500);
 
         const body = await request.json().catch(() => ({}));
-        const cartId = String(body?.cartId || "").trim();
-        const productId = String(body?.productId || "").trim();
-        const quantity = normalizeQuantity(body?.quantity);
+        const parsed = addToCartSchema.safeParse({
+            ...body,
+            quantity: normalizeQuantity(body?.quantity),
+        });
+        if (!parsed.success) {
+            return jsonResponse(
+                { error: "Invalid payload", details: parsed.error.flatten() },
+                400,
+            );
+        }
 
-        if (!cartId || !productId) {
-            return jsonResponse({ error: "cartId and productId are required" }, 400);
+        const cartId = parsed.data.cartId;
+        const quantity = normalizeQuantity(parsed.data.quantity);
+        const currency = normalizeCurrency(parsed.data.currency);
+        const country = normalizeCountry(parsed.data.country);
+        const region = normalizeRegion(parsed.data.region);
+        let variantId = String(parsed.data.variantId || "").trim();
+        const productId = String(parsed.data.productId || "").trim();
+
+        if (!variantId && productId) {
+            variantId = await findDefaultVariantIdByProductId(db, productId);
+        }
+        if (!variantId) {
+            return jsonResponse(
+                { error: "variantId (or productId) is required" },
+                400,
+            );
         }
 
         const cart = await db
@@ -160,50 +84,60 @@ export const POST: APIRoute = async ({ request, locals }) => {
             return jsonResponse({ error: "Cart is not open" }, 409);
         }
 
-        let product = await db
+        const variant = await db
             .prepare(
-                `SELECT id, title, price_ngn, product_type, cover_image_url, is_active
-                 FROM products_cache
-                 WHERE id = ? LIMIT 1`,
+                `SELECT
+                    pv.id,
+                    pv.product_id,
+                    pv.sku,
+                    pv.title AS variant_title,
+                    pv.base_price_minor_ngn,
+                    pv.is_active AS variant_active,
+                    p.title AS product_title,
+                    p.product_type,
+                    p.cover_image_url,
+                    p.is_active AS product_active
+                 FROM product_variants pv
+                 INNER JOIN products p ON p.id = pv.product_id
+                 WHERE pv.id = ?
+                 LIMIT 1`,
             )
-            .bind(productId)
+            .bind(variantId)
             .first();
-
-        if (!product || Number(product.is_active ?? 0) !== 1) {
-            const sanityProduct = await fetchSanityProductById(productId);
-            if (sanityProduct && sanityProduct.isActive !== false) {
-                await upsertFallbackProductToCache(db, sanityProduct);
-                product = await db
-                    .prepare(
-                        `SELECT id, title, price_ngn, product_type, cover_image_url, is_active
-                         FROM products_cache
-                         WHERE id = ? LIMIT 1`,
-                    )
-                    .bind(productId)
-                    .first();
-            }
+        if (
+            !variant ||
+            Number(variant.variant_active ?? 0) !== 1 ||
+            Number(variant.product_active ?? 0) !== 1
+        ) {
+            return jsonResponse({ error: "Variant not found or inactive" }, 404);
         }
 
-        if (!product || Number(product.is_active ?? 0) !== 1) {
-            return jsonResponse({ error: "Product not found or inactive" }, 404);
-        }
-
+        const available = await getVariantAvailability(db, variantId);
         const existingItem = await db
             .prepare(
                 `SELECT id, quantity
                  FROM cart_items
-                 WHERE cart_id = ? AND product_id = ?
+                 WHERE cart_id = ? AND variant_id = ?
                  LIMIT 1`,
             )
-            .bind(cartId, productId)
+            .bind(cartId, variantId)
             .first();
+
+        const nextQuantity = existingItem?.id
+            ? Math.max(1, Number(existingItem.quantity || 0) + quantity)
+            : quantity;
+        if (available < nextQuantity) {
+            return jsonResponse(
+                {
+                    error: "Variant is out of stock for requested quantity",
+                    available,
+                },
+                409,
+            );
+        }
 
         const nowIso = new Date().toISOString();
         if (existingItem?.id) {
-            const nextQuantity = Math.max(
-                1,
-                Number(existingItem.quantity || 0) + quantity,
-            );
             await db
                 .prepare(
                     `UPDATE cart_items
@@ -220,22 +154,32 @@ export const POST: APIRoute = async ({ request, locals }) => {
                         id,
                         cart_id,
                         product_id,
+                        variant_id,
+                        sku_snapshot,
                         quantity,
+                        currency_code,
                         unit_price_ngn,
                         title_snapshot,
                         product_type_snapshot,
                         cover_image_snapshot
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 )
                 .bind(
                     lineItemId,
                     cartId,
-                    productId,
+                    String(variant.product_id || ""),
+                    variantId,
+                    String(variant.sku || ""),
                     quantity,
-                    Math.max(0, Number(product.price_ngn || 0)),
-                    String(product.title || "Product"),
-                    String(product.product_type || "physical"),
-                    String(product.cover_image_url || ""),
+                    currency,
+                    Math.max(0, Number(variant.base_price_minor_ngn || 0)),
+                    String(
+                        variant.variant_title ||
+                            variant.product_title ||
+                            "Product Variant",
+                    ),
+                    String(variant.product_type || "physical"),
+                    String(variant.cover_image_url || ""),
                 )
                 .run();
         }
@@ -243,10 +187,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
         await db
             .prepare(
                 `UPDATE carts
-                 SET updated_at = ?
+                 SET currency = ?, country = ?, region = ?, updated_at = ?
                  WHERE id = ?`,
             )
-            .bind(nowIso, cartId)
+            .bind(currency, country, region, nowIso, cartId)
             .run();
 
         const refreshed = await getCartDto(db, cartId);

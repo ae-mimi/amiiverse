@@ -92,6 +92,49 @@
                             />
                         </div>
 
+                        <div class="mb-3">
+                            <label class="text-xs font-weight-bold text-secondary mb-1"
+                                >CURRENCY</label
+                            >
+                            <select
+                                id="currency"
+                                name="currency"
+                                class="formControl input-shape-rect"
+                            >
+                                <option value="NGN">NGN</option>
+                                <option value="USD">USD</option>
+                                <option value="GBP">GBP</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="text-xs font-weight-bold text-secondary mb-1"
+                                >COUNTRY (ISO2)</label
+                            >
+                            <input
+                                type="text"
+                                id="country"
+                                name="country"
+                                class="formControl input-shape-rect"
+                                placeholder="NG"
+                                maxlength="2"
+                                value="NG"
+                            />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="text-xs font-weight-bold text-secondary mb-1"
+                                >REGION (OPTIONAL)</label
+                            >
+                            <input
+                                type="text"
+                                id="region"
+                                name="region"
+                                class="formControl input-shape-rect"
+                                placeholder="Lagos"
+                            />
+                        </div>
+
                         <div
                             class="errorState mb-3 text-danger text-xs font-weight-bold"
                             id="modal-error"
@@ -209,7 +252,9 @@
         getLineItemUnitPrice(item: ClientCartItem): number {
             const quantity = Number(item.quantity || 1);
             const total = Number((item.total as number) ?? 0);
-            const unit = Number((item.unit_price as number) ?? 0);
+            const unit = Number(
+                (item.unit_price as number) ?? (item.unit_price_minor as number) ?? 0,
+            );
             if (unit > 0) return unit;
             if (total > 0 && quantity > 0) return Math.round(total / quantity);
             return 0;
@@ -392,11 +437,31 @@
                     cartId: cart.id,
                     email: String(formData.get("email") || ""),
                     phone: String(formData.get("phone") || ""),
+                    currency: String(formData.get("currency") || "NGN").toUpperCase(),
+                    country: String(formData.get("country") || "NG")
+                        .trim()
+                        .toUpperCase(),
+                    region: String(formData.get("region") || "").trim(),
                 };
 
                 trackAnalyticsEvent("checkout_start", {
                     cartId: cart.id,
                 });
+
+                const quoteRes = await fetch("/api/checkout/quote", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        cartId: payload.cartId,
+                        currency: payload.currency,
+                        country: payload.country,
+                        region: payload.region,
+                    }),
+                });
+                const quoteData = await quoteRes.json();
+                if (!quoteRes.ok || !quoteData?.quoteHash) {
+                    throw new Error(quoteData?.error || "Unable to refresh totals");
+                }
 
                 const controller = new AbortController();
                 const timeoutId = window.setTimeout(
@@ -406,11 +471,20 @@
 
                 let res: Response;
                 try {
+                    const idempotencyKey =
+                        crypto?.randomUUID?.() ||
+                        `idem_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
                     res = await fetch("/api/checkout/initialize", {
                         signal: controller.signal,
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Idempotency-Key": idempotencyKey,
+                        },
+                        body: JSON.stringify({
+                            ...payload,
+                            quoteHash: String(quoteData.quoteHash),
+                        }),
                     });
                 } finally {
                     window.clearTimeout(timeoutId);

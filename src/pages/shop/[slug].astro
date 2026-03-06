@@ -10,14 +10,22 @@ interface ShopProduct {
     slug: string;
     title: string;
     description: string;
-    price_ngn: number;
     product_type: "physical" | "digital";
     cover_image_url: string;
     is_active: number;
 }
 
+interface ProductVariant {
+    id: string;
+    price_ngn: number;
+    price_minor: number;
+    currency: "NGN" | "USD" | "GBP";
+    stock?: { available: number; is_in_stock: boolean };
+}
+
 const { slug } = Astro.params;
 let product: ShopProduct | null = null;
+let variants: ProductVariant[] = [];
 
 if (slug) {
     try {
@@ -26,9 +34,13 @@ if (slug) {
 
         const response = await fetch(apiUrl.toString());
         if (response.ok) {
-            const data = (await response.json()) as { product?: ShopProduct };
+            const data = (await response.json()) as {
+                product?: ShopProduct;
+                variants?: ProductVariant[];
+            };
             if (data.product) {
                 product = data.product;
+                variants = Array.isArray(data.variants) ? data.variants : [];
             }
         }
     } catch (error) {
@@ -38,9 +50,10 @@ if (slug) {
 
 const hasProduct = Boolean(product);
 const allImages = product?.cover_image_url ? [product.cover_image_url] : [];
-const price = Number(product?.price_ngn ?? 0);
+const firstVariant = variants.find((variant) => variant?.id) ?? null;
+const price = Number(firstVariant?.price_ngn ?? 0);
 const productType = product?.product_type ?? "physical";
-const productId = product?.id ?? "";
+const productId = firstVariant?.id ?? product?.id ?? "";
 
 // Map Sanity content to Accordion Data
 const accordionData: Record<string, string> = {};
