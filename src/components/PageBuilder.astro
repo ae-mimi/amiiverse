@@ -59,7 +59,15 @@ const { sections } = Astro.props;
 ---
 
 {
-    sections?.map((section: PageSection) => {
+    sections?.map((section: PageSection, index: number) => {
+        // Avoid duplicate separators before the contact section.
+        if (
+            section._type === "divider" &&
+            sections[index + 1]?._type === "contact_section"
+        ) {
+            return null;
+        }
+
         switch (section._type) {
             // ── Heroes ──────────────────────────
             case "hero":
