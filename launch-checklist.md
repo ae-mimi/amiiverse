@@ -16,8 +16,9 @@ Use this checklist to finish setup for `weareamii.com` + Flutterwave + Cloudflar
 
 ## 3. Cloudflare Environment Variables (Production)
 ### 3.1 Required Now
-- [ ] `FLUTTERWAVE_SECRET_KEY=...` (`Secret`)
-- [ ] `FLUTTERWAVE_WEBHOOK_HASH=...` (`Secret`)
+- [ ] `FLUTTERWAVE_ENV=live` (`Text`)
+- [ ] `FLUTTERWAVE_SECRET_KEY_LIVE=...` (`Secret`)
+- [ ] `FLUTTERWAVE_WEBHOOK_SECRET_LIVE=...` (`Secret`)
 - [ ] `PUBLIC_SITE_URL=https://weareamii.com` (`Text`)
 - [ ] `PUBLIC_SANITY_PROJECT_ID=...` (`Text`)
 - [ ] `PUBLIC_SANITY_DATASET=...` (`Text`)
@@ -44,11 +45,16 @@ Use this checklist to finish setup for `weareamii.com` + Flutterwave + Cloudflar
 ### 3.3 Cleanup
 - [ ] (Optional) Any old `PUBLIC_PLAUSIBLE_*` env vars removed
 
+### 3.4 Preview/Sandbox Variables
+- [ ] `FLUTTERWAVE_ENV=test` in Preview (`Text`)
+- [ ] `FLUTTERWAVE_SECRET_KEY_TEST=...` in Preview (`Secret`)
+- [ ] `FLUTTERWAVE_WEBHOOK_SECRET_TEST=...` in Preview (`Secret`)
+
 ## 4. Flutterwave Webhook
 - [ ] In Flutterwave Webhooks page, set URL to:
   - `https://weareamii.com/api/flutterwave/webhook`
 - [ ] Secret hash generated and saved in Flutterwave
-- [ ] Same value copied to Cloudflare env var: `FLUTTERWAVE_WEBHOOK_HASH`
+- [ ] Same value copied to Cloudflare env var: `FLUTTERWAVE_WEBHOOK_SECRET_LIVE`
 - [ ] Webhook signature verification uses `flutterwave-signature` (preferred), with legacy `verif-hash` fallback
 - [ ] Saved webhook settings in Flutterwave
 - [ ] Do not switch webhook version unless backend is updated for it

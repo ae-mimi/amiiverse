@@ -37,10 +37,77 @@ export interface PaymentVerificationResult {
     error?: string;
 }
 
+export type FlutterwaveEnvironment = "test" | "live";
+
+function normalizeFlutterwaveEnvironment(raw: string): FlutterwaveEnvironment | null {
+    const value = raw.trim().toLowerCase();
+    if (value === "test" || value === "sandbox" || value === "preview") return "test";
+    if (value === "live" || value === "production" || value === "prod") return "live";
+    return null;
+}
+
+export function getFlutterwaveEnvironment(
+    context: Pick<APIContext, "locals">,
+): FlutterwaveEnvironment {
+    const explicit = normalizeFlutterwaveEnvironment(
+        getServerEnvValue(context, "FLUTTERWAVE_ENV"),
+    );
+    if (explicit) return explicit;
+
+    const pagesUrl = getServerEnvValue(context, "CF_PAGES_URL").toLowerCase();
+    if (pagesUrl.includes(".pages.dev")) return "test";
+
+    const nodeEnv = getServerEnvValue(context, "NODE_ENV").toLowerCase();
+    if (nodeEnv === "development" || nodeEnv === "test") return "test";
+
+    return "live";
+}
+
 export function getPaymentSecretKey(
     context: Pick<APIContext, "locals">,
 ): string {
-    return getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY");
+    const legacy = getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY");
+    if (legacy) return legacy;
+
+    const environment = getFlutterwaveEnvironment(context);
+    if (environment === "test") {
+        return (
+            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_TEST") ||
+            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_LIVE")
+        );
+    }
+
+    return (
+        getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_LIVE") ||
+        getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_TEST")
+    );
+}
+
+export function getWebhookSecret(
+    context: Pick<APIContext, "locals">,
+): string {
+    const legacy = getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH");
+    if (legacy) return legacy;
+
+    const normalizedLegacySecret = getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_SECRET");
+    if (normalizedLegacySecret) return normalizedLegacySecret;
+
+    const environment = getFlutterwaveEnvironment(context);
+    if (environment === "test") {
+        return (
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_SECRET_TEST") ||
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH_TEST") ||
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_SECRET_LIVE") ||
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH_LIVE")
+        );
+    }
+
+    return (
+        getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_SECRET_LIVE") ||
+        getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH_LIVE") ||
+        getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_SECRET_TEST") ||
+        getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH_TEST")
+    );
 }
 
 export async function initializeProviderPayment(
