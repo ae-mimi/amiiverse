@@ -36,14 +36,18 @@ Do this first so later steps are faster.
 ### 1A) Flutterwave values
 Go to Flutterwave Dashboard:
 1. Open `Settings` -> `API keys`
-2. Copy your Secret Key
-   - This becomes: `FLUTTERWAVE_SECRET_KEY`
+2. Copy your Test Secret Key
+   - This becomes: `FLUTTERWAVE_SECRET_KEY_TEST`
+3. Copy your Live Secret Key
+   - This becomes: `FLUTTERWAVE_SECRET_KEY_LIVE`
 
 Now get webhook hash:
 1. Open `Settings` -> `Webhooks`
 2. In `Secret hash`, paste your own random string (or keep existing if already set)
 3. Copy that exact value
-   - This becomes: `FLUTTERWAVE_WEBHOOK_HASH`
+   - Use separate values for each environment:
+   - `FLUTTERWAVE_WEBHOOK_SECRET_TEST`
+   - `FLUTTERWAVE_WEBHOOK_SECRET_LIVE`
 
 
 ### 1B) Sanity values
@@ -159,12 +163,18 @@ Use `Text` for:
 8. `BREVO_DOUBLE_OPT_IN_REDIRECT=https://weareamii.com/newsletter-success`
 
 Use `Secret` for:
-1. `FLUTTERWAVE_SECRET_KEY=<from Flutterwave>`
-2. `FLUTTERWAVE_WEBHOOK_HASH=<from Flutterwave>`
-3. `SANITY_WRITE_TOKEN=<from Sanity>`
-4. `ADMIN_SYNC_TOKEN=<your generated token>`
-5. `TURNSTILE_SECRET_KEY=<from Turnstile>`
-6. `BREVO_API_KEY=<from Brevo API keys>`
+1. `FLUTTERWAVE_SECRET_KEY_TEST=<from Flutterwave test>`
+2. `FLUTTERWAVE_WEBHOOK_SECRET_TEST=<from Flutterwave test webhook>`
+3. `FLUTTERWAVE_SECRET_KEY_LIVE=<from Flutterwave live>`
+4. `FLUTTERWAVE_WEBHOOK_SECRET_LIVE=<from Flutterwave live webhook>`
+5. `SANITY_WRITE_TOKEN=<from Sanity>`
+6. `ADMIN_SYNC_TOKEN=<your generated token>`
+7. `TURNSTILE_SECRET_KEY=<from Turnstile>`
+8. `BREVO_API_KEY=<from Brevo API keys>`
+
+Set this `Text` variable per environment:
+- Preview: `FLUTTERWAVE_ENV=test`
+- Production: `FLUTTERWAVE_ENV=live`
 
 Optional variables:
 - Brevo variables above are only needed if newsletter/contact sync is enabled.
@@ -295,13 +305,13 @@ Path:
 Set:
 1. Version: V4
 2. URL: `https://weareamii.com/api/flutterwave/webhook`
-3. Secret hash: same exact value as Cloudflare env `FLUTTERWAVE_WEBHOOK_HASH`
+3. Secret hash: same exact value as Cloudflare env `FLUTTERWAVE_WEBHOOK_SECRET_LIVE`
 4. Save
 
 Verification note:
 - Primary verification uses `flutterwave-signature` (HMAC-SHA256).
 - Legacy fallback supports `verif-hash` for compatibility.
-- Keep `FLUTTERWAVE_WEBHOOK_HASH` configured because it is used for webhook verification.
+- Keep the matching webhook secret configured (`*_TEST` for preview, `*_LIVE` for production).
 
 Do not switch webhook version unless your backend is updated for that version.
 
@@ -424,7 +434,8 @@ Store all production secrets in a safe password manager or vault.
 - Use `${1}`, not `${uri}`.
 
 ### Webhook signature/hash failing
-- `FLUTTERWAVE_WEBHOOK_HASH` in Cloudflare must match Flutterwave `Secret hash` exactly.
+- The environment-matched secret in Cloudflare must match Flutterwave `Secret hash` exactly.
+- Recommended: `FLUTTERWAVE_WEBHOOK_SECRET_TEST` for preview and `FLUTTERWAVE_WEBHOOK_SECRET_LIVE` for production.
 - Backend accepts either `flutterwave-signature` (preferred) or legacy `verif-hash` header.
 
 ### Changes not applying

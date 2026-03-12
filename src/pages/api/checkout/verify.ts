@@ -45,7 +45,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
 
         const providerSecretKey = getPaymentSecretKey({ locals });
         if (!providerSecretKey) {
-            return jsonResponse({ error: "Missing FLUTTERWAVE_SECRET_KEY" }, 500);
+            return jsonResponse({ error: "Missing Flutterwave secret key env" }, 500);
         }
 
         const verification = await verifyProviderPayment({

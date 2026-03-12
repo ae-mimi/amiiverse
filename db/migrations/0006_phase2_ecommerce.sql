@@ -160,7 +160,7 @@ CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id);
 CREATE INDEX IF NOT EXISTS idx_shipping_rules_country_currency ON shipping_rules(country, currency);
 CREATE INDEX IF NOT EXISTS idx_tax_rules_country ON tax_rules(country);
 
-INSERT INTO products (
+INSERT OR IGNORE INTO products (
     id,
     slug,
     title,
@@ -183,18 +183,37 @@ SELECT
     is_active,
     updated_at,
     updated_at
-FROM products_cache
-ON CONFLICT(id) DO UPDATE SET
-    slug = excluded.slug,
-    title = excluded.title,
-    description = excluded.description,
-    product_type = excluded.product_type,
-    cover_image_url = excluded.cover_image_url,
-    r2_key = excluded.r2_key,
-    is_active = excluded.is_active,
-    updated_at = excluded.updated_at;
+FROM products_cache;
 
-INSERT INTO product_variants (
+UPDATE products
+SET
+    slug = (
+        SELECT pc.slug FROM products_cache pc WHERE pc.id = products.id
+    ),
+    title = (
+        SELECT pc.title FROM products_cache pc WHERE pc.id = products.id
+    ),
+    description = (
+        SELECT pc.description FROM products_cache pc WHERE pc.id = products.id
+    ),
+    product_type = (
+        SELECT pc.product_type FROM products_cache pc WHERE pc.id = products.id
+    ),
+    cover_image_url = (
+        SELECT pc.cover_image_url FROM products_cache pc WHERE pc.id = products.id
+    ),
+    r2_key = (
+        SELECT pc.r2_key FROM products_cache pc WHERE pc.id = products.id
+    ),
+    is_active = (
+        SELECT pc.is_active FROM products_cache pc WHERE pc.id = products.id
+    ),
+    updated_at = (
+        SELECT pc.updated_at FROM products_cache pc WHERE pc.id = products.id
+    )
+WHERE id IN (SELECT id FROM products_cache);
+
+INSERT OR IGNORE INTO product_variants (
     id,
     product_id,
     sku,
@@ -217,24 +236,38 @@ SELECT
     is_active,
     updated_at,
     updated_at
-FROM products_cache
-ON CONFLICT(id) DO UPDATE SET
-    product_id = excluded.product_id,
-    sku = excluded.sku,
-    title = excluded.title,
-    base_price_minor_ngn = excluded.base_price_minor_ngn,
-    is_active = excluded.is_active,
-    updated_at = excluded.updated_at;
+FROM products_cache;
 
-INSERT INTO inventory (variant_id, on_hand, reserved, safety_stock, updated_at)
+UPDATE product_variants
+SET
+    product_id = (
+        SELECT pc.id FROM products_cache pc WHERE (pc.id || '_default') = product_variants.id
+    ),
+    sku = (
+        SELECT pc.slug || '-default' FROM products_cache pc WHERE (pc.id || '_default') = product_variants.id
+    ),
+    title = (
+        SELECT pc.title FROM products_cache pc WHERE (pc.id || '_default') = product_variants.id
+    ),
+    base_price_minor_ngn = (
+        SELECT pc.price_ngn FROM products_cache pc WHERE (pc.id || '_default') = product_variants.id
+    ),
+    is_active = (
+        SELECT pc.is_active FROM products_cache pc WHERE (pc.id || '_default') = product_variants.id
+    ),
+    updated_at = (
+        SELECT pc.updated_at FROM products_cache pc WHERE (pc.id || '_default') = product_variants.id
+    )
+WHERE id IN (SELECT id || '_default' FROM products_cache);
+
+INSERT OR IGNORE INTO inventory (variant_id, on_hand, reserved, safety_stock, updated_at)
 SELECT
     id || '_default',
     1000000,
     0,
     0,
     updated_at
-FROM products_cache
-ON CONFLICT(variant_id) DO NOTHING;
+FROM products_cache;
 
 UPDATE cart_items
 SET variant_id = product_id || '_default'

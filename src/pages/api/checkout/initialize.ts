@@ -58,7 +58,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
         if (!providerSecretKey) {
-            return jsonResponse({ error: "Missing FLUTTERWAVE_SECRET_KEY" }, 500);
+            return jsonResponse({ error: "Missing Flutterwave secret key env" }, 500);
         }
         if (!db) {
             return jsonResponse({ error: "Missing D1 binding `DB`" }, 500);

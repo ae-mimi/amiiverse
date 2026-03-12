@@ -30,8 +30,12 @@ Set these in Cloudflare Pages project settings (`Settings -> Environment variabl
 Server-only secrets:
 
 - `ADMIN_SYNC_TOKEN`
-- `FLUTTERWAVE_SECRET_KEY`
-- `FLUTTERWAVE_WEBHOOK_HASH` (required for `POST /api/flutterwave/webhook`)
+- `FLUTTERWAVE_ENV` (`test` for preview/sandbox, `live` for production)
+- `FLUTTERWAVE_SECRET_KEY_TEST`
+- `FLUTTERWAVE_WEBHOOK_SECRET_TEST` (or `FLUTTERWAVE_WEBHOOK_HASH_TEST`)
+- `FLUTTERWAVE_SECRET_KEY_LIVE`
+- `FLUTTERWAVE_WEBHOOK_SECRET_LIVE` (or `FLUTTERWAVE_WEBHOOK_HASH_LIVE`)
+- Legacy fallback still supported: `FLUTTERWAVE_SECRET_KEY`, `FLUTTERWAVE_WEBHOOK_HASH`
 - `SANITY_WRITE_TOKEN`
 - `BREVO_API_KEY`
 - `BREVO_NEWSLETTER_LIST_ID` (preferred, falls back to `BREVO_LIST_ID`)
@@ -74,6 +78,7 @@ Configure bindings in Cloudflare (or `wrangler.toml`) and access them only on se
 
 - API routes should read sensitive values from Cloudflare runtime env (`context.locals.runtime.env`) with safe fallback for local development.
 - Client-side code must only read `PUBLIC_*` variables.
+- For preview/production separation, set environment variables separately in Cloudflare Pages for each environment.
 
 ## Local environment
 

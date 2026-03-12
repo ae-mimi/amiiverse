@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import type { APIRoute } from "astro";
 import {
     getCloudflareRuntimeEnv,
-    getServerEnvValue,
 } from "../../../lib/server/cloudflareRuntimeEnv";
 import { canTransitionOrderStatus } from "../../../lib/server/ecom";
+import { getWebhookSecret } from "../../../lib/server/paymentGateway";
 
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
@@ -62,12 +62,12 @@ async function verifyFlutterwaveSignature(
 
 export const POST: APIRoute = async ({ request, locals }) => {
     try {
-        const webhookSecret = getServerEnvValue({ locals }, "FLUTTERWAVE_WEBHOOK_HASH");
+        const webhookSecret = getWebhookSecret({ locals });
         const runtimeEnv = getCloudflareRuntimeEnv({ locals });
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
 
         if (!webhookSecret) {
-            return new Response("Missing FLUTTERWAVE_WEBHOOK_HASH", { status: 500 });
+            return new Response("Missing Flutterwave webhook secret env", { status: 500 });
         }
         if (!db) {
             return new Response("Missing D1 binding `DB`", { status: 500 });
