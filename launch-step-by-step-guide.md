@@ -226,7 +226,7 @@ What to keep/add:
    - Proxy: OFF (DNS only)
 
 Do not do this:
-- Do not enter `https://` in DNS target/content.
+- Do not enter `https://` in DNS target/Fcontent.
 - Do not create conflicting records for same host.
 
 Success check:

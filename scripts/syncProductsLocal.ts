@@ -2,6 +2,7 @@ type AnyProcess = {
     env?: Record<string, string | undefined>;
     exit?: (code?: number) => void;
 };
+export {};
 
 const processRef = (globalThis as { process?: AnyProcess }).process;
 const env = processRef?.env ?? {};

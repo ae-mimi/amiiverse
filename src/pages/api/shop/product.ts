@@ -15,6 +15,7 @@ interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
     first: () => Promise<Record<string, unknown> | null>;
     all: () => Promise<{ results?: Array<Record<string, unknown>> }>;
+    run: () => Promise<Record<string, unknown>>;
 }
 
 interface D1DatabaseLike {

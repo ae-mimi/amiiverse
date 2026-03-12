@@ -1,4 +1,5 @@
 type AnyObject = Record<string, any>;
+export {};
 
 const env = (globalThis as any).process?.env ?? {};
 

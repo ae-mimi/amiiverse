@@ -6,6 +6,8 @@ import {
     SETTINGS_QUERY,
 } from "../lib/sanity/queries";
 
+const defaultSettings = settings as SiteSettings;
+
 export interface SiteSettings {
     site_info: {
         title: string;
@@ -60,7 +62,7 @@ export interface SiteSettings {
 }
 
 export function getGlobalSettings(): SiteSettings {
-    return normalizeSettings(settings);
+    return normalizeSettings(defaultSettings);
 }
 
 export async function fetchGlobalSettings(): Promise<SiteSettings> {
@@ -82,11 +84,11 @@ export async function fetchGlobalSettings(): Promise<SiteSettings> {
         // We'll use a spread to override defaults with sanity data.
         // Note: Arrays like 'nav' and 'socials' will be replaced entirely, which is usually desired behavior for CMS.
         const merged = {
-            ...settings,
+            ...defaultSettings,
             ...sanitySettings,
-            site_info: { ...settings.site_info, ...sanitySettings.site_info },
-            footer: { ...settings.footer, ...sanitySettings.footer },
-            favicons: { ...settings.favicons, ...sanitySettings.favicons },
+            site_info: { ...defaultSettings.site_info, ...sanitySettings.site_info },
+            footer: { ...defaultSettings.footer, ...sanitySettings.footer },
+            favicons: { ...defaultSettings.favicons, ...sanitySettings.favicons },
         };
 
         if (campaignLogoOverride?.logo_navy) {
@@ -115,7 +117,7 @@ export async function fetchGlobalSettings(): Promise<SiteSettings> {
         return normalizeSettings(merged);
     }
 
-    return normalizeSettings(settings);
+    return normalizeSettings(defaultSettings);
 }
 
 function asArray<T>(value: unknown): T[] {
@@ -135,38 +137,39 @@ function normalizeSettings(input: unknown): SiteSettings {
 
     return {
         ...settings,
+        ...defaultSettings,
         ...raw,
         site_info: {
-            ...settings.site_info,
+            ...defaultSettings.site_info,
             ...siteInfo,
-            title: asString(siteInfo.title, settings.site_info.title),
-            description: asString(siteInfo.description, settings.site_info.description),
-            logo_navy: asString(siteInfo.logo_navy, settings.site_info.logo_navy || ""),
-            logo_yellow: asString(siteInfo.logo_yellow, settings.site_info.logo_yellow || ""),
+            title: asString(siteInfo.title, defaultSettings.site_info.title),
+            description: asString(siteInfo.description, defaultSettings.site_info.description),
+            logo_navy: asString(siteInfo.logo_navy, defaultSettings.site_info.logo_navy || ""),
+            logo_yellow: asString(siteInfo.logo_yellow, defaultSettings.site_info.logo_yellow || ""),
         },
-        title: asString(raw.title, settings.title || settings.site_info.title),
-        description: asString(raw.description, settings.description || settings.site_info.description),
-        logo_navy: asString(raw.logo_navy, settings.logo_navy || settings.site_info.logo_navy || ""),
-        logo_yellow: asString(raw.logo_yellow, settings.logo_yellow || settings.site_info.logo_yellow || ""),
+        title: asString(raw.title, defaultSettings.title || defaultSettings.site_info.title),
+        description: asString(raw.description, defaultSettings.description || defaultSettings.site_info.description),
+        logo_navy: asString(raw.logo_navy, defaultSettings.logo_navy || defaultSettings.site_info.logo_navy || ""),
+        logo_yellow: asString(raw.logo_yellow, defaultSettings.logo_yellow || defaultSettings.site_info.logo_yellow || ""),
         enable_follow_link: Boolean(raw.enable_follow_link),
         keywords: asArray<string>(raw.keywords).filter((k) => typeof k === "string"),
         seo: {
-            ...settings.seo,
+            ...defaultSettings.seo,
             ...seo,
-            og_image: asString(seo.og_image, settings.seo?.og_image || ""),
-            meta_title: asString(seo.meta_title, settings.seo?.meta_title || ""),
-            meta_description: asString(seo.meta_description, settings.seo?.meta_description || ""),
+            og_image: asString(seo.og_image, defaultSettings.seo?.og_image || ""),
+            meta_title: asString(seo.meta_title, defaultSettings.seo?.meta_title || ""),
+            meta_description: asString(seo.meta_description, defaultSettings.seo?.meta_description || ""),
         },
         favicons: {
-            ...settings.favicons,
+            ...defaultSettings.favicons,
             ...favicons,
-            ico: asString(favicons.ico, settings.favicons?.ico || ""),
-            svg: asString(favicons.svg, settings.favicons?.svg || ""),
-            png96: asString(favicons.png96, settings.favicons?.png96 || ""),
-            apple: asString(favicons.apple, settings.favicons?.apple || ""),
-            manifest192: asString(favicons.manifest192, settings.favicons?.manifest192 || ""),
-            manifest512: asString(favicons.manifest512, settings.favicons?.manifest512 || ""),
-            webmanifest: asString(favicons.webmanifest, settings.favicons?.webmanifest || ""),
+            ico: asString(favicons.ico, defaultSettings.favicons?.ico || ""),
+            svg: asString(favicons.svg, defaultSettings.favicons?.svg || ""),
+            png96: asString(favicons.png96, defaultSettings.favicons?.png96 || ""),
+            apple: asString(favicons.apple, defaultSettings.favicons?.apple || ""),
+            manifest192: asString(favicons.manifest192, defaultSettings.favicons?.manifest192 || ""),
+            manifest512: asString(favicons.manifest512, defaultSettings.favicons?.manifest512 || ""),
+            webmanifest: asString(favicons.webmanifest, defaultSettings.favicons?.webmanifest || ""),
         },
         navigationItems: asArray<any>(raw.navigationItems)
             .filter((item) => item && typeof item === "object")
@@ -189,13 +192,13 @@ function normalizeSettings(input: unknown): SiteSettings {
                 };
             }),
         footer: {
-            ...settings.footer,
+            ...defaultSettings.footer,
             ...footer,
-            businessName: asString(footer.businessName, settings.footer.businessName || ""),
-            contactEmail: asString(footer.contactEmail, settings.footer.contactEmail || ""),
+            businessName: asString(footer.businessName, defaultSettings.footer.businessName || ""),
+            contactEmail: asString(footer.contactEmail, defaultSettings.footer.contactEmail || ""),
             copyright: asString(
                 footer.copyright,
-                settings.footer.copyright || "© {currentYear} amii<br/>Operated by MAPDY LTD",
+                defaultSettings.footer.copyright || "© {currentYear} amii<br/>Operated by MAPDY LTD",
             ),
         },
         socials: asArray<any>(raw.socials)

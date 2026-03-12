@@ -10,6 +10,7 @@ export const prerender = false;
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
     all: () => Promise<{ results?: Array<Record<string, unknown>> }>;
+    first: () => Promise<Record<string, unknown> | null>;
     run: () => Promise<Record<string, unknown>>;
 }
 interface D1DatabaseLike {
