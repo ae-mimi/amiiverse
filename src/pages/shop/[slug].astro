@@ -17,6 +17,7 @@ interface ShopProduct {
 
 interface ProductVariant {
     id: string;
+    title?: string;
     price_ngn: number;
     price_minor: number;
     currency: "NGN" | "USD" | "GBP";
@@ -53,7 +54,9 @@ const allImages = product?.cover_image_url ? [product.cover_image_url] : [];
 const firstVariant = variants.find((variant) => variant?.id) ?? null;
 const price = Number(firstVariant?.price_ngn ?? 0);
 const productType = product?.product_type ?? "physical";
-const productId = firstVariant?.id ?? product?.id ?? "";
+const productId = product?.id ?? "";
+const variantId = firstVariant?.id ?? "";
+const stock = Number(firstVariant?.stock?.available ?? 0);
 
 // Map Sanity content to Accordion Data
 const accordionData: Record<string, string> = {};
@@ -102,9 +105,11 @@ accordionData["Refund Policy"] =
                         price={price}
                         productType={productType}
                         productId={productId}
+                        variantId={variantId}
+                        stock={stock}
                         image={allImages[0] || ""}
                         accordionData={accordionData}
-                     />
+                    />
                      {
                         productType === "digital" && (
                            <p class="digital-note mt-3">

@@ -3,6 +3,8 @@ import ProductCard from "../shop/ProductCard.astro";
 
 interface ShopProduct {
     id: string;
+    product_id?: string;
+    variant_id?: string;
     slug: string;
     title: string;
     price_ngn: number;
@@ -78,7 +80,8 @@ try {
                                 title={item.title}
                                 price={item.price_ngn}
                                 image={item.cover_image_url}
-                                productId={item.id}
+                                productId={item.product_id || item.id}
+                                variantId={item.variant_id || item.id}
                                 productType={item.product_type}
                             />
                         </div>
@@ -98,6 +101,8 @@ try {
 <script>
     interface ShopProduct {
         id: string;
+        product_id?: string;
+        variant_id?: string;
         slug: string;
         title: string;
         price_ngn: number;
@@ -165,7 +170,8 @@ try {
                     const productType =
                         item.product_type === "digital" ? "digital" : "physical";
                     const price = Number(item.price_ngn || 0);
-                    const productId = escapeHtml(String(item.id || ""));
+                    const productId = escapeHtml(String(item.product_id || item.id || ""));
+                    const variantId = escapeHtml(String(item.variant_id || item.id || ""));
                     const typeBadge = getTypeBadge(productType);
 
                     return `
@@ -189,6 +195,7 @@ try {
                                             class="btn btn-dark w-100"
                                             data-quickbuy
                                             data-product-id="${productId}"
+                                            data-variant-id="${variantId}"
                                             data-title="${title}"
                                             data-price="${price}"
                                             data-image="${image}"
@@ -243,11 +250,12 @@ try {
                     | null;
                 if (!button) return;
 
-                const { productId, title, price, image, type } = button.dataset;
+                const { productId, variantId, title, price, image, type } = button.dataset;
                 window.dispatchEvent(
                     new CustomEvent("open-checkout", {
                         detail: {
                             productId,
+                            variantId,
                             title,
                             price: parseFloat(price || "0"),
                             image,

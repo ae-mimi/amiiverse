@@ -375,17 +375,25 @@
         }
 
         async open(data: any) {
-            const variantId = data?.variantId || data?.productId;
+            const variantId = data?.variantId;
+            const productId = data?.productId;
             const quantity = Number(data?.quantity || 1);
 
-            const updatedCart = variantId
-                ? await cartStore.addToCart(String(variantId), quantity)
+            const updatedCart = variantId || productId
+                ? await cartStore.addToCart(
+                      {
+                          productId: productId ? String(productId) : undefined,
+                          variantId: variantId ? String(variantId) : undefined,
+                      },
+                      quantity,
+                  )
                 : await cartStore.getCart();
             this.renderCart(updatedCart);
 
-            if (variantId) {
+            if (variantId || productId) {
                 trackAnalyticsEvent("cart_add", {
-                    variantId: String(variantId),
+                    productId: productId ? String(productId) : undefined,
+                    variantId: variantId ? String(variantId) : undefined,
                     quantity,
                 });
             }

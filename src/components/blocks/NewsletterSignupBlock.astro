@@ -73,7 +73,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
                 By subscribing, you consent to fan-list emails and privacy-safe analytics.
             </p>
 
-            <p class="newsletter-signup__status" aria-live="polite"></p>
+            <p class="newsletter-signup__status" aria-live="polite" hidden></p>
 
             <button type="submit" class="newsletter-signup__btn"
                 >{buttonText}</button
@@ -119,6 +119,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
             if (!emailInput || !consentInput || !button || !statusEl) return;
 
             if (!consentInput.checked) {
+                statusEl.hidden = false;
+                statusEl.dataset.state = "error";
                 statusEl.textContent =
                     "Please consent to email updates before subscribing.";
                 return;
@@ -128,6 +130,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
                 formEl.querySelector(".cf-turnstile") &&
                 !turnstileInput?.value
             ) {
+                statusEl.hidden = false;
+                statusEl.dataset.state = "error";
                 statusEl.textContent = "Please complete the captcha.";
                 return;
             }
@@ -135,6 +139,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
             button.disabled = true;
             button.innerText = "...";
             statusEl.textContent = "";
+            statusEl.hidden = true;
+            statusEl.dataset.state = "";
 
             const formData = new FormData();
             formData.append("email", emailInput.value);
@@ -165,14 +171,30 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 
                 if (response.ok) {
                     if (result.status === "queued") {
+                        statusEl.hidden = false;
+                        statusEl.dataset.state = "warning";
                         statusEl.textContent =
-                            "Saved. Confirmation email may take a moment.";
+                            result.message ||
+                            "Saved locally, but email sync is still pending.";
                         button.disabled = false;
                         button.innerText = originalText;
                         return;
                     }
-                    window.location.href = redirect;
+                    statusEl.hidden = false;
+                    statusEl.dataset.state = "success";
+                    statusEl.textContent =
+                        result.status === "duplicate"
+                            ? "This email is already on the list."
+                            : "Subscription received. Check your inbox to confirm.";
+                    button.disabled = false;
+                    button.innerText = originalText;
+
+                    window.setTimeout(() => {
+                        window.location.href = redirect;
+                    }, 1200);
                 } else {
+                    statusEl.hidden = false;
+                    statusEl.dataset.state = "error";
                     statusEl.textContent =
                         result.message || "Subscription failed.";
                     button.disabled = false;
@@ -180,6 +202,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
                 }
             } catch (error) {
                 console.error("Error:", error);
+                statusEl.hidden = false;
+                statusEl.dataset.state = "error";
                 statusEl.textContent = "Network error. Please try again.";
                 button.disabled = false;
                 button.innerText = originalText;
@@ -255,19 +279,21 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 
     .newsletter-signup__field label {
         font-family: var(--font-body);
-        font-size: clamp(12px, 1vw, 18px);
-        color: var(--text-main);
+        font-size: clamp(13px, 1vw, 16px);
+        color: var(--input-text);
         font-weight: var(--weight-regular);
+        line-height: 1.4;
+        text-align: left;
     }
 
     .newsletter-signup__field input {
         width: 100%;
-        height: clamp(44px, 4vw, 64px);
+        height: clamp(46px, 4vw, 64px);
         font-family: var(--font-body);
-        font-size: clamp(16px, 1.2vw, 24px);
+        font-size: clamp(16px, 1.2vw, 20px);
         box-sizing: border-box;
-        --field-padding-block: 0;
-        --field-padding-inline: 1rem;
+        --field-padding-block: 10px;
+        --field-padding-inline: 10px;
     }
 
     .newsletter-signup__btn {
@@ -306,7 +332,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
         gap: 8px;
         align-items: start;
         font-family: var(--font-body);
-        font-size: clamp(12px, 1vw, 16px);
+        font-size: clamp(13px, 1vw, 16px);
         color: var(--text-main);
     }
 
@@ -327,10 +353,29 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 
     .newsletter-signup__status {
         margin: 0;
-        min-height: 20px;
         width: 100%;
         font-family: var(--font-body);
-        font-size: clamp(12px, 1vw, 15px);
+        font-size: clamp(13px, 1vw, 16px);
+        line-height: 1.45;
+        padding: 12px 14px;
+        border: 1px solid var(--text-main);
+        border-radius: 16px;
+        background: color-mix(in srgb, var(--bg-card) 86%, white 14%);
+        color: var(--text-main);
+    }
+
+    .newsletter-signup__status[data-state="success"] {
+        border-color: color-mix(in srgb, var(--color-accent) 45%, var(--text-main) 55%);
+        color: var(--text-main);
+    }
+
+    .newsletter-signup__status[data-state="warning"] {
+        border-color: color-mix(in srgb, #d49000 55%, var(--text-main) 45%);
+        color: var(--text-main);
+    }
+
+    .newsletter-signup__status[data-state="error"] {
+        border-color: color-mix(in srgb, #b63b3b 65%, var(--text-main) 35%);
         color: var(--text-main);
     }
 

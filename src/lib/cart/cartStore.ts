@@ -96,12 +96,13 @@ async function retrieveCart(cartId: string): Promise<ClientCart | null> {
 
 async function addItem(
     cartId: string,
-    productId: string,
+    item: { productId?: string; variantId?: string },
     quantity: number,
 ): Promise<ClientCart | null> {
     const result = await postJson<{ cart?: ClientCart }>("/api/cart/add", {
         cartId,
-        productId,
+        productId: item.productId,
+        variantId: item.variantId,
         quantity,
     });
     return result?.cart ?? null;
@@ -194,10 +195,19 @@ export async function getCart(): Promise<ClientCart | null> {
 }
 
 export async function addToCart(
-    productId: string,
+    item: string | { productId?: string; variantId?: string },
     quantity = 1,
 ): Promise<ClientCart | null> {
-    if (!productId || quantity <= 0) return await getCart();
+    if (!item || quantity <= 0) return await getCart();
+
+    const normalized =
+        typeof item === "string"
+            ? { productId: item }
+            : {
+                  productId: item.productId,
+                  variantId: item.variantId,
+              };
+    if (!normalized.productId && !normalized.variantId) return await getCart();
 
     let cart = await initCart();
     if (!cart?.id) {
@@ -205,7 +215,7 @@ export async function addToCart(
     }
     if (!cart?.id) return null;
 
-    const updatedCart = await addItem(cart.id, productId, quantity);
+    const updatedCart = await addItem(cart.id, normalized, quantity);
     if (!updatedCart?.id) return await getCart();
 
     cartCache = updatedCart;

@@ -11,6 +11,7 @@ interface Props {
     productType: string;
     image: string;
     productId: string;
+    variantId?: string;
     stock?: number;
     accordionData?: Record<string, string>;
 }
@@ -21,6 +22,7 @@ const {
     productType,
     image,
     productId,
+    variantId = "",
     stock,
     accordionData = {},
 } = Astro.props;
@@ -50,6 +52,7 @@ const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
             id="pdp-buy-btn"
             class="btn btn-dark btn-lg w-100"
             data-product-id={productId}
+            data-variant-id={variantId}
             data-title={title}
             data-price={price}
             data-image={image}
@@ -78,7 +81,7 @@ const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
     const buyBtn = document.getElementById("pdp-buy-btn");
     if (buyBtn) {
         buyBtn.addEventListener("click", () => {
-            const { productId, title, price, image, type } = (
+            const { productId, variantId, title, price, image, type } = (
                 buyBtn as HTMLElement
             ).dataset;
 
@@ -86,6 +89,7 @@ const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
                 new CustomEvent("open-checkout", {
                     detail: {
                         productId,
+                        variantId,
                         title,
                         price: parseFloat(price || "0"),
                         image,
