@@ -4,8 +4,6 @@ import { fetchGlobalSettings } from "../../lib/siteSettings";
 import InfoCard from "../ui/InfoCard.astro";
 
 const {
-    title,
-    subtitle,
     management_email,
     press_email,
     bookings_email,
@@ -19,11 +17,6 @@ const socials = settings.socials || [];
 
 <div class="content-wrapper">
     <div class="content-container">
-        <div class="section-header">
-            {title && <h2 class="section-title">{title}</h2>}
-            {subtitle && <p class="section-subtitle">{subtitle}</p>}
-        </div>
-
         <div class="grid-layout">
             <div class="info-column">
                 <!-- Contact Us Card -->
@@ -124,36 +117,11 @@ const socials = settings.socials || [];
         justify-content: center;
         align-items: stretch;
         height: auto;
-        padding-block: 40px 67px;
+        padding-block: 24px 67px;
         gap: clamp(24px, 3vw, 40px);
         width: 100%;
         max-width: 1280px;
         flex-wrap: wrap;
-    }
-
-    .section-header {
-        width: 100%;
-        max-width: 900px;
-        margin: 0 auto;
-        text-align: center;
-        padding-top: 40px;
-    }
-
-    .section-title {
-        margin: 0;
-        font-family: var(--font-heading);
-        font-size: clamp(32px, 3vw, 48px);
-        line-height: 1.1;
-        color: var(--text-main);
-    }
-
-    .section-subtitle {
-        margin: 12px auto 0;
-        max-width: 720px;
-        font-family: var(--font-body);
-        font-size: clamp(14px, 1vw, 18px);
-        line-height: 1.5;
-        color: var(--color-accent);
     }
 
     .info-column {

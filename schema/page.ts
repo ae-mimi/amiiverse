@@ -839,7 +839,7 @@ export default defineType({
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) { return { title: title || 'Contact Info', subtitle: 'Emails & social links' } },
+            prepare({ title }) { return { title: title || 'Contact Info', subtitle: 'Business contact cards' } },
           },
         },
 
