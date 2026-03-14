@@ -5,7 +5,7 @@ import SiteFooter from "../components/layout/SiteFooter.astro";
 import "../styles/shop-ecommerce.css";
 import Analytics from "../components/seo/Analytics.astro";
 import JSONLD from "../components/seo/JSONLD.astro";
-import { fetchGlobalSettings } from "../utils/global";
+import { fetchGlobalSettings } from "../lib/siteSettings";
 import { getActiveTheme } from "../lib/theme";
 import CartModal from "../components/shop/CartModal.astro";
 
@@ -156,10 +156,10 @@ const bodyFontStack = toCssFontStack(theme.bodyFont, `"Archivo", sans-serif`);
         <SiteFooter />
         <CartModal />
         <script>
+            import { initOnAstroPageLoad } from "../lib/client/init";
             import { initQuickBuyInteractions } from "../lib/client/quickBuy";
 
-            initQuickBuyInteractions();
-            document.addEventListener("astro:page-load", initQuickBuyInteractions);
+            initOnAstroPageLoad(initQuickBuyInteractions);
         </script>
     </body>
 </html>

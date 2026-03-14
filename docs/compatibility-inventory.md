@@ -29,8 +29,8 @@ The goal is simple:
   - [`schema/page.ts`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/schema/page.ts)
   - [`src/components/PageBuilder.astro`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/src/components/PageBuilder.astro)
   - [`src/components/blocks/ContactSectionBlock.astro`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/src/components/blocks/ContactSectionBlock.astro)
-- Current behavior: renders the same business contact form plus business contact info cards
-- Why it still exists: this is the richer business-facing contact presentation and is still used by current product decisions
+- Current behavior: renders business contact cards and socials only
+- Why it still exists: this is the business-facing contact presentation aligned with current product decisions
 - Safe removal condition: none planned right now
 
 ### `email_signup` section type
@@ -73,7 +73,7 @@ The goal is simple:
 ### Campaign logo/favicon override queries
 - Locations:
   - [`src/lib/sanity/queries.ts`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/src/lib/sanity/queries.ts)
-  - [`src/utils/global.ts`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/src/utils/global.ts)
+  - [`src/lib/siteSettings.ts`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/src/lib/siteSettings.ts)
 - Current behavior: apply active campaign branding overrides on top of base settings
 - Why they still exist: this is live behavior, not a legacy leftover
 - Safe removal condition: only if campaign-level branding is formally retired

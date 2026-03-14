@@ -1,10 +1,10 @@
 import settings from "../data/settings.json";
-import { fetchSanity as getSanityContent } from "../lib/sanity/client";
+import { fetchSanity as getSanityContent } from "./sanity/client";
 import {
     ACTIVE_CAMPAIGN_FAVICON_OVERRIDE_QUERY,
     ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY,
     SETTINGS_QUERY,
-} from "../lib/sanity/queries";
+} from "./sanity/queries";
 
 const defaultSettings = settings as SiteSettings;
 

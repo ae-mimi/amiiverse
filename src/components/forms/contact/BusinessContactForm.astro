@@ -77,10 +77,10 @@ const {
 </div>
 
 <script>
+    import { initOnAstroPageLoad } from "../../../lib/client/init";
     import { initBusinessContactForms } from "../../../lib/client/forms";
 
-    initBusinessContactForms();
-    document.addEventListener("astro:page-load", initBusinessContactForms);
+    initOnAstroPageLoad(initBusinessContactForms);
 </script>
 
 <style>

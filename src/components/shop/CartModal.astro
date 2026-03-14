@@ -13,8 +13,8 @@ import CartSummary from "./cart/CartSummary.astro";
 </CartModalShell>
 
 <script>
+    import { initOnAstroPageLoad } from "../../lib/client/init";
     import { initCheckoutModal } from "../../lib/client/cartModal";
 
-    initCheckoutModal();
-    document.addEventListener("astro:page-load", initCheckoutModal);
+    initOnAstroPageLoad(initCheckoutModal);
 </script>

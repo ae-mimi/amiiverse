@@ -51,7 +51,7 @@ Current layout:
 
 #### `src/components/navigation`
 - Header-level navigation pieces
-- Brand, socials, mobile menu overlay
+- Brand, socials, shared site navigation, mobile menu overlay
 
 #### `src/components/ui`
 - Reusable non-block UI pieces that are still shared across multiple blocks
@@ -86,9 +86,8 @@ Current layout:
 #### `src/lib/seo`
 - SEO-specific data builders
 
-### `src/utils`
-- App-level utility layer still used outside `src/lib`
-- Current example: global settings normalization/fetching
+#### `src/lib/siteSettings.ts`
+- Global settings normalization and fetch/merge logic for layout, SEO, and manifest consumers
 
 ### `src/styles`
 - Global stylesheet layers
@@ -108,7 +107,7 @@ When making changes:
 - CMS block rendering issue: start in `schema/page.ts`, then `src/components/PageBuilder.astro`, then the matching block
 - form issue: start in `src/components/forms`, then `src/lib/client/forms.ts`, then the API route
 - shop issue: start in `src/components/shop`, then `src/lib/client`, then `src/pages/api/shop` or `src/pages/api/checkout`
-- global header/footer/settings issue: start in `src/components/layout`, `src/components/navigation`, and `src/utils/global.ts`
+- global header/footer/settings issue: start in `src/components/layout`, `src/components/navigation`, and `src/lib/siteSettings.ts`
 
 ## Cleanup Rules
 

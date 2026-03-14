@@ -813,7 +813,7 @@ export default defineType({
           name: 'contact_form',
           title: 'Contact Form',
           icon: ContactFormIcon,
-          description: 'A form where visitors can send you a message.',
+          description: 'Legacy standalone contact form block. Prefer newsletter, fan-facing, or dedicated future form flows for new pages.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Contact Us' }),
           ],
@@ -827,7 +827,7 @@ export default defineType({
           name: 'contact_section',
           title: 'Contact Info & Emails',
           icon: ContactInfoIcon,
-          description: 'Displays contact emails and social links alongside a form.',
+          description: 'Displays business contact cards and social links only. No form is rendered here.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Heading', initialValue: 'SAY HELLO' }),
             defineField({ name: 'subtitle', type: 'string', title: 'Subheading' }),

@@ -1,6 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
-import { fetchGlobalSettings } from "../../utils/global";
+import { fetchGlobalSettings } from "../../lib/siteSettings";
 
 const settings = await fetchGlobalSettings();
 const { businessName, contactEmail, copyright } = settings.footer;
@@ -30,7 +30,7 @@ const copyrightText = (copyright || "© {currentYear} amii<br/>Operated by MAPDY
     currentYear.toString(),
 );
 
-import Navigation from "../ui/Navigation.astro";
+import Navigation from "../navigation/Navigation.astro";
 ---
 
 <footer class="site-footer">

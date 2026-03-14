@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { fetchGlobalSettings } from "../utils/global";
+import { fetchGlobalSettings } from "../lib/siteSettings";
 
 export const GET: APIRoute = async () => {
   const settings = await fetchGlobalSettings();

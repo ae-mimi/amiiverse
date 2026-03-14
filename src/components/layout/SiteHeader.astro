@@ -3,8 +3,8 @@ import { Icon } from "astro-icon/components";
 import HeaderBrand from "../navigation/HeaderBrand.astro";
 import HeaderSocials from "../navigation/HeaderSocials.astro";
 import MobileMenuOverlay from "../navigation/MobileMenuOverlay.astro";
-import Navigation from "../ui/Navigation.astro";
-import { fetchGlobalSettings } from "../../utils/global";
+import Navigation from "../navigation/Navigation.astro";
+import { fetchGlobalSettings } from "../../lib/siteSettings";
 
 const settings = await fetchGlobalSettings();
 
@@ -226,8 +226,8 @@ const socials = settings.socials || [];
 </style>
 
 <script>
+    import { initOnAstroPageLoad } from "../../lib/client/init";
     import { initSiteHeader } from "../../lib/client/navigation";
 
-    initSiteHeader();
-    document.addEventListener("astro:page-load", initSiteHeader);
+    initOnAstroPageLoad(initSiteHeader);
 </script>

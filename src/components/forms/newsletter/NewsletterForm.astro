@@ -90,10 +90,10 @@ const {
 }
 
 <script>
+    import { initOnAstroPageLoad } from "../../../lib/client/init";
     import { initNewsletterForms } from "../../../lib/client/forms";
 
-    initNewsletterForms();
-    document.addEventListener("astro:page-load", initNewsletterForms);
+    initOnAstroPageLoad(initNewsletterForms);
 </script>
 
 <style>

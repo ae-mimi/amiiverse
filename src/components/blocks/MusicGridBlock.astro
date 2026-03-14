@@ -62,7 +62,8 @@ try {
 
 {
     isMusicPage && (
-        <script>
+<script>
+    import { initOnAstroPageLoad } from "../../lib/client/init";
     interface MusicItem {
         id: string;
         slug: string;
@@ -155,8 +156,7 @@ try {
         });
     }
 
-    initMusicSearch();
-    document.addEventListener("astro:page-load", initMusicSearch);
+    initOnAstroPageLoad(initMusicSearch);
         </script>
     )
 }

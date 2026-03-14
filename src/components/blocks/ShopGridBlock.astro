@@ -36,8 +36,8 @@ try {
 </section>
 
 <script>
+    import { initOnAstroPageLoad } from "../../lib/client/init";
     import { initShopGrid } from "../../lib/client/shopGrid";
 
-    initShopGrid();
-    document.addEventListener("astro:page-load", initShopGrid);
+    initOnAstroPageLoad(initShopGrid);
 </script>

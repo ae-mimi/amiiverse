@@ -6,6 +6,7 @@ This folder holds the repo's operational and maintenance docs.
 
 - project structure: [project-structure.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/project-structure.md)
 - compatibility inventory: [compatibility-inventory.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/compatibility-inventory.md)
+- scalability roadmap: [scalability-collaboration-roadmap.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/scalability-collaboration-roadmap.md)
 
 ## Launch
 
