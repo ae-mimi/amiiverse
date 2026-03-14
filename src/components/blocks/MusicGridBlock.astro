@@ -99,6 +99,15 @@ try {
                 .replaceAll("'", "&#39;");
         }
 
+        function formatDateLongValue(dateStr: string): string {
+            if (!dateStr) return "";
+            return new Date(dateStr).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+            });
+        }
+
         function render(items: MusicItem[]) {
             if (!items.length) {
                 if (list) list.innerHTML = "";
@@ -112,7 +121,7 @@ try {
                     const title = escapeHtml(item.title || "Untitled");
                     const cover = escapeHtml(item.cover_image_url || "");
                     const spotify = escapeHtml(item.spotify || "");
-                    const date = formatDateLong(item.date || "");
+                    const date = formatDateLongValue(item.date || "");
                     return `
                         <div class="music-item">
                             <div class="cover-art">
