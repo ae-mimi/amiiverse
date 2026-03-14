@@ -1,0 +1,175 @@
+---
+import ConsentField from "../base/ConsentField.astro";
+import FormField from "../base/FormField.astro";
+import FormStatus from "../base/FormStatus.astro";
+import SubmitButton from "../base/SubmitButton.astro";
+
+interface Props {
+    title?: string;
+    subtitle?: string;
+    buttonText?: string;
+    successRedirect?: string;
+    turnstileSiteKey?: string;
+}
+
+const {
+    title = "JOIN THE AMII-GOS",
+    subtitle = "Get early access, updates, and behind-the-scenes",
+    buttonText = "JOIN US",
+    successRedirect = "/newsletter-success",
+    turnstileSiteKey = "",
+} = Astro.props;
+---
+
+<section id="join-the-queue" class="newsletter-signup" aria-label={title}>
+    <div class="newsletter-signup__card">
+        <div class="newsletter-signup__header">
+            <h2 class="newsletter-signup__title">{title}</h2>
+            {subtitle && <p class="newsletter-signup__subtitle">{subtitle}</p>}
+        </div>
+
+        <form
+            class="newsletter-signup__form"
+            data-form-kind="newsletter"
+            data-success-redirect={successRedirect}
+        >
+            <FormField label="NAME" htmlFor="newsletter-name">
+                <input
+                    type="text"
+                    id="newsletter-name"
+                    name="name"
+                    class="input-shape-rounded"
+                    autocomplete="name"
+                />
+            </FormField>
+
+            <FormField label="EMAIL" htmlFor="newsletter-email">
+                <input
+                    type="email"
+                    id="newsletter-email"
+                    name="email"
+                    class="input-shape-rounded"
+                    required
+                    autocomplete="email"
+                />
+            </FormField>
+
+            <ConsentField>
+                I agree to receive email updates and can unsubscribe anytime.
+            </ConsentField>
+
+            {
+                turnstileSiteKey && (
+                    <div
+                        class="cf-turnstile"
+                        data-sitekey={turnstileSiteKey}
+                        data-theme="light"
+                    ></div>
+                )
+            }
+
+            <p class="newsletter-signup__meta">
+                By subscribing, you consent to fan-list emails and privacy-safe
+                analytics.
+            </p>
+
+            <FormStatus />
+            <SubmitButton label={buttonText} class="newsletter-signup__btn" />
+        </form>
+    </div>
+</section>
+
+{
+    turnstileSiteKey && (
+        <script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            async
+            defer
+        ></script>
+    )
+}
+
+<script>
+    import { initNewsletterForms } from "../../../lib/client/forms";
+
+    initNewsletterForms();
+    document.addEventListener("astro:page-load", initNewsletterForms);
+</script>
+
+<style>
+    .newsletter-signup {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: clamp(48px, 5vw, 80px) 0;
+    }
+
+    .newsletter-signup__card {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: clamp(48px, 5vw, 80px);
+        gap: clamp(16px, 2vw, 32px);
+        width: 100%;
+        max-width: clamp(640px, 40vw, 1000px);
+        background: var(--bg-card);
+        border: 1px solid var(--text-main);
+        box-shadow: var(--shadow-sm);
+        border-radius: var(--radius-card);
+    }
+
+    .newsletter-signup__header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 4px;
+    }
+
+    .newsletter-signup__title {
+        margin: 0;
+        font-family: var(--font-heading, sans-serif);
+        font-weight: var(--weight-black);
+        font-size: clamp(36px, 3vw, 72px);
+        line-height: 1.1;
+        color: var(--text-main);
+    }
+
+    .newsletter-signup__subtitle {
+        margin: 0;
+        font-family: var(--font-body, sans-serif);
+        font-size: clamp(12px, 1vw, 20px);
+        line-height: 1.5;
+        color: var(--text-accent);
+    }
+
+    .newsletter-signup__form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: clamp(16px, 1.5vw, 24px);
+        width: 100%;
+        max-width: 80%;
+    }
+
+    .newsletter-signup__meta {
+        margin: 0;
+        width: 100%;
+        font-family: var(--font-body);
+        font-size: clamp(11px, 0.95vw, 14px);
+        line-height: 1.45;
+        color: var(--text-accent);
+    }
+
+    @media (max-width: 768px) {
+        .newsletter-signup__card {
+            width: 90%;
+            padding: 24px;
+        }
+
+        .newsletter-signup__form {
+            max-width: 100%;
+        }
+    }
+</style>

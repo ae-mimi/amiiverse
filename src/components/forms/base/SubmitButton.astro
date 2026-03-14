@@ -1,0 +1,43 @@
+---
+interface Props {
+    label: string;
+    class?: string;
+}
+
+const { label, class: className } = Astro.props;
+---
+
+<button type="submit" class:list={["form-submit-btn", className]}>
+    {label}
+</button>
+
+<style>
+    .form-submit-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 130px;
+        height: clamp(55px, 4vw, 70px);
+        background: var(--btn-bg-primary);
+        border-radius: var(--radius-pill);
+        border: none;
+        cursor: pointer;
+        padding: 17px 29px;
+        font-family: var(--font-body);
+        font-weight: var(--weight-semibold);
+        font-size: 15px;
+        letter-spacing: 2px;
+        color: var(--btn-text-primary);
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: transform 0.1s ease;
+    }
+
+    .form-submit-btn:hover {
+        transform: scale(1.02);
+    }
+
+    .form-submit-btn:active {
+        transform: scale(0.98);
+    }
+</style>

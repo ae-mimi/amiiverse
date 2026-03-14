@@ -1,0 +1,56 @@
+---
+import QuickBuyButton from "../catalog/QuickBuyButton.astro";
+
+interface Props {
+    title: string;
+    price: number;
+    productType: string;
+    image: string;
+    productId: string;
+    variantId?: string;
+    stock?: number;
+}
+
+const {
+    title,
+    price,
+    productType,
+    image,
+    productId,
+    variantId = "",
+    stock,
+} = Astro.props;
+
+const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
+---
+
+<div class="product-purchase-panel">
+    <div class="d-flex align-items-center mb-2">
+        <span
+            class={`badge ${productType === "digital" ? "bg-info" : "bg-primary"} me-2`}
+        >
+            {productType.toUpperCase()}
+        </span>
+        <span class="text-secondary text-sm">
+            {isSoldOut ? "Out of Stock" : "In Stock"}
+        </span>
+    </div>
+
+    <h2 class="mb-3 font-weight-bold text-4xl">{title}</h2>
+    <h4 class="mb-4 font-weight-bold text-2xl">₦{price.toLocaleString()}</h4>
+
+    <div class="d-flex align-items-center mb-5 gap-3">
+        <QuickBuyButton
+            productId={productId}
+            variantId={variantId}
+            title={title}
+            price={price}
+            image={image}
+            productType={productType}
+            quantity={1}
+            disabled={isSoldOut}
+            label={isSoldOut ? "Sold Out" : "Buy Now"}
+            class="btn-lg w-100"
+        />
+    </div>
+</div>

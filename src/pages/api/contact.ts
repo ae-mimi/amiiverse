@@ -22,10 +22,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
         );
     }
 
-    // Fetch admin email from CMS.
+    // Fetch admin email from CMS using current page.sections[] structure.
     let adminEmail = "mgmt@weareamii.com";
     try {
-        const query = `*[_type == "page" && defined(blocks) && "contact_section" in blocks[].name][0].blocks[name == "contact_section"][0].management_email`;
+        const query = `*[_type == "page" && count(sections[_type == "contact_section"]) > 0][0].sections[_type == "contact_section"][0].management_email`;
         const fetchedEmail = await sanityClient.fetch(query);
         if (fetchedEmail) {
             adminEmail = fetchedEmail;

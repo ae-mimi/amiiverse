@@ -4,6 +4,7 @@
  * Displays product metadata, pricing, buy button, and expandable details.
  */
 import ProductAccordion from "./ProductAccordion.astro";
+import ProductPurchasePanel from "./pdp/ProductPurchasePanel.astro";
 
 interface Props {
     title: string;
@@ -31,37 +32,15 @@ const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
 ---
 
 <div class="product-info-panel h-100 d-flex flex-column py-4">
-    <div class="d-flex align-items-center mb-2">
-        <span
-            class={`badge ${productType === "digital" ? "bg-info" : "bg-primary"} me-2`}
-        >
-            {productType.toUpperCase()}
-        </span>
-        <span class="text-secondary text-sm">
-            {isSoldOut ? "Out of Stock" : "In Stock"}
-        </span>
-    </div>
-
-    <h2 class="mb-3 font-weight-bold text-4xl">{title}</h2>
-
-    <h4 class="mb-4 font-weight-bold text-2xl">₦{price.toLocaleString()}</h4>
-
-    <!-- Buy Actions -->
-    <div class="d-flex align-items-center mb-5 gap-3">
-        <button
-            id="pdp-buy-btn"
-            class="btn btn-dark btn-lg w-100"
-            data-product-id={productId}
-            data-variant-id={variantId}
-            data-title={title}
-            data-price={price}
-            data-image={image}
-            data-type={productType}
-            disabled={isSoldOut}
-        >
-            {isSoldOut ? "Sold Out" : "Buy Now"}
-        </button>
-    </div>
+    <ProductPurchasePanel
+        title={title}
+        price={price}
+        productType={productType}
+        image={image}
+        productId={productId}
+        variantId={variantId}
+        stock={stock}
+    />
 
     <!-- Expandable Details (Accordion) -->
     {
@@ -75,29 +54,3 @@ const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
         payment.
     </p>
 </div>
-
-<script>
-    // Logic for the PDP buy button (triggers CartModal)
-    const buyBtn = document.getElementById("pdp-buy-btn");
-    if (buyBtn) {
-        buyBtn.addEventListener("click", () => {
-            const { productId, variantId, title, price, image, type } = (
-                buyBtn as HTMLElement
-            ).dataset;
-
-            window.dispatchEvent(
-                new CustomEvent("open-checkout", {
-                    detail: {
-                        productId,
-                        variantId,
-                        title,
-                        price: parseFloat(price || "0"),
-                        image,
-                        productType: type,
-                        quantity: 1,
-                    },
-                }),
-            );
-        });
-    }
-</script>

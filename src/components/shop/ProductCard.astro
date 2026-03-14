@@ -1,5 +1,6 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
+import QuickBuyButton from "./catalog/QuickBuyButton.astro";
 
 interface Props {
     title: string;
@@ -66,45 +67,19 @@ const isDigital = productType === "digital";
         </div>
 
         <div class="shopCardActions d-flex gap-2 mb-3">
-            <button
-                class="btn btn-dark w-100"
-                data-quickbuy
-                data-product-id={productId}
-                data-variant-id={variantId}
-                data-title={title}
-                data-price={price}
-                data-image={imageUrl}
-                data-type={productType}
+            <QuickBuyButton
+                productId={productId}
+                variantId={variantId}
+                title={title}
+                price={price}
+                image={imageUrl}
+                productType={productType}
+                quantity={1}
                 disabled={isSoldOut}
-            >
-                {isSoldOut ? "Sold Out" : "Quick Buy"}
-            </button>
+                label={isSoldOut ? "Sold Out" : "Quick Buy"}
+                class="w-100"
+            />
             <a href={url} class="btn btn-outline-dark">View</a>
         </div>
     </div>
 </div>
-
-<script>
-    const quickBuyBtns = document.querySelectorAll("[data-quickbuy]");
-
-    quickBuyBtns.forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-            const button = e.currentTarget as HTMLButtonElement;
-            const { productId, variantId, title, price, image, type } = button.dataset;
-
-            window.dispatchEvent(
-                new CustomEvent("open-checkout", {
-                    detail: {
-                        productId,
-                        variantId,
-                        title,
-                        price: parseFloat(price || "0"),
-                        image,
-                        productType: type,
-                        quantity: 1,
-                    },
-                }),
-            );
-        });
-    });
-</script>

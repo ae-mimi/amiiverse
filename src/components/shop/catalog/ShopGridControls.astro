@@ -1,0 +1,36 @@
+<div class="shopTopBar" style="margin-bottom: 2rem;">
+    <div class="shopSearchWrap">
+        <label class="srOnly" for="shop-search">Search products</label>
+        <input
+            id="shop-search"
+            class="shopSearchInput input-shape-pill"
+            type="search"
+            placeholder="Search"
+            data-shop-search
+        />
+    </div>
+
+    <div class="shopSortWrap">
+        <label class="srOnly" for="shop-sort">Sort products</label>
+        <select
+            id="shop-sort"
+            class="shopSortSelect input-shape-pill"
+            data-shop-sort
+        >
+            <option value="newest">Newest</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+        </select>
+    </div>
+</div>
+
+<div
+    class="shopChipsRow"
+    role="tablist"
+    aria-label="Shop filters"
+    style="margin-bottom: 2rem;"
+>
+    <button class="chip isActive" data-shop-filter="all">All</button>
+    <button class="chip" data-shop-filter="physical">Physical</button>
+    <button class="chip" data-shop-filter="digital">Digital</button>
+</div>

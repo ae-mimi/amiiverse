@@ -155,6 +155,12 @@ const bodyFontStack = toCssFontStack(theme.bodyFont, `"Archivo", sans-serif`);
         </main>
         <SiteFooter />
         <CartModal />
+        <script>
+            import { initQuickBuyInteractions } from "../lib/client/quickBuy";
+
+            initQuickBuyInteractions();
+            document.addEventListener("astro:page-load", initQuickBuyInteractions);
+        </script>
     </body>
 </html>
 

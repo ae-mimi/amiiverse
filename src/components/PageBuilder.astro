@@ -56,133 +56,70 @@ interface Props {
 }
 
 const { sections } = Astro.props;
+
+const blockRegistry = {
+    hero: HeroBlock,
+    predebut_hero: PredebutHeroBlock,
+    page_hero: PageHeroBlock,
+    intro: IntroBlock,
+    media_text: MediaTextBlock,
+    rich_text: RichTextBlock,
+    gallery_block: GalleryBlock,
+    video_embed: VideoEmbedBlock,
+    cta_banner: CTABannerBlock,
+    countdown: CountdownBlock,
+    faq: FAQBlock,
+    testimonials: TestimonialsBlock,
+    release_spotlight: ReleaseSpotlightBlock,
+    discography_grid: DiscographyGridBlock,
+    smart_links: SmartLinksBlock,
+    credits_block: CreditsBlock,
+    video_gallery: VideoGalleryBlock,
+    shorts_wall: ShortsWallBlock,
+    news_feed: NewsFeedBlock,
+    tour_dates: TourDatesBlock,
+    events: EventsBlock,
+    music_grid: MusicGridBlock,
+    members_grid: MembersGridBlock,
+    shop_grid: ShopGridBlock,
+    product_grid: ProductGridBlock,
+    press_grid: PressGridBlock,
+    press_quotes: PressCoverageBlock,
+    downloads_center: DownloadsCenterBlock,
+    fan_wall: FanWallBlock,
+    poll_block: PollBlock,
+    timeline: TimelineBlock,
+    widget: WidgetBlock,
+    email_signup: EmailSignupBlock,
+    newsletter_signup: NewsletterSignupBlock,
+    contact_form: ContactFormBlock,
+    contact_section: ContactSectionBlock,
+    profile_header: ProfileHeaderBlock,
+    link_stack: LinkStackBlock,
+    spacer: SpacerBlock,
+    divider: DividerBlock,
+    marquee: MarqueeBlock,
+    lyric_highlight: LyricHighlightBlock,
+} as const;
 ---
 
 {
     sections?.map((section: PageSection) => {
-        switch (section._type) {
-            // ── Heroes ──────────────────────────
-            case "hero":
-                return <HeroBlock {...section} />;
-            case "predebut_hero":
-                return <PredebutHeroBlock {...section} />;
-            case "page_hero":
-                return <PageHeroBlock {...section} />;
+        const key = section._type as keyof typeof blockRegistry;
+        const Component = blockRegistry[key];
 
-            // ── Content ─────────────────────────
-            case "intro":
-                return <IntroBlock {...section} />;
-            case "media_text":
-                return <MediaTextBlock {...section} />;
-            case "rich_text":
-                return <RichTextBlock {...section} />;
-            case "gallery_block":
-                return <GalleryBlock {...section} />;
-            case "video_embed":
-                return <VideoEmbedBlock {...section} />;
-
-            // ── Engagement ──────────────────────
-            case "cta_banner":
-                return <CTABannerBlock {...section} />;
-            case "countdown":
-                return <CountdownBlock {...section} />;
-            case "faq":
-                return <FAQBlock {...section} />;
-            case "testimonials":
-                return <TestimonialsBlock {...section} />;
-
-            // ── Music Promotion ─────────────────
-            case "release_spotlight":
-                return <ReleaseSpotlightBlock {...section} />;
-            case "discography_grid":
-                return <DiscographyGridBlock {...section} />;
-            case "smart_links":
-                return <SmartLinksBlock {...section} />;
-            case "credits_block":
-                return <CreditsBlock {...section} />;
-
-            // ── Video & Content ─────────────────
-            case "video_gallery":
-                return <VideoGalleryBlock {...section} />;
-            case "shorts_wall":
-                return <ShortsWallBlock {...section} />;
-            case "news_feed":
-                return <NewsFeedBlock {...section} />;
-
-            // ── Tour & Events ───────────────────
-            case "tour_dates":
-                return <TourDatesBlock {...section} />;
-            case "events":
-                return <EventsBlock {...section} />;
-
-            // ── Collections ─────────────────────
-            case "music_grid":
-                return <MusicGridBlock {...section} />;
-            case "members_grid":
-                return <MembersGridBlock {...section} />;
-            case "shop_grid":
-                return <ProductGridBlock {...section} />;
-
-            // ── Press & Downloads ────────────────
-            case "press_grid":
-                return <PressGridBlock {...section} />;
-            case "press_quotes":
-                return <PressCoverageBlock {...section} />;
-            case "downloads_center":
-                return <DownloadsCenterBlock {...section} />;
-
-            // ── Community ───────────────────────
-            case "fan_wall":
-                return <FanWallBlock {...section} />;
-            case "poll_block":
-                return <PollBlock {...section} />;
-
-            // ── Timeline ────────────────────────
-            case "timeline":
-                return <TimelineBlock {...section} />;
-
-            // ── Widgets ─────────────────────────
-            case "widget":
-                return <WidgetBlock {...section} />;
-            case "email_signup":
-                return <EmailSignupBlock {...section} />;
-            case "newsletter_signup":
-                return <NewsletterSignupBlock {...section} />;
-            case "contact_form":
-                return <ContactFormBlock {...section} />;
-            case "contact_section":
-                return <ContactSectionBlock {...(section as any)} />;
-
-            // ── Follow Page ─────────────────────
-            case "profile_header":
-                return <ProfileHeaderBlock {...(section as any)} />;
-            case "link_stack":
-                return <LinkStackBlock {...(section as any)} />;
-
-            // ── Layout & Decorative ─────────────
-            case "spacer":
-                return <SpacerBlock {...section} />;
-            case "divider":
-                return <DividerBlock {...(section as any)} />;
-            case "marquee":
-                return <MarqueeBlock {...(section as any)} />;
-            case "lyric_highlight":
-                return <LyricHighlightBlock {...(section as any)} />;
-
-            // ── Fallback ────────────────────────
-            default: {
-                const s = section as any;
-                console.warn(
-                    `[PageBuilder] Unknown section type: "${s._type}"`,
-                );
-                return (
-                    <div class="unknown-section" data-type={s._type}>
-                        <p style="padding:2rem;text-align:center;color:var(--text-muted);font-size:0.875rem;">
-                            Section type "{s._type}" is not yet implemented.
-                        </p>
-                    </div>
-                );
-            }
+        if (Component) {
+            return <Component {...(section as any)} />;
         }
+
+        const s = section as any;
+        console.warn(`[PageBuilder] Unknown section type: "${s._type}"`);
+        return (
+            <div class="unknown-section" data-type={s._type}>
+                <p style="padding:2rem;text-align:center;color:var(--text-muted);font-size:0.875rem;">
+                    Section type "{s._type}" is not yet implemented.
+                </p>
+            </div>
+        );
     })
 }

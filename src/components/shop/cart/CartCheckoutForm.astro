@@ -1,0 +1,97 @@
+<div class="col-12 col-lg-5 bg-gray-100 p-4 p-md-5">
+    <h5 class="font-weight-bold mb-4">Finalize Checkout</h5>
+
+    <form id="checkout-form" class="checkoutForm" autocomplete="on">
+        <input type="hidden" id="modal-product-id" name="productId" />
+        <input type="hidden" id="modal-quantity" name="quantity" />
+
+        <div class="mb-3">
+            <label class="text-xs font-weight-bold text-secondary mb-1"
+                >EMAIL ADDRESS</label
+            >
+            <input
+                type="email"
+                id="email"
+                name="email"
+                class="formControl input-shape-rect"
+                placeholder="name@example.com"
+                autocomplete="email"
+                inputmode="email"
+                required
+            />
+        </div>
+
+        <div id="phone-field-wrap" class="mb-4">
+            <label class="text-xs font-weight-bold text-secondary mb-1"
+                >PHONE NUMBER (OPTIONAL)</label
+            >
+            <input
+                type="tel"
+                id="phone"
+                name="phone"
+                class="formControl input-shape-rect"
+                placeholder="+234 ..."
+                autocomplete="tel"
+                inputmode="tel"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label class="text-xs font-weight-bold text-secondary mb-1"
+                >CURRENCY</label
+            >
+            <select id="currency" name="currency" class="formControl input-shape-rect">
+                <option value="NGN">NGN</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="text-xs font-weight-bold text-secondary mb-1"
+                >COUNTRY (ISO2)</label
+            >
+            <input
+                type="text"
+                id="country"
+                name="country"
+                class="formControl input-shape-rect"
+                placeholder="NG"
+                maxlength="2"
+                value="NG"
+            />
+        </div>
+
+        <div class="mb-4">
+            <label class="text-xs font-weight-bold text-secondary mb-1"
+                >REGION (OPTIONAL)</label
+            >
+            <input
+                type="text"
+                id="region"
+                name="region"
+                class="formControl input-shape-rect"
+                placeholder="Lagos"
+            />
+        </div>
+
+        <div
+            class="errorState mb-3 text-danger text-xs font-weight-bold"
+            id="modal-error"
+            hidden
+        ></div>
+
+        <button
+            type="submit"
+            class="btn btn-dark btn-lg w-100 mb-3"
+            id="checkout-submit"
+        >
+            Continue to Payment
+        </button>
+
+        <p class="text-center text-xs text-secondary mb-0">
+            Secure 256-bit encrypted checkout.<br />
+            Prices in NGN (₦).
+        </p>
+    </form>
+</div>

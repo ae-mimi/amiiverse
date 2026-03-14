@@ -1,0 +1,163 @@
+---
+import FormField from "../base/FormField.astro";
+import FormStatus from "../base/FormStatus.astro";
+import SubmitButton from "../base/SubmitButton.astro";
+
+interface Props {
+    title?: string;
+    subtitle?: string;
+    successRedirect?: string;
+    subject?: string;
+}
+
+const {
+    title = "SAY HELLO",
+    subtitle = "Have a question, idea, or opportunity? Send us a message.",
+    successRedirect = "/contact-success",
+    subject = "Business Contact Inquiry",
+} = Astro.props;
+---
+
+<div class="contact-form-container">
+    <div class="header-group">
+        <h2 class="form-title">{title}</h2>
+        <p class="form-subtitle" style="color: var(--color-accent);">
+            {subtitle}
+        </p>
+    </div>
+
+    <form
+        class="contact-form"
+        method="POST"
+        data-form-kind="business-contact"
+        data-success-redirect={successRedirect}
+        data-subject={subject}
+    >
+        <div class="input-group">
+            <FormField label="NAME" htmlFor="business-contact-name">
+                <input
+                    type="text"
+                    id="business-contact-name"
+                    name="name"
+                    class="input-shape-rounded"
+                    required
+                    placeholder=" "
+                />
+            </FormField>
+
+            <FormField label="EMAIL" htmlFor="business-contact-email">
+                <input
+                    type="email"
+                    id="business-contact-email"
+                    name="email"
+                    class="input-shape-rounded"
+                    required
+                    placeholder=" "
+                />
+            </FormField>
+
+            <FormField
+                label="MESSAGE"
+                htmlFor="business-contact-message"
+                class="message-wrapper"
+            >
+                <textarea
+                    id="business-contact-message"
+                    name="message"
+                    class="input-shape-rounded"
+                    required
+                    placeholder=" "
+                ></textarea>
+            </FormField>
+        </div>
+
+        <FormStatus />
+        <SubmitButton label="SEND" class="contact-submit-btn" />
+    </form>
+</div>
+
+<script>
+    import { initBusinessContactForms } from "../../../lib/client/forms";
+
+    initBusinessContactForms();
+    document.addEventListener("astro:page-load", initBusinessContactForms);
+</script>
+
+<style>
+    .contact-form-container {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: clamp(24px, 4vw, 48px);
+        gap: 25px;
+        width: 100%;
+        max-width: 100%;
+        background: var(--bg-card);
+        border: 1px solid var(--text-main);
+        box-shadow: var(--shadow-sm);
+        border-radius: var(--radius-card);
+        font-family: var(--font-body);
+    }
+
+    .header-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        width: 100%;
+        margin-bottom: 24px;
+    }
+
+    .form-title {
+        font-family: var(--font-heading);
+        font-weight: var(--weight-regular);
+        font-size: clamp(32px, 3vw, 48px);
+        line-height: 1.1;
+        color: var(--text-main);
+        margin: 0;
+        width: 100%;
+        text-align: left;
+    }
+
+    .form-subtitle {
+        margin: 0;
+        font-size: clamp(14px, 1vw, 18px);
+    }
+
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .contact-submit-btn {
+        align-self: flex-start;
+    }
+
+    @media (max-width: 480px) {
+        .contact-form-container {
+            padding: 24px;
+        }
+
+        .header-group,
+        .form-title,
+        .form-subtitle {
+            align-items: center;
+            text-align: center;
+        }
+
+        .contact-submit-btn {
+            align-self: center;
+        }
+    }
+</style>

@@ -1,0 +1,17 @@
+<div id="checkout-modal" class="checkoutOverlay" aria-hidden="true">
+    <div class="checkoutModal card shadow-lg border-0">
+        <button
+            type="button"
+            class="modalClose modalCloseFloating"
+            id="close-modal"
+            aria-label="Close checkout"
+        >
+            &times;
+        </button>
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <slot />
+            </div>
+        </div>
+    </div>
+</div>
