@@ -12,15 +12,18 @@
 
     <div class="shopSortWrap">
         <label class="srOnly" for="shop-sort">Sort products</label>
-        <select
-            id="shop-sort"
-            class="shopSortSelect input-shape-pill"
-            data-shop-sort
-        >
-            <option value="newest">Newest</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-        </select>
+        <div class="shopSortControl">
+            <select
+                id="shop-sort"
+                class="shopSortSelect input-shape-pill"
+                data-shop-sort
+            >
+                <option value="newest">Newest</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+            </select>
+            <span class="shopSortChevron" aria-hidden="true"></span>
+        </div>
     </div>
 </div>
 
@@ -34,3 +37,29 @@
     <button class="chip" data-shop-filter="physical">Physical</button>
     <button class="chip" data-shop-filter="digital">Digital</button>
 </div>
+
+<style>
+    .shopSortControl {
+        position: relative;
+    }
+
+    .shopSortControl .shopSortSelect {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: none;
+        padding-right: 4rem;
+    }
+
+    .shopSortChevron {
+        position: absolute;
+        top: 50%;
+        right: 1.4rem;
+        width: 0.65rem;
+        height: 0.65rem;
+        border-right: 2px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        transform: translateY(-65%) rotate(45deg);
+        pointer-events: none;
+    }
+</style>
