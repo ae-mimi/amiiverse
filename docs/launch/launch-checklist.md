@@ -85,7 +85,7 @@ Use this checklist to finish setup for `weareamii.com` + Flutterwave + Cloudflar
 - [ ] `.env` is not committed
 
 ## 9. Final Phase 1 Sign-off
-- [ ] `phase1-cloudflare-setup.txt` checkboxes all completed
+- [ ] `../setup/phase1-cloudflare-setup.txt` checkboxes all completed
 - [ ] End-to-end payment + download flow tested once in live environment
 - [ ] Backup admin credentials and env vars in secure vault
 

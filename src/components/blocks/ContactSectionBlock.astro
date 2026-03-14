@@ -1,5 +1,5 @@
 ---
-import ContactForm from "../forms/ContactForm.astro";
+import BusinessContactForm from "../forms/contact/BusinessContactForm.astro";
 import { Icon } from "astro-icon/components";
 import { fetchGlobalSettings } from "../../utils/global";
 import InfoCard from "../ui/InfoCard.astro";
@@ -23,7 +23,7 @@ const socials = settings.socials || [];
         <div class="grid-layout">
             <!-- Left Column: Form -->
             <div class="form-column">
-                <ContactForm title={title} subtitle={subtitle} />
+                <BusinessContactForm title={title} subtitle={subtitle} />
             </div>
 
             <!-- Right Column: Info Cards -->

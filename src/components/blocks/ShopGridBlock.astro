@@ -11,7 +11,6 @@ interface ShopProduct {
     price_ngn: number;
     product_type: "physical" | "digital";
     cover_image_url: string;
-    is_active: number;
 }
 
 let initialItems: ShopProduct[] = [];
@@ -42,9 +41,3 @@ try {
     initShopGrid();
     document.addEventListener("astro:page-load", initShopGrid);
 </script>
-
-<style>
-    .shopPage {
-        width: 100%;
-    }
-</style>

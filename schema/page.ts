@@ -816,7 +816,6 @@ export default defineType({
           description: 'A form where visitors can send you a message.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Contact Us' }),
-            defineField({ name: 'endpoint', type: 'string', title: 'Custom API Endpoint' }),
           ],
           preview: {
             select: { title: 'title' },

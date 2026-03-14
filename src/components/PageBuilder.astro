@@ -11,7 +11,6 @@ import WidgetBlock from "./blocks/WidgetBlock.astro";
 import RichTextBlock from "./blocks/RichTextBlock.astro";
 import PredebutHeroBlock from "./blocks/PredebutHeroBlock.astro";
 import PageHeroBlock from "./blocks/PageHeroBlock.astro";
-import ProductGridBlock from "./blocks/ProductGridBlock.astro";
 import MusicGridBlock from "./blocks/MusicGridBlock.astro";
 import PressGridBlock from "./blocks/PressGridBlock.astro";
 import MembersGridBlock from "./blocks/MembersGridBlock.astro";
@@ -48,6 +47,7 @@ import NewsFeedBlock from "./blocks/NewsFeedBlock.astro";
 import PressCoverageBlock from "./blocks/PressCoverageBlock.astro";
 import PollBlock from "./blocks/PollBlock.astro";
 import NewsletterSignupBlock from "./blocks/NewsletterSignupBlock.astro";
+import ShopGridBlock from "./blocks/ShopGridBlock.astro";
 
 import type { PageSection } from "../lib/sanity/types";
 
@@ -82,7 +82,7 @@ const blockRegistry = {
     music_grid: MusicGridBlock,
     members_grid: MembersGridBlock,
     shop_grid: ShopGridBlock,
-    product_grid: ProductGridBlock,
+    product_grid: ShopGridBlock,
     press_grid: PressGridBlock,
     press_quotes: PressCoverageBlock,
     downloads_center: DownloadsCenterBlock,

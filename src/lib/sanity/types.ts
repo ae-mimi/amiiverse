@@ -316,7 +316,7 @@ export interface TimelineSection extends SectionBase { _type: "timeline"; title?
 export interface WidgetSection extends SectionBase { _type: "widget"; widget_type?: string; music_item?: any; }
 export interface EmailSignupSection extends SectionBase { _type: "email_signup"; title?: string; subtitle?: string; provider?: string; formId?: string; successMessage?: string; }
 export interface NewsletterSignupSection extends SectionBase { _type: "newsletter_signup"; title?: string; subtitle?: string; buttonText?: string; successRedirect?: string; }
-export interface ContactFormSection extends SectionBase { _type: "contact_form"; title?: string; endpoint?: string; }
+export interface ContactFormSection extends SectionBase { _type: "contact_form"; title?: string; }
 export interface ContactSectionBlock extends SectionBase { _type: "contact_section"; title?: string; subtitle?: string; management_email?: string; press_email?: string; bookings_email?: string; inquiries_email?: string; show_socials?: boolean; }
 export interface SpacerSection extends SectionBase { _type: "spacer"; size?: "sm" | "md" | "lg"; }
 export interface DividerSection extends SectionBase { _type: "divider"; style?: string; width?: string; }

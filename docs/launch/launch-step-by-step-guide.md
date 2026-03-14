@@ -18,9 +18,9 @@ By the end of this guide, you will have:
 ## Step 0: Keep These Tabs Open
 
 Open these 3 files in your editor while you work:
-1. `launch-checklist.md`
-2. `launch-step-by-step-guide.md` (this file)
-3. `phase1-cloudflare-setup.txt`
+1. `docs/launch/launch-checklist.md`
+2. `docs/launch/launch-step-by-step-guide.md` (this file)
+3. `docs/setup/phase1-cloudflare-setup.txt`
 
 Open these dashboards in browser tabs:
 1. Cloudflare dashboard
@@ -403,8 +403,8 @@ Success check:
 ## Step 14: Final Sign-off
 
 Tick all remaining boxes in:
-1. `launch-checklist.md`
-2. `phase1-cloudflare-setup.txt`
+1. `docs/launch/launch-checklist.md`
+2. `docs/setup/phase1-cloudflare-setup.txt`
 
 Store all production secrets in a safe password manager or vault.
 

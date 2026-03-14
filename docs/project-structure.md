@@ -1,0 +1,119 @@
+# Project Structure
+
+This is the current intended mental model for the repo.
+
+It reflects the live tree today, not an idealized future tree.
+
+## Top Level
+
+- `src/`: Astro app source
+- `schema/`: Sanity schema definitions and desk structure
+- `db/`: D1 schema and migrations
+- `public/`: static assets and headers/redirect files
+- `scripts/`: local operational scripts
+- `docs/`: project documentation and repo navigation notes
+
+## `src/`
+
+### `src/pages`
+- Route entrypoints
+- Includes Astro pages and API routes
+- `src/pages/api` is the server/API boundary for Cloudflare Pages Functions behavior
+
+### `src/layouts`
+- Shared page shells
+- Example: [`BaseLayout.astro`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/src/layouts/BaseLayout.astro)
+
+### `src/components`
+- Presentation and page-building layer
+
+#### `src/components/blocks`
+- Thin CMS adapters
+- Each block should stay focused on mapping Sanity section props to feature components
+- Good place for page-builder level composition, not large client logic
+
+#### `src/components/forms`
+- Shared form system pieces
+
+Current layout:
+- `base/`: field, consent, status, submit primitives
+- `contact/`: business contact form composition
+- `newsletter/`: newsletter form composition
+
+#### `src/components/shop`
+- Shop UI domain
+
+Current layout:
+- root shop components for shared surface area
+- `catalog/`: listing/grid/quick-buy pieces
+- `cart/`: cart modal shell, line items, totals, checkout form
+- `pdp/`: product detail purchase panel
+
+#### `src/components/navigation`
+- Header-level navigation pieces
+- Brand, socials, mobile menu overlay
+
+#### `src/components/ui`
+- Reusable non-block UI pieces that are still shared across multiple blocks
+- Keep this folder for genuinely shared UI, not page-specific feature logic
+
+#### `src/components/seo`
+- Head/meta helpers
+
+### `src/lib`
+- Logic and data helpers
+
+#### `src/lib/client`
+- Browser-only interaction controllers
+- Examples:
+  - quick buy event dispatch
+  - newsletter/contact form submission
+  - cart modal orchestration
+  - header/mobile nav behavior
+
+#### `src/lib/server`
+- Server-side commerce, validation, runtime env, inventory, and payment logic
+
+#### `src/lib/sanity`
+- Sanity client, GROQ queries, types, and write helpers
+
+#### `src/lib/cart`
+- Client-side cart store abstraction
+
+#### `src/lib/utils`
+- Cross-feature helpers used by multiple blocks/components
+
+#### `src/lib/seo`
+- SEO-specific data builders
+
+### `src/utils`
+- App-level utility layer still used outside `src/lib`
+- Current example: global settings normalization/fetching
+
+### `src/styles`
+- Global stylesheet layers
+
+## `schema/`
+
+- `schema/index.ts`: schema registration root
+- `schema/page.ts`: page builder section schema
+- `schema/settings.ts`: global site settings
+- `schema/documents/`: Sanity document types
+- `schema/objects/`: reusable object schema pieces
+- `schema/shop/`: commerce-related schema
+
+## Navigation Tips
+
+When making changes:
+- CMS block rendering issue: start in `schema/page.ts`, then `src/components/PageBuilder.astro`, then the matching block
+- form issue: start in `src/components/forms`, then `src/lib/client/forms.ts`, then the API route
+- shop issue: start in `src/components/shop`, then `src/lib/client`, then `src/pages/api/shop` or `src/pages/api/checkout`
+- global header/footer/settings issue: start in `src/components/layout`, `src/components/navigation`, and `src/utils/global.ts`
+
+## Cleanup Rules
+
+To keep the tree intuitive:
+- prefer block adapters in `blocks/`, feature logic in domain folders
+- prefer browser behavior in `src/lib/client` instead of large inline scripts
+- prefer shared form parts in `src/components/forms/base`
+- only keep compatibility aliases when they are documented in [`docs/compatibility-inventory.md`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/compatibility-inventory.md)

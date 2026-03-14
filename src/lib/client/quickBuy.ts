@@ -1,4 +1,12 @@
-import type { QuickBuyPayload } from "./contracts";
+interface QuickBuyPayload {
+    productId?: string;
+    variantId?: string;
+    quantity: number;
+    productType?: "physical" | "digital";
+    title?: string;
+    price?: number;
+    image?: string;
+}
 
 function parseNumber(value: string | undefined): number | undefined {
     if (!value) return undefined;

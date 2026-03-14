@@ -1,5 +1,5 @@
 ---
-import ContactForm from "../forms/ContactForm.astro";
+import BusinessContactForm from "../forms/contact/BusinessContactForm.astro";
 
 const {
     title = "SAY HELLO",
@@ -9,7 +9,7 @@ const {
 
 <section class="contact-form-block">
     <div class="container">
-        <ContactForm title={title} subtitle={subtitle} />
+        <BusinessContactForm title={title} subtitle={subtitle} />
     </div>
 </section>
 <style>

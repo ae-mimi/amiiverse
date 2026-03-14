@@ -1,5 +1,6 @@
 ---
 import MusicCard from "../ui/MusicCard.astro";
+import { formatDateLong } from "../../lib/utils/format";
 
 interface MusicItem {
     id: string;
@@ -97,16 +98,6 @@ try {
                 .replaceAll("'", "&#39;");
         }
 
-        function formatDate(dateString: string): string {
-            const date = new Date(dateString);
-            if (Number.isNaN(date.getTime())) return "";
-            return date.toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            });
-        }
-
         function render(items: MusicItem[]) {
             if (!items.length) {
                 if (list) list.innerHTML = "";
@@ -120,7 +111,7 @@ try {
                     const title = escapeHtml(item.title || "Untitled");
                     const cover = escapeHtml(item.cover_image_url || "");
                     const spotify = escapeHtml(item.spotify || "");
-                    const date = formatDate(item.date || "");
+                    const date = formatDateLong(item.date || "");
                     return `
                         <div class="music-item">
                             <div class="cover-art">

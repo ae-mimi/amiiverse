@@ -10,6 +10,16 @@ Astro site configured for Cloudflare Pages + Workers runtime.
 - `npm run preview`
 - `npm run deploy`
 
+## Repo Docs
+
+- compatibility inventory: [docs/compatibility-inventory.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/compatibility-inventory.md)
+- project structure map: [docs/project-structure.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/project-structure.md)
+- docs index: [docs/README.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/README.md)
+- launch workflow: [docs/launch/launch-step-by-step-guide.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/launch/launch-step-by-step-guide.md)
+- launch checklist: [docs/launch/launch-checklist.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/launch/launch-checklist.md)
+- cloudflare setup checklist: [docs/setup/phase1-cloudflare-setup.txt](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/setup/phase1-cloudflare-setup.txt)
+- brevo setup guide: [docs/setup/brevo-setup-guide.md](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/setup/brevo-setup-guide.md)
+
 ## API / Functions Structure
 
 - This project uses Astro API routes in `src/pages/api`.
