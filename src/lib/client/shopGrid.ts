@@ -34,21 +34,57 @@ function renderCard(item: ShopProduct): string {
 
     return `
         <div class="col-12 col-md-6 col-lg-4 mb-4 shopCatalogCell" data-grid-item data-type="${productType}" data-price="${price}">
-            <article class="card card-product card-plain" data-title="${title}" data-price="${price}">
-                <div class="shopCardBadgeRow">
-                    <span class="shopProductTag ${productType === "digital" ? "isDigital" : "isPhysical"}">${productType === "digital" ? "Digital" : "Physical"}</span>
-                    <span class="shopProductTag isAccent">${productType === "digital" ? "Instant access" : "Ready to ship"}</span>
-                </div>
+            <article class="card card-product card-plain shopProductCard" data-title="${title}" data-price="${price}">
                 <div class="card-header">
-                    <a href="/shop/${slug}" class="d-block">
+                    <a href="/shop/${slug}" class="d-block shopCardMediaLink">
                         ${
                             image
                                 ? `<img src="${image}" alt="${title}" class="img-fluid border-radius-lg" loading="lazy" />`
-                                : `<div class="shopCardImagePlaceholder" style="background: #eee; aspect-ratio: 1/1; border-radius: 12px;"></div>`
+                                : `<div class="shopCardImagePlaceholder"></div>`
                         }
                     </a>
+                    <div class="shopCardBadgeRow">
+                        <span class="shopProductTag ${productType === "digital" ? "isDigital" : "isPhysical"}">${productType === "digital" ? "Digital" : "Physical"}</span>
+                        <span class="shopProductTag isAccent">${productType === "digital" ? "Instant access" : "Ready to ship"}</span>
+                    </div>
+                    <button
+                        type="button"
+                        class="shopCardCartFab"
+                        data-quickbuy
+                        data-product-id="${productId}"
+                        data-variant-id="${variantId}"
+                        data-quantity="1"
+                        data-title="${title}"
+                        data-price="${price}"
+                        data-image="${image}"
+                        data-type="${productType}"
+                        aria-label="Add ${title} to cart"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="9" cy="20" r="1.25"></circle>
+                            <circle cx="18" cy="20" r="1.25"></circle>
+                            <path d="M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H7.4"></path>
+                        </svg>
+                    </button>
+                    <div class="shopCardHoverActions">
+                        <button
+                            type="button"
+                            class="shopCardHoverButton isPrimary"
+                            data-shop-preview
+                            data-slug="${slug}"
+                            data-title="${title}"
+                            data-price="${price}"
+                            data-image="${image}"
+                            data-type="${productType}"
+                            data-product-id="${productId}"
+                            data-variant-id="${variantId}"
+                        >
+                            See preview
+                        </button>
+                        <a href="/shop/${slug}" class="shopCardHoverButton">View details</a>
+                    </div>
                 </div>
-                <div class="card-body pb-0">
+                <div class="card-body pb-0 shopCardBody">
                     <p class="shopCardMeta">${productType === "digital" ? "Instant delivery" : "Ships from the official shop"}</p>
                     <a href="/shop/${slug}" style="text-decoration: none;">
                         <h5 class="font-weight-bold shopCardTitle">${title}</h5>
@@ -56,22 +92,6 @@ function renderCard(item: ShopProduct): string {
                     <div class="shopCardPriceRow">
                         <p class="mb-0 text-sm font-weight-bold shopCardPrice">${formatPrice(price)}</p>
                         <span class="shopCardAssistText">${productType === "digital" ? "Download after payment" : "Checkout for delivery estimate"}</span>
-                    </div>
-                    <div class="shopCardActions d-flex gap-2 mb-3">
-                        <button
-                            class="btn btn-dark w-100"
-                            data-quickbuy
-                            data-product-id="${productId}"
-                            data-variant-id="${variantId}"
-                            data-quantity="1"
-                            data-title="${title}"
-                            data-price="${price}"
-                            data-image="${image}"
-                            data-type="${productType}"
-                        >
-                            Add to Cart
-                        </button>
-                        <a href="/shop/${slug}" class="btn btn-outline-dark">Details</a>
                     </div>
                 </div>
             </article>

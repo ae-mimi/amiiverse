@@ -1,6 +1,5 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-import QuickBuyButton from "./catalog/QuickBuyButton.astro";
 
 interface Props {
     title: string;
@@ -34,21 +33,9 @@ const isDigital = productType === "digital";
 const metaLabel = isDigital ? "Instant delivery" : "Ships from the official shop";
 ---
 
-<article class="card card-product card-plain" data-title={title} data-price={price}>
-    <div class="shopCardBadgeRow">
-        <span class={`shopProductTag ${isDigital ? "isDigital" : "isPhysical"}`}>
-            {isDigital ? "Digital" : "Physical"}
-        </span>
-        {
-            isSoldOut ? (
-                <span class="shopProductTag isMuted">Sold out</span>
-            ) : (
-                <span class="shopProductTag isAccent">Ready to ship</span>
-            )
-        }
-    </div>
+<article class="card card-product card-plain shopProductCard" data-title={title} data-price={price}>
     <div class="card-header">
-        <a href={url} class="d-block">
+        <a href={url} class="d-block shopCardMediaLink">
             {
                 imageUrl ? (
                     <img
@@ -65,8 +52,57 @@ const metaLabel = isDigital ? "Instant delivery" : "Ships from the official shop
                 )
             }
         </a>
+        <div class="shopCardBadgeRow">
+            <span class={`shopProductTag ${isDigital ? "isDigital" : "isPhysical"}`}>
+                {isDigital ? "Digital" : "Physical"}
+            </span>
+            {
+                isSoldOut ? (
+                    <span class="shopProductTag isMuted">Sold out</span>
+                ) : (
+                    <span class="shopProductTag isAccent">Ready to ship</span>
+                )
+            }
+        </div>
+        <button
+            type="button"
+            class="shopCardCartFab"
+            data-quickbuy
+            data-product-id={productId}
+            data-variant-id={variantId}
+            data-quantity="1"
+            data-title={title}
+            data-price={price}
+            data-image={imageUrl}
+            data-type={productType}
+            disabled={isSoldOut}
+            aria-label={isSoldOut ? `${title} is sold out` : `Add ${title} to cart`}
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="20" r="1.25"></circle>
+                <circle cx="18" cy="20" r="1.25"></circle>
+                <path d="M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H7.4"></path>
+            </svg>
+        </button>
+        <div class="shopCardHoverActions">
+            <button
+                type="button"
+                class="shopCardHoverButton isPrimary"
+                data-shop-preview
+                data-slug={url.replace("/shop/", "")}
+                data-title={title}
+                data-price={price}
+                data-image={imageUrl}
+                data-type={productType}
+                data-product-id={productId}
+                data-variant-id={variantId}
+            >
+                See preview
+            </button>
+            <a href={url} class="shopCardHoverButton">View details</a>
+        </div>
     </div>
-    <div class="card-body pb-0">
+    <div class="card-body pb-0 shopCardBody">
         <p class="shopCardMeta">{metaLabel}</p>
         <a href={url} style="text-decoration: none;">
             <h5 class="font-weight-bold shopCardTitle">{title}</h5>
@@ -78,22 +114,6 @@ const metaLabel = isDigital ? "Instant delivery" : "Ships from the official shop
             <span class="shopCardAssistText">
                 {isDigital ? "Download after payment" : "Checkout for delivery estimate"}
             </span>
-        </div>
-
-        <div class="shopCardActions d-flex gap-2 mb-3">
-            <QuickBuyButton
-                productId={productId}
-                variantId={variantId}
-                title={title}
-                price={price}
-                image={imageUrl}
-                productType={productType}
-                quantity={1}
-                disabled={isSoldOut}
-                label={isSoldOut ? "Sold Out" : "Add to Cart"}
-                class="w-100"
-            />
-            <a href={url} class="btn btn-outline-dark">Details</a>
         </div>
     </div>
 </article>

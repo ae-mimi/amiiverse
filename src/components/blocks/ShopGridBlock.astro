@@ -1,5 +1,6 @@
 ---
 import ShopGridControls from "../shop/catalog/ShopGridControls.astro";
+import ShopPreviewModal from "../shop/catalog/ShopPreviewModal.astro";
 import ShopProductGrid from "../shop/catalog/ShopProductGrid.astro";
 import ShopCartButton from "../shop/ShopCartButton.astro";
 
@@ -57,11 +58,14 @@ try {
     </div>
     <ShopGridControls />
     <ShopProductGrid items={initialItems} />
+    <ShopPreviewModal />
 </section>
 
 <script>
     import { initOnAstroPageLoad } from "../../lib/client/init";
     import { initShopGrid } from "../../lib/client/shopGrid";
+    import { initShopPreview } from "../../lib/client/shopPreview";
 
     initOnAstroPageLoad(initShopGrid);
+    initOnAstroPageLoad(initShopPreview);
 </script>
