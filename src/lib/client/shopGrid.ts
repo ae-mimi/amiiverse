@@ -22,10 +22,6 @@ function formatPrice(price: number): string {
     return `₦${price.toLocaleString()}`;
 }
 
-function getTypeBadge(type: string): string {
-    return type === "digital" ? "Digital Asset" : "Physical Product";
-}
-
 function renderCard(item: ShopProduct): string {
     const title = escapeHtml(String(item.title || "Untitled Product"));
     const slug = encodeURIComponent(String(item.slug || ""));
@@ -37,8 +33,12 @@ function renderCard(item: ShopProduct): string {
     const variantId = escapeHtml(String(item.variant_id || item.id || ""));
 
     return `
-        <div class="col-12 col-md-6 col-lg-4 mb-4" data-grid-item data-type="${productType}" data-price="${price}">
-            <div class="card card-product card-plain" data-title="${title}" data-price="${price}">
+        <div class="col-12 col-md-6 col-lg-4 mb-4 shopCatalogCell" data-grid-item data-type="${productType}" data-price="${price}">
+            <article class="card card-product card-plain" data-title="${title}" data-price="${price}">
+                <div class="shopCardBadgeRow">
+                    <span class="shopProductTag ${productType === "digital" ? "isDigital" : "isPhysical"}">${productType === "digital" ? "Digital" : "Physical"}</span>
+                    <span class="shopProductTag isAccent">${productType === "digital" ? "Instant access" : "Ready to ship"}</span>
+                </div>
                 <div class="card-header">
                     <a href="/shop/${slug}" class="d-block">
                         ${
@@ -49,12 +49,13 @@ function renderCard(item: ShopProduct): string {
                     </a>
                 </div>
                 <div class="card-body pb-0">
-                    <p class="text-sm mb-1 text-secondary">${getTypeBadge(productType)}</p>
+                    <p class="shopCardMeta">${productType === "digital" ? "Instant delivery" : "Ships from the official shop"}</p>
                     <a href="/shop/${slug}" style="text-decoration: none;">
-                        <h5 class="font-weight-bold">${title}</h5>
+                        <h5 class="font-weight-bold shopCardTitle">${title}</h5>
                     </a>
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <p class="mb-0 text-sm font-weight-bold">${formatPrice(price)}</p>
+                    <div class="shopCardPriceRow">
+                        <p class="mb-0 text-sm font-weight-bold shopCardPrice">${formatPrice(price)}</p>
+                        <span class="shopCardAssistText">${productType === "digital" ? "Download after payment" : "Checkout for delivery estimate"}</span>
                     </div>
                     <div class="shopCardActions d-flex gap-2 mb-3">
                         <button
@@ -68,12 +69,12 @@ function renderCard(item: ShopProduct): string {
                             data-image="${image}"
                             data-type="${productType}"
                         >
-                            Quick Buy
+                            Add to Cart
                         </button>
-                        <a href="/shop/${slug}" class="btn btn-outline-dark">View</a>
+                        <a href="/shop/${slug}" class="btn btn-outline-dark">Details</a>
                     </div>
                 </div>
-            </div>
+            </article>
         </div>
     `;
 }
@@ -89,13 +90,16 @@ function bindShopGrid(root: HTMLElement): void {
         "[data-shop-sort]",
     ) as HTMLSelectElement | null;
     const chips = root.querySelectorAll("[data-shop-filter]");
+    const viewButtons = root.querySelectorAll("[data-shop-view]");
     const grid = root.querySelector("[data-grid]") as HTMLElement | null;
     const emptyState = root.querySelector("[data-empty]") as HTMLElement | null;
+    const countLabel = root.querySelector("[data-shop-count-label]") as HTMLElement | null;
     if (!grid || !emptyState) return;
 
     let currentFilter = "all";
     let searchQuery = "";
     let currentSort = "newest";
+    let currentView: "grid" | "list" = "grid";
     let searchDebounceTimer: number | null = null;
 
     const setEmptyState = (hasItems: boolean) => {
@@ -107,10 +111,15 @@ function bindShopGrid(root: HTMLElement): void {
         if (!items.length) {
             grid.innerHTML = "";
             setEmptyState(false);
+            if (countLabel) countLabel.textContent = "0 items";
             return;
         }
 
         grid.innerHTML = items.map(renderCard).join("");
+        grid.setAttribute("data-view", currentView);
+        if (countLabel) {
+            countLabel.textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
+        }
         setEmptyState(true);
     };
 
@@ -158,6 +167,18 @@ function bindShopGrid(root: HTMLElement): void {
             loadProducts();
         });
     });
+
+    viewButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            viewButtons.forEach((item) => item.classList.remove("isActive"));
+            button.classList.add("isActive");
+            currentView =
+                ((button as HTMLElement).dataset.shopView as "grid" | "list") || "grid";
+            grid.setAttribute("data-view", currentView);
+        });
+    });
+
+    grid.setAttribute("data-view", currentView);
 }
 
 export function initShopGrid(): void {

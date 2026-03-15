@@ -1,5 +1,8 @@
-<div class="col-12 col-lg-5 bg-gray-100 p-4 p-md-5">
-    <h5 class="font-weight-bold mb-4">Finalize Checkout</h5>
+<section class="cartDrawerSection cartDrawerCheckoutSection">
+    <div class="cartSectionIntro">
+        <h5 class="font-weight-bold mb-4">Checkout details</h5>
+        <p class="cartSectionCopy">Phase 1 keeps checkout lightweight here while we build the full step-by-step flow next.</p>
+    </div>
 
     <form id="checkout-form" class="checkoutForm" autocomplete="on">
         <input type="hidden" id="modal-product-id" name="productId" />
@@ -86,7 +89,15 @@
             class="btn btn-dark btn-lg w-100 mb-3"
             id="checkout-submit"
         >
-            Continue to Payment
+            Secure Checkout
+        </button>
+
+        <button
+            type="button"
+            class="btn btn-outline-dark w-100 mb-3"
+            id="continue-shopping"
+        >
+            Continue Shopping
         </button>
 
         <p class="text-center text-xs text-secondary mb-0">
@@ -94,4 +105,4 @@
             Prices in NGN (₦).
         </p>
     </form>
-</div>
+</section>

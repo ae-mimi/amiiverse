@@ -1,6 +1,7 @@
 ---
 import ShopGridControls from "../shop/catalog/ShopGridControls.astro";
 import ShopProductGrid from "../shop/catalog/ShopProductGrid.astro";
+import ShopCartButton from "../shop/ShopCartButton.astro";
 
 interface ShopProduct {
     id: string;
@@ -12,6 +13,18 @@ interface ShopProduct {
     product_type: "physical" | "digital";
     cover_image_url: string;
 }
+
+interface Props {
+    title?: string;
+    eyebrow?: string;
+    subtitle?: string;
+}
+
+const {
+    title = "Shop",
+    eyebrow = "Official Store",
+    subtitle = "Merch, digital drops, and collectible releases in one storefront.",
+} = Astro.props;
 
 let initialItems: ShopProduct[] = [];
 
@@ -30,7 +43,18 @@ try {
 ---
 
 <section class="shopSection" data-shop-grid-root>
-    <h1 class="shopHeading">Shop</h1>
+    <div class="shopHero">
+        <p class="shopEyebrow">{eyebrow}</p>
+        <div class="shopHeroRow">
+            <div>
+                <h1 class="shopHeading">{title}</h1>
+                {subtitle && <p class="shopSubheading">{subtitle}</p>}
+            </div>
+            <div class="shopHeroMeta">
+                <ShopCartButton />
+            </div>
+        </div>
+    </div>
     <ShopGridControls />
     <ShopProductGrid items={initialItems} />
 </section>

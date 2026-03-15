@@ -1,44 +1,128 @@
-<div class="shopTopBar" style="margin-bottom: 2rem;">
-    <div class="shopSearchWrap">
-        <label class="srOnly" for="shop-search">Search products</label>
-        <input
-            id="shop-search"
-            class="shopSearchInput input-shape-pill"
-            type="search"
-            placeholder="Search"
-            data-shop-search
-        />
-    </div>
+<div class="shopControlShell">
+    <div class="shopTopBar">
+        <div class="shopSearchWrap">
+            <label class="srOnly" for="shop-search">Search products</label>
+            <span class="shopSearchIcon" aria-hidden="true">⌕</span>
+            <input
+                id="shop-search"
+                class="shopSearchInput input-shape-pill"
+                type="search"
+                placeholder="Search merch, digital drops, and releases"
+                data-shop-search
+            />
+        </div>
 
-    <div class="shopSortWrap">
-        <label class="srOnly" for="shop-sort">Sort products</label>
-        <div class="shopSortControl">
-            <select
-                id="shop-sort"
-                class="shopSortSelect input-shape-pill"
-                data-shop-sort
-            >
-                <option value="newest">Newest</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-            </select>
-            <span class="shopSortChevron" aria-hidden="true"></span>
+        <div class="shopTopActions">
+            <div class="shopViewToggle" aria-label="Catalog view">
+                <button type="button" class="shopViewButton isActive" data-shop-view="grid">
+                    Grid
+                </button>
+                <button type="button" class="shopViewButton" data-shop-view="list">
+                    List
+                </button>
+            </div>
+
+            <div class="shopSortWrap">
+                <label class="srOnly" for="shop-sort">Sort products</label>
+                <div class="shopSortControl">
+                    <select
+                        id="shop-sort"
+                        class="shopSortSelect input-shape-pill"
+                        data-shop-sort
+                    >
+                        <option value="newest">Newest arrivals</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="price_desc">Price: High to Low</option>
+                    </select>
+                    <span class="shopSortChevron" aria-hidden="true"></span>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<div
-    class="shopChipsRow"
-    role="tablist"
-    aria-label="Shop filters"
-    style="margin-bottom: 2rem;"
->
-    <button class="chip isActive" data-shop-filter="all">All</button>
-    <button class="chip" data-shop-filter="physical">Physical</button>
-    <button class="chip" data-shop-filter="digital">Digital</button>
+    <div class="shopChipsRow" role="tablist" aria-label="Shop filters">
+        <button class="chip isActive" data-shop-filter="all">Everything</button>
+        <button class="chip" data-shop-filter="physical">Physical</button>
+        <button class="chip" data-shop-filter="digital">Digital</button>
+        <span class="shopHintCopy">Quick filters for Phase 1. Deeper merch categories come next.</span>
+    </div>
 </div>
 
 <style>
+    .shopControlShell {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 1px solid color-mix(in srgb, var(--color-primary) 12%, transparent);
+        border-radius: 1.5rem;
+        background:
+            linear-gradient(
+                180deg,
+                color-mix(in srgb, var(--color-bg) 94%, var(--color-secondary) 6%),
+                color-mix(in srgb, var(--color-bg) 90%, transparent)
+            );
+        box-shadow: 0 24px 60px color-mix(in srgb, var(--color-primary) 10%, transparent);
+        backdrop-filter: blur(18px);
+    }
+
+    .shopTopBar {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .shopSearchWrap {
+        position: relative;
+        flex: 1 1 340px;
+    }
+
+    .shopSearchIcon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        opacity: 0.55;
+    }
+
+    .shopSearchWrap .shopSearchInput {
+        padding-left: 2.7rem;
+    }
+
+    .shopTopActions {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .shopViewToggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg));
+    }
+
+    .shopViewButton {
+        border: none;
+        background: transparent;
+        color: var(--color-primary);
+        border-radius: 999px;
+        padding: 0.65rem 0.95rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .shopViewButton.isActive {
+        background: var(--color-primary);
+        color: var(--color-button-text);
+    }
+
     .shopSortControl {
         position: relative;
     }
@@ -61,5 +145,28 @@
         border-bottom: 2px solid var(--color-primary);
         transform: translateY(-65%) rotate(45deg);
         pointer-events: none;
+    }
+
+    .shopChipsRow {
+        margin-bottom: 0;
+        align-items: center;
+    }
+
+    .shopHintCopy {
+        margin-left: auto;
+        font-size: 0.82rem;
+        color: var(--color-text-muted);
+    }
+
+    @media (max-width: 720px) {
+        .shopControlShell {
+            padding: 0.9rem;
+            border-radius: 1.1rem;
+        }
+
+        .shopHintCopy {
+            width: 100%;
+            margin-left: 0;
+        }
     }
 </style>

@@ -568,6 +568,8 @@ export default defineType({
           description: 'Shows merch and products in a grid.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Shop' }),
+            defineField({ name: 'eyebrow', type: 'string', title: 'Eyebrow', initialValue: 'Official Store' }),
+            defineField({ name: 'subtitle', type: 'text', title: 'Subtitle', rows: 2, initialValue: 'Merch, digital drops, and collectible releases in one storefront.' }),
             defineField({ name: 'limit', type: 'number', title: 'Max Items', initialValue: 12 }),
           ],
           preview: {

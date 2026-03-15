@@ -18,6 +18,7 @@ const { title, description = "Welcome to amii." } = Astro.props;
 
 const settings = await fetchGlobalSettings();
 const theme = await getActiveTheme();
+const isShopRoute = Astro.url.pathname.startsWith("/shop");
 
 const radiusMap = {
     small: "4px",
@@ -154,13 +155,17 @@ const bodyFontStack = toCssFontStack(theme.bodyFont, `"Archivo", sans-serif`);
             <slot />
         </main>
         <SiteFooter />
-        <CartModal />
-        <script>
-            import { initOnAstroPageLoad } from "../lib/client/init";
-            import { initQuickBuyInteractions } from "../lib/client/quickBuy";
+        {isShopRoute && <CartModal />}
+        {
+            isShopRoute && (
+                <script>
+                    import { initOnAstroPageLoad } from "../lib/client/init";
+                    import { initQuickBuyInteractions } from "../lib/client/quickBuy";
 
-            initOnAstroPageLoad(initQuickBuyInteractions);
-        </script>
+                    initOnAstroPageLoad(initQuickBuyInteractions);
+                </script>
+            )
+        }
     </body>
 </html>
 

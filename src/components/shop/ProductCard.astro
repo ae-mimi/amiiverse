@@ -31,9 +31,22 @@ const imageUrl = urlFor(image, (builder) =>
 
 const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
 const isDigital = productType === "digital";
+const metaLabel = isDigital ? "Instant delivery" : "Ships from the official shop";
 ---
 
-<div class="card card-product card-plain" data-title={title} data-price={price}>
+<article class="card card-product card-plain" data-title={title} data-price={price}>
+    <div class="shopCardBadgeRow">
+        <span class={`shopProductTag ${isDigital ? "isDigital" : "isPhysical"}`}>
+            {isDigital ? "Digital" : "Physical"}
+        </span>
+        {
+            isSoldOut ? (
+                <span class="shopProductTag isMuted">Sold out</span>
+            ) : (
+                <span class="shopProductTag isAccent">Ready to ship</span>
+            )
+        }
+    </div>
     <div class="card-header">
         <a href={url} class="d-block">
             {
@@ -54,16 +67,17 @@ const isDigital = productType === "digital";
         </a>
     </div>
     <div class="card-body pb-0">
-        <p class="text-sm mb-1 text-secondary">
-            {isDigital ? "Digital Asset" : "Physical Product"}
-        </p>
+        <p class="shopCardMeta">{metaLabel}</p>
         <a href={url} style="text-decoration: none;">
-            <h5 class="font-weight-bold">{title}</h5>
+            <h5 class="font-weight-bold shopCardTitle">{title}</h5>
         </a>
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <p class="mb-0 text-sm font-weight-bold">
+        <div class="shopCardPriceRow">
+            <p class="mb-0 text-sm font-weight-bold shopCardPrice">
                 ₦{price.toLocaleString()}
             </p>
+            <span class="shopCardAssistText">
+                {isDigital ? "Download after payment" : "Checkout for delivery estimate"}
+            </span>
         </div>
 
         <div class="shopCardActions d-flex gap-2 mb-3">
@@ -76,10 +90,10 @@ const isDigital = productType === "digital";
                 productType={productType}
                 quantity={1}
                 disabled={isSoldOut}
-                label={isSoldOut ? "Sold Out" : "Quick Buy"}
+                label={isSoldOut ? "Sold Out" : "Add to Cart"}
                 class="w-100"
             />
-            <a href={url} class="btn btn-outline-dark">View</a>
+            <a href={url} class="btn btn-outline-dark">Details</a>
         </div>
     </div>
-</div>
+</article>

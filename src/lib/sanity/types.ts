@@ -305,7 +305,7 @@ export interface NewsFeedSection extends SectionBase { _type: "news_feed"; title
 export interface TourDatesSection extends SectionBase { _type: "tour_dates"; title?: string; upcomingOnly?: boolean; showFilters?: boolean; }
 export interface MusicGridSection extends SectionBase { _type: "music_grid"; title?: string; }
 export interface MembersGridSection extends SectionBase { _type: "members_grid"; title?: string; members?: Member[]; }
-export interface ShopGridSection extends SectionBase { _type: "shop_grid"; title?: string; limit?: number; }
+export interface ShopGridSection extends SectionBase { _type: "shop_grid"; title?: string; eyebrow?: string; subtitle?: string; limit?: number; }
 export interface PressGridSection extends SectionBase { _type: "press_grid"; title?: string; }
 export interface PressQuotesSection extends SectionBase { _type: "press_quotes"; title?: string; items?: PressMention[]; }
 export interface DownloadsCenterSection extends SectionBase { _type: "downloads_center"; title?: string; assets?: DownloadableAsset[]; }

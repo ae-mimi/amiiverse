@@ -14,6 +14,7 @@ class CheckoutManager {
     form: HTMLFormElement;
     submitBtn: HTMLButtonElement;
     cartItemsWrap: HTMLElement;
+    drawerBody: HTMLElement;
     cart: ClientCart | null = null;
 
     constructor(modal: HTMLElement) {
@@ -21,6 +22,7 @@ class CheckoutManager {
         this.form = modal.querySelector("#checkout-form") as HTMLFormElement;
         this.submitBtn = modal.querySelector("#checkout-submit") as HTMLButtonElement;
         this.cartItemsWrap = modal.querySelector("#modal-cart-items") as HTMLElement;
+        this.drawerBody = modal.querySelector(".cartDrawerBody") as HTMLElement;
     }
 
     async init() {
@@ -36,6 +38,12 @@ class CheckoutManager {
         });
         this.modal
             .querySelector("#close-modal")
+            ?.addEventListener("click", () => this.close());
+        this.modal
+            .querySelector("#close-modal-scrim")
+            ?.addEventListener("click", () => this.close());
+        this.modal
+            .querySelector("#continue-shopping")
             ?.addEventListener("click", () => this.close());
         this.modal.addEventListener("click", (event) => {
             if (event.target === this.modal) this.close();
@@ -113,29 +121,33 @@ class CheckoutManager {
     renderCart(cart: ClientCart | null) {
         this.cart = cart;
         const items = this.getCartItems(cart);
+        const cartCount = items.reduce(
+            (sum, item) => sum + Math.max(0, Number(item.quantity || 0)),
+            0,
+        );
 
         if (items.length === 0) {
             this.cartItemsWrap.innerHTML =
-                '<p class="text-sm text-secondary mb-0">Your cart is empty.</p>';
+                '<div class="cartEmptyState"><p class="text-sm text-secondary mb-1">Your cart is empty.</p><p class="text-xs text-secondary mb-0">Add something from the shop grid and it will show up here instantly.</p></div>';
         } else {
             this.cartItemsWrap.innerHTML = items
                 .map((item) => {
                     const image = this.getLineItemImage(item);
                     const qty = Number(item.quantity || 1);
                     return `
-                        <div class="d-flex gap-4 align-items-center mb-4" data-line-item-id="${item.id}">
+                        <div class="cartLineItem" data-line-item-id="${item.id}">
                             <img src="${image}" alt="${this.getLineItemTitle(item)}" class="productCartThumb shadow-xs" />
                             <div class="flex-grow-1">
                                 <h6 class="font-weight-bold mb-1">${this.getLineItemTitle(item)}</h6>
                                 <p class="text-xs text-secondary mb-1">Type: ${this.getLineItemType(item)}</p>
-                                <div class="d-flex align-items-center gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-dark py-1 px-2 mb-0" data-cart-dec="${item.id}">-</button>
-                                    <span class="text-xs text-secondary">Qty: ${qty}</span>
-                                    <button type="button" class="btn btn-sm btn-outline-dark py-1 px-2 mb-0" data-cart-inc="${item.id}">+</button>
-                                    <button type="button" class="btn btn-sm btn-link text-danger py-0 px-1 mb-0" data-cart-remove="${item.id}">Remove</button>
+                                <div class="cartQtyRow">
+                                    <button type="button" class="cartQtyButton" data-cart-dec="${item.id}">-</button>
+                                    <span class="cartQtyValue">Qty ${qty}</span>
+                                    <button type="button" class="cartQtyButton" data-cart-inc="${item.id}">+</button>
+                                    <button type="button" class="cartRemoveButton" data-cart-remove="${item.id}">Remove</button>
                                 </div>
                             </div>
-                            <div class="text-end">
+                            <div class="text-end cartLineTotal">
                                 <p class="font-weight-bold mb-0">${this.formatNgn(this.getLineItemTotal(item))}</p>
                             </div>
                         </div>
@@ -150,6 +162,8 @@ class CheckoutManager {
             "Calculated at payment";
         (this.modal.querySelector("#modal-total") as HTMLElement).innerText =
             this.formatNgn(this.getTotal(cart));
+        (this.modal.querySelector("#modal-cart-count") as HTMLElement).innerText =
+            `(${cartCount})`;
 
         const firstItem = items[0];
         (this.modal.querySelector("#modal-product-id") as HTMLInputElement).value =
@@ -217,9 +231,7 @@ class CheckoutManager {
         this.modal.classList.add("isOpen");
         this.modal.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
-        window.setTimeout(() => {
-            (this.modal.querySelector("#email") as HTMLElement | null)?.focus();
-        }, 100);
+        if (this.drawerBody) this.drawerBody.scrollTop = 0;
     }
 
     close() {
@@ -231,7 +243,7 @@ class CheckoutManager {
 
     resetState() {
         this.submitBtn.disabled = false;
-        this.submitBtn.innerText = "Continue to Payment";
+        this.submitBtn.innerText = "Secure Checkout";
         (this.modal.querySelector("#modal-error") as HTMLElement).hidden = true;
         (this.modal.querySelector("#email") as HTMLInputElement).value = "";
         (this.modal.querySelector("#phone") as HTMLInputElement).value = "";
@@ -313,7 +325,7 @@ class CheckoutManager {
                 "Payment failed. Please check your connection and try again.";
             errorEl.hidden = false;
             this.submitBtn.disabled = false;
-            this.submitBtn.innerText = "Continue to Payment";
+            this.submitBtn.innerText = "Secure Checkout";
         }
     }
 }

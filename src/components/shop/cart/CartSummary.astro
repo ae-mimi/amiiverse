@@ -1,4 +1,16 @@
 <div class="order-summary mt-4">
+    <div class="cartPromoRow">
+        <input
+            type="text"
+            class="formControl input-shape-rect cartPromoInput"
+            placeholder="Promo code"
+            disabled
+        />
+        <button type="button" class="btn btn-outline-dark cartPromoButton" disabled>
+            Apply
+        </button>
+    </div>
+    <p class="cartPromoHint">Promo codes and shipping methods will expand in the dedicated checkout flow.</p>
     <div class="orderSummaryRow">
         <span class="text-secondary">Subtotal</span>
         <span id="modal-subtotal" class="font-weight-bold"></span>
@@ -11,8 +23,7 @@
         <span class="font-weight-bold">Total</span>
         <span
             id="modal-total"
-            class="font-weight-bold text-lg"
-            style="color: var(--color-accent);"
+            class="font-weight-bold text-lg cartTotalValue"
         ></span>
     </div>
 </div>

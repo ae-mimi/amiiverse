@@ -21,6 +21,7 @@ interface ProductVariant {
     price_ngn: number;
     price_minor: number;
     currency: "NGN" | "USD" | "GBP";
+    options?: Record<string, string>;
     stock?: { available: number; is_in_stock: boolean };
 }
 
@@ -57,6 +58,7 @@ const productType = product?.product_type ?? "physical";
 const productId = product?.id ?? "";
 const variantId = firstVariant?.id ?? "";
 const stock = Number(firstVariant?.stock?.available ?? 0);
+const totalVariants = variants.filter((variant) => variant?.id).length;
 
 // Map Sanity content to Accordion Data
 const accordionData: Record<string, string> = {};
@@ -77,9 +79,8 @@ accordionData["Refund Policy"] =
 >
    {
       hasProduct ? (
-         <main class="productPage py-5">
-            <!-- Breadcrumbs -->
-            <nav class="productBreadcrumb container mb-4" aria-label="Breadcrumb">
+         <main class="productPage pdpShell">
+            <nav class="productBreadcrumb pdpContainer mb-4" aria-label="Breadcrumb">
                <a href="/shop" class="text-secondary text-sm">Shop</a>
                <span class="mx-2 opacity-5">/</span>
                <a
@@ -91,34 +92,28 @@ accordionData["Refund Policy"] =
                <span class="current text-sm font-weight-bold">{product!.title}</span>
             </nav>
 
-            <div class="container">
-               <div class="row g-5">
-                  <!-- LEFT: Gallery -->
-                  <div class="col-12 col-lg-7">
+            <div class="pdpContainer">
+               <section class="pdpHero">
+                  <div class="pdpGalleryColumn">
                      <ProductGallery images={allImages} title={product!.title} />
                   </div>
 
-                  <!-- RIGHT: Buy Panel + Details -->
-                  <div class="col-12 col-lg-5">
+                  <div class="pdpInfoColumn">
                      <ProductInfo
                         title={product!.title}
+                        description={product!.description}
                         price={price}
                         productType={productType}
                         productId={productId}
                         variantId={variantId}
                         stock={stock}
+                        variants={variants}
+                        totalVariants={totalVariants}
                         image={allImages[0] || ""}
                         accordionData={accordionData}
                     />
-                     {
-                        productType === "digital" && (
-                           <p class="digital-note mt-3">
-                              Instant download after payment confirmation.
-                           </p>
-                        )
-                     }
                   </div>
-               </div>
+               </section>
             </div>
          </main>
       ) : (
@@ -132,8 +127,24 @@ accordionData["Refund Policy"] =
 </BaseLayout>
 
 <style>
+   .pdpShell {
+      padding: 2rem 0 5rem;
+   }
+   .pdpContainer {
+      width: min(1240px, calc(100% - 2rem));
+      margin: 0 auto;
+   }
    .productBreadcrumb a {
       text-decoration: none;
+   }
+   .productBreadcrumb {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      color: var(--color-text-muted);
+   }
+   .productBreadcrumb .current {
+      color: var(--color-primary);
    }
    .productBreadcrumb .uppercase {
       text-transform: uppercase;
@@ -141,6 +152,25 @@ accordionData["Refund Policy"] =
    .productPage {
       min-height: 80vh;
       background-color: var(--color-bg);
+   }
+   .pdpHero {
+      display: grid;
+      gap: 2rem;
+      align-items: start;
+   }
+   .pdpGalleryColumn,
+   .pdpInfoColumn {
+      min-width: 0;
+   }
+   @media (min-width: 1024px) {
+      .pdpHero {
+         grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+         gap: 2.25rem;
+      }
+      .pdpInfoColumn {
+         position: sticky;
+         top: 1.5rem;
+      }
    }
    .opacity-5 {
       opacity: 0.5;

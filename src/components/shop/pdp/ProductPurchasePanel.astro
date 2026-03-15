@@ -1,45 +1,129 @@
 ---
 import QuickBuyButton from "../catalog/QuickBuyButton.astro";
 
+interface VariantOption {
+    id: string;
+    title?: string;
+    price_ngn: number;
+    stock?: { available: number; is_in_stock: boolean };
+}
+
 interface Props {
     title: string;
+    description?: string;
     price: number;
     productType: string;
     image: string;
     productId: string;
     variantId?: string;
     stock?: number;
+    variants?: VariantOption[];
+    totalVariants?: number;
 }
 
 const {
     title,
+    description = "",
     price,
     productType,
     image,
     productId,
     variantId = "",
     stock,
+    variants = [],
+    totalVariants = 0,
 } = Astro.props;
 
 const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
+const normalizedVariants = variants.filter((variant) => variant?.id);
+const activeVariantId =
+    normalizedVariants.find((variant) => variant.id === variantId)?.id ??
+    normalizedVariants[0]?.id ??
+    "";
+const variantCards = normalizedVariants.map((variant, index) => {
+    const available = Number(variant.stock?.available ?? 0);
+    const soldOut = available <= 0;
+
+    return {
+        id: variant.id,
+        title: variant.title || `Option ${index + 1}`,
+        price: Number(variant.price_ngn || 0),
+        available,
+        soldOut,
+        isActive: variant.id === activeVariantId,
+    };
+});
 ---
 
-<div class="product-purchase-panel">
-    <div class="d-flex align-items-center mb-2">
-        <span
-            class={`badge ${productType === "digital" ? "bg-info" : "bg-primary"} me-2`}
-        >
-            {productType.toUpperCase()}
+<section class="product-purchase-panel" data-pdp-purchase-panel>
+    <div class="pdpBadgeRow">
+        <span class={`pdpTypeBadge ${productType === "digital" ? "isDigital" : "isPhysical"}`}>
+            {productType === "digital" ? "Digital release" : "Physical merch"}
         </span>
-        <span class="text-secondary text-sm">
-            {isSoldOut ? "Out of Stock" : "In Stock"}
+        <span class={`pdpStockBadge ${isSoldOut ? "isSoldOut" : "isInStock"}`}>
+            {isSoldOut ? "Sold out" : "In stock"}
         </span>
     </div>
 
-    <h2 class="mb-3 font-weight-bold text-4xl">{title}</h2>
-    <h4 class="mb-4 font-weight-bold text-2xl">₦{price.toLocaleString()}</h4>
+    <h1 class="pdpProductTitle">{title}</h1>
+    {
+        description && (
+            <p class="pdpProductDescription">{description}</p>
+        )
+    }
 
-    <div class="d-flex align-items-center mb-5 gap-3">
+    <div class="pdpPriceBlock">
+        <p class="pdpPriceLabel">Price</p>
+        <div class="pdpPriceRow">
+            <span class="pdpPriceValue" data-pdp-price>₦{price.toLocaleString()}</span>
+            <span class="pdpPriceCaption">
+                {productType === "digital"
+                    ? "Delivered after successful payment"
+                    : "Shipping calculated at checkout"}
+            </span>
+        </div>
+    </div>
+
+    {
+        normalizedVariants.length > 1 && (
+            <div class="pdpVariantBlock">
+                <div class="pdpFieldHeader">
+                    <span class="pdpFieldLabel">Choose option</span>
+                    <span class="pdpFieldHint">{totalVariants} available</span>
+                </div>
+                <div class="pdpVariantGrid">
+                    {
+                        variantCards.map((variant) => (
+                            <button
+                                type="button"
+                                class={`pdpVariantButton ${variant.isActive ? "isActive" : ""} ${variant.soldOut ? "isDisabled" : ""}`}
+                                data-pdp-variant
+                                data-variant-id={variant.id}
+                                data-price={variant.price}
+                                data-stock={variant.available}
+                                data-disabled={variant.soldOut ? "true" : "false"}
+                            >
+                                <span>{variant.title}</span>
+                                <small>
+                                    {variant.soldOut
+                                        ? "Sold out"
+                                        : `₦${variant.price.toLocaleString()}`}
+                                </small>
+                            </button>
+                        ))
+                    }
+                </div>
+            </div>
+        )
+    }
+
+    <div class="pdpPurchaseControls">
+        <div class="pdpQuantityControl" aria-label="Quantity picker">
+            <button type="button" data-pdp-qty-dec>-</button>
+            <span data-pdp-qty-value>1</span>
+            <button type="button" data-pdp-qty-inc>+</button>
+        </div>
+
         <QuickBuyButton
             productId={productId}
             variantId={variantId}
@@ -49,8 +133,322 @@ const isSoldOut = stock !== undefined && stock !== null && stock <= 0;
             productType={productType}
             quantity={1}
             disabled={isSoldOut}
-            label={isSoldOut ? "Sold Out" : "Buy Now"}
-            class="btn-lg w-100"
+            label={isSoldOut ? "Sold Out" : "Add to Cart"}
+            class="btn-lg w-100 pdpPrimaryCta"
         />
     </div>
-</div>
+
+    <div class="pdpTrustList">
+        <div class="pdpTrustItem">
+            <strong>Secure checkout</strong>
+            <span>Protected payment flow with order confirmation after purchase.</span>
+        </div>
+        <div class="pdpTrustItem">
+            <strong>{productType === "digital" ? "Instant access" : "Shipping updates"}</strong>
+            <span>
+                {productType === "digital"
+                    ? "Downloadable items are delivered after payment verification."
+                    : "Track your order and delivery progress after checkout."}
+            </span>
+        </div>
+    </div>
+</section>
+
+<style>
+    .product-purchase-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1.4rem;
+        border-radius: 1.75rem;
+        border: 1px solid color-mix(in srgb, var(--color-primary) 12%, transparent);
+        background:
+            linear-gradient(
+                180deg,
+                color-mix(in srgb, var(--color-bg) 97%, var(--color-secondary) 3%),
+                color-mix(in srgb, var(--color-bg) 92%, transparent)
+            );
+        box-shadow: 0 22px 52px color-mix(in srgb, var(--color-primary) 10%, transparent);
+    }
+
+    .pdpBadgeRow,
+    .pdpFieldHeader,
+    .pdpPriceRow,
+    .pdpPurchaseControls {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .pdpBadgeRow {
+        flex-wrap: wrap;
+    }
+
+    .pdpTypeBadge,
+    .pdpStockBadge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 0.45rem 0.8rem;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .pdpTypeBadge.isDigital {
+        background: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+        color: color-mix(in srgb, var(--color-primary) 80%, var(--color-secondary) 20%);
+    }
+
+    .pdpTypeBadge.isPhysical {
+        background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        color: var(--color-primary);
+    }
+
+    .pdpStockBadge.isInStock {
+        background: color-mix(in srgb, var(--color-secondary) 16%, transparent);
+        color: var(--color-primary);
+    }
+
+    .pdpStockBadge.isSoldOut {
+        background: color-mix(in srgb, var(--color-text-muted) 14%, transparent);
+        color: var(--color-text-muted);
+    }
+
+    .pdpProductTitle {
+        margin: 0;
+        font-size: clamp(2.3rem, 5vw, 4.2rem);
+        line-height: 0.92;
+        letter-spacing: -0.03em;
+    }
+
+    .pdpProductDescription {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--color-text-muted);
+    }
+
+    .pdpPriceBlock,
+    .pdpVariantBlock {
+        padding-top: 1rem;
+        border-top: 1px solid color-mix(in srgb, var(--color-primary) 10%, transparent);
+    }
+
+    .pdpPriceLabel,
+    .pdpFieldLabel {
+        margin: 0;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+    }
+
+    .pdpFieldHint,
+    .pdpPriceCaption {
+        font-size: 0.82rem;
+        line-height: 1.4;
+        color: var(--color-text-muted);
+    }
+
+    .pdpPriceValue {
+        font-size: clamp(1.5rem, 3vw, 2.1rem);
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    .pdpPriceRow {
+        align-items: end;
+    }
+
+    .pdpVariantGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.85rem;
+    }
+
+    .pdpVariantButton {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+        border: 1px solid color-mix(in srgb, var(--color-primary) 14%, transparent);
+        border-radius: 1rem;
+        background: color-mix(in srgb, var(--color-bg) 98%, var(--color-secondary) 2%);
+        color: var(--color-primary);
+        padding: 0.85rem 0.95rem;
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        text-align: left;
+    }
+
+    .pdpVariantButton:hover {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    }
+
+    .pdpVariantButton.isActive {
+        border-color: var(--color-primary);
+        background: color-mix(in srgb, var(--color-secondary) 10%, var(--color-bg) 90%);
+        box-shadow: 0 14px 30px color-mix(in srgb, var(--color-primary) 10%, transparent);
+    }
+
+    .pdpVariantButton.isDisabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    .pdpVariantButton small {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+    }
+
+    .pdpPurchaseControls {
+        align-items: stretch;
+    }
+
+    .pdpQuantityControl {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--color-primary) 14%, transparent);
+        overflow: hidden;
+        min-width: 132px;
+    }
+
+    .pdpQuantityControl button,
+    .pdpQuantityControl span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        height: 52px;
+    }
+
+    .pdpQuantityControl button {
+        border: none;
+        background: transparent;
+        color: var(--color-primary);
+        cursor: pointer;
+        font-size: 1.1rem;
+    }
+
+    .pdpQuantityControl button:hover {
+        background: color-mix(in srgb, var(--color-primary) 7%, transparent);
+    }
+
+    .pdpQuantityControl span {
+        font-weight: 700;
+    }
+
+    .pdpPrimaryCta {
+        flex: 1;
+    }
+
+    .pdpTrustList {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .pdpTrustItem {
+        display: grid;
+        gap: 0.2rem;
+        padding: 0.95rem 1rem;
+        border-radius: 1rem;
+        background: color-mix(in srgb, var(--color-bg) 96%, var(--color-secondary) 4%);
+        border: 1px solid color-mix(in srgb, var(--color-primary) 8%, transparent);
+    }
+
+    .pdpTrustItem strong {
+        font-size: 0.92rem;
+        color: var(--color-primary);
+    }
+
+    .pdpTrustItem span {
+        font-size: 0.82rem;
+        line-height: 1.55;
+        color: var(--color-text-muted);
+    }
+
+    @media (max-width: 720px) {
+        .product-purchase-panel {
+            padding: 1.1rem;
+        }
+
+        .pdpPriceRow,
+        .pdpPurchaseControls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .pdpQuantityControl {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+</style>
+
+<script>
+    const panel = document.querySelector("[data-pdp-purchase-panel]") as HTMLElement | null;
+
+    if (panel) {
+        const variantButtons = Array.from(
+            panel.querySelectorAll("[data-pdp-variant]"),
+        ) as HTMLElement[];
+        const qtyValue = panel.querySelector("[data-pdp-qty-value]") as HTMLElement | null;
+        const priceEl = panel.querySelector("[data-pdp-price]") as HTMLElement | null;
+        const quickBuyButton = panel.querySelector("[data-quickbuy]") as HTMLButtonElement | null;
+        const stockBadge = panel.querySelector(".pdpStockBadge") as HTMLElement | null;
+        let quantity = 1;
+
+        const updateQuantity = (next: number) => {
+            quantity = Math.max(1, next);
+            if (qtyValue) qtyValue.textContent = String(quantity);
+            if (quickBuyButton) quickBuyButton.dataset.quantity = String(quantity);
+        };
+
+        panel.querySelector("[data-pdp-qty-dec]")?.addEventListener("click", () => {
+            updateQuantity(quantity - 1);
+        });
+
+        panel.querySelector("[data-pdp-qty-inc]")?.addEventListener("click", () => {
+            updateQuantity(quantity + 1);
+        });
+
+        variantButtons.forEach((button) => {
+            const isDisabled = button.dataset.disabled === "true";
+
+            button.addEventListener("click", () => {
+                if (isDisabled) return;
+
+                variantButtons.forEach((item) => item.classList.remove("isActive"));
+                button.classList.add("isActive");
+
+                const nextVariantId = button.dataset.variantId || "";
+                const nextPrice = Number(button.dataset.price || "0");
+                const nextStock = Number(button.dataset.stock || "0");
+
+                if (quickBuyButton) {
+                    quickBuyButton.dataset.variantId = nextVariantId;
+                    quickBuyButton.dataset.price = String(nextPrice);
+                    quickBuyButton.disabled = nextStock <= 0;
+                    quickBuyButton.textContent = nextStock <= 0 ? "Sold Out" : "Add to Cart";
+                }
+
+                if (priceEl) {
+                    priceEl.textContent = `₦${nextPrice.toLocaleString()}`;
+                }
+
+                if (stockBadge) {
+                    stockBadge.textContent = nextStock <= 0 ? "Sold out" : "In stock";
+                    stockBadge.classList.toggle("isSoldOut", nextStock <= 0);
+                    stockBadge.classList.toggle("isInStock", nextStock > 0);
+                }
+            });
+        });
+    }
+</script>

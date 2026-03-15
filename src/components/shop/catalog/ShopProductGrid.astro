@@ -21,11 +21,11 @@ const { items } = Astro.props;
 
 {
     items.length > 0 ? (
-        <div class="row" data-grid>
+        <div class="row shopCatalogGrid" data-grid>
             {
                 items.map((item) => (
                     <div
-                        class="col-12 col-md-6 col-lg-4 mb-4"
+                        class="col-12 col-md-6 col-lg-4 mb-4 shopCatalogCell"
                         data-grid-item
                         data-type={item.product_type}
                         data-price={item.price_ngn}
@@ -44,7 +44,7 @@ const { items } = Astro.props;
             }
         </div>
     ) : (
-        <div class="row" data-grid></div>
+        <div class="row shopCatalogGrid" data-grid></div>
     )
 }
 
