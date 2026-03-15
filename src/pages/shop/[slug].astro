@@ -10,8 +10,12 @@ interface ShopProduct {
     slug: string;
     title: string;
     description: string;
+    short_description?: string;
+    long_description_plain?: string;
+    long_description_html?: string;
     product_type: "physical" | "digital";
     cover_image_url: string;
+    gallery_images?: string[];
     is_active: number;
 }
 
@@ -51,7 +55,12 @@ if (slug) {
 }
 
 const hasProduct = Boolean(product);
-const allImages = product?.cover_image_url ? [product.cover_image_url] : [];
+const allImages =
+    Array.isArray(product?.gallery_images) && product?.gallery_images.length > 0
+        ? product.gallery_images
+        : product?.cover_image_url
+            ? [product.cover_image_url]
+            : [];
 const firstVariant = variants.find((variant) => variant?.id) ?? null;
 const price = Number(firstVariant?.price_ngn ?? 0);
 const productType = product?.product_type ?? "physical";
@@ -64,18 +73,21 @@ const totalVariants = variants.filter((variant) => variant?.id).length;
 const accordionData: Record<string, string> = {};
 
 if (product?.description) {
-    accordionData["Product Description"] = String(product.description);
+    accordionData["Product Description"] = String(
+        product.long_description_html ||
+            (product.long_description_plain ? `<p>${product.long_description_plain}</p>` : ""),
+    );
 }
 
 accordionData["Shipping & Delivery"] =
-    "Delivery takes 2-5 working days within Nigeria. International shipping varies by location.";
+    "<p>Delivery takes 2-5 working days within Nigeria. International shipping varies by location.</p>";
 accordionData["Refund Policy"] =
-    "Items can be returned within 7 days of delivery if they are in original condition. Digital assets are non-refundable.";
+    "<p>Items can be returned within 7 days of delivery if they are in original condition. Digital assets are non-refundable.</p>";
 ---
 
 <BaseLayout
    title={hasProduct ? product!.title : "Shop Product"}
-   description={String(product?.description || "Shop item")}
+   description={String(product?.short_description || product?.description || "Shop item")}
 >
    {
       hasProduct ? (
@@ -101,7 +113,7 @@ accordionData["Refund Policy"] =
                   <div class="pdpInfoColumn">
                      <ProductInfo
                         title={product!.title}
-                        description={product!.description}
+                        shortDescription={product!.short_description || product!.description}
                         price={price}
                         productType={productType}
                         productId={productId}

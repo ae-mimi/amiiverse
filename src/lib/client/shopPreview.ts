@@ -21,8 +21,10 @@ interface ProductResponse {
         slug: string;
         title: string;
         description: string;
+        short_description?: string;
         product_type: "physical" | "digital";
         cover_image_url: string;
+        gallery_images?: string[];
     };
     variants?: ProductVariant[];
 }
@@ -67,7 +69,7 @@ export function initShopPreview(): void {
         if (titleEl) titleEl.textContent = fallbackTitle;
         if (typeEl) typeEl.textContent = fallbackType;
         if (priceEl) priceEl.textContent = formatPrice(fallbackPrice);
-        if (descriptionEl) descriptionEl.textContent = "Loading preview...";
+        if (descriptionEl) descriptionEl.textContent = "";
         if (linkEl) linkEl.href = detailUrl;
         if (imageEl) {
             imageEl.src = fallbackImage;
@@ -93,10 +95,12 @@ export function initShopPreview(): void {
             if (!product) return;
 
             const liveTitle = product.title || fallbackTitle;
-            const liveImage = product.cover_image_url || fallbackImage;
+            const liveImage = product.gallery_images?.[0] || product.cover_image_url || fallbackImage;
             const liveType = product.product_type === "digital" ? "Digital release" : "Physical merch";
             const livePrice = Number(firstVariant?.price_ngn || fallbackPrice);
-            const liveDescription = String(product.description || "").trim();
+            const liveDescription = String(
+                product.short_description || product.description || "",
+            ).trim();
 
             if (titleEl) titleEl.textContent = liveTitle;
             if (typeEl) typeEl.textContent = liveType;

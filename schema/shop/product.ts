@@ -25,7 +25,7 @@ export default defineType({
         }),
         defineField({
             name: 'description',
-            title: 'Description',
+            title: 'Long Description',
             type: 'array',
             of: [{ type: 'block' }],
         }),
@@ -79,7 +79,8 @@ export default defineType({
             name: 'shortDescription',
             title: 'Short Description',
             type: 'string',
-            validation: (Rule) => Rule.max(80).warning('Keep it short for grid view.'),
+            description: 'Used for the quick preview modal and the short intro on the product page.',
+            validation: (Rule) => Rule.max(220).warning('Keep it concise for preview surfaces.'),
         }),
         defineField({
             name: 'compareAtPrice',

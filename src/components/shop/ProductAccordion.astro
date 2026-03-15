@@ -35,7 +35,7 @@ const entries = Object.entries(data);
                     data-bs-parent="#productAccordion"
                 >
                     <div class="accordion-body text-body text-sm opacity-8 pb-4">
-                        {content}
+                        <div class="accordionRichContent" set:html={content}></div>
                     </div>
                 </div>
             </div>
@@ -75,6 +75,38 @@ const entries = Object.entries(data);
 
     .accordion-collapse.collapse:not(.show) {
         display: none;
+    }
+
+    .accordionRichContent {
+        display: grid;
+        gap: 0.9rem;
+        color: var(--color-text-muted);
+    }
+
+    .accordionRichContent p,
+    .accordionRichContent ul,
+    .accordionRichContent ol,
+    .accordionRichContent blockquote,
+    .accordionRichContent h2,
+    .accordionRichContent h3 {
+        margin: 0;
+    }
+
+    .accordionRichContent p,
+    .accordionRichContent li,
+    .accordionRichContent blockquote {
+        line-height: 1.7;
+    }
+
+    .accordionRichContent ul,
+    .accordionRichContent ol {
+        padding-left: 1.15rem;
+    }
+
+    .accordionRichContent h2,
+    .accordionRichContent h3 {
+        color: var(--color-primary);
+        line-height: 1.15;
     }
 </style>
 

@@ -160,9 +160,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 return [];
             }
 
-            const description =
-                (product.shortDescription ?? "").trim() ||
-                toPlainText(product.description);
+            const description = toPlainText(product.description);
             const priceNgn = Number.isFinite(Number(product.price))
                 ? Math.round(Number(product.price))
                 : 0;

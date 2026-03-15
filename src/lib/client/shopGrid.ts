@@ -66,6 +66,16 @@ function renderCard(item: ShopProduct): string {
                             <path d="M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H7.4"></path>
                         </svg>
                     </button>
+                </div>
+                <div class="card-body pb-0 shopCardBody">
+                    <p class="shopCardMeta">${productType === "digital" ? "Instant delivery" : "Ships from the official shop"}</p>
+                    <a href="/shop/${slug}" style="text-decoration: none;">
+                        <h5 class="font-weight-bold shopCardTitle">${title}</h5>
+                    </a>
+                    <div class="shopCardPriceRow">
+                        <p class="mb-0 text-sm font-weight-bold shopCardPrice">${formatPrice(price)}</p>
+                        <span class="shopCardAssistText">${productType === "digital" ? "Download after payment" : "Checkout for delivery estimate"}</span>
+                    </div>
                     <div class="shopCardHoverActions">
                         <button
                             type="button"
@@ -82,16 +92,6 @@ function renderCard(item: ShopProduct): string {
                             See preview
                         </button>
                         <a href="/shop/${slug}" class="shopCardHoverButton">View details</a>
-                    </div>
-                </div>
-                <div class="card-body pb-0 shopCardBody">
-                    <p class="shopCardMeta">${productType === "digital" ? "Instant delivery" : "Ships from the official shop"}</p>
-                    <a href="/shop/${slug}" style="text-decoration: none;">
-                        <h5 class="font-weight-bold shopCardTitle">${title}</h5>
-                    </a>
-                    <div class="shopCardPriceRow">
-                        <p class="mb-0 text-sm font-weight-bold shopCardPrice">${formatPrice(price)}</p>
-                        <span class="shopCardAssistText">${productType === "digital" ? "Download after payment" : "Checkout for delivery estimate"}</span>
                     </div>
                 </div>
             </article>

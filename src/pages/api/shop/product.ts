@@ -1,5 +1,11 @@
 import type { APIRoute } from "astro";
+import { sanityClient } from "sanity:client";
 import { getCloudflareRuntimeEnv } from "../../../lib/server/cloudflareRuntimeEnv";
+import {
+    portableTextToHtml,
+    portableTextToPlainText,
+    type PortableTextBlock,
+} from "../../../lib/sanity/portableText";
 import {
     getFxRate,
     normalizeCountry,
@@ -20,6 +26,13 @@ interface D1PreparedStatementLike {
 
 interface D1DatabaseLike {
     prepare: (query: string) => D1PreparedStatementLike;
+}
+
+interface SanityProductDetails {
+    shortDescription?: string;
+    description?: PortableTextBlock[];
+    galleryImages?: string[];
+    coverImageUrl?: string;
 }
 
 function jsonResponse(body: Record<string, unknown>, status = 200): Response {
@@ -65,6 +78,21 @@ export const GET: APIRoute = async ({ url, locals }) => {
             .bind(slug)
             .first();
         if (!product) return jsonResponse({ error: "Product not found" }, 404);
+
+        let sanityProduct: SanityProductDetails | null = null;
+        try {
+            sanityProduct = await sanityClient.fetch<SanityProductDetails | null>(
+                `*[_type == "product" && slug.current == $slug][0]{
+                    shortDescription,
+                    description,
+                    "galleryImages": galleryImages[].asset->url,
+                    "coverImageUrl": coverImage.asset->url
+                }`,
+                { slug },
+            );
+        } catch (error) {
+            console.warn("[shop/product] failed to fetch Sanity product details", error);
+        }
 
         const variantRows = await db
             .prepare(
@@ -124,17 +152,36 @@ export const GET: APIRoute = async ({ url, locals }) => {
                     : "physical",
         });
 
+        const shortDescription =
+            String(sanityProduct?.shortDescription ?? "").trim() ||
+            String(product.description ?? "").trim();
+        const longDescriptionHtml =
+            portableTextToHtml(sanityProduct?.description) ||
+            (shortDescription ? `<p>${shortDescription}</p>` : "");
+        const longDescriptionPlain =
+            portableTextToPlainText(sanityProduct?.description) || shortDescription;
+        const galleryImages = Array.isArray(sanityProduct?.galleryImages)
+            ? sanityProduct!.galleryImages!.filter(Boolean)
+            : [];
+        const coverImageUrl = String(
+            sanityProduct?.coverImageUrl ?? product.cover_image_url ?? "",
+        );
+
         return jsonResponse({
             product: {
                 id: String(product.id ?? ""),
                 slug: String(product.slug ?? ""),
                 title: String(product.title ?? ""),
-                description: String(product.description ?? ""),
+                description: shortDescription,
+                short_description: shortDescription,
+                long_description_plain: longDescriptionPlain,
+                long_description_html: longDescriptionHtml,
                 product_type:
                     String(product.product_type || "physical") === "digital"
                         ? "digital"
                         : "physical",
-                cover_image_url: String(product.cover_image_url ?? ""),
+                cover_image_url: coverImageUrl,
+                gallery_images: galleryImages,
                 is_active: Number(product.is_active ?? 0),
                 updated_at: String(product.updated_at ?? ""),
             },
