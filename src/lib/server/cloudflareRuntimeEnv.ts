@@ -3,8 +3,13 @@ import type { APIContext } from "astro";
 export interface CloudflareRuntimeEnv {
     ADMIN_SYNC_TOKEN?: string;
     PHASE2_ECOM_ENABLED?: string;
+    FLUTTERWAVE_ENV?: string;
     FLUTTERWAVE_SECRET_KEY?: string;
+    FLUTTERWAVE_SECRET_KEY_LIVE?: string;
+    FLUTTERWAVE_SECRET_KEY_TEST?: string;
     FLUTTERWAVE_WEBHOOK_HASH?: string;
+    FLUTTERWAVE_WEBHOOK_SECRET_LIVE?: string;
+    FLUTTERWAVE_WEBHOOK_SECRET_TEST?: string;
     SANITY_WRITE_TOKEN?: string;
     BREVO_API_KEY?: string;
     BREVO_LIST_ID?: string;

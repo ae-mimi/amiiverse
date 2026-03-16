@@ -1,5 +1,8 @@
 import type { APIContext } from "astro";
-import { getServerEnvValue } from "./cloudflareRuntimeEnv";
+import {
+    getCloudflareRuntimeEnv,
+    getServerEnvValue,
+} from "./cloudflareRuntimeEnv";
 
 interface PaymentInitInput {
     secretKey: string;
@@ -43,7 +46,51 @@ export interface PaymentVerificationResult {
 export function getPaymentSecretKey(
     context: Pick<APIContext, "locals">,
 ): string {
+    const runtimeEnv = getCloudflareRuntimeEnv(context);
+    const flutterwaveEnv = String(runtimeEnv.FLUTTERWAVE_ENV || import.meta.env.FLUTTERWAVE_ENV || "")
+        .trim()
+        .toLowerCase();
+
+    if (flutterwaveEnv === "live") {
+        return (
+            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_LIVE") ||
+            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY")
+        );
+    }
+
+    if (flutterwaveEnv === "test") {
+        return (
+            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_TEST") ||
+            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY")
+        );
+    }
+
     return getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY");
+}
+
+export function getPaymentWebhookSecret(
+    context: Pick<APIContext, "locals">,
+): string {
+    const runtimeEnv = getCloudflareRuntimeEnv(context);
+    const flutterwaveEnv = String(runtimeEnv.FLUTTERWAVE_ENV || import.meta.env.FLUTTERWAVE_ENV || "")
+        .trim()
+        .toLowerCase();
+
+    if (flutterwaveEnv === "live") {
+        return (
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_SECRET_LIVE") ||
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH")
+        );
+    }
+
+    if (flutterwaveEnv === "test") {
+        return (
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_SECRET_TEST") ||
+            getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH")
+        );
+    }
+
+    return getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH");
 }
 
 export async function initializeProviderPayment(

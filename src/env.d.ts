@@ -5,8 +5,13 @@
 interface ImportMetaEnv {
     readonly ADMIN_SYNC_TOKEN?: string;
     readonly PHASE2_ECOM_ENABLED?: string;
+    readonly FLUTTERWAVE_ENV?: string;
     readonly FLUTTERWAVE_SECRET_KEY?: string;
+    readonly FLUTTERWAVE_SECRET_KEY_LIVE?: string;
+    readonly FLUTTERWAVE_SECRET_KEY_TEST?: string;
     readonly FLUTTERWAVE_WEBHOOK_HASH?: string;
+    readonly FLUTTERWAVE_WEBHOOK_SECRET_LIVE?: string;
+    readonly FLUTTERWAVE_WEBHOOK_SECRET_TEST?: string;
     readonly SANITY_WRITE_TOKEN?: string;
     readonly BREVO_API_KEY?: string;
     readonly BREVO_LIST_ID?: string;
@@ -36,8 +41,13 @@ declare namespace App {
             env?: {
                 ADMIN_SYNC_TOKEN?: string;
                 PHASE2_ECOM_ENABLED?: string;
+                FLUTTERWAVE_ENV?: string;
                 FLUTTERWAVE_SECRET_KEY?: string;
+                FLUTTERWAVE_SECRET_KEY_LIVE?: string;
+                FLUTTERWAVE_SECRET_KEY_TEST?: string;
                 FLUTTERWAVE_WEBHOOK_HASH?: string;
+                FLUTTERWAVE_WEBHOOK_SECRET_LIVE?: string;
+                FLUTTERWAVE_WEBHOOK_SECRET_TEST?: string;
                 SANITY_WRITE_TOKEN?: string;
                 BREVO_API_KEY?: string;
                 BREVO_LIST_ID?: string;
