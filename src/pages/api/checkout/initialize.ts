@@ -367,7 +367,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         await db
             .prepare(
                 `UPDATE payments
-                 SET status = 'initialized',
+                 SET status = 'pending',
                      raw_json = ?,
                      updated_at = ?
                  WHERE order_id = ?`,

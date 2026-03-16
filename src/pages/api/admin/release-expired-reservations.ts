@@ -85,7 +85,7 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
         await db
             .prepare(
                 `UPDATE payments
-                 SET status = 'expired', updated_at = ?
+                 SET status = 'failed', updated_at = ?
                  WHERE order_id = ?`,
             )
             .bind(nowIso, orderId)
