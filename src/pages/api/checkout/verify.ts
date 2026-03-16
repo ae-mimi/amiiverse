@@ -1,7 +1,10 @@
 import type { APIRoute } from "astro";
 import { getCloudflareRuntimeEnv } from "../../../lib/server/cloudflareRuntimeEnv";
 import { canTransitionOrderStatus } from "../../../lib/server/ecom";
-import { getPaymentSecretKey, verifyProviderPayment } from "../../../lib/server/paymentGateway";
+import {
+    getPaymentAuthorizationKey,
+    verifyProviderPayment,
+} from "../../../lib/server/paymentGateway";
 
 interface D1PreparedStatementLike {
     bind: (...values: unknown[]) => D1PreparedStatementLike;
@@ -43,13 +46,13 @@ export const GET: APIRoute = async ({ url, locals }) => {
             return jsonResponse({ status: "failed", message: "Order not found" }, 404);
         }
 
-        const providerSecretKey = getPaymentSecretKey({ locals });
-        if (!providerSecretKey) {
-            return jsonResponse({ error: "Missing FLUTTERWAVE_SECRET_KEY" }, 500);
+        const providerAuthorizationKey = await getPaymentAuthorizationKey({ locals });
+        if (!providerAuthorizationKey) {
+            return jsonResponse({ error: "Missing Flutterwave credentials" }, 500);
         }
 
         const verification = await verifyProviderPayment({
-            secretKey: providerSecretKey,
+            authorizationKey: providerAuthorizationKey,
             reference,
         });
         if (!verification.ok) {

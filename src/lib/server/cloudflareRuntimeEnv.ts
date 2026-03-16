@@ -4,6 +4,12 @@ export interface CloudflareRuntimeEnv {
     ADMIN_SYNC_TOKEN?: string;
     PHASE2_ECOM_ENABLED?: string;
     FLUTTERWAVE_ENV?: string;
+    FLUTTERWAVE_CLIENT_ID?: string;
+    FLUTTERWAVE_CLIENT_ID_LIVE?: string;
+    FLUTTERWAVE_CLIENT_ID_TEST?: string;
+    FLUTTERWAVE_CLIENT_SECRET?: string;
+    FLUTTERWAVE_CLIENT_SECRET_LIVE?: string;
+    FLUTTERWAVE_CLIENT_SECRET_TEST?: string;
     FLUTTERWAVE_SECRET_KEY?: string;
     FLUTTERWAVE_SECRET_KEY_LIVE?: string;
     FLUTTERWAVE_SECRET_KEY_TEST?: string;

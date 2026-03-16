@@ -5,7 +5,7 @@ import {
 } from "./cloudflareRuntimeEnv";
 
 interface PaymentInitInput {
-    secretKey: string;
+    authorizationKey: string;
     email: string;
     amountMinor: number;
     currency: "NGN" | "USD" | "GBP";
@@ -20,7 +20,7 @@ interface PaymentInitInput {
 }
 
 interface PaymentVerifyInput {
-    secretKey: string;
+    authorizationKey: string;
     reference: string;
 }
 
@@ -43,38 +43,108 @@ export interface PaymentVerificationResult {
     error?: string;
 }
 
-export function getPaymentSecretKey(
+function getFlutterwaveEnv(
     context: Pick<APIContext, "locals">,
-): string {
+): "live" | "test" | "" {
     const runtimeEnv = getCloudflareRuntimeEnv(context);
-    const flutterwaveEnv = String(runtimeEnv.FLUTTERWAVE_ENV || import.meta.env.FLUTTERWAVE_ENV || "")
+    const flutterwaveEnv = String(
+        runtimeEnv.FLUTTERWAVE_ENV || import.meta.env.FLUTTERWAVE_ENV || "",
+    )
         .trim()
         .toLowerCase();
 
+    if (flutterwaveEnv === "live" || flutterwaveEnv === "test") {
+        return flutterwaveEnv;
+    }
+
+    return "";
+}
+
+function getScopedEnvValue(
+    context: Pick<APIContext, "locals">,
+    baseKey:
+        | "FLUTTERWAVE_CLIENT_ID"
+        | "FLUTTERWAVE_CLIENT_SECRET"
+        | "FLUTTERWAVE_SECRET_KEY",
+): string {
+    const flutterwaveEnv = getFlutterwaveEnv(context);
+
     if (flutterwaveEnv === "live") {
         return (
-            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_LIVE") ||
-            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY")
+            getServerEnvValue(context, `${baseKey}_LIVE`) ||
+            getServerEnvValue(context, baseKey)
         );
     }
 
     if (flutterwaveEnv === "test") {
         return (
-            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY_TEST") ||
-            getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY")
+            getServerEnvValue(context, `${baseKey}_TEST`) ||
+            getServerEnvValue(context, baseKey)
         );
     }
 
-    return getServerEnvValue(context, "FLUTTERWAVE_SECRET_KEY");
+    return getServerEnvValue(context, baseKey);
+}
+
+export function getPaymentSecretKey(
+    context: Pick<APIContext, "locals">,
+): string {
+    return getScopedEnvValue(context, "FLUTTERWAVE_SECRET_KEY");
+}
+
+function getFlutterwaveClientId(
+    context: Pick<APIContext, "locals">,
+): string {
+    return getScopedEnvValue(context, "FLUTTERWAVE_CLIENT_ID");
+}
+
+function getFlutterwaveClientSecret(
+    context: Pick<APIContext, "locals">,
+): string {
+    return getScopedEnvValue(context, "FLUTTERWAVE_CLIENT_SECRET");
+}
+
+export async function getPaymentAuthorizationKey(
+    context: Pick<APIContext, "locals">,
+): Promise<string> {
+    const clientId = getFlutterwaveClientId(context);
+    const clientSecret = getFlutterwaveClientSecret(context);
+
+    if (clientId && clientSecret) {
+        const tokenResponse = await fetch(
+            "https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    grant_type: "client_credentials",
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                }),
+            },
+        );
+
+        const tokenData = await tokenResponse.json().catch(() => null);
+        const accessToken = String(tokenData?.access_token || "").trim();
+
+        if (!tokenResponse.ok || !accessToken) {
+            throw new Error(
+                String(tokenData?.error_description || tokenData?.message || "Unable to authenticate with Flutterwave").trim(),
+            );
+        }
+
+        return accessToken;
+    }
+
+    return getPaymentSecretKey(context);
 }
 
 export function getPaymentWebhookSecret(
     context: Pick<APIContext, "locals">,
 ): string {
-    const runtimeEnv = getCloudflareRuntimeEnv(context);
-    const flutterwaveEnv = String(runtimeEnv.FLUTTERWAVE_ENV || import.meta.env.FLUTTERWAVE_ENV || "")
-        .trim()
-        .toLowerCase();
+    const flutterwaveEnv = getFlutterwaveEnv(context);
 
     if (flutterwaveEnv === "live") {
         return (
@@ -99,7 +169,7 @@ export async function initializeProviderPayment(
     const flutterwaveResponse = await fetch("https://api.flutterwave.com/v3/payments", {
         method: "POST",
         headers: {
-            Authorization: `Bearer ${input.secretKey}`,
+            Authorization: `Bearer ${input.authorizationKey}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -158,7 +228,7 @@ export async function verifyProviderPayment(
         `https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(input.reference)}`,
         {
             headers: {
-                Authorization: `Bearer ${input.secretKey}`,
+                Authorization: `Bearer ${input.authorizationKey}`,
             },
         },
     );

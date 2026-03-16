@@ -6,6 +6,12 @@ interface ImportMetaEnv {
     readonly ADMIN_SYNC_TOKEN?: string;
     readonly PHASE2_ECOM_ENABLED?: string;
     readonly FLUTTERWAVE_ENV?: string;
+    readonly FLUTTERWAVE_CLIENT_ID?: string;
+    readonly FLUTTERWAVE_CLIENT_ID_LIVE?: string;
+    readonly FLUTTERWAVE_CLIENT_ID_TEST?: string;
+    readonly FLUTTERWAVE_CLIENT_SECRET?: string;
+    readonly FLUTTERWAVE_CLIENT_SECRET_LIVE?: string;
+    readonly FLUTTERWAVE_CLIENT_SECRET_TEST?: string;
     readonly FLUTTERWAVE_SECRET_KEY?: string;
     readonly FLUTTERWAVE_SECRET_KEY_LIVE?: string;
     readonly FLUTTERWAVE_SECRET_KEY_TEST?: string;
@@ -42,6 +48,12 @@ declare namespace App {
                 ADMIN_SYNC_TOKEN?: string;
                 PHASE2_ECOM_ENABLED?: string;
                 FLUTTERWAVE_ENV?: string;
+                FLUTTERWAVE_CLIENT_ID?: string;
+                FLUTTERWAVE_CLIENT_ID_LIVE?: string;
+                FLUTTERWAVE_CLIENT_ID_TEST?: string;
+                FLUTTERWAVE_CLIENT_SECRET?: string;
+                FLUTTERWAVE_CLIENT_SECRET_LIVE?: string;
+                FLUTTERWAVE_CLIENT_SECRET_TEST?: string;
                 FLUTTERWAVE_SECRET_KEY?: string;
                 FLUTTERWAVE_SECRET_KEY_LIVE?: string;
                 FLUTTERWAVE_SECRET_KEY_TEST?: string;

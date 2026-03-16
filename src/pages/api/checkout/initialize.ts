@@ -11,7 +11,7 @@ import {
 } from "../../../lib/server/ecom";
 import { checkoutInitSchema } from "../../../lib/server/ecomValidation";
 import {
-    getPaymentSecretKey,
+    getPaymentAuthorizationKey,
     initializeProviderPayment,
 } from "../../../lib/server/paymentGateway";
 import { releaseOrderReservations } from "../../../lib/server/inventory";
@@ -54,15 +54,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
             );
         }
 
-        const providerSecretKey = getPaymentSecretKey({ locals });
         const runtimeEnv = getCloudflareRuntimeEnv({ locals });
         const db = runtimeEnv.DB as D1DatabaseLike | undefined;
-
-        if (!providerSecretKey) {
-            return jsonResponse({ error: "Missing FLUTTERWAVE_SECRET_KEY" }, 500);
-        }
         if (!db) {
             return jsonResponse({ error: "Missing D1 binding `DB`" }, 500);
+        }
+
+        const providerAuthorizationKey = await getPaymentAuthorizationKey({ locals });
+        if (!providerAuthorizationKey) {
+            return jsonResponse({ error: "Missing Flutterwave credentials" }, 500);
         }
 
         const body = await request.json().catch(() => ({}));
@@ -301,7 +301,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .run();
 
         const initialization = await initializeProviderPayment({
-            secretKey: providerSecretKey,
+            authorizationKey: providerAuthorizationKey,
             email,
             amountMinor: quote.total.amount_minor,
             currency: quote.total.currency,
