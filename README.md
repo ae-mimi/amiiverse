@@ -106,12 +106,16 @@ Replace `<YOUR_D1_DB_NAME>` with the D1 binding/database name configured in Clou
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0003_music_search.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0004_fan_leads.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0005_payment_provider.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0006_phase2_ecommerce.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --local --file=./db/migrations/0007_normalize_orders_schema.sql`
 - Apply migration to remote D1:
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0001_shop.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0002_add_r2_key.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0003_music_search.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0004_fan_leads.sql`
   - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0005_payment_provider.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0006_phase2_ecommerce.sql`
+  - `npx wrangler d1 execute <YOUR_D1_DB_NAME> --remote --file=./db/migrations/0007_normalize_orders_schema.sql`
 
 ### Optional verification
 

@@ -1,6 +1,8 @@
 PRAGMA foreign_keys = OFF;
 
-CREATE TABLE IF NOT EXISTS orders__new (
+DROP TABLE IF EXISTS orders__new;
+
+CREATE TABLE orders__new (
     id TEXT PRIMARY KEY,
     cart_id TEXT NOT NULL,
     quote_id TEXT,
