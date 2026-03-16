@@ -386,8 +386,11 @@ class CheckoutManager {
 
             throw new Error(data.error || "Payment could not start.");
         } catch (error) {
-            errorEl.innerText =
-                "Payment failed. Please check your connection and try again.";
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : "Payment failed. Please check your connection and try again.";
+            errorEl.innerText = message;
             errorEl.hidden = false;
             this.submitBtn.disabled = false;
             this.submitBtn.innerText = "Secure Checkout";

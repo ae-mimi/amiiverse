@@ -73,8 +73,12 @@ export async function initializeProviderPayment(
                 orderId: input.orderId,
                 cartId: input.cartId,
                 source: "d1_checkout",
-                shippingAddress: input.shippingAddress,
-                deliveryOption: input.deliveryOption,
+                shippingAddress: input.shippingAddress
+                    ? JSON.stringify(input.shippingAddress)
+                    : undefined,
+                deliveryOption: input.deliveryOption
+                    ? JSON.stringify(input.deliveryOption)
+                    : undefined,
             },
         }),
     });
