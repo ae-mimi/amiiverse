@@ -23,16 +23,20 @@ let shopCartButtonBound = false;
 
 export function initShopCartButton(): void {
     if (typeof document === "undefined" || shopCartButtonBound) return;
-    const button = document.querySelector("[data-shop-cart-button]") as HTMLElement | null;
-    if (!button) return;
+    const buttons = Array.from(
+        document.querySelectorAll("[data-shop-cart-button]"),
+    ) as HTMLElement[];
+    if (!buttons.length) return;
 
     shopCartButtonBound = true;
-    button.addEventListener("click", openCart);
+    buttons.forEach((button) => button.addEventListener("click", openCart));
 
-    void cartStore.initCart().then((cart) => updateButtonState(button, cart));
+    void cartStore.initCart().then((cart) =>
+        buttons.forEach((button) => updateButtonState(button, cart)),
+    );
 
     window.addEventListener("cart:updated", (event: Event) => {
         const customEvent = event as CustomEvent<ClientCart | null>;
-        updateButtonState(button, customEvent.detail ?? null);
+        buttons.forEach((button) => updateButtonState(button, customEvent.detail ?? null));
     });
 }

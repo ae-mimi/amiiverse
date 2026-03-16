@@ -1,4 +1,30 @@
 {
+  "shop": {
+    "deliveryOptions": [
+      {
+        "code": "standard",
+        "label": "Standard",
+        "priceNgn": 2500,
+        "estimate": "3-5 business days",
+        "description": "Best value for most orders.",
+        "isDefault": true
+      },
+      {
+        "code": "express",
+        "label": "Express",
+        "priceNgn": 5500,
+        "estimate": "1-2 business days",
+        "description": "Priority handling and faster delivery."
+      },
+      {
+        "code": "free",
+        "label": "Free",
+        "priceNgn": 0,
+        "estimate": "5-7 business days",
+        "description": "Available during promo periods or eligible orders."
+      }
+    ]
+  },
   "enable_follow_link": false,
   "site_info": {
     "title": "amii",

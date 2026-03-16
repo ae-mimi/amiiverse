@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon } from './icons'
+import { SettingsIcon, GeneralIcon, BrandingIcon, NavigationIcon, SocialIcon, SEOIcon, ShopIcon } from './icons'
 
 export default defineType({
     name: 'settings',
@@ -10,6 +10,7 @@ export default defineType({
         { name: 'general', title: 'General', icon: GeneralIcon, default: true },
         { name: 'branding', title: 'Branding & Theme', icon: BrandingIcon },
         { name: 'navigation', title: 'Navigation', icon: NavigationIcon },
+        { name: 'shop', title: 'Shop', icon: ShopIcon },
         { name: 'social', title: 'Social Media', icon: SocialIcon },
         { name: 'seo', title: 'SEO', icon: SEOIcon },
     ],
@@ -155,6 +156,75 @@ export default defineType({
             type: 'boolean',
             group: 'navigation',
             initialValue: false,
+        }),
+        defineField({
+            name: 'shop',
+            title: 'Shop Settings',
+            type: 'object',
+            group: 'shop',
+            options: { collapsible: true, collapsed: false },
+            fields: [
+                defineField({
+                    name: 'deliveryOptions',
+                    title: 'Delivery Options',
+                    type: 'array',
+                    description: 'These options appear in the cart drawer delivery section.',
+                    of: [
+                        {
+                            type: 'object',
+                            fields: [
+                                defineField({
+                                    name: 'code',
+                                    title: 'Code',
+                                    type: 'string',
+                                    validation: (rule) => rule.required(),
+                                }),
+                                defineField({
+                                    name: 'label',
+                                    title: 'Label',
+                                    type: 'string',
+                                    validation: (rule) => rule.required(),
+                                }),
+                                defineField({
+                                    name: 'priceNgn',
+                                    title: 'Price (NGN)',
+                                    type: 'number',
+                                    validation: (rule) => rule.min(0),
+                                }),
+                                defineField({
+                                    name: 'estimate',
+                                    title: 'Delivery Estimate',
+                                    type: 'string',
+                                }),
+                                defineField({
+                                    name: 'description',
+                                    title: 'Supporting Description',
+                                    type: 'string',
+                                }),
+                                defineField({
+                                    name: 'isDefault',
+                                    title: 'Default Option',
+                                    type: 'boolean',
+                                    initialValue: false,
+                                }),
+                            ],
+                            preview: {
+                                select: {
+                                    title: 'label',
+                                    subtitle: 'estimate',
+                                    priceNgn: 'priceNgn',
+                                },
+                                prepare({ title, subtitle, priceNgn }) {
+                                    return {
+                                        title: title || 'Delivery option',
+                                        subtitle: `${subtitle || 'No estimate'}${typeof priceNgn === 'number' ? ` • NGN ${priceNgn}` : ''}`,
+                                    }
+                                },
+                            },
+                        },
+                    ],
+                }),
+            ],
         }),
 
         // ── Navigation ───────────────────────────────────────

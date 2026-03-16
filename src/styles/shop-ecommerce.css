@@ -190,6 +190,33 @@
     color: var(--color-bg);
 }
 
+.actionPair {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.actionPair > :first-child {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    border-color: var(--color-primary);
+}
+
+.actionPair > :first-child:hover {
+    filter: brightness(1.2);
+}
+
+.actionPair > :nth-child(2) {
+    background-color: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.actionPair > :nth-child(2):hover {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+}
+
 .btn-lg {
     padding: 1rem 2rem;
     font-size: 1.1rem;
@@ -956,9 +983,6 @@
 }
 
 .shopPreviewActions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
     margin-top: 0.2rem;
 }
 

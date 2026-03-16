@@ -75,11 +75,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
         }
 
         const cartId = parsed.data.cartId;
+        const firstName = String(parsed.data.firstName || "").trim();
+        const lastName = String(parsed.data.lastName || "").trim();
         const email = parsed.data.email.toLowerCase();
         const phone = String(parsed.data.phone || "").trim();
+        const addressLine1 = String(parsed.data.addressLine1 || "").trim();
+        const addressLine2 = String(parsed.data.addressLine2 || "").trim();
+        const landmark = String(parsed.data.landmark || "").trim();
+        const city = String(parsed.data.city || "").trim();
+        const postcode = String(parsed.data.postcode || "").trim();
         const currency = normalizeCurrency(parsed.data.currency);
         const country = normalizeCountry(parsed.data.country);
         const region = normalizeRegion(parsed.data.region);
+        const deliveryMethod = String(parsed.data.deliveryMethod || "").trim();
+        const deliveryLabel = String(parsed.data.deliveryLabel || "").trim();
+        const deliveryEstimate = String(parsed.data.deliveryEstimate || "").trim();
+        const deliveryPriceNgn = Math.max(0, Number(parsed.data.deliveryPriceNgn || 0));
         const quoteHash = parsed.data.quoteHash;
 
         const existingByIdempotency = await db
@@ -299,6 +310,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
             orderId,
             cartId,
             phone,
+            customerName: `${firstName} ${lastName}`.trim(),
+            shippingAddress: {
+                firstName,
+                lastName,
+                addressLine1,
+                addressLine2,
+                landmark,
+                city,
+                postcode,
+                region,
+                country,
+            },
+            deliveryOption: {
+                method: deliveryMethod,
+                label: deliveryLabel,
+                estimate: deliveryEstimate,
+                priceNgn: deliveryPriceNgn,
+            },
         });
 
         if (!initialization.ok) {

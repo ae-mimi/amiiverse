@@ -152,6 +152,20 @@ a {
   text-decoration-color: var(--color-underline, currentColor);
 }
 
+:where(
+    a[href],
+    button,
+    summary,
+    label[for],
+    [role="button"],
+    [role="link"],
+    [data-quickbuy],
+    [data-shop-preview],
+    [data-shop-preview-close]
+  ):not(:disabled) {
+  cursor: pointer;
+}
+
 h1,
 h2,
 h3,

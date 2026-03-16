@@ -59,6 +59,10 @@ class CheckoutManager {
         this.form.addEventListener("submit", (event) => {
             void this.handleSubmit(event);
         });
+        this.form.addEventListener("change", () => {
+            this.syncSelectedDeliveryState();
+        });
+        this.syncSelectedDeliveryState();
     }
 
     formatNgn(value: number): string {
@@ -158,8 +162,10 @@ class CheckoutManager {
 
         (this.modal.querySelector("#modal-subtotal") as HTMLElement).innerText =
             this.formatNgn(this.getSubtotal(cart));
-        (this.modal.querySelector("#modal-delivery") as HTMLElement).innerText =
-            "Calculated at payment";
+        const deliveryEl = this.modal.querySelector("#modal-delivery") as HTMLElement | null;
+        if (deliveryEl) {
+            deliveryEl.innerText = this.getSelectedDeliverySummary() || "Calculated at payment";
+        }
         (this.modal.querySelector("#modal-total") as HTMLElement).innerText =
             this.formatNgn(this.getTotal(cart));
         (this.modal.querySelector("#modal-cart-count") as HTMLElement).innerText =
@@ -170,6 +176,40 @@ class CheckoutManager {
             String((firstItem?.id as string) || "");
         (this.modal.querySelector("#modal-quantity") as HTMLInputElement).value =
             String(Number(firstItem?.quantity || 1));
+    }
+
+    getSelectedDeliverySummary(): string {
+        const checked = this.form.querySelector(
+            'input[name="deliveryMethod"]:checked',
+        ) as HTMLInputElement | null;
+        if (!checked) return "";
+
+        const label = checked.dataset.deliveryLabel || checked.value || "Delivery";
+        const estimate = checked.dataset.deliveryEstimate || "";
+        return estimate ? `${label} • ${estimate}` : label;
+    }
+
+    syncSelectedDeliveryState() {
+        const checked = this.form.querySelector(
+            'input[name="deliveryMethod"]:checked',
+        ) as HTMLInputElement | null;
+        if (!checked) return;
+
+        const label = checked.dataset.deliveryLabel || checked.value || "Delivery";
+        const estimate = checked.dataset.deliveryEstimate || "";
+        const priceNgn = checked.dataset.deliveryPriceNgn || "0";
+
+        const labelField = this.form.querySelector("#delivery-label") as HTMLInputElement | null;
+        const estimateField = this.form.querySelector("#delivery-estimate") as HTMLInputElement | null;
+        const priceField = this.form.querySelector("#delivery-price-ngn") as HTMLInputElement | null;
+        if (labelField) labelField.value = label;
+        if (estimateField) estimateField.value = estimate;
+        if (priceField) priceField.value = priceNgn;
+
+        const deliveryEl = this.modal.querySelector("#modal-delivery") as HTMLElement | null;
+        if (deliveryEl) {
+            deliveryEl.innerText = estimate ? `${label} • ${estimate}` : label;
+        }
     }
 
     async handleCartActions(event: Event) {
@@ -245,8 +285,22 @@ class CheckoutManager {
         this.submitBtn.disabled = false;
         this.submitBtn.innerText = "Secure Checkout";
         (this.modal.querySelector("#modal-error") as HTMLElement).hidden = true;
+        (this.modal.querySelector("#first-name") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#last-name") as HTMLInputElement).value = "";
         (this.modal.querySelector("#email") as HTMLInputElement).value = "";
         (this.modal.querySelector("#phone") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#address-line-1") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#address-line-2") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#landmark") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#city") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#postcode") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#region") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#country") as HTMLInputElement).value = "NG";
+        const defaultDelivery = this.form.querySelector(
+            'input[name="deliveryMethod"][data-delivery-default="true"]',
+        ) as HTMLInputElement | null;
+        if (defaultDelivery) defaultDelivery.checked = true;
+        this.syncSelectedDeliveryState();
     }
 
     async handleSubmit(event: Event) {
@@ -265,11 +319,22 @@ class CheckoutManager {
 
             const payload = {
                 cartId: cart.id,
+                firstName: String(formData.get("firstName") || ""),
+                lastName: String(formData.get("lastName") || ""),
                 email: String(formData.get("email") || ""),
                 phone: String(formData.get("phone") || ""),
+                addressLine1: String(formData.get("addressLine1") || ""),
+                addressLine2: String(formData.get("addressLine2") || ""),
+                landmark: String(formData.get("landmark") || ""),
+                city: String(formData.get("city") || ""),
+                postcode: String(formData.get("postcode") || ""),
                 currency: String(formData.get("currency") || "NGN").toUpperCase(),
                 country: String(formData.get("country") || "NG").trim().toUpperCase(),
                 region: String(formData.get("region") || "").trim(),
+                deliveryMethod: String(formData.get("deliveryMethod") || ""),
+                deliveryLabel: String(formData.get("deliveryLabel") || ""),
+                deliveryEstimate: String(formData.get("deliveryEstimate") || ""),
+                deliveryPriceNgn: Number(formData.get("deliveryPriceNgn") || 0),
             };
 
             trackAnalyticsEvent("checkout_start", { cartId: cart.id });

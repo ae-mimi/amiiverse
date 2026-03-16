@@ -59,6 +59,10 @@ export function initShopPreview(): void {
 
     const close = () => setOverlayState(overlay, false);
 
+    addButton?.addEventListener("click", () => {
+        window.setTimeout(close, 0);
+    });
+
     const fillPreview = async (payload: PreviewPayload) => {
         const detailUrl = `/shop/${payload.slug}`;
         const fallbackTitle = payload.title || "Product preview";

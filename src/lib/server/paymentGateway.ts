@@ -11,6 +11,9 @@ interface PaymentInitInput {
     orderId: string;
     cartId: string;
     phone?: string;
+    customerName?: string;
+    shippingAddress?: Record<string, string>;
+    deliveryOption?: Record<string, string | number>;
 }
 
 interface PaymentVerifyInput {
@@ -60,7 +63,7 @@ export async function initializeProviderPayment(
             customer: {
                 email: input.email,
                 phonenumber: input.phone || undefined,
-                name: input.email.split("@")[0] || "Customer",
+                name: input.customerName || input.email.split("@")[0] || "Customer",
             },
             customizations: {
                 title: "Amiiverse Checkout",
@@ -70,6 +73,8 @@ export async function initializeProviderPayment(
                 orderId: input.orderId,
                 cartId: input.cartId,
                 source: "d1_checkout",
+                shippingAddress: input.shippingAddress,
+                deliveryOption: input.deliveryOption,
             },
         }),
     });

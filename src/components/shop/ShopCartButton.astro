@@ -1,6 +1,14 @@
+---
+interface Props {
+    floating?: boolean;
+}
+
+const { floating = false } = Astro.props;
+---
+
 <button
     type="button"
-    class="shopCartButton"
+    class:list={["shopCartButton", floating && "isFloating"]}
     data-shop-cart-button
     aria-label="Open shopping cart"
 >
@@ -72,6 +80,21 @@
     @media (max-width: 1024px) {
         .shopCartButton {
             padding: 0.65rem 0.85rem;
+        }
+    }
+
+    .shopCartButton.isFloating {
+        position: fixed;
+        top: calc(var(--header-height, 100px) + 1rem);
+        right: clamp(0.9rem, 2vw, 1.5rem);
+        z-index: 90;
+        box-shadow: 0 18px 34px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+
+    @media (max-width: 720px) {
+        .shopCartButton.isFloating {
+            top: calc(var(--header-height, 88px) + 0.75rem);
+            right: 0.85rem;
         }
     }
 </style>

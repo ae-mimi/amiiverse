@@ -2,7 +2,6 @@
 import ShopGridControls from "../shop/catalog/ShopGridControls.astro";
 import ShopPreviewModal from "../shop/catalog/ShopPreviewModal.astro";
 import ShopProductGrid from "../shop/catalog/ShopProductGrid.astro";
-import ShopCartButton from "../shop/ShopCartButton.astro";
 
 interface ShopProduct {
     id: string;
@@ -50,9 +49,6 @@ try {
             <div>
                 <h1 class="shopHeading">{title}</h1>
                 {subtitle && <p class="shopSubheading">{subtitle}</p>}
-            </div>
-            <div class="shopHeroMeta">
-                <ShopCartButton />
             </div>
         </div>
     </div>
