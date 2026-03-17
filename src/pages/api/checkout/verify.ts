@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     try {
         const order = await db
             .prepare(
-                `SELECT id, cart_id, email, amount_kobo, currency_code, status
+                `SELECT id, cart_id, email, amount_kobo, currency_code, status, provider_transaction_id
                  FROM orders
                  WHERE reference = ?
                  LIMIT 1`,
@@ -51,9 +51,10 @@ export const GET: APIRoute = async ({ url, locals }) => {
             return jsonResponse({ error: "Missing Flutterwave credentials" }, 500);
         }
 
-        const verification = await verifyProviderPayment({
+        const verification = await verifyProviderPayment({ locals }, {
             authorizationKey: providerAuthorizationKey,
             reference,
+            transactionId: String(order.provider_transaction_id || "").trim(),
         });
         if (!verification.ok) {
             return jsonResponse({

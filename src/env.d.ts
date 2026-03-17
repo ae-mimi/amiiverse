@@ -12,6 +12,9 @@ interface ImportMetaEnv {
     readonly FLUTTERWAVE_CLIENT_SECRET?: string;
     readonly FLUTTERWAVE_CLIENT_SECRET_LIVE?: string;
     readonly FLUTTERWAVE_CLIENT_SECRET_TEST?: string;
+    readonly FLUTTERWAVE_ENCRYPTION_KEY?: string;
+    readonly FLUTTERWAVE_ENCRYPTION_KEY_LIVE?: string;
+    readonly FLUTTERWAVE_ENCRYPTION_KEY_TEST?: string;
     readonly FLUTTERWAVE_SECRET_KEY?: string;
     readonly FLUTTERWAVE_SECRET_KEY_LIVE?: string;
     readonly FLUTTERWAVE_SECRET_KEY_TEST?: string;
@@ -54,6 +57,9 @@ declare namespace App {
                 FLUTTERWAVE_CLIENT_SECRET?: string;
                 FLUTTERWAVE_CLIENT_SECRET_LIVE?: string;
                 FLUTTERWAVE_CLIENT_SECRET_TEST?: string;
+                FLUTTERWAVE_ENCRYPTION_KEY?: string;
+                FLUTTERWAVE_ENCRYPTION_KEY_LIVE?: string;
+                FLUTTERWAVE_ENCRYPTION_KEY_TEST?: string;
                 FLUTTERWAVE_SECRET_KEY?: string;
                 FLUTTERWAVE_SECRET_KEY_LIVE?: string;
                 FLUTTERWAVE_SECRET_KEY_TEST?: string;

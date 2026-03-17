@@ -37,5 +37,10 @@ export const checkoutInitSchema = z.object({
     deliveryLabel: z.string().trim().max(120).optional().default(""),
     deliveryEstimate: z.string().trim().max(120).optional().default(""),
     deliveryPriceNgn: z.coerce.number().min(0).optional().default(0),
+    encryptedCardNumber: z.string().trim().min(16).max(512),
+    encryptedExpiryMonth: z.string().trim().min(16).max(512),
+    encryptedExpiryYear: z.string().trim().min(16).max(512),
+    encryptedCvv: z.string().trim().min(16).max(512),
+    cardNonce: z.string().trim().min(8).max(128),
     quoteHash: z.string().trim().min(20).max(200),
 });

@@ -91,6 +91,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const deliveryLabel = String(parsed.data.deliveryLabel || "").trim();
         const deliveryEstimate = String(parsed.data.deliveryEstimate || "").trim();
         const deliveryPriceNgn = Math.max(0, Number(parsed.data.deliveryPriceNgn || 0));
+        const encryptedCardNumber = String(parsed.data.encryptedCardNumber || "").trim();
+        const encryptedExpiryMonth = String(parsed.data.encryptedExpiryMonth || "").trim();
+        const encryptedExpiryYear = String(parsed.data.encryptedExpiryYear || "").trim();
+        const encryptedCvv = String(parsed.data.encryptedCvv || "").trim();
+        const cardNonce = String(parsed.data.cardNonce || "").trim();
         const quoteHash = parsed.data.quoteHash;
 
         const existingByIdempotency = await db
@@ -300,7 +305,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .bind(email, currency, country, region, nowIso, cartId)
             .run();
 
-        const initialization = await initializeProviderPayment({
+        const initialization = await initializeProviderPayment({ locals }, {
             authorizationKey: providerAuthorizationKey,
             email,
             amountMinor: quote.total.amount_minor,
@@ -311,6 +316,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
             cartId,
             phone,
             customerName: `${firstName} ${lastName}`.trim(),
+            encryptedCardNumber,
+            encryptedExpiryMonth,
+            encryptedExpiryYear,
+            encryptedCvv,
+            cardNonce,
             shippingAddress: {
                 firstName,
                 lastName,
@@ -368,12 +378,44 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .prepare(
                 `UPDATE payments
                  SET status = 'pending',
+                     provider_tx_id = CASE
+                         WHEN ? != '' THEN ?
+                         ELSE provider_tx_id
+                     END,
                      raw_json = ?,
                      updated_at = ?
                  WHERE order_id = ?`,
             )
-            .bind(JSON.stringify(initialization.raw ?? {}), nowIso, orderId)
+            .bind(
+                initialization.transactionId,
+                initialization.transactionId,
+                JSON.stringify(initialization.raw ?? {}),
+                nowIso,
+                orderId,
+            )
             .run();
+
+        if (initialization.transactionId) {
+            await db
+                .prepare(
+                    `UPDATE orders
+                     SET provider_transaction_id = CASE
+                         WHEN provider_transaction_id IS NULL OR provider_transaction_id = ''
+                         THEN ?
+                         ELSE provider_transaction_id
+                     END,
+                         provider_raw_json = ?,
+                         updated_at = ?
+                     WHERE id = ?`,
+                )
+                .bind(
+                    initialization.transactionId,
+                    JSON.stringify(initialization.raw ?? {}),
+                    nowIso,
+                    orderId,
+                )
+            .run();
+        }
 
         return jsonResponse({
             authorization_url: initialization.authorizationUrl,

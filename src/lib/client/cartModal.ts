@@ -25,6 +25,72 @@ class CheckoutManager {
         this.drawerBody = modal.querySelector(".cartDrawerBody") as HTMLElement;
     }
 
+    fromBase64(value: string): Uint8Array {
+        const normalized = value.replace(/\s+/g, "");
+        const binary = window.atob(normalized);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+    }
+
+    toBase64(bytes: Uint8Array): string {
+        let binary = "";
+        for (const byte of bytes) binary += String.fromCharCode(byte);
+        return window.btoa(binary);
+    }
+
+    async encryptCheckoutCard(card: {
+        cardNumber: string;
+        expiryMonth: string;
+        expiryYear: string;
+        cvv: string;
+    }): Promise<{
+        encryptedCardNumber: string;
+        encryptedExpiryMonth: string;
+        encryptedExpiryYear: string;
+        encryptedCvv: string;
+        cardNonce: string;
+    }> {
+        const encryptionKey = String(
+            this.form.dataset.flutterwaveEncryptionKey || "",
+        ).trim();
+        if (!encryptionKey) {
+            throw new Error("Missing secure checkout configuration.");
+        }
+
+        const keyBytes = this.fromBase64(encryptionKey);
+        const nonceBytes = crypto.getRandomValues(new Uint8Array(12));
+        const cryptoKey = await crypto.subtle.importKey(
+            "raw",
+            keyBytes,
+            { name: "AES-GCM" },
+            false,
+            ["encrypt"],
+        );
+
+        const encryptField = async (value: string): Promise<string> => {
+            const encodedValue = new TextEncoder().encode(value);
+            const encrypted = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: nonceBytes },
+                cryptoKey,
+                encodedValue,
+            );
+            return this.toBase64(new Uint8Array(encrypted));
+        };
+
+        const normalizedMonth = card.expiryMonth.padStart(2, "0");
+        const normalizedYear =
+            card.expiryYear.length === 2 ? `20${card.expiryYear}` : card.expiryYear;
+
+        return {
+            encryptedCardNumber: await encryptField(card.cardNumber),
+            encryptedExpiryMonth: await encryptField(normalizedMonth),
+            encryptedExpiryYear: await encryptField(normalizedYear),
+            encryptedCvv: await encryptField(card.cvv),
+            cardNonce: this.toBase64(nonceBytes),
+        };
+    }
+
     async init() {
         this.renderCart(await cartStore.initCart());
 
@@ -296,6 +362,15 @@ class CheckoutManager {
         (this.modal.querySelector("#postcode") as HTMLInputElement).value = "";
         (this.modal.querySelector("#region") as HTMLInputElement).value = "";
         (this.modal.querySelector("#country") as HTMLInputElement).value = "NG";
+        (this.modal.querySelector("#card-number") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#expiry-month") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#expiry-year") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#card-cvv") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#encrypted-card-number") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#encrypted-expiry-month") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#encrypted-expiry-year") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#encrypted-cvv") as HTMLInputElement).value = "";
+        (this.modal.querySelector("#card-nonce") as HTMLInputElement).value = "";
         const defaultDelivery = this.form.querySelector(
             'input[name="deliveryMethod"][data-delivery-default="true"]',
         ) as HTMLInputElement | null;
@@ -337,6 +412,13 @@ class CheckoutManager {
                 deliveryPriceNgn: Number(formData.get("deliveryPriceNgn") || 0),
             };
 
+            const encryptedCard = await this.encryptCheckoutCard({
+                cardNumber: String(formData.get("cardNumber") || "").replace(/\s+/g, ""),
+                expiryMonth: String(formData.get("expiryMonth") || "").trim(),
+                expiryYear: String(formData.get("expiryYear") || "").trim(),
+                cvv: String(formData.get("cvv") || "").trim(),
+            });
+
             trackAnalyticsEvent("checkout_start", { cartId: cart.id });
 
             const quoteRes = await fetch("/api/checkout/quote", {
@@ -371,6 +453,7 @@ class CheckoutManager {
                     },
                     body: JSON.stringify({
                         ...payload,
+                        ...encryptedCard,
                         quoteHash: String(quoteData.quoteHash),
                     }),
                 });

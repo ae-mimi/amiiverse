@@ -1,7 +1,9 @@
 ---
 import { fetchGlobalSettings } from "../../../lib/siteSettings";
+import { getFlutterwaveEncryptionKey } from "../../../lib/server/paymentGateway";
 
 const settings = await fetchGlobalSettings();
+const flutterwaveEncryptionKey = getFlutterwaveEncryptionKey({ locals: Astro.locals });
 const deliveryOptions =
     settings.shop?.deliveryOptions?.length
         ? settings.shop.deliveryOptions
@@ -41,12 +43,22 @@ const defaultDelivery =
         <p class="cartSectionCopy">Collect contact details, delivery destination, and your preferred shipping method before secure checkout.</p>
     </div>
 
-    <form id="checkout-form" class="checkoutForm" autocomplete="on">
+    <form
+        id="checkout-form"
+        class="checkoutForm"
+        autocomplete="on"
+        data-flutterwave-encryption-key={flutterwaveEncryptionKey}
+    >
         <input type="hidden" id="modal-product-id" name="productId" />
         <input type="hidden" id="modal-quantity" name="quantity" />
         <input type="hidden" id="delivery-label" name="deliveryLabel" value={deliveryOptions.find((option) => option.code === defaultDelivery)?.label || "Standard"} />
         <input type="hidden" id="delivery-price-ngn" name="deliveryPriceNgn" value={String(deliveryOptions.find((option) => option.code === defaultDelivery)?.priceNgn ?? 0)} />
         <input type="hidden" id="delivery-estimate" name="deliveryEstimate" value={deliveryOptions.find((option) => option.code === defaultDelivery)?.estimate || ""} />
+        <input type="hidden" id="encrypted-card-number" name="encryptedCardNumber" value="" />
+        <input type="hidden" id="encrypted-expiry-month" name="encryptedExpiryMonth" value="" />
+        <input type="hidden" id="encrypted-expiry-year" name="encryptedExpiryYear" value="" />
+        <input type="hidden" id="encrypted-cvv" name="encryptedCvv" value="" />
+        <input type="hidden" id="card-nonce" name="cardNonce" value="" />
 
         <div class="checkoutFieldset">
             <div class="checkoutSectionHeader">
@@ -249,6 +261,71 @@ const defaultDelivery =
             </div>
         </div>
 
+        <div class="checkoutFieldset">
+            <div class="checkoutSectionHeader">
+                <h6>Payment</h6>
+                <p class="checkoutSectionHint">Card payments are processed through Flutterwave with redirect support for 3D Secure authentication when required.</p>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-xs font-weight-bold text-secondary mb-1">CARD NUMBER</label>
+                <input
+                    type="text"
+                    id="card-number"
+                    name="cardNumber"
+                    class="formControl input-shape-rect"
+                    placeholder="1234 5678 9012 3456"
+                    autocomplete="cc-number"
+                    inputmode="numeric"
+                    required
+                />
+            </div>
+
+            <div class="checkoutGrid checkoutGridThree">
+                <div class="mb-3">
+                    <label class="text-xs font-weight-bold text-secondary mb-1">EXPIRY MONTH</label>
+                    <input
+                        type="text"
+                        id="expiry-month"
+                        name="expiryMonth"
+                        class="formControl input-shape-rect"
+                        placeholder="MM"
+                        autocomplete="cc-exp-month"
+                        inputmode="numeric"
+                        required
+                    />
+                </div>
+
+                <div class="mb-3">
+                    <label class="text-xs font-weight-bold text-secondary mb-1">EXPIRY YEAR</label>
+                    <input
+                        type="text"
+                        id="expiry-year"
+                        name="expiryYear"
+                        class="formControl input-shape-rect"
+                        placeholder="YY"
+                        autocomplete="cc-exp-year"
+                        inputmode="numeric"
+                        required
+                    />
+                </div>
+
+                <div class="mb-0">
+                    <label class="text-xs font-weight-bold text-secondary mb-1">CVV</label>
+                    <input
+                        type="password"
+                        id="card-cvv"
+                        name="cvv"
+                        class="formControl input-shape-rect"
+                        placeholder="123"
+                        autocomplete="cc-csc"
+                        inputmode="numeric"
+                        required
+                    />
+                </div>
+            </div>
+        </div>
+
         <div class="mb-3">
             <label class="text-xs font-weight-bold text-secondary mb-1"
                 >CURRENCY</label
@@ -333,6 +410,10 @@ const defaultDelivery =
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .checkoutGridThree {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .deliveryOptions {
         display: grid;
         gap: 0.75rem;
@@ -391,6 +472,10 @@ const defaultDelivery =
 
     @media (max-width: 720px) {
         .checkoutGridTwo {
+            grid-template-columns: 1fr;
+        }
+
+        .checkoutGridThree {
             grid-template-columns: 1fr;
         }
     }

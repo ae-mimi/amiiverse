@@ -17,16 +17,23 @@ interface PaymentInitInput {
     customerName?: string;
     shippingAddress?: Record<string, string>;
     deliveryOption?: Record<string, string | number>;
+    encryptedCardNumber: string;
+    encryptedExpiryMonth: string;
+    encryptedExpiryYear: string;
+    encryptedCvv: string;
+    cardNonce: string;
 }
 
 interface PaymentVerifyInput {
     authorizationKey: string;
     reference: string;
+    transactionId?: string;
 }
 
 export interface PaymentInitializationResult {
     ok: boolean;
     authorizationUrl: string;
+    transactionId: string;
     raw: any;
     error?: string;
 }
@@ -65,6 +72,7 @@ function getScopedEnvValue(
     baseKey:
         | "FLUTTERWAVE_CLIENT_ID"
         | "FLUTTERWAVE_CLIENT_SECRET"
+        | "FLUTTERWAVE_ENCRYPTION_KEY"
         | "FLUTTERWAVE_SECRET_KEY",
 ): string {
     const flutterwaveEnv = getFlutterwaveEnv(context);
@@ -102,6 +110,12 @@ function getFlutterwaveClientSecret(
     context: Pick<APIContext, "locals">,
 ): string {
     return getScopedEnvValue(context, "FLUTTERWAVE_CLIENT_SECRET");
+}
+
+export function getFlutterwaveEncryptionKey(
+    context: Pick<APIContext, "locals">,
+): string {
+    return getScopedEnvValue(context, "FLUTTERWAVE_ENCRYPTION_KEY");
 }
 
 export async function getPaymentAuthorizationKey(
@@ -163,28 +177,45 @@ export function getPaymentWebhookSecret(
     return getServerEnvValue(context, "FLUTTERWAVE_WEBHOOK_HASH");
 }
 
+function getFlutterwaveApiBaseUrl(context: Pick<APIContext, "locals">): string {
+    return getFlutterwaveEnv(context) === "live"
+        ? "https://api.flutterwave.cloud"
+        : "https://developersandbox-api.flutterwave.com";
+}
+
 export async function initializeProviderPayment(
+    context: Pick<APIContext, "locals">,
     input: PaymentInitInput,
 ): Promise<PaymentInitializationResult> {
-    const flutterwaveResponse = await fetch("https://api.flutterwave.com/v3/payments", {
+    const flutterwaveResponse = await fetch(`${getFlutterwaveApiBaseUrl(context)}/charges`, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${input.authorizationKey}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
+            reference: input.reference,
             tx_ref: input.reference,
-            amount: Number((input.amountMinor / 100).toFixed(2)),
+            amount: Number((input.amountMinor / 100).toFixed(2)).toFixed(2),
             currency: input.currency,
-            redirect_url: input.callbackUrl,
             customer: {
-                email: input.email,
-                phonenumber: input.phone || undefined,
                 name: input.customerName || input.email.split("@")[0] || "Customer",
+                email: input.email,
+                phone_number: input.phone || undefined,
             },
-            customizations: {
-                title: "Amiiverse Checkout",
-                description: `Order ${input.reference}`,
+            payment_method: {
+                type: "card",
+                card: {
+                    encrypted_card_number: input.encryptedCardNumber,
+                    encrypted_expiry_month: input.encryptedExpiryMonth,
+                    encrypted_expiry_year: input.encryptedExpiryYear,
+                    encrypted_cvv: input.encryptedCvv,
+                    nonce: input.cardNonce,
+                },
+            },
+            auth: {
+                type: "3ds",
+                redirect_url: input.callbackUrl,
             },
             meta: {
                 orderId: input.orderId,
@@ -201,12 +232,24 @@ export async function initializeProviderPayment(
     });
 
     const flutterwaveData = await flutterwaveResponse.json().catch(() => null);
-    const authorizationUrl = String(flutterwaveData?.data?.link || "").trim();
+    const authorizationUrl = String(
+        flutterwaveData?.data?.next_action?.redirect_url ||
+            flutterwaveData?.data?.link ||
+            "",
+    ).trim();
+    const transactionId = String(flutterwaveData?.data?.id || "").trim();
+    const providerStatus = String(flutterwaveData?.data?.status || "").trim().toLowerCase();
+    const chargeSucceeded = ["successful", "completed", "paid"].includes(providerStatus);
 
-    if (!flutterwaveResponse.ok || flutterwaveData?.status !== "success" || !authorizationUrl) {
+    if (
+        !flutterwaveResponse.ok ||
+        (!authorizationUrl && !transactionId) ||
+        (!authorizationUrl && !chargeSucceeded)
+    ) {
         return {
             ok: false,
             authorizationUrl: "",
+            transactionId,
             raw: flutterwaveData ?? {},
             error:
                 flutterwaveData?.message ||
@@ -216,16 +259,32 @@ export async function initializeProviderPayment(
 
     return {
         ok: true,
-        authorizationUrl,
+        authorizationUrl: authorizationUrl || input.callbackUrl,
+        transactionId,
         raw: flutterwaveData,
     };
 }
 
 export async function verifyProviderPayment(
+    context: Pick<APIContext, "locals">,
     input: PaymentVerifyInput,
 ): Promise<PaymentVerificationResult> {
+    if (!input.transactionId) {
+        return {
+            ok: false,
+            paid: false,
+            providerStatus: "",
+            transactionId: "",
+            raw: {},
+            email: "",
+            amountMinor: 0,
+            currency: "NGN",
+            error: "Missing Flutterwave charge identifier",
+        };
+    }
+
     const flutterwaveResponse = await fetch(
-        `https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(input.reference)}`,
+        `${getFlutterwaveApiBaseUrl(context)}/charges/${encodeURIComponent(input.transactionId)}`,
         {
             headers: {
                 Authorization: `Bearer ${input.authorizationKey}`,
@@ -234,22 +293,29 @@ export async function verifyProviderPayment(
     );
 
     const flutterwaveData = await flutterwaveResponse.json().catch(() => null);
-    const providerStatus = String(flutterwaveData?.data?.status || "").trim();
+    const providerStatus = String(flutterwaveData?.data?.status || "").trim().toLowerCase();
     const paid =
         flutterwaveResponse.ok &&
-        flutterwaveData?.status === "success" &&
-        providerStatus === "successful";
-    const amount = Number(flutterwaveData?.data?.amount ?? 0);
+        ["successful", "completed", "paid"].includes(providerStatus);
+    const amount = Number(
+        flutterwaveData?.data?.amount?.value ??
+            flutterwaveData?.data?.amount ??
+            0,
+    );
 
     return {
-        ok: flutterwaveResponse.ok && flutterwaveData?.status === "success",
+        ok: flutterwaveResponse.ok,
         paid,
         providerStatus,
-        transactionId: String(flutterwaveData?.data?.id ?? "").trim(),
+        transactionId: String(flutterwaveData?.data?.id ?? input.transactionId).trim(),
         raw: flutterwaveData ?? {},
         email: String(flutterwaveData?.data?.customer?.email || "").trim(),
         amountMinor: Number.isFinite(amount) ? Math.round(amount * 100) : 0,
-        currency: String(flutterwaveData?.data?.currency || "NGN"),
+        currency: String(
+            flutterwaveData?.data?.amount?.currency ||
+                flutterwaveData?.data?.currency ||
+                "NGN",
+        ),
         error: flutterwaveData?.message || "Flutterwave verification failed",
     };
 }
