@@ -1,12 +1,9 @@
 ---
-import ContactForm from "../forms/ContactForm.astro";
 import { Icon } from "astro-icon/components";
-import { fetchGlobalSettings } from "../../utils/global";
+import { fetchGlobalSettings } from "../../lib/siteSettings";
 import InfoCard from "../ui/InfoCard.astro";
 
 const {
-    title,
-    subtitle,
     management_email,
     press_email,
     bookings_email,
@@ -21,12 +18,6 @@ const socials = settings.socials || [];
 <div class="content-wrapper">
     <div class="content-container">
         <div class="grid-layout">
-            <!-- Left Column: Form -->
-            <div class="form-column">
-                <ContactForm title={title} subtitle={subtitle} />
-            </div>
-
-            <!-- Right Column: Info Cards -->
             <div class="info-column">
                 <!-- Contact Us Card -->
                 <InfoCard title="CONTACT US">
@@ -124,32 +115,20 @@ const socials = settings.socials || [];
         display: flex;
         flex-direction: row;
         justify-content: center;
-        align-items: stretch; /* Use stretch to equal height */
-        height: auto; /* Ensure it fits content */
-        padding-block: 67px;
-        gap: clamp(40px, 5vw, 100px); /* Fluid layout gap */
+        align-items: stretch;
+        height: auto;
+        padding-block: 24px 67px;
+        gap: clamp(24px, 3vw, 40px);
         width: 100%;
-        max-width: 2560px; /* Match global cap */
+        max-width: 1280px;
         flex-wrap: wrap;
     }
 
-    .form-column {
-        flex: 1 1 auto; /* Allow growth */
-        width: 100%;
-        height: auto; /* Ensure it fits content */
-        max-width: clamp(
-            600px,
-            45vw,
-            1400px
-        ); /* Increased cap for 4K screens */
-    }
-
     .info-column {
-        display: flex;
-        flex-direction: column;
-        gap: clamp(25px, 2vw, 40px); /* Fluid column gap */
-        width: clamp(222px, 20vw, 450px); /* Fluid info column */
-        flex-shrink: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: clamp(20px, 2vw, 32px);
+        width: 100%;
     }
 
     .links-grid {
@@ -204,16 +183,13 @@ const socials = settings.socials || [];
 
     @media (max-width: 900px) {
         .grid-layout {
-            flex-direction: column;
             align-items: center;
             gap: 40px;
         }
 
         .info-column {
             width: 100%;
-            max-width: 534px;
-            flex-direction: column;
-            align-items: stretch;
+            max-width: 700px;
         }
 
         .info-card {

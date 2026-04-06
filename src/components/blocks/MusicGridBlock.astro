@@ -1,5 +1,6 @@
 ---
 import MusicCard from "../ui/MusicCard.astro";
+import { formatDateLong } from "../../lib/utils/format";
 
 interface MusicItem {
     id: string;
@@ -61,7 +62,8 @@ try {
 
 {
     isMusicPage && (
-        <script>
+<script>
+    import { initOnAstroPageLoad } from "../../lib/client/init";
     interface MusicItem {
         id: string;
         slug: string;
@@ -97,13 +99,12 @@ try {
                 .replaceAll("'", "&#39;");
         }
 
-        function formatDate(dateString: string): string {
-            const date = new Date(dateString);
-            if (Number.isNaN(date.getTime())) return "";
-            return date.toLocaleDateString("en-US", {
-                year: "numeric",
+        function formatDateLongValue(dateStr: string): string {
+            if (!dateStr) return "";
+            return new Date(dateStr).toLocaleDateString("en-US", {
                 month: "long",
                 day: "numeric",
+                year: "numeric",
             });
         }
 
@@ -120,7 +121,7 @@ try {
                     const title = escapeHtml(item.title || "Untitled");
                     const cover = escapeHtml(item.cover_image_url || "");
                     const spotify = escapeHtml(item.spotify || "");
-                    const date = formatDate(item.date || "");
+                    const date = formatDateLongValue(item.date || "");
                     return `
                         <div class="music-item">
                             <div class="cover-art">
@@ -164,8 +165,7 @@ try {
         });
     }
 
-    initMusicSearch();
-    document.addEventListener("astro:page-load", initMusicSearch);
+    initOnAstroPageLoad(initMusicSearch);
         </script>
     )
 }

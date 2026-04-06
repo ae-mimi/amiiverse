@@ -1,16 +1,20 @@
 ---
 import { Icon } from "astro-icon/components";
-import { fetchGlobalSettings } from "../../utils/global";
+import HeaderBrand from "../navigation/HeaderBrand.astro";
+import HeaderSocials from "../navigation/HeaderSocials.astro";
+import MobileMenuOverlay from "../navigation/MobileMenuOverlay.astro";
+import Navigation from "../navigation/Navigation.astro";
+import { fetchGlobalSettings } from "../../lib/siteSettings";
+
 const settings = await fetchGlobalSettings();
 
-// Process header links from unified navigationItems
 const links = (settings.navigationItems || [])
     .filter((item) => item.showInHeader)
+    .slice(0, 6)
     .map((item) => {
         const { link, is_special, disabled } = item;
         let href = "#";
-        if (link?.type === "internal")
-            href = `/${link.internalRef?.slug || ""}`;
+        if (link?.type === "internal") href = `/${link.internalRef?.slug || ""}`;
         else if (link?.type === "external") href = link.url || "#";
         else if (link?.type === "email") href = `mailto:${link.url || ""}`;
 
@@ -22,92 +26,37 @@ const links = (settings.navigationItems || [])
         };
     });
 
-import Navigation from "../ui/Navigation.astro";
+const socials = settings.socials || [];
 ---
 
 <header class="site-header">
     <div class="header-inner">
-        <!-- Left: Logo -->
-        <a href="/" class="logo-link" aria-label="amii Home">
-            {
-                settings.site_info?.logo_navy && (
-                    <img
-                        src={settings.site_info.logo_navy || ""}
-                        alt="amii Logo"
-                        class="header-logo"
-                        loading="eager"
-                    />
-                )
-            }
-        </a>
-    </div>
+        <HeaderBrand logoSrc={settings.site_info?.logo_navy || ""} />
 
-    <!-- Center: Navbar -->
-    <div class="main-nav-wrapper">
-        <Navigation links={links} layout="row" theme="default" />
-    </div>
-
-    <!-- Right: Actions -->
-    <div class="header-actions">
-        <!-- Social Icons (Desktop) -->
-        <div class="header-socials">
-            {
-                settings.socials?.map((social) => (
-                    <a
-                        href={social.url}
-                        aria-label={social.platform}
-                        target="_blank"
-                    >
-                        <Icon
-                            name={`simple-icons:${social.icon}`}
-                            class={`icon-social icon-${social.icon}`}
-                        />
-                    </a>
-                ))
-            }
+        <div class="main-nav-wrapper">
+            <Navigation links={links} layout="row" theme="default" />
         </div>
 
-        <!-- Mobile Menu Toggle (Contains both icons for perfect alignment) -->
-        <button id="menu-toggle" aria-label="Toggle Menu">
-            <div class="icon-container">
-                <Icon name="lucide:menu" class="icon-menu" />
-                <Icon name="lucide:x" class="icon-close" />
-            </div>
-        </button>
+        <div class="header-actions">
+            <HeaderSocials socials={socials} class="header-socials" />
+
+            <button
+                id="menu-toggle"
+                aria-label="Open Menu"
+                aria-expanded="false"
+            >
+                <div class="icon-container">
+                    <Icon name="lucide:menu" class="icon-menu" />
+                    <Icon name="lucide:x" class="icon-close is-hidden" />
+                </div>
+            </button>
+        </div>
     </div>
 </header>
 
-<!-- Mobile Navigation Overlay -->
-<div id="mobile-menu-overlay" aria-hidden="true" inert>
-    <!-- Close Button Removed (Reused Toggle) -->
-
-    <Navigation
-        links={links}
-        layout="column"
-        theme="default"
-        class="mobile-nav"
-    />
-
-    <div class="mobile-socials">
-        {
-            settings.socials?.map((social) => (
-                <a
-                    href={social.url}
-                    aria-label={social.platform}
-                    target="_blank"
-                >
-                    <Icon
-                        name={`simple-icons:${social.icon}`}
-                        class={`icon-social icon-${social.icon}`}
-                    />
-                </a>
-            ))
-        }
-    </div>
-</div>
+<MobileMenuOverlay links={links} socials={socials} />
 
 <style>
-    /* Header Light Mode Layer */
     .site-header {
         position: fixed;
         top: 0;
@@ -130,7 +79,7 @@ import Navigation from "../ui/Navigation.astro";
 
     .header-inner {
         width: 100%;
-        max-width: 2560px; /* Increased for 4K */
+        max-width: 2560px;
         margin: 0 auto;
         display: flex;
         justify-content: space-between;
@@ -145,7 +94,7 @@ import Navigation from "../ui/Navigation.astro";
         transform: translate(-50%, -50%);
     }
 
-    .logo-link {
+    :global(.logo-link) {
         display: block;
         line-height: 0;
     }
@@ -160,42 +109,30 @@ import Navigation from "../ui/Navigation.astro";
         gap: 24px;
     }
 
-    .header-socials {
+    :global(.header-socials) {
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    @media (max-width: 1024px) {
-        .header-socials {
-            display: none;
-        }
-    }
-
-    .header-socials a {
+    :global(.header-social-links a),
+    :global(.mobile-socials a) {
         display: flex;
         justify-content: center;
         align-items: center;
         width: 33px;
         height: 33px;
-        color: var(--text-nav);
-        transition:
-            transform 0.2s,
-            opacity 0.2s;
+        color: var(--text-nav, var(--color-primary));
+        transition: transform 0.2s, opacity 0.2s;
     }
 
-    .icon-social {
+    :global(.icon-social) {
         width: auto;
         height: 20px;
         transition: transform 0.2s;
     }
 
-    .icon-youtube {
-        height: 22px;
-        transform: scale(1.1);
-    }
-
-    .icon-social:hover {
+    :global(.icon-social:hover) {
         transform: scale(1.2);
     }
 
@@ -215,28 +152,63 @@ import Navigation from "../ui/Navigation.astro";
         position: absolute;
         top: 0;
         left: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.2s ease;
     }
 
-    .icon-close {
+    .is-hidden {
         opacity: 0;
+        pointer-events: none;
     }
 
-    /* Mobile Menu Toggle */
     #menu-toggle {
         display: none;
         z-index: 1001;
         position: relative;
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--color-primary);
+        cursor: pointer;
     }
 
-    /* Responsive Mobile & Tablet */
+    :global(#mobile-menu-overlay) {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--color-bg);
+        opacity: 0;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 27px;
+        z-index: 999;
+        transition: opacity 0.25s ease;
+    }
+
+    :global(#mobile-menu-overlay.is-open) {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    :global(.mobile-socials) {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
     @media (max-width: 1024px) {
+        :global(.header-socials) {
+            display: none;
+        }
+
         .site-header {
-            height: auto;
             min-height: 54px;
             padding: 16px 8px;
-            background-color: var(--color-bg); /* was yellow-500 */
-            border-bottom: none;
+            background-color: var(--color-bg);
         }
 
         .main-nav-wrapper {
@@ -247,186 +219,15 @@ import Navigation from "../ui/Navigation.astro";
             gap: 16px;
         }
 
-        /* 3. Hamburger/Close Toggle */
         #menu-toggle {
             display: block;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            color: var(--color-primary); /* was navy-500 */
         }
-    }
-
-    /* Mobile Overlay Styles (Global) */
-    #mobile-menu-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: var(--color-bg); /* was yellow-500 */
-        opacity: 0;
-        pointer-events: none;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 27px;
-        z-index: 999;
-    }
-
-    .mobile-socials {
-        display: flex;
-        gap: 8px;
-        margin-top: 16px;
-    }
-
-    .mobile-socials a {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 33px;
-        height: 33px;
-        color: var(--color-primary); /* was navy-500 */
-        transition: transform 0.2s;
-    }
-
-    .mobile-socials a:hover {
-        transform: scale(1.1);
     }
 </style>
 
 <script>
-    import { gsap } from "gsap";
+    import { initOnAstroPageLoad } from "../../lib/client/init";
+    import { initSiteHeader } from "../../lib/client/navigation";
 
-    const menuToggle = document.getElementById("menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu-overlay");
-    const mobileLinks = document.querySelectorAll(".mobile-nav li");
-    const mobileSocials = document.querySelector(".mobile-socials");
-
-    const iconMenu = document.querySelector(".icon-menu");
-    const iconClose = document.querySelector(".icon-close");
-
-    let isMenuOpen = false;
-
-    if (menuToggle && mobileMenu) {
-        // Create GSAP Timeline
-        const tl = gsap.timeline({ paused: true, reversed: true });
-
-        // Animation Definition
-        tl.to(mobileMenu, {
-            duration: 0.4,
-            opacity: 1,
-            pointerEvents: "all",
-            ease: "power2.inOut",
-            display: "flex", // Ensure it's visible for animation
-        })
-            .to(
-                iconMenu,
-                {
-                    opacity: 0,
-                    rotation: 90,
-                    duration: 0.2,
-                },
-                "<",
-            )
-            .to(
-                iconClose,
-                {
-                    opacity: 1,
-                    rotation: 0,
-                    duration: 0.2,
-                },
-                "<",
-            )
-            .from(
-                [mobileLinks, mobileSocials],
-                {
-                    y: 20,
-                    opacity: 0,
-                    duration: 0.4,
-                    stagger: 0.05,
-                    ease: "power2.out",
-                },
-                "-=0.2",
-            );
-
-        // Toggle Logic
-        menuToggle.addEventListener("click", () => {
-            if (!isMenuOpen) {
-                mobileMenu.removeAttribute("inert");
-                mobileMenu.setAttribute("aria-hidden", "false");
-                tl.play();
-                document.body.style.overflow = "hidden"; // Prevent scrolling
-                isMenuOpen = true;
-                menuToggle.setAttribute("aria-label", "Close Menu");
-                menuToggle.setAttribute("aria-expanded", "true");
-            } else {
-                tl.reverse();
-                document.body.style.overflow = ""; // Restore scrolling
-                isMenuOpen = false;
-                menuToggle.setAttribute("aria-label", "Open Menu");
-                menuToggle.setAttribute("aria-expanded", "false");
-                mobileMenu.setAttribute("aria-hidden", "true");
-                mobileMenu.setAttribute("inert", "");
-            }
-        });
-    }
-
-    // Smart Sticky Header Logic
-    const header = document.querySelector(".site-header") as HTMLElement | null;
-    let lastScrollY = window.scrollY;
-    let isHeaderHidden = false;
-
-    if (header) {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-
-            // Show header if scrolling up or at the very top
-            if (currentScrollY < lastScrollY || currentScrollY < 50) {
-                if (isHeaderHidden) {
-                    header.classList.remove("is-hidden");
-                    isHeaderHidden = false;
-                }
-            }
-            // Hide header if scrolling down and past the top threshold
-            // AND ensure menu is not open
-            else if (
-                currentScrollY > lastScrollY &&
-                currentScrollY > 100 &&
-                !isMenuOpen
-            ) {
-                if (!isHeaderHidden) {
-                    header.classList.add("is-hidden");
-                    isHeaderHidden = true;
-                }
-            }
-
-            lastScrollY = currentScrollY;
-        };
-
-        window.addEventListener("scroll", handleScroll, { passive: true });
-    }
-
-    // Dynamic Header Height Calculation
-    if (header) {
-        const updateHeaderHeight = () => {
-            const height = header.offsetHeight;
-            document.documentElement.style.setProperty(
-                "--header-height",
-                `${height}px`,
-            );
-        };
-
-        // Initial calculation
-        updateHeaderHeight();
-
-        // Observe resize events
-        const resizeObserver = new ResizeObserver(() => {
-            updateHeaderHeight();
-        });
-
-        resizeObserver.observe(header);
-    }
+    initOnAstroPageLoad(initSiteHeader);
 </script>

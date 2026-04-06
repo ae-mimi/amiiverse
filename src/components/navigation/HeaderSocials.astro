@@ -1,0 +1,29 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface SocialLink {
+    platform: string;
+    url: string;
+    icon: string;
+}
+
+interface Props {
+    socials?: SocialLink[];
+    class?: string;
+}
+
+const { socials = [], class: className } = Astro.props;
+---
+
+<div class:list={[className, "header-social-links"]}>
+    {
+        socials.map((social) => (
+            <a href={social.url} aria-label={social.platform} target="_blank">
+                <Icon
+                    name={`simple-icons:${social.icon}`}
+                    class={`icon-social icon-${social.icon}`}
+                />
+            </a>
+        ))
+    }
+</div>

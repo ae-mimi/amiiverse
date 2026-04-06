@@ -156,7 +156,6 @@ export default defineType({
             group: 'navigation',
             initialValue: false,
         }),
-
         // ── Navigation ───────────────────────────────────────
         defineField({
             name: 'navigationItems',

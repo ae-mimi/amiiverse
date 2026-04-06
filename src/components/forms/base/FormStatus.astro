@@ -1,0 +1,28 @@
+<p class="form-status" data-form-status aria-live="polite" hidden></p>
+
+<style>
+    .form-status {
+        margin: 0;
+        width: 100%;
+        font-family: var(--font-body);
+        font-size: clamp(13px, 1vw, 16px);
+        line-height: 1.45;
+        padding: 12px 14px;
+        border: 1px solid var(--text-main);
+        border-radius: 16px;
+        background: color-mix(in srgb, var(--bg-card) 86%, white 14%);
+        color: var(--text-main);
+    }
+
+    .form-status[data-state="success"] {
+        border-color: color-mix(in srgb, var(--color-accent) 45%, var(--text-main) 55%);
+    }
+
+    .form-status[data-state="warning"] {
+        border-color: color-mix(in srgb, #d49000 55%, var(--text-main) 45%);
+    }
+
+    .form-status[data-state="error"] {
+        border-color: color-mix(in srgb, #b63b3b 65%, var(--text-main) 35%);
+    }
+</style>

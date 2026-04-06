@@ -1,5 +1,5 @@
 ---
-import { fetchGlobalSettings } from "../../utils/global";
+import { fetchGlobalSettings } from "../../lib/siteSettings";
 
 const settings = await fetchGlobalSettings();
 const siteUrl = Astro.site ? Astro.site.toString() : "https://weareamii.com";

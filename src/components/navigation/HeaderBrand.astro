@@ -1,0 +1,20 @@
+---
+interface Props {
+    logoSrc?: string;
+}
+
+const { logoSrc = "" } = Astro.props;
+---
+
+<a href="/" class="logo-link" aria-label="amii Home">
+    {
+        logoSrc && (
+            <img
+                src={logoSrc}
+                alt="amii Logo"
+                class="header-logo"
+                loading="eager"
+            />
+        )
+    }
+</a>

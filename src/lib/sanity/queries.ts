@@ -234,32 +234,3 @@ export const ALL_TIMELINE_QUERY = `*[_type == "timelineItem"] | order(date asc) 
   title, date, description, media
 }`;
 
-// ── Shop ────────────────────────────────────────────────
-export const ALL_SHOP_QUERY = `*[_type == "product" && isActive == true] | order(sortOrder asc, _createdAt desc) {
-  title, 
-  price, 
-  compareAtPrice,
-  "url": "/shop/" + slug.current, 
-  "image": coverImage, 
-  "galleryImages": galleryImages,
-  productType, 
-  "productId": _id,
-  stock,
-  badges,
-  shortDescription,
-  isFeatured,
-  sortOrder,
-  _createdAt
-}`;
-
-// ── Legacy (kept for backward compat) ───────────────────
-
-export const LEGACY_MUSIC_QUERY = `*[_type == "track" && isSingleFocus == true] | order(_createdAt desc) {
-  title, 
-  "date": release->releaseDate,
-  "cover": release->artwork,
-  "spotify": platformLinks.spotify, 
-  "apple_music": platformLinks.apple, 
-  "youtube_music": platformLinks.youtube,
-  "audio_url": previewUrl
-}`;
