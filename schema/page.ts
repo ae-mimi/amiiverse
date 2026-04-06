@@ -4,7 +4,7 @@ import {
   HeroHomeIcon, HeroPredebutIcon, HeroPageIcon,
   IntroIcon, RichTextIcon, GalleryIcon, VideoIcon,
   CTAIcon, CountdownIcon, FAQIcon, TestimonialIcon,
-  MusicGridIcon, MembersGridIcon, ShopGridIcon, PressGridIcon, EventsIcon,
+  MusicGridIcon, MembersGridIcon, PressGridIcon, EventsIcon,
   WidgetIcon, ContactFormIcon, ContactInfoIcon,
   SpacerIcon, DividerIcon, MarqueeIcon, LyricIcon,
   ReleaseSpotlightIcon, DiscographyGridIcon, VideoGalleryIcon,
@@ -57,7 +57,6 @@ export default defineType({
           { title: 'Press / EPK', value: 'press' },
           { title: 'Community', value: 'community' },
           { title: 'News', value: 'news' },
-          { title: 'Store', value: 'store' },
           { title: 'Custom', value: 'custom' },
         ],
         layout: 'dropdown',
@@ -560,24 +559,6 @@ export default defineType({
             prepare({ title }) { return { title: title || 'Members', subtitle: 'Member profiles' } },
           },
         },
-        {
-          type: 'object',
-          name: 'shop_grid',
-          title: 'Shop / Merch',
-          icon: ShopGridIcon,
-          description: 'Shows merch and products in a grid.',
-          fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Shop' }),
-            defineField({ name: 'eyebrow', type: 'string', title: 'Eyebrow', initialValue: 'Official Store' }),
-            defineField({ name: 'subtitle', type: 'text', title: 'Subtitle', rows: 2, initialValue: 'Merch, digital drops, and collectible releases in one storefront.' }),
-            defineField({ name: 'limit', type: 'number', title: 'Max Items', initialValue: 12 }),
-          ],
-          preview: {
-            select: { title: 'title' },
-            prepare({ title }) { return { title: title || 'Shop', subtitle: 'Auto-generated from Shop library' } },
-          },
-        },
-
         // ═══════════════════════════════════════
         //  PRESS AND DOWNLOADS
         // ═══════════════════════════════════════

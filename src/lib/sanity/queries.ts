@@ -101,16 +101,6 @@ export const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
     ...,
     link{ label, type, url, internalRef->{ slug } }
   },
-  shop{
-    deliveryOptions[]{
-      code,
-      label,
-      priceNgn,
-      estimate,
-      description,
-      isDefault
-    }
-  },
   "site_info": {
     "title": title,
     "description": description,

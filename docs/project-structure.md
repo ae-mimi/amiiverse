@@ -10,7 +10,6 @@ It reflects the live tree today, not an idealized future tree.
 - `schema/`: Sanity schema definitions and desk structure
 - `db/`: D1 schema and migrations
 - `public/`: static assets and headers/redirect files
-- `scripts/`: local operational scripts
 - `docs/`: project documentation and repo navigation notes
 
 ## `src/`
@@ -40,15 +39,6 @@ Current layout:
 - `contact/`: business contact form composition
 - `newsletter/`: newsletter form composition
 
-#### `src/components/shop`
-- Shop UI domain
-
-Current layout:
-- root shop components for shared surface area
-- `catalog/`: listing/grid/quick-buy pieces
-- `cart/`: cart modal shell, line items, totals, checkout form
-- `pdp/`: product detail purchase panel
-
 #### `src/components/navigation`
 - Header-level navigation pieces
 - Brand, socials, shared site navigation, mobile menu overlay
@@ -66,19 +56,14 @@ Current layout:
 #### `src/lib/client`
 - Browser-only interaction controllers
 - Examples:
-  - quick buy event dispatch
   - newsletter/contact form submission
-  - cart modal orchestration
   - header/mobile nav behavior
 
 #### `src/lib/server`
-- Server-side commerce, validation, runtime env, inventory, and payment logic
+- Server-side runtime env, Brevo integration, and backend helpers
 
 #### `src/lib/sanity`
 - Sanity client, GROQ queries, types, and write helpers
-
-#### `src/lib/cart`
-- Client-side cart store abstraction
 
 #### `src/lib/utils`
 - Cross-feature helpers used by multiple blocks/components
@@ -99,14 +84,12 @@ Current layout:
 - `schema/settings.ts`: global site settings
 - `schema/documents/`: Sanity document types
 - `schema/objects/`: reusable object schema pieces
-- `schema/shop/`: commerce-related schema
 
 ## Navigation Tips
 
 When making changes:
 - CMS block rendering issue: start in `schema/page.ts`, then `src/components/PageBuilder.astro`, then the matching block
 - form issue: start in `src/components/forms`, then `src/lib/client/forms.ts`, then the API route
-- shop issue: start in `src/components/shop`, then `src/lib/client`, then `src/pages/api/shop` or `src/pages/api/checkout`
 - global header/footer/settings issue: start in `src/components/layout`, `src/components/navigation`, and `src/lib/siteSettings.ts`
 
 ## Cleanup Rules
@@ -115,4 +98,3 @@ To keep the tree intuitive:
 - prefer block adapters in `blocks/`, feature logic in domain folders
 - prefer browser behavior in `src/lib/client` instead of large inline scripts
 - prefer shared form parts in `src/components/forms/base`
-- only keep compatibility aliases when they are documented in [`docs/compatibility-inventory.md`](/c:/Users/lenovo/Desktop/amii%20Assets/05%20-%20Technology/Website/amiiverse/docs/compatibility-inventory.md)

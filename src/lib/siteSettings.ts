@@ -9,16 +9,6 @@ import {
 const defaultSettings = settings as SiteSettings;
 
 export interface SiteSettings {
-    shop?: {
-        deliveryOptions?: Array<{
-            code?: string;
-            label?: string;
-            priceNgn?: number;
-            estimate?: string;
-            description?: string;
-            isDefault?: boolean;
-        }>;
-    };
     site_info: {
         title: string;
         description: string;
@@ -144,7 +134,6 @@ function normalizeSettings(input: unknown): SiteSettings {
     const footer = (raw.footer ?? {}) as Record<string, any>;
     const seo = (raw.seo ?? {}) as Record<string, any>;
     const favicons = (raw.favicons ?? {}) as Record<string, any>;
-    const shop = (raw.shop ?? {}) as Record<string, any>;
 
     return {
         ...settings,
@@ -181,20 +170,6 @@ function normalizeSettings(input: unknown): SiteSettings {
             manifest192: asString(favicons.manifest192, defaultSettings.favicons?.manifest192 || ""),
             manifest512: asString(favicons.manifest512, defaultSettings.favicons?.manifest512 || ""),
             webmanifest: asString(favicons.webmanifest, defaultSettings.favicons?.webmanifest || ""),
-        },
-        shop: {
-            deliveryOptions: asArray<any>(shop.deliveryOptions)
-                .filter((option) => option && typeof option === "object")
-                .map((option) => ({
-                    code: asString(option.code, ""),
-                    label: asString(option.label, "Delivery"),
-                    priceNgn: Number.isFinite(Number(option.priceNgn))
-                        ? Math.max(0, Number(option.priceNgn))
-                        : 0,
-                    estimate: asString(option.estimate, ""),
-                    description: asString(option.description, ""),
-                    isDefault: Boolean(option.isDefault),
-                })),
         },
         navigationItems: asArray<any>(raw.navigationItems)
             .filter((item) => item && typeof item === "object")

@@ -28,8 +28,6 @@ import poll from './documents/poll'
 import campaign from './documents/campaign'
 import redirect from './documents/redirect'
 import pressMention from './documents/pressMention'
-import product from './shop/product'
-import order from './shop/order'
 
 export const schemaTypes = [
     // Color input schema types (explicit registration)
@@ -80,7 +78,4 @@ export const schemaTypes = [
     // New objects
     themeSettings,
 
-    // Shop System
-    product,
-    order,
 ]

@@ -14,7 +14,7 @@ Create these 3 folders:
 Keep only these active lists:
 1. `Website - Newsletter (DOI)` in `01_Website_Core`
 2. `Website - Contact Leads` in `01_Website_Core`
-3. `Website - Customers` in `02_Transactional` (optional for future ecommerce automations)
+3. `Website - Customers` in `02_Transactional` (optional for future audience automations)
 
 Move old/random lists to `99_Archive` first, then delete after 14 days if no automations use them.
 
