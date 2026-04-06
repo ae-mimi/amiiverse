@@ -35,6 +35,7 @@ Set these in Cloudflare Pages project settings (`Settings -> Environment variabl
 
 Server-only secrets:
 
+- `ADMIN_SYNC_TOKEN`
 - `SANITY_WRITE_TOKEN`
 - `BREVO_API_KEY`
 - `BREVO_NEWSLETTER_LIST_ID` or `BREVO_LIST_ID`
@@ -64,6 +65,7 @@ Configure bindings in Cloudflare and access them only on server runtime.
 
 - API routes should read sensitive values from Cloudflare runtime env (`context.locals.runtime.env`) with safe fallback for local development.
 - Client-side code must only read `PUBLIC_*` variables.
+- For preview/production separation, set environment variables separately in Cloudflare Pages for each environment.
 
 ## Local environment
 
