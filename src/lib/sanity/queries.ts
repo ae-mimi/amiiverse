@@ -123,6 +123,11 @@ export const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
     "businessName": footer.businessName,
     "contactEmail": footer.contactEmail,
     "copyright": footer.copyright
+  },
+  "socials": socials[]{
+    "platform": platform,
+    "url": url,
+    "icon": icon
   }
 }`;
 
