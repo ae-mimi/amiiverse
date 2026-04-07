@@ -66,7 +66,15 @@ async function syncToBrevo(
         if (response.ok) {
             return { status: "synced", lastError: "" };
         }
-        return { status: "failed", lastError: (await response.text()).slice(0, 500) };
+        const errorText = (await response.text()).slice(0, 500);
+        console.error("Brevo DOI retry failed", {
+            email,
+            endpoint: "doubleOptinConfirmation",
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText,
+        });
+        return { status: "failed", lastError: errorText };
     }
 
     const payload: Record<string, unknown> = {
@@ -94,6 +102,13 @@ async function syncToBrevo(
     if (errorText.includes("duplicate_parameter")) {
         return { status: "synced", lastError: "" };
     }
+    console.error("Brevo contact retry failed", {
+        email,
+        endpoint: "contacts",
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText.slice(0, 500),
+    });
     return { status: "failed", lastError: errorText.slice(0, 500) };
 }
 

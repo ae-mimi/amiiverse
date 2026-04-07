@@ -159,6 +159,13 @@ async function syncToBrevo(
             return { status: "synced", contactId: "", lastError: "" };
         }
         const err = await response.text();
+        console.error("Brevo DOI sync failed", {
+            email,
+            endpoint: "doubleOptinConfirmation",
+            status: response.status,
+            statusText: response.statusText,
+            error: err.slice(0, 500),
+        });
         return {
             status: "failed",
             contactId: "",
@@ -202,6 +209,13 @@ async function syncToBrevo(
     if (errText.includes("duplicate_parameter")) {
         return { status: "synced", contactId: "", lastError: "" };
     }
+    console.error("Brevo contact sync failed", {
+        email,
+        endpoint: "contacts",
+        status: response.status,
+        statusText: response.statusText,
+        error: errText.slice(0, 500),
+    });
     return {
         status: "failed",
         contactId: "",
@@ -373,7 +387,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
         if (brevo.status === "failed") {
             return jsonResponse(202, {
                 status: "queued",
-                message: "Saved locally. Confirmation sync will retry.",
+                message:
+                    "Captcha passed, but the confirmation email could not be sent yet. We'll retry shortly.",
             });
         }
 
@@ -387,10 +402,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unexpected error";
+        console.error("Newsletter subscribe sync crashed", {
+            email,
+            error: message,
+        });
         await updateLeadStatus(db, email, "failed", "", message.slice(0, 500));
         return jsonResponse(202, {
             status: "queued",
-            message: "Saved locally. Confirmation sync will retry.",
+            message:
+                "Captcha passed, but the confirmation email could not be sent yet. We'll retry shortly.",
         });
     }
 };
