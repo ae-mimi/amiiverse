@@ -47,7 +47,7 @@ const socials = settings.socials || [];
             >
                 <div class="icon-container">
                     <Icon name="lucide:menu" class="icon-menu" />
-                    <Icon name="lucide:x" class="icon-close is-hidden" />
+                    <Icon name="lucide:x" class="icon-close" />
                 </div>
             </button>
         </div>
@@ -152,11 +152,20 @@ const socials = settings.socials || [];
         position: absolute;
         top: 0;
         left: 0;
-        transition: opacity 0.2s ease;
+        transform-origin: center;
+        transition:
+            opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .is-hidden {
+    .icon-menu {
+        opacity: 1;
+        transform: rotate(0deg) scale(1);
+    }
+
+    .icon-close {
         opacity: 0;
+        transform: rotate(-90deg) scale(0.7);
         pointer-events: none;
     }
 
@@ -169,6 +178,17 @@ const socials = settings.socials || [];
         padding: 0;
         color: var(--color-primary);
         cursor: pointer;
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #menu-toggle.is-open .icon-menu {
+        opacity: 0;
+        transform: rotate(90deg) scale(0.7);
+    }
+
+    #menu-toggle.is-open .icon-close {
+        opacity: 1;
+        transform: rotate(0deg) scale(1);
     }
 
     :global(#mobile-menu-overlay) {

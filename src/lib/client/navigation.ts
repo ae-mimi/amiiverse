@@ -6,8 +6,6 @@ export function initSiteHeader(): void {
 
     const menuToggle = document.getElementById("menu-toggle");
     const mobileMenu = document.getElementById("mobile-menu-overlay");
-    const iconMenu = document.querySelector(".icon-menu");
-    const iconClose = document.querySelector(".icon-close");
     const header = document.querySelector(".site-header") as HTMLElement | null;
 
     let isMenuOpen = false;
@@ -25,27 +23,25 @@ export function initSiteHeader(): void {
     const closeMenu = () => {
         if (!mobileMenu || !menuToggle) return;
         mobileMenu.classList.remove("is-open");
+        menuToggle.classList.remove("is-open");
         mobileMenu.setAttribute("aria-hidden", "true");
         mobileMenu.setAttribute("inert", "");
         document.body.style.overflow = "";
         isMenuOpen = false;
         menuToggle.setAttribute("aria-label", "Open Menu");
         menuToggle.setAttribute("aria-expanded", "false");
-        iconMenu?.classList.remove("is-hidden");
-        iconClose?.classList.add("is-hidden");
     };
 
     const openMenu = () => {
         if (!mobileMenu || !menuToggle) return;
         mobileMenu.classList.add("is-open");
+        menuToggle.classList.add("is-open");
         mobileMenu.removeAttribute("inert");
         mobileMenu.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
         isMenuOpen = true;
         menuToggle.setAttribute("aria-label", "Close Menu");
         menuToggle.setAttribute("aria-expanded", "true");
-        iconMenu?.classList.add("is-hidden");
-        iconClose?.classList.remove("is-hidden");
     };
 
     menuToggle?.addEventListener("click", () => {
