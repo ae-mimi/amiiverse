@@ -784,7 +784,7 @@ export default defineType({
             defineField({ name: 'title', type: 'string', title: 'Heading', initialValue: 'JOIN THE AMII-GOS' }),
             defineField({ name: 'subtitle', type: 'text', title: 'Subtitle', rows: 2, initialValue: 'Get early access, updates, and behind-the-scenes' }),
             defineField({ name: 'buttonText', type: 'string', title: 'Button Text', initialValue: 'JOIN US' }),
-            defineField({ name: 'successRedirect', type: 'string', title: 'Success Redirect URL', initialValue: '/newsletter-success', description: 'Where to send users after signing up.' }),
+            defineField({ name: 'successRedirect', type: 'string', title: 'Success Redirect URL', initialValue: '/newsletter-queue', description: 'Where to send users after signing up.' }),
           ],
           preview: {
             select: { title: 'title' },

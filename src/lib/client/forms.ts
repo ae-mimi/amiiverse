@@ -159,29 +159,9 @@ function attachNewsletterForm(form: HTMLFormElement): void {
                 throw new Error(result.message || "Subscription failed.");
             }
 
-            if (result.status === "queued") {
-                setFormState(
-                    statusEl,
-                    "warning",
-                    result.message ||
-                        "Captcha passed, but the confirmation email is still pending.",
-                );
-                setSubmitState(submitButton, false);
-                return;
-            }
-
-            setFormState(
-                statusEl,
-                "success",
-                result.status === "duplicate"
-                    ? "This email is already on the list."
-                    : "Subscription received. Check your inbox to confirm.",
-            );
-            setSubmitState(submitButton, false);
-
             window.setTimeout(() => {
                 window.location.href = redirect;
-            }, 1200);
+            }, 150);
         } catch (error) {
             const message =
                 error instanceof Error
