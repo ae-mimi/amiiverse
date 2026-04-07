@@ -117,7 +117,7 @@ function attachNewsletterForm(form: HTMLFormElement): void {
             form,
             'input[name="cf-turnstile-response"]',
         );
-        const redirect = form.dataset.successRedirect || "/newsletter-success";
+        const redirect = form.dataset.successRedirect || "/newsletter-queue";
 
         if (!emailInput || !consentInput) return;
 
