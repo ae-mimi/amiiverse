@@ -9,10 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "postinstall": "node scripts/patch-sanity-should-autoupdate.cjs",
-    "deploy": "astro build && npx wrangler pages deploy dist",
+    "deploy": "astro build && npx wrangler pages deploy dist --project-name amiiverse",
     "test:subscribe": "node --experimental-strip-types scripts/testSubscribeFlow.ts",
-    "index:products": "node --experimental-strip-types scripts/indexProducts.ts",
-    "sync:products:local": "node --experimental-strip-types scripts/syncProductsLocal.ts",
     "sanity:normalize-theme-colors": "node scripts/normalizeThemeColorObjects.cjs",
     "astro": "astro"
   },

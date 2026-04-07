@@ -2,12 +2,11 @@
 import "../styles/global.css";
 import SiteHeader from "../components/layout/SiteHeader.astro";
 import SiteFooter from "../components/layout/SiteFooter.astro";
-import "../styles/shop-ecommerce.css";
+import BackToTopButton from "../components/layout/BackToTopButton.astro";
 import Analytics from "../components/seo/Analytics.astro";
 import JSONLD from "../components/seo/JSONLD.astro";
-import { fetchGlobalSettings } from "../utils/global";
+import { fetchGlobalSettings } from "../lib/siteSettings";
 import { getActiveTheme } from "../lib/theme";
-import CartModal from "../components/shop/CartModal.astro";
 
 interface Props {
     title: string;
@@ -153,8 +152,8 @@ const bodyFontStack = toCssFontStack(theme.bodyFont, `"Archivo", sans-serif`);
         <main>
             <slot />
         </main>
+        <BackToTopButton />
         <SiteFooter />
-        <CartModal />
     </body>
 </html>
 

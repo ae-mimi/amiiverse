@@ -4,7 +4,7 @@ import {
   HeroHomeIcon, HeroPredebutIcon, HeroPageIcon,
   IntroIcon, RichTextIcon, GalleryIcon, VideoIcon,
   CTAIcon, CountdownIcon, FAQIcon, TestimonialIcon,
-  MusicGridIcon, MembersGridIcon, ShopGridIcon, PressGridIcon, EventsIcon,
+  MusicGridIcon, MembersGridIcon, PressGridIcon, EventsIcon,
   WidgetIcon, ContactFormIcon, ContactInfoIcon,
   SpacerIcon, DividerIcon, MarqueeIcon, LyricIcon,
   ReleaseSpotlightIcon, DiscographyGridIcon, VideoGalleryIcon,
@@ -57,7 +57,6 @@ export default defineType({
           { title: 'Press / EPK', value: 'press' },
           { title: 'Community', value: 'community' },
           { title: 'News', value: 'news' },
-          { title: 'Store', value: 'store' },
           { title: 'Custom', value: 'custom' },
         ],
         layout: 'dropdown',
@@ -560,22 +559,6 @@ export default defineType({
             prepare({ title }) { return { title: title || 'Members', subtitle: 'Member profiles' } },
           },
         },
-        {
-          type: 'object',
-          name: 'shop_grid',
-          title: 'Shop / Merch',
-          icon: ShopGridIcon,
-          description: 'Shows merch and products in a grid.',
-          fields: [
-            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Shop' }),
-            defineField({ name: 'limit', type: 'number', title: 'Max Items', initialValue: 12 }),
-          ],
-          preview: {
-            select: { title: 'title' },
-            prepare({ title }) { return { title: title || 'Shop', subtitle: 'Auto-generated from Shop library' } },
-          },
-        },
-
         // ═══════════════════════════════════════
         //  PRESS AND DOWNLOADS
         // ═══════════════════════════════════════
@@ -813,10 +796,9 @@ export default defineType({
           name: 'contact_form',
           title: 'Contact Form',
           icon: ContactFormIcon,
-          description: 'A form where visitors can send you a message.',
+          description: 'Legacy standalone contact form block. Prefer newsletter, fan-facing, or dedicated future form flows for new pages.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Contact Us' }),
-            defineField({ name: 'endpoint', type: 'string', title: 'Custom API Endpoint' }),
           ],
           preview: {
             select: { title: 'title' },
@@ -828,7 +810,7 @@ export default defineType({
           name: 'contact_section',
           title: 'Contact Info & Emails',
           icon: ContactInfoIcon,
-          description: 'Displays contact emails and social links alongside a form.',
+          description: 'Displays business contact cards and social links only. No form is rendered here.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Heading', initialValue: 'SAY HELLO' }),
             defineField({ name: 'subtitle', type: 'string', title: 'Subheading' }),
@@ -840,7 +822,7 @@ export default defineType({
           ],
           preview: {
             select: { title: 'title' },
-            prepare({ title }) { return { title: title || 'Contact Info', subtitle: 'Emails & social links' } },
+            prepare({ title }) { return { title: title || 'Contact Info', subtitle: 'Business contact cards' } },
           },
         },
 

@@ -256,7 +256,6 @@ export type PageSection =
     | TourDatesSection
     | MusicGridSection
     | MembersGridSection
-    | ShopGridSection
     | PressGridSection
     | PressQuotesSection
     | DownloadsCenterSection
@@ -305,7 +304,6 @@ export interface NewsFeedSection extends SectionBase { _type: "news_feed"; title
 export interface TourDatesSection extends SectionBase { _type: "tour_dates"; title?: string; upcomingOnly?: boolean; showFilters?: boolean; }
 export interface MusicGridSection extends SectionBase { _type: "music_grid"; title?: string; }
 export interface MembersGridSection extends SectionBase { _type: "members_grid"; title?: string; members?: Member[]; }
-export interface ShopGridSection extends SectionBase { _type: "shop_grid"; title?: string; limit?: number; }
 export interface PressGridSection extends SectionBase { _type: "press_grid"; title?: string; }
 export interface PressQuotesSection extends SectionBase { _type: "press_quotes"; title?: string; items?: PressMention[]; }
 export interface DownloadsCenterSection extends SectionBase { _type: "downloads_center"; title?: string; assets?: DownloadableAsset[]; }
@@ -316,7 +314,7 @@ export interface TimelineSection extends SectionBase { _type: "timeline"; title?
 export interface WidgetSection extends SectionBase { _type: "widget"; widget_type?: string; music_item?: any; }
 export interface EmailSignupSection extends SectionBase { _type: "email_signup"; title?: string; subtitle?: string; provider?: string; formId?: string; successMessage?: string; }
 export interface NewsletterSignupSection extends SectionBase { _type: "newsletter_signup"; title?: string; subtitle?: string; buttonText?: string; successRedirect?: string; }
-export interface ContactFormSection extends SectionBase { _type: "contact_form"; title?: string; endpoint?: string; }
+export interface ContactFormSection extends SectionBase { _type: "contact_form"; title?: string; }
 export interface ContactSectionBlock extends SectionBase { _type: "contact_section"; title?: string; subtitle?: string; management_email?: string; press_email?: string; bookings_email?: string; inquiries_email?: string; show_socials?: boolean; }
 export interface SpacerSection extends SectionBase { _type: "spacer"; size?: "sm" | "md" | "lg"; }
 export interface DividerSection extends SectionBase { _type: "divider"; style?: string; width?: string; }

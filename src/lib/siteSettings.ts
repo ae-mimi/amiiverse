@@ -1,0 +1,213 @@
+import settings from "../data/settings.json";
+import { fetchSanity as getSanityContent } from "./sanity/client";
+import {
+    ACTIVE_CAMPAIGN_FAVICON_OVERRIDE_QUERY,
+    ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY,
+    SETTINGS_QUERY,
+} from "./sanity/queries";
+
+const defaultSettings = settings as SiteSettings;
+
+export interface SiteSettings {
+    site_info: {
+        title: string;
+        description: string;
+        logo_navy?: string;
+        logo_yellow?: string;
+    };
+    title?: string;
+    description?: string;
+    logo_navy?: string;
+    logo_yellow?: string;
+    enable_follow_link?: boolean;
+    keywords?: string[];
+    seo?: {
+        og_image?: string;
+        meta_title?: string;
+        meta_description?: string;
+    };
+    favicons?: {
+        ico?: string;
+        svg?: string;
+        png96?: string;
+        apple?: string;
+        manifest192?: string;
+        manifest512?: string;
+        webmanifest?: string;
+    };
+    navigationItems: {
+        showInHeader: boolean;
+        showInFooter: boolean;
+        is_special?: boolean;
+        disabled?: boolean;
+        link: {
+            label?: string;
+            type: 'internal' | 'external' | 'download' | 'email' | 'phone';
+            url?: string;
+            internalRef?: {
+                slug: string;
+            };
+        };
+    }[];
+    footer: {
+        businessName?: string;
+        contactEmail?: string;
+        copyright: string;
+    };
+    socials: {
+        platform: string;
+        url: string;
+        icon: string;
+    }[];
+}
+
+export function getGlobalSettings(): SiteSettings {
+    return normalizeSettings(defaultSettings);
+}
+
+export async function fetchGlobalSettings(): Promise<SiteSettings> {
+    const sanitySettings = await getSanityContent(SETTINGS_QUERY);
+    const campaignLogoOverride = await getSanityContent<{
+        logo_navy?: string;
+        logo_yellow?: string;
+    }>(ACTIVE_CAMPAIGN_LOGO_OVERRIDE_QUERY);
+    const campaignFaviconOverride = await getSanityContent<{
+        favicons?: SiteSettings["favicons"];
+    }>(ACTIVE_CAMPAIGN_FAVICON_OVERRIDE_QUERY);
+
+    if (sanitySettings) {
+        // Merge sanity settings over default settings to ensure structure
+        // This is a simple shallow merge for top-level, but for nested objects like site_info/footer/socials 
+        // we might want to be careful. However, Sanity usually returns the whole object structure if defined.
+        // For safety, we can return sanitySettings if valid, or fallback.
+
+        // We'll use a spread to override defaults with sanity data.
+        // Note: Arrays like 'nav' and 'socials' will be replaced entirely, which is usually desired behavior for CMS.
+        const merged = {
+            ...defaultSettings,
+            ...sanitySettings,
+            site_info: { ...defaultSettings.site_info, ...sanitySettings.site_info },
+            footer: { ...defaultSettings.footer, ...sanitySettings.footer },
+            favicons: { ...defaultSettings.favicons, ...sanitySettings.favicons },
+        };
+
+        if (campaignLogoOverride?.logo_navy) {
+            merged.logo_navy = campaignLogoOverride.logo_navy;
+            merged.site_info = {
+                ...merged.site_info,
+                logo_navy: campaignLogoOverride.logo_navy,
+            };
+        }
+
+        if (campaignLogoOverride?.logo_yellow) {
+            merged.logo_yellow = campaignLogoOverride.logo_yellow;
+            merged.site_info = {
+                ...merged.site_info,
+                logo_yellow: campaignLogoOverride.logo_yellow,
+            };
+        }
+
+        if (campaignFaviconOverride?.favicons) {
+            merged.favicons = {
+                ...merged.favicons,
+                ...campaignFaviconOverride.favicons,
+            };
+        }
+
+        return normalizeSettings(merged);
+    }
+
+    return normalizeSettings(defaultSettings);
+}
+
+function asArray<T>(value: unknown): T[] {
+    return Array.isArray(value) ? (value as T[]) : [];
+}
+
+function asString(value: unknown, fallback = ""): string {
+    return typeof value === "string" ? value : fallback;
+}
+
+function normalizeSettings(input: unknown): SiteSettings {
+    const raw = (input ?? {}) as Record<string, any>;
+    const siteInfo = (raw.site_info ?? {}) as Record<string, any>;
+    const footer = (raw.footer ?? {}) as Record<string, any>;
+    const seo = (raw.seo ?? {}) as Record<string, any>;
+    const favicons = (raw.favicons ?? {}) as Record<string, any>;
+
+    return {
+        ...settings,
+        ...defaultSettings,
+        ...raw,
+        site_info: {
+            ...defaultSettings.site_info,
+            ...siteInfo,
+            title: asString(siteInfo.title, defaultSettings.site_info.title),
+            description: asString(siteInfo.description, defaultSettings.site_info.description),
+            logo_navy: asString(siteInfo.logo_navy, defaultSettings.site_info.logo_navy || ""),
+            logo_yellow: asString(siteInfo.logo_yellow, defaultSettings.site_info.logo_yellow || ""),
+        },
+        title: asString(raw.title, defaultSettings.title || defaultSettings.site_info.title),
+        description: asString(raw.description, defaultSettings.description || defaultSettings.site_info.description),
+        logo_navy: asString(raw.logo_navy, defaultSettings.logo_navy || defaultSettings.site_info.logo_navy || ""),
+        logo_yellow: asString(raw.logo_yellow, defaultSettings.logo_yellow || defaultSettings.site_info.logo_yellow || ""),
+        enable_follow_link: Boolean(raw.enable_follow_link),
+        keywords: asArray<string>(raw.keywords).filter((k) => typeof k === "string"),
+        seo: {
+            ...defaultSettings.seo,
+            ...seo,
+            og_image: asString(seo.og_image, defaultSettings.seo?.og_image || ""),
+            meta_title: asString(seo.meta_title, defaultSettings.seo?.meta_title || ""),
+            meta_description: asString(seo.meta_description, defaultSettings.seo?.meta_description || ""),
+        },
+        favicons: {
+            ...defaultSettings.favicons,
+            ...favicons,
+            ico: asString(favicons.ico, defaultSettings.favicons?.ico || ""),
+            svg: asString(favicons.svg, defaultSettings.favicons?.svg || ""),
+            png96: asString(favicons.png96, defaultSettings.favicons?.png96 || ""),
+            apple: asString(favicons.apple, defaultSettings.favicons?.apple || ""),
+            manifest192: asString(favicons.manifest192, defaultSettings.favicons?.manifest192 || ""),
+            manifest512: asString(favicons.manifest512, defaultSettings.favicons?.manifest512 || ""),
+            webmanifest: asString(favicons.webmanifest, defaultSettings.favicons?.webmanifest || ""),
+        },
+        navigationItems: asArray<any>(raw.navigationItems)
+            .filter((item) => item && typeof item === "object")
+            .map((item) => {
+                const link = (item.link ?? {}) as Record<string, any>;
+                const internalRef = (link.internalRef ?? {}) as Record<string, any>;
+                return {
+                    showInHeader: Boolean(item.showInHeader),
+                    showInFooter: Boolean(item.showInFooter),
+                    is_special: Boolean(item.is_special),
+                    disabled: Boolean(item.disabled),
+                    link: {
+                        label: asString(link.label, "Untitled"),
+                        type: asString(link.type, "external") as SiteSettings["navigationItems"][number]["link"]["type"],
+                        url: asString(link.url, ""),
+                        internalRef: {
+                            slug: asString(internalRef.slug, ""),
+                        },
+                    },
+                };
+            }),
+        footer: {
+            ...defaultSettings.footer,
+            ...footer,
+            businessName: asString(footer.businessName, defaultSettings.footer.businessName || ""),
+            contactEmail: asString(footer.contactEmail, defaultSettings.footer.contactEmail || ""),
+            copyright: asString(
+                footer.copyright,
+                defaultSettings.footer.copyright || "© {currentYear} amii<br/>Operated by MAPDY LTD",
+            ),
+        },
+        socials: asArray<any>(raw.socials)
+            .filter((social) => social && typeof social === "object")
+            .map((social) => ({
+                platform: asString(social.platform, ""),
+                url: asString(social.url, ""),
+                icon: asString(social.icon, ""),
+            }))
+            .filter((social) => social.platform && social.url),
+    };
+}

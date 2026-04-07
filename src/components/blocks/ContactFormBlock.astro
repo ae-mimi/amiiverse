@@ -1,73 +1,17 @@
 ---
-import ContactForm from "../forms/ContactForm.astro";
+import BusinessContactForm from "../forms/contact/BusinessContactForm.astro";
 
-const { title, endpoint } = Astro.props;
+const {
+    title = "SAY HELLO",
+    subtitle = "Have a question, idea, or opportunity? Send us a message.",
+} = Astro.props;
 ---
 
 <section class="contact-form-block">
     <div class="container">
-        <ContactForm />
+        <BusinessContactForm title={title} subtitle={subtitle} />
     </div>
 </section>
-
-<script>
-    const form = document.querySelector("#contact-form");
-    const submitButton = form?.querySelector(
-        'button[type="submit"]',
-    ) as HTMLButtonElement;
-    const originalButtonText = submitButton?.innerText;
-
-    form?.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        if (!form || !submitButton) return;
-
-        // Disable button & show loading state
-        submitButton.disabled = true;
-        submitButton.innerText = "SENDING...";
-
-        const formData = new FormData(form as HTMLFormElement);
-
-        try {
-            const response = await fetch("/api/contact", {
-                method: "POST",
-                body: formData,
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                window.location.href = "/contact-success";
-            } else {
-                alert(`Error: ${result.message || "Something went wrong."}`);
-                submitButton.disabled = false;
-                submitButton.innerText = originalButtonText || "SEND MESSAGE";
-            }
-        } catch (error) {
-            console.error("Submission error:", error);
-            alert("Network error. Please try again later.");
-            submitButton.disabled = false;
-            submitButton.innerText = originalButtonText || "SEND MESSAGE";
-        }
-    });
-
-    // GSAP scroll animation
-    import { gsap } from "gsap";
-    import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    gsap.from(".contact-form-block", {
-        scrollTrigger: {
-            trigger: ".contact-form-block",
-            start: "top 80%",
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power2.out",
-    });
-</script>
 <style>
     .contact-form-block {
         padding: 60px 20px;

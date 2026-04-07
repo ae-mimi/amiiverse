@@ -1,0 +1,25 @@
+<label class="form-consent">
+    <input type="checkbox" name="consent" required />
+    <span>
+        <slot />
+    </span>
+</label>
+
+<style>
+    .form-consent {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 20px 1fr;
+        gap: 8px;
+        align-items: start;
+        font-family: var(--font-body);
+        font-size: clamp(13px, 1vw, 16px);
+        color: var(--text-main);
+    }
+
+    .form-consent input {
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+    }
+</style>

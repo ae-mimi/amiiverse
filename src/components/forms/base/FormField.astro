@@ -1,0 +1,47 @@
+---
+interface Props {
+    label: string;
+    htmlFor: string;
+    class?: string;
+}
+
+const { label, htmlFor, class: className } = Astro.props;
+---
+
+<div class:list={["form-field", className]}>
+    <label for={htmlFor}>{label}</label>
+    <slot />
+</div>
+
+<style>
+    .form-field {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .form-field label {
+        font-family: var(--font-body);
+        font-size: clamp(13px, 1vw, 16px);
+        color: var(--input-text);
+        font-weight: var(--weight-regular);
+        line-height: 1.4;
+        text-align: left;
+    }
+    
+    .form-field :global(input),
+    .form-field :global(textarea) {
+        width: 100%;
+        font-family: var(--font-body);
+        font-size: clamp(16px, 1.2vw, 20px);
+        box-sizing: border-box;
+        --field-padding-block: 10px;
+        --field-padding-inline: 10px;
+    }
+    
+    .form-field :global(textarea) {
+        min-height: clamp(122px, 10vw, 200px);
+        resize: vertical;
+    }
+</style>
