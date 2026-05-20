@@ -4,11 +4,48 @@ import type { APIRoute } from "astro";
 import { sanityClient } from "sanity:client";
 import { getServerEnvValue } from "../../lib/server/cloudflareRuntimeEnv";
 
+async function verifyTurnstileToken(
+    turnstileSecret: string,
+    token: string,
+    remoteIp: string,
+): Promise<boolean> {
+    const body = new URLSearchParams();
+    body.set("secret", turnstileSecret);
+    body.set("response", token);
+    if (remoteIp) {
+        body.set("remoteip", remoteIp);
+    }
+
+    const response = await fetch(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body,
+        },
+    );
+
+    if (!response.ok) return false;
+    const result = await response.json();
+    return Boolean(result?.success);
+}
+
+function getClientIp(headers: Headers): string {
+    return (
+        headers.get("cf-connecting-ip") ||
+        headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        ""
+    );
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
     const data = await request.formData();
     const name = data.get("name") as string;
     const email = data.get("email") as string;
     const message = data.get("message") as string;
+    const turnstileToken = String(
+        data.get("turnstileToken") || data.get("cf-turnstile-response") || "",
+    ).trim();
     const subject =
         (data.get("subject") as string) || "New Contact Form Submission";
 
@@ -17,6 +54,39 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return new Response(
             JSON.stringify({
                 message: "Missing required fields",
+            }),
+            { status: 400 },
+        );
+    }
+
+    if (!turnstileToken) {
+        return new Response(
+            JSON.stringify({
+                message: "Please complete the captcha.",
+            }),
+            { status: 400 },
+        );
+    }
+
+    const turnstileSecret = getServerEnvValue({ locals }, "TURNSTILE_SECRET_KEY");
+    if (!turnstileSecret) {
+        return new Response(
+            JSON.stringify({
+                message: "Server configuration error",
+            }),
+            { status: 500 },
+        );
+    }
+
+    const turnstileValid = await verifyTurnstileToken(
+        turnstileSecret,
+        turnstileToken,
+        getClientIp(request.headers),
+    );
+    if (!turnstileValid) {
+        return new Response(
+            JSON.stringify({
+                message: "Captcha verification failed. Please try again.",
             }),
             { status: 400 },
         );

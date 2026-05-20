@@ -59,15 +59,29 @@ function attachBusinessContactForm(form: HTMLFormElement): void {
             form,
             'textarea[name="message"]',
         );
+        const turnstileInput = getScopedInput<HTMLInputElement>(
+            form,
+            'input[name="cf-turnstile-response"]',
+        );
         if (!nameInput || !emailInput || !messageInput) return;
 
         setFormState(statusEl, "idle", "");
-        setSubmitState(submitButton, true, "SENDING...");
 
         try {
+            if (form.querySelector(".cf-turnstile") && !turnstileInput?.value) {
+                throw new Error("Please complete the captcha.");
+            }
+
+            setSubmitState(submitButton, true, "SENDING...");
+
+            const formData = new FormData(form);
+            if (turnstileInput?.value) {
+                formData.append("turnstileToken", turnstileInput.value);
+            }
+
             const response = await fetch("/api/contact", {
                 method: "POST",
-                body: new FormData(form),
+                body: formData,
             });
             const result = await parseJsonResponse(response);
 

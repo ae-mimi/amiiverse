@@ -8,6 +8,7 @@ interface Props {
     subtitle?: string;
     successRedirect?: string;
     subject?: string;
+    turnstileSiteKey?: string;
 }
 
 const {
@@ -15,6 +16,7 @@ const {
     subtitle = "Have a question, idea, or opportunity? Send us a message.",
     successRedirect = "/contact-success",
     subject = "Business Contact Inquiry",
+    turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "",
 } = Astro.props;
 ---
 
@@ -71,10 +73,30 @@ const {
             </FormField>
         </div>
 
+        {
+            turnstileSiteKey && (
+                <div
+                    class="cf-turnstile"
+                    data-sitekey={turnstileSiteKey}
+                    data-theme="light"
+                ></div>
+            )
+        }
+
         <FormStatus />
         <SubmitButton label="SEND" class="contact-submit-btn" />
     </form>
 </div>
+
+{
+    turnstileSiteKey && (
+        <script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            async
+            defer
+        ></script>
+    )
+}
 
 <script>
     import { initOnAstroPageLoad } from "../../../lib/client/init";
