@@ -38,10 +38,10 @@ export default defineType({
         }),
         defineField({
             name: 'url',
-            title: 'URL',
+            title: 'URL / Email / Phone',
             type: 'url',
-            description: 'Full URL (e.g. https://example.com).',
-            hidden: ({ parent }) => parent?.type !== 'external',
+            description: 'Full URL, email address, mailto link, phone number, or tel link.',
+            hidden: ({ parent }) => !['external', 'email', 'phone'].includes(parent?.type),
             validation: (rule) =>
                 rule.uri({ allowRelative: true, scheme: ['http', 'https', 'mailto', 'tel'] }),
         }),

@@ -10,22 +10,48 @@ import type { DownloadableAsset } from "../../lib/sanity/types";
 interface Props {
     title?: string;
     assets?: DownloadableAsset[];
+    epkProfile?: { featuredAssets?: DownloadableAsset[] };
+    showCategoryFilters?: boolean;
+    visibleCategories?: DownloadableAsset["category"][];
 }
 
-const { title = "Downloads", assets: passedAssets } = Astro.props;
-const assets =
-    passedAssets ||
+const {
+    title = "Downloads",
+    assets: passedAssets,
+    epkProfile,
+    showCategoryFilters = false,
+    visibleCategories = [],
+} = Astro.props;
+
+const allAssets =
+    (passedAssets?.length ? passedAssets : undefined) ||
+    (epkProfile?.featuredAssets?.length ? epkProfile.featuredAssets : undefined) ||
     (await fetchSanity<DownloadableAsset[]>(ALL_DOWNLOADS_QUERY)) ||
     [];
 
+const activeCategorySet = new Set((visibleCategories || []).filter(Boolean));
+const assets =
+    activeCategorySet.size > 0
+        ? allAssets.filter((asset) => asset.category && activeCategorySet.has(asset.category))
+        : allAssets;
+
 const categoryLabels: Record<string, string> = {
-    epk: "EPK",
+    epkPdf: "EPK PDF",
+    bioPdf: "Bio PDF",
+    pressPhoto: "Press Photos",
+    albumArt: "Album Art",
     logo: "Logos",
-    photo: "Photos",
     rider: "Rider",
     stagePlot: "Stage Plot",
+    promoClip: "Promo Clips",
     misc: "Misc",
+    epk: "EPK",
+    photo: "Photos",
 };
+
+const categories = Array.from(
+    new Set(assets.map((asset) => asset.category).filter(Boolean)),
+) as string[];
 ---
 
 <section class="downloads-center" aria-label={title}>
@@ -38,45 +64,82 @@ const categoryLabels: Record<string, string> = {
                     No downloads available yet.
                 </p>
             ) : (
-                <div class="downloads-center__grid">
-                    {assets.map((a) => (
-                        <a
-                            href={a.fileUrl || "#"}
-                            class="download-card"
-                            download
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Download ${a.title}`}
-                        >
-                            {a.previewImage && (
-                                <img
-                                    src={urlFor(a.previewImage)}
-                                    alt={a.title}
-                                    loading="lazy"
-                                    class="download-card__img"
-                                />
-                            )}
-                            <div class="download-card__info">
-                                {a.category && (
-                                    <span class="download-card__cat">
-                                        {categoryLabels[a.category] ||
-                                            a.category}
-                                    </span>
+                <>
+                    {showCategoryFilters && categories.length > 1 && (
+                        <div class="downloads-center__filters" aria-label="Download categories">
+                            <button type="button" class="downloads-center__filter is-active" data-download-filter="all">
+                                All
+                            </button>
+                            {categories.map((category) => (
+                                <button type="button" class="downloads-center__filter" data-download-filter={category}>
+                                    {categoryLabels[category] || category}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    <div class="downloads-center__grid" data-download-grid>
+                        {assets.map((a) => (
+                            <a
+                                href={a.fileUrl || "#"}
+                                class="download-card"
+                                data-download-category={a.category || ""}
+                                download
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`Download ${a.title}`}
+                            >
+                                {a.previewImage && (
+                                    <img
+                                        src={urlFor(a.previewImage)}
+                                        alt={a.title}
+                                        loading="lazy"
+                                        class="download-card__img"
+                                    />
                                 )}
-                                <h3 class="download-card__title">{a.title}</h3>
-                                {a.usageRights && (
-                                    <p class="download-card__rights">
-                                        {a.usageRights}
-                                    </p>
-                                )}
-                            </div>
-                        </a>
-                    ))}
-                </div>
+                                <div class="download-card__info">
+                                    {a.category && (
+                                        <span class="download-card__cat">
+                                            {categoryLabels[a.category] ||
+                                                a.category}
+                                        </span>
+                                    )}
+                                    <h3 class="download-card__title">{a.title}</h3>
+                                    {a.usageRights && (
+                                        <p class="download-card__rights">
+                                            {a.usageRights}
+                                        </p>
+                                    )}
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </>
             )
         }
     </div>
 </section>
+
+{
+    showCategoryFilters && (
+        <script>
+            document.querySelectorAll(".downloads-center").forEach((section) => {
+                const filters = Array.from(section.querySelectorAll("[data-download-filter]"));
+                const cards = Array.from(section.querySelectorAll("[data-download-category]"));
+                filters.forEach((filter) => {
+                    filter.addEventListener("click", () => {
+                        const value = filter.dataset.downloadFilter || "all";
+                        filters.forEach((button) => button.classList.toggle("is-active", button === filter));
+                        cards.forEach((card) => {
+                            const matches = value === "all" || card.dataset.downloadCategory === value;
+                            card.hidden = !matches;
+                        });
+                    });
+                });
+            });
+        </script>
+    )
+}
 
 <style>
     .downloads-center {
@@ -97,6 +160,29 @@ const categoryLabels: Record<string, string> = {
         text-align: center;
         opacity: 0.6;
         padding: 3rem 0;
+    }
+    .downloads-center__filters {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .downloads-center__filter {
+        border: 1px solid color-mix(in srgb, var(--color-primary), transparent 70%);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--color-primary);
+        padding: 0.45rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .downloads-center__filter.is-active,
+    .downloads-center__filter:hover {
+        background: var(--color-primary);
+        color: var(--color-secondary);
     }
     .downloads-center__grid {
         display: grid;

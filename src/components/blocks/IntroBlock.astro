@@ -1,6 +1,10 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-const { heading, content, image } = Astro.props;
+const { heading, content, image, epkProfile, bioVariant = "short" } = Astro.props;
+
+const profileBio =
+    bioVariant === "long" ? epkProfile?.longBio : epkProfile?.shortBio;
+const body = content || profileBio;
 ---
 
 <section class="intro-section container text-center">
@@ -21,7 +25,7 @@ const { heading, content, image } = Astro.props;
         )
     }
 
-    {content && <p>{content}</p>}
+    {body && <p>{body}</p>}
 </section>
 
 <style>

@@ -45,6 +45,11 @@ import CreditsBlock from "./blocks/CreditsBlock.astro";
 import ShortsWallBlock from "./blocks/ShortsWallBlock.astro";
 import NewsFeedBlock from "./blocks/NewsFeedBlock.astro";
 import PressCoverageBlock from "./blocks/PressCoverageBlock.astro";
+import PressKitBlock from "./blocks/PressKitBlock.astro";
+import SectionTabsBlock from "./blocks/SectionTabsBlock.astro";
+import AchievementsBlock from "./blocks/AchievementsBlock.astro";
+import LinkButtonsBlock from "./blocks/LinkButtonsBlock.astro";
+import LibraryGalleryBlock from "./blocks/LibraryGalleryBlock.astro";
 import PollBlock from "./blocks/PollBlock.astro";
 import NewsletterSignupBlock from "./blocks/NewsletterSignupBlock.astro";
 
@@ -60,12 +65,15 @@ const blockRegistry = {
     hero: HeroBlock,
     predebut_hero: PredebutHeroBlock,
     page_hero: PageHeroBlock,
+    section_tabs: SectionTabsBlock,
     intro: IntroBlock,
     media_text: MediaTextBlock,
     rich_text: RichTextBlock,
     gallery_block: GalleryBlock,
+    library_gallery: LibraryGalleryBlock,
     video_embed: VideoEmbedBlock,
     cta_banner: CTABannerBlock,
+    link_buttons: LinkButtonsBlock,
     countdown: CountdownBlock,
     faq: FAQBlock,
     testimonials: TestimonialsBlock,
@@ -83,6 +91,8 @@ const blockRegistry = {
     press_grid: PressGridBlock,
     press_quotes: PressCoverageBlock,
     downloads_center: DownloadsCenterBlock,
+    achievements_block: AchievementsBlock,
+    press_kit: PressKitBlock,
     fan_wall: FanWallBlock,
     poll_block: PollBlock,
     timeline: TimelineBlock,
@@ -104,12 +114,23 @@ const blockRegistry = {
     sections?.map((section: PageSection) => {
         const key = section._type as keyof typeof blockRegistry;
         const Component = blockRegistry[key];
+        const s = section as any;
+        const sectionId =
+            typeof s.sectionId === "string" && s.sectionId.trim()
+                ? s.sectionId.trim()
+                : undefined;
 
         if (Component) {
-            return <Component {...(section as any)} />;
+            const rendered = <Component {...s} />;
+            return sectionId ? (
+                <div id={sectionId} class="page-section-anchor">
+                    {rendered}
+                </div>
+            ) : (
+                rendered
+            );
         }
 
-        const s = section as any;
         console.warn(`[PageBuilder] Unknown section type: "${s._type}"`);
         return (
             <div class="unknown-section" data-type={s._type}>
@@ -120,3 +141,9 @@ const blockRegistry = {
         );
     })
 }
+
+<style>
+    .page-section-anchor {
+        scroll-margin-top: 5.5rem;
+    }
+</style>

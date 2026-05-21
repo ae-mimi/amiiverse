@@ -1,0 +1,121 @@
+---
+import type { LinkData } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    intro?: string;
+    links?: (LinkData & { fileUrl?: string })[];
+    layout?: "row" | "stack";
+}
+
+const { title, intro, links = [], layout = "row" } = Astro.props;
+
+function normalizeHref(link: LinkData & { fileUrl?: string }) {
+    if (link.type === "internal") {
+        const slug = link.internalRef?.slug?.current || "";
+        return slug === "home" ? "/" : `/${slug}`;
+    }
+    if (link.type === "download") return link.fileUrl || link.file?.asset?.url || "#";
+    if (link.type === "email") {
+        const value = link.url || "";
+        return value.startsWith("mailto:") ? value : `mailto:${value}`;
+    }
+    if (link.type === "phone") {
+        const value = link.url || "";
+        return value.startsWith("tel:") ? value : `tel:${value.replace(/\s+/g, "")}`;
+    }
+    return link.url || "#";
+}
+
+function isExternal(link: LinkData) {
+    return link.newTab || link.type === "external" || link.type === "download";
+}
+---
+
+<section class="link-buttons" aria-label={title || "Links"}>
+    <div class="link-buttons__inner">
+        {title && <h2 class="link-buttons__title">{title}</h2>}
+        {intro && <p class="link-buttons__intro">{intro}</p>}
+
+        {
+            links.length > 0 && (
+                <div class={`link-buttons__list link-buttons__list--${layout}`}>
+                    {links.map((link) => (
+                        <a
+                            class="link-buttons__button"
+                            href={normalizeHref(link)}
+                            target={isExternal(link) ? "_blank" : undefined}
+                            rel={isExternal(link) ? "noopener noreferrer" : undefined}
+                            download={link.type === "download" ? true : undefined}
+                        >
+                            {link.label || "Open Link"}
+                        </a>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .link-buttons {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+
+    .link-buttons__inner {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        text-align: center;
+    }
+
+    .link-buttons__title {
+        margin: 0 0 0.6rem;
+        font-family: var(--font-heading);
+        font-size: clamp(1.6rem, 4vw, 3rem);
+        color: var(--text-main);
+    }
+
+    .link-buttons__intro {
+        max-width: 680px;
+        margin: 0 auto 1.5rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    .link-buttons__list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .link-buttons__list--stack {
+        max-width: 520px;
+        margin: 0 auto;
+        flex-direction: column;
+    }
+
+    .link-buttons__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0.85rem 1.25rem;
+        border: 2px solid var(--color-primary);
+        border-radius: 999px;
+        background: var(--color-primary);
+        color: var(--color-secondary);
+        font-weight: 800;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+    }
+
+    .link-buttons__button:hover {
+        transform: translateY(-2px);
+        background: transparent;
+        color: var(--color-primary);
+    }
+</style>

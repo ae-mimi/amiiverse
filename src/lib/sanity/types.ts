@@ -19,6 +19,7 @@ export interface LinkData {
     internalRef?: { slug: { current: string } };
     url?: string;
     file?: SanityFile;
+    fileUrl?: string;
     newTab?: boolean;
 }
 
@@ -170,6 +171,36 @@ export interface PressMention {
     featured?: boolean;
 }
 
+export interface Achievement {
+    _type: "achievement";
+    title: string;
+    category?: "milestone" | "award" | "stat" | "media" | "other";
+    date?: string;
+    description?: string;
+    metric?: string;
+    url?: string;
+    featured?: boolean;
+}
+
+export interface EpkProfile {
+    _type: "epkProfile";
+    title: string;
+    shortBio?: string;
+    longBio?: string;
+    keyFacts?: { label?: string; value?: string }[];
+    contacts?: {
+        managementEmail?: string;
+        pressEmail?: string;
+        bookingsEmail?: string;
+        inquiriesEmail?: string;
+    };
+    featuredReleases?: Release[];
+    featuredVideos?: Video[];
+    featuredAssets?: DownloadableAsset[];
+    featuredPress?: PressMention[];
+    featuredAchievements?: Achievement[];
+}
+
 export interface Post {
     _type: "post";
     title: string;
@@ -185,7 +216,7 @@ export interface Post {
 export interface DownloadableAsset {
     _type: "downloadableAsset";
     title: string;
-    category?: "epk" | "logo" | "photo" | "rider" | "stagePlot" | "misc";
+    category?: "epkPdf" | "bioPdf" | "pressPhoto" | "albumArt" | "logo" | "rider" | "stagePlot" | "promoClip" | "misc" | "epk" | "photo";
     file: SanityFile;
     fileUrl?: string;
     previewImage?: SanityImage;
@@ -237,12 +268,15 @@ export type PageSection =
     | HeroSection
     | PredebutHeroSection
     | PageHeroSection
+    | SectionTabsSection
     | IntroSection
     | MediaTextSection
     | RichTextSection
     | GallerySection
+    | LibraryGallerySection
     | VideoEmbedSection
     | CtaBannerSection
+    | LinkButtonsSection
     | CountdownSection
     | FaqSection
     | TestimonialsSection
@@ -259,6 +293,8 @@ export type PageSection =
     | PressGridSection
     | PressQuotesSection
     | DownloadsCenterSection
+    | AchievementsBlockSection
+    | PressKitSection
     | FanWallSection
     | PollBlockSection
     | EventsSection
@@ -285,12 +321,15 @@ interface SectionBase {
 export interface HeroSection extends SectionBase { _type: "hero"; title: string; subtitle?: string; description?: string; image?: SanityImage; cta_primary?: string; cta_primary_link?: string; cta_secondary?: string; cta_secondary_link?: string; }
 export interface PredebutHeroSection extends SectionBase { _type: "predebut_hero"; top_text?: string; image?: SanityImage; status_text?: string; cta_text?: string; cta_link?: string; }
 export interface PageHeroSection extends SectionBase { _type: "page_hero"; title: string; subtitle?: string; }
-export interface IntroSection extends SectionBase { _type: "intro"; heading?: string; content?: string; image?: SanityImage; }
+export interface SectionTabsSection extends SectionBase { _type: "section_tabs"; items?: { label?: string; targetId?: string }[]; }
+export interface IntroSection extends SectionBase { _type: "intro"; heading?: string; content?: string; image?: SanityImage; epkProfile?: EpkProfile; bioVariant?: "short" | "long"; }
 export interface MediaTextSection extends SectionBase { _type: "media_text"; heading?: string; content?: string; image?: SanityImage; layout?: "imageLeft" | "imageRight"; }
 export interface RichTextSection extends SectionBase { _type: "rich_text"; body?: string; }
 export interface GallerySection extends SectionBase { _type: "gallery_block"; title?: string; images?: (SanityImage & { alt?: string; caption?: string })[]; columns?: number; }
+export interface LibraryGallerySection extends SectionBase { _type: "library_gallery"; title?: string; gallery?: Gallery; columns?: 2 | 3 | 4; }
 export interface VideoEmbedSection extends SectionBase { _type: "video_embed"; title?: string; video_url: string; caption?: string; }
 export interface CtaBannerSection extends SectionBase { _type: "cta_banner"; heading: string; description?: string; button_text: string; button_link: string; bg_image?: SanityImage; }
+export interface LinkButtonsSection extends SectionBase { _type: "link_buttons"; title?: string; intro?: string; links?: LinkData[]; layout?: "row" | "stack"; }
 export interface CountdownSection extends SectionBase { _type: "countdown"; label: string; target_date: string; finished_text?: string; }
 export interface FaqSection extends SectionBase { _type: "faq"; title?: string; items: { question: string; answer: string }[]; }
 export interface TestimonialsSection extends SectionBase { _type: "testimonials"; title?: string; quotes: { quote: string; author?: string; source?: string }[]; }
@@ -298,15 +337,27 @@ export interface ReleaseSpotlightSection extends SectionBase { _type: "release_s
 export interface DiscographyGridSection extends SectionBase { _type: "discography_grid"; title?: string; filtersEnabled?: boolean; defaultFilter?: string; }
 export interface SmartLinksSection extends SectionBase { _type: "smart_links"; release?: { title: string; platformLinks?: PlatformLinksData; smartLinkUrl?: string }; }
 export interface CreditsBlockSection extends SectionBase { _type: "credits_block"; release?: { title: string; credits?: Credit[] }; }
-export interface VideoGallerySection extends SectionBase { _type: "video_gallery"; title?: string; videos?: Video[]; layout?: "grid" | "carousel"; }
+export interface VideoGallerySection extends SectionBase { _type: "video_gallery"; title?: string; videos?: Video[]; epkProfile?: EpkProfile; layout?: "grid" | "carousel"; showCopyActions?: boolean; }
 export interface ShortsWallSection extends SectionBase { _type: "shorts_wall"; title?: string; embeds?: string[]; }
 export interface NewsFeedSection extends SectionBase { _type: "news_feed"; title?: string; limit?: number; }
 export interface TourDatesSection extends SectionBase { _type: "tour_dates"; title?: string; upcomingOnly?: boolean; showFilters?: boolean; }
 export interface MusicGridSection extends SectionBase { _type: "music_grid"; title?: string; }
 export interface MembersGridSection extends SectionBase { _type: "members_grid"; title?: string; members?: Member[]; }
 export interface PressGridSection extends SectionBase { _type: "press_grid"; title?: string; }
-export interface PressQuotesSection extends SectionBase { _type: "press_quotes"; title?: string; items?: PressMention[]; }
-export interface DownloadsCenterSection extends SectionBase { _type: "downloads_center"; title?: string; assets?: DownloadableAsset[]; }
+export interface PressQuotesSection extends SectionBase { _type: "press_quotes"; title?: string; items?: PressMention[]; epkProfile?: EpkProfile; }
+export interface DownloadsCenterSection extends SectionBase { _type: "downloads_center"; title?: string; assets?: DownloadableAsset[]; epkProfile?: EpkProfile; showCategoryFilters?: boolean; visibleCategories?: DownloadableAsset["category"][]; }
+export interface AchievementsBlockSection extends SectionBase { _type: "achievements_block"; title?: string; items?: Achievement[]; epkProfile?: EpkProfile; }
+export interface PressKitSection extends SectionBase {
+    _type: "press_kit";
+    layoutPreset?: "cardsLeft" | "mediaLeft";
+    bioHeading?: string;
+    bioText?: string;
+    facts?: { label?: string; value?: string }[];
+    links?: { label?: string; url?: string; icon?: string }[];
+    mediaHeading?: string;
+    downloads?: { label?: string; url?: string; asset?: DownloadableAsset }[];
+    mediaItems?: { title?: string; image?: SanityImage; asset?: DownloadableAsset }[];
+}
 export interface FanWallSection extends SectionBase { _type: "fan_wall"; title?: string; submissionEnabled?: boolean; moderationNotice?: string; }
 export interface PollBlockSection extends SectionBase { _type: "poll_block"; poll?: Poll; }
 export interface EventsSection extends SectionBase { _type: "events"; title?: string; event_list?: any[]; }
@@ -315,7 +366,7 @@ export interface WidgetSection extends SectionBase { _type: "widget"; widget_typ
 export interface EmailSignupSection extends SectionBase { _type: "email_signup"; title?: string; subtitle?: string; provider?: string; formId?: string; successMessage?: string; }
 export interface NewsletterSignupSection extends SectionBase { _type: "newsletter_signup"; title?: string; subtitle?: string; buttonText?: string; successRedirect?: string; }
 export interface ContactFormSection extends SectionBase { _type: "contact_form"; title?: string; }
-export interface ContactSectionBlock extends SectionBase { _type: "contact_section"; title?: string; subtitle?: string; management_email?: string; press_email?: string; bookings_email?: string; inquiries_email?: string; show_socials?: boolean; }
+export interface ContactSectionBlock extends SectionBase { _type: "contact_section"; title?: string; subtitle?: string; epkProfile?: EpkProfile; management_email?: string; press_email?: string; bookings_email?: string; inquiries_email?: string; show_socials?: boolean; }
 export interface SpacerSection extends SectionBase { _type: "spacer"; size?: "sm" | "md" | "lg"; }
 export interface DividerSection extends SectionBase { _type: "divider"; style?: string; width?: string; }
 export interface MarqueeSection extends SectionBase { _type: "marquee"; text: string; speed?: string; variant?: string; }

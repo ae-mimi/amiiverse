@@ -10,11 +10,13 @@ import type { PressMention } from "../../lib/sanity/types";
 interface Props {
     title?: string;
     items?: PressMention[];
+    epkProfile?: { featuredPress?: PressMention[] };
 }
 
-const { title = "Press", items: passedItems } = Astro.props;
+const { title = "Press", items: passedItems, epkProfile } = Astro.props;
 const items =
-    passedItems ||
+    (passedItems?.length ? passedItems : undefined) ||
+    (epkProfile?.featuredPress?.length ? epkProfile.featuredPress : undefined) ||
     (await fetchSanity<PressMention[]>(FEATURED_PRESS_QUERY)) ||
     [];
 ---

@@ -4,7 +4,7 @@ import {
     VideoDocIcon, GalleryDocIcon, MemberIcon, EventIcon,
     PressMentionIcon, DownloadIcon, PostIcon, FanIcon,
     PollIcon, CampaignIcon, RedirectIcon, TimelineIcon,
-    MusicIcon, PressIcon, ShopIcon,
+    MusicIcon, PressIcon, EpkProfileIcon, AchievementIcon,
 } from './icons'
 
 export const deskStructure = (S: StructureBuilder) =>
@@ -90,6 +90,14 @@ export const deskStructure = (S: StructureBuilder) =>
                         .title('Press & Downloads')
                         .items([
                             S.listItem()
+                                .title('EPK Profiles')
+                                .icon(EpkProfileIcon)
+                                .child(S.documentTypeList('epkProfile').title('EPK Profiles')),
+                            S.listItem()
+                                .title('Achievements')
+                                .icon(AchievementIcon)
+                                .child(S.documentTypeList('achievement').title('Achievements')),
+                            S.listItem()
                                 .title('Press Mentions')
                                 .icon(PressMentionIcon)
                                 .child(S.documentTypeList('pressMention').title('Press Mentions')),
@@ -137,33 +145,6 @@ export const deskStructure = (S: StructureBuilder) =>
                                 .title('Polls')
                                 .icon(PollIcon)
                                 .child(S.documentTypeList('poll').title('Polls')),
-                        ]),
-                ),
-
-            S.divider(),
-
-            // ── Shop & Commerce ───────────────────────
-            S.listItem()
-                .title('Shop')
-                .icon(ShopIcon)
-                .child(
-                    S.list()
-                        .title('Shop & Commerce')
-                        .items([
-                            S.listItem()
-                                .title('Products')
-                                .icon(ShopIcon)
-                                .child(S.documentTypeList('product').title('Products')),
-                            S.listItem()
-                                .title('Recent Orders')
-                                .icon(ShopIcon)
-                                .child(
-                                    S.documentList()
-                                        .title('Recent Orders')
-                                        .schemaType('order')
-                                        .filter('_type == "order"')
-                                        .defaultOrdering([{ field: 'createdAt', direction: 'desc' }])
-                                ),
                         ]),
                 ),
 

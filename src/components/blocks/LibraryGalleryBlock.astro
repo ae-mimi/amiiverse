@@ -1,0 +1,113 @@
+---
+import { urlFor } from "../../lib/sanity/image";
+import type { Gallery } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    gallery?: Gallery;
+    columns?: 2 | 3 | 4;
+}
+
+const { title, gallery, columns = 3 } = Astro.props;
+const items = gallery?.items || [];
+const heading = title || gallery?.title;
+---
+
+<section class={`library-gallery library-gallery--${columns}`} aria-label={heading || "Gallery"}>
+    <div class="library-gallery__inner">
+        {heading && <h2 class="library-gallery__title">{heading}</h2>}
+
+        {
+            items.length === 0 ? (
+                <p class="library-gallery__empty">No gallery photos yet.</p>
+            ) : (
+                <div class="library-gallery__grid">
+                    {items.map((item) => (
+                        <figure class="library-gallery__item">
+                            <img
+                                src={urlFor(item.image)}
+                                alt={item.alt || item.caption || gallery?.title || "Gallery image"}
+                                loading="lazy"
+                                class="library-gallery__image"
+                            />
+                            {(item.caption || item.credit) && (
+                                <figcaption class="library-gallery__caption">
+                                    {item.caption}
+                                    {item.credit && <span>{item.caption ? " · " : ""}{item.credit}</span>}
+                                </figcaption>
+                            )}
+                        </figure>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .library-gallery {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+
+    .library-gallery__inner {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    .library-gallery__title {
+        margin: 0 0 2rem;
+        text-align: center;
+        font-family: var(--font-heading);
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        color: var(--text-main);
+    }
+
+    .library-gallery__empty {
+        text-align: center;
+        color: var(--text-muted);
+    }
+
+    .library-gallery__grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    @media (min-width: 640px) {
+        .library-gallery--2 .library-gallery__grid,
+        .library-gallery--3 .library-gallery__grid,
+        .library-gallery--4 .library-gallery__grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 980px) {
+        .library-gallery--3 .library-gallery__grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .library-gallery--4 .library-gallery__grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    .library-gallery__item {
+        margin: 0;
+    }
+
+    .library-gallery__image {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        display: block;
+    }
+
+    .library-gallery__caption {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.4;
+    }
+</style>

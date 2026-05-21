@@ -1,0 +1,204 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { fetchSanity } from "../../lib/sanity/client";
+import { RELEASE_QUERY } from "../../lib/sanity/queries";
+import { urlFor } from "../../lib/sanity/image";
+import { formatDate } from "../../lib/utils/format";
+import type { Release } from "../../lib/sanity/types";
+
+const { slug } = Astro.params;
+const release = await fetchSanity<Release>(RELEASE_QUERY, { slug });
+
+if (!release) {
+    Astro.response.status = 404;
+}
+
+const platformLabels: Record<string, string> = {
+    spotify: "Spotify",
+    appleMusic: "Apple Music",
+    youtubeMusic: "YouTube Music",
+    audiomack: "Audiomack",
+    boomplay: "Boomplay",
+    soundcloud: "SoundCloud",
+    deezer: "Deezer",
+    tidal: "Tidal",
+};
+
+const platformLinks = release?.platformLinks
+    ? Object.entries(release.platformLinks).filter(([, url]) => Boolean(url))
+    : [];
+---
+
+<BaseLayout title={release?.title || "Release Not Found"}>
+    {
+        release ? (
+            <main class="release-page">
+                <section class="release-hero">
+                    <div class="release-hero__art">
+                        {release.artwork && (
+                            <img src={urlFor(release.artwork)} alt={`${release.title} artwork`} />
+                        )}
+                    </div>
+                    <div class="release-hero__content">
+                        <p class="release-hero__eyebrow">{release.releaseType || "Release"}</p>
+                        <h1>{release.title}</h1>
+                        {release.releaseDate && <p class="release-hero__date">{formatDate(release.releaseDate)}</p>}
+                        {release.story && <p class="release-hero__story">{release.story}</p>}
+                        {platformLinks.length > 0 && (
+                            <div class="release-links" aria-label="Streaming links">
+                                {platformLinks.map(([platform, url]) => (
+                                    <a href={url as string} target="_blank" rel="noopener noreferrer">
+                                        {platformLabels[platform] || platform}
+                                    </a>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {release.tracklist && release.tracklist.length > 0 && (
+                    <section class="release-section">
+                        <h2>Tracklist</h2>
+                        <ol class="tracklist">
+                            {release.tracklist.map((track) => (
+                                <li>
+                                    <span>{track.trackNumber || ""}</span>
+                                    <strong>{track.title}</strong>
+                                    {track.duration && <em>{track.duration}</em>}
+                                </li>
+                            ))}
+                        </ol>
+                    </section>
+                )}
+
+                {release.credits && release.credits.length > 0 && (
+                    <section class="release-section">
+                        <h2>Credits</h2>
+                        <dl class="credits">
+                            {release.credits.map((credit) => (
+                                <>
+                                    <dt>{credit.role}</dt>
+                                    <dd>{credit.name}</dd>
+                                </>
+                            ))}
+                        </dl>
+                    </section>
+                )}
+            </main>
+        ) : (
+            <main class="release-page release-page--missing">
+                <h1>Release Not Found</h1>
+                <a href="/music">Back to Music</a>
+            </main>
+        )
+    }
+</BaseLayout>
+
+<style>
+    .release-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: clamp(3rem, 8vw, 7rem) 1.5rem;
+    }
+
+    .release-hero {
+        display: grid;
+        gap: clamp(2rem, 5vw, 4rem);
+        align-items: center;
+    }
+
+    @media (min-width: 820px) {
+        .release-hero {
+            grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1fr);
+        }
+    }
+
+    .release-hero__art img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 1rem;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .release-hero__eyebrow,
+    .release-hero__date {
+        margin: 0 0 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 800;
+    }
+
+    .release-hero h1 {
+        margin: 0 0 1rem;
+        font-family: var(--font-heading);
+        font-size: clamp(3rem, 8vw, 7rem);
+        color: var(--text-main);
+        line-height: 0.95;
+    }
+
+    .release-hero__story {
+        max-width: 64ch;
+        line-height: 1.7;
+    }
+
+    .release-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .release-links a,
+    .release-page--missing a {
+        border-radius: 999px;
+        background: var(--color-primary);
+        color: var(--color-secondary);
+        padding: 0.8rem 1.1rem;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .release-section {
+        margin-top: clamp(3rem, 7vw, 5rem);
+    }
+
+    .release-section h2 {
+        font-family: var(--font-heading);
+        font-size: clamp(2rem, 5vw, 4rem);
+        margin-bottom: 1rem;
+    }
+
+    .tracklist {
+        display: grid;
+        gap: 0.75rem;
+        padding: 0;
+        list-style: none;
+    }
+
+    .tracklist li {
+        display: grid;
+        grid-template-columns: 3ch 1fr auto;
+        gap: 1rem;
+        border-bottom: 1px solid color-mix(in srgb, var(--text-main), transparent 80%);
+        padding-bottom: 0.75rem;
+    }
+
+    .tracklist em,
+    .credits dt {
+        color: var(--text-muted);
+        font-style: normal;
+    }
+
+    .credits {
+        display: grid;
+        grid-template-columns: minmax(120px, 0.35fr) 1fr;
+        gap: 0.75rem 1rem;
+    }
+
+    .credits dd {
+        margin: 0;
+        font-weight: 700;
+    }
+</style>

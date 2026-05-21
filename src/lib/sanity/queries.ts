@@ -15,6 +15,26 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
   seo,
   sections[]{
     ...,
+    _type == "intro" => {
+      ...,
+      epkProfile->{
+        title,
+        shortBio,
+        longBio
+      }
+    },
+    _type == "library_gallery" => {
+      ...,
+      gallery->{ title, slug, category, items[]{ image, alt, caption, credit } }
+    },
+    _type == "link_buttons" => {
+      ...,
+      links[]{
+        ...,
+        internalRef->{ "slug": slug },
+        "fileUrl": file.asset->url
+      }
+    },
     _type == "widget" => {
       ...,
       music_item->{
@@ -41,7 +61,11 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
     },
     _type == "video_gallery" => {
       ...,
-      videos[]->{ title, slug, videoType, youtubeUrl, embedUrl, poster, publishedAt }
+      epkProfile->{
+        title,
+        featuredVideos[]->{ title, slug, videoType, youtubeUrl, embedUrl, poster, publishedAt, description }
+      },
+      videos[]->{ title, slug, videoType, youtubeUrl, embedUrl, poster, publishedAt, description }
     },
     _type == "members_grid" => {
       ...,
@@ -49,11 +73,38 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
     },
     _type == "press_quotes" => {
       ...,
+      epkProfile->{
+        title,
+        featuredPress[]->{ title, publisher, publishedDate, url, quote, featured }
+      },
       items[]->{ title, publisher, publishedDate, url, quote, featured }
     },
     _type == "downloads_center" => {
       ...,
-      assets[]->{ title, category, file, previewImage, usageRights }
+      epkProfile->{
+        title,
+        featuredAssets[]->{ title, category, "fileUrl": file.asset->url, previewImage, usageRights }
+      },
+      assets[]->{ title, category, "fileUrl": file.asset->url, previewImage, usageRights }
+    },
+    _type == "achievements_block" => {
+      ...,
+      epkProfile->{
+        title,
+        featuredAchievements[]->{ title, category, date, description, metric, url, featured }
+      },
+      items[]->{ title, category, date, description, metric, url, featured }
+    },
+    _type == "press_kit" => {
+      ...,
+      downloads[]{
+        ...,
+        asset->{ title, category, "fileUrl": file.asset->url, previewImage, usageRights }
+      },
+      mediaItems[]{
+        ...,
+        asset->{ title, category, "fileUrl": file.asset->url, previewImage, usageRights }
+      }
     },
     _type == "timeline" => {
       ...,
@@ -70,6 +121,13 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
     _type == "poll_block" => {
       ...,
       poll->{ question, slug, options, voteCounts, startDate, endDate, status }
+    },
+    _type == "contact_section" => {
+      ...,
+      epkProfile->{
+        title,
+        contacts
+      }
     }
   }
 }`;
@@ -210,6 +268,23 @@ export const ALL_PRESS_QUERY = `*[_type == "pressMention"] | order(publishedDate
 
 export const FEATURED_PRESS_QUERY = `*[_type == "pressMention" && featured == true] | order(publishedDate desc) {
   title, publisher, publishedDate, url, quote
+}`;
+
+export const FEATURED_ACHIEVEMENTS_QUERY = `*[_type == "achievement" && featured == true] | order(date desc) {
+  title, category, date, description, metric, url, featured
+}`;
+
+export const ALL_ACHIEVEMENTS_QUERY = `*[_type == "achievement"] | order(date desc) {
+  title, category, date, description, metric, url, featured
+}`;
+
+export const ALL_EPK_PROFILES_QUERY = `*[_type == "epkProfile"] | order(_createdAt desc) {
+  title, shortBio, longBio, keyFacts, contacts,
+  featuredReleases[]->{ title, slug, releaseType, releaseDate, artwork, platformLinks, smartLinkUrl },
+  featuredVideos[]->{ title, slug, videoType, youtubeUrl, embedUrl, poster, publishedAt, description },
+  featuredAssets[]->{ title, category, "fileUrl": file.asset->url, previewImage, usageRights },
+  featuredPress[]->{ title, publisher, publishedDate, url, quote, featured },
+  featuredAchievements[]->{ title, category, date, description, metric, url, featured }
 }`;
 
 // ── Posts ────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import { fetchGlobalSettings } from "../../lib/siteSettings";
 import InfoCard from "../ui/InfoCard.astro";
 
 const {
+    epkProfile,
     management_email,
     press_email,
     bookings_email,
@@ -13,6 +14,11 @@ const {
 
 const settings = await fetchGlobalSettings();
 const socials = settings.socials || [];
+const contacts = epkProfile?.contacts || {};
+const managementEmail = contacts.managementEmail || management_email;
+const pressEmail = contacts.pressEmail || press_email;
+const bookingsEmail = contacts.bookingsEmail || bookings_email;
+const inquiriesEmail = contacts.inquiriesEmail || inquiries_email;
 ---
 
 <div class="content-wrapper">
@@ -23,13 +29,13 @@ const socials = settings.socials || [];
                 <InfoCard title="CONTACT US">
                     <p>
                         <strong>Management</strong><br /><a
-                            href={`mailto:${management_email}`}
-                            >{management_email}</a
+                            href={`mailto:${managementEmail}`}
+                            >{managementEmail}</a
                         >
                     </p>
                     <p>
                         <strong>PR/Press</strong><br /><a
-                            href={`mailto:${press_email}`}>{press_email}</a
+                            href={`mailto:${pressEmail}`}>{pressEmail}</a
                         >
                     </p>
                 </InfoCard>
@@ -38,14 +44,14 @@ const socials = settings.socials || [];
                 <InfoCard title="BOOKINGS">
                     <p>
                         <strong>Bookings</strong><br /><a
-                            href={`mailto:${bookings_email}`}
-                            >{bookings_email}</a
+                            href={`mailto:${bookingsEmail}`}
+                            >{bookingsEmail}</a
                         >
                     </p>
                     <p>
                         <strong>Inquiries</strong><br /><a
-                            href={`mailto:${inquiries_email}`}
-                            >{inquiries_email}</a
+                            href={`mailto:${inquiriesEmail}`}
+                            >{inquiriesEmail}</a
                         >
                     </p>
                 </InfoCard>

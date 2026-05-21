@@ -4,15 +4,24 @@ import {
   HeroHomeIcon, HeroPredebutIcon, HeroPageIcon,
   IntroIcon, RichTextIcon, GalleryIcon, VideoIcon,
   CTAIcon, CountdownIcon, FAQIcon, TestimonialIcon,
-  MusicGridIcon, MembersGridIcon, PressGridIcon, EventsIcon,
+  MusicGridIcon, MembersGridIcon, PressGridIcon, PressKitIcon, EventsIcon,
   WidgetIcon, ContactFormIcon, ContactInfoIcon,
   SpacerIcon, DividerIcon, MarqueeIcon, LyricIcon,
   ReleaseSpotlightIcon, DiscographyGridIcon, VideoGalleryIcon,
   TourDatesIcon, EmailSignupIcon, FanWallIcon, DownloadsCenterIcon,
   TimelineBlockIcon, MediaTextIcon, SmartLinksIcon, CreditsIcon,
   ShortsWallIcon, NewsFeedIcon, PressCoverageIcon, PollBlockIcon,
-  NewsletterSignupIcon,
+  NewsletterSignupIcon, SectionTabsIcon, AchievementsBlockIcon,
+  LinkButtonsIcon, LibraryGalleryIcon,
 } from './icons'
+
+const sectionIdField = () =>
+  defineField({
+    name: 'sectionId',
+    type: 'string',
+    title: 'Section ID',
+    description: 'Optional anchor for section tabs, e.g. bio, music, photos, videos, proof, socials, contact.',
+  })
 
 export default defineType({
   name: 'page',
@@ -74,6 +83,20 @@ export default defineType({
       description: 'Build your page by adding sections below. Drag to reorder them.',
       type: 'array',
       group: 'content',
+      options: {
+        insertMenu: {
+          showIcons: true,
+          groups: [
+            { name: 'essentials', title: 'Essentials', of: ['page_hero', 'intro', 'rich_text', 'media_text', 'cta_banner', 'newsletter_signup', 'contact_section'] },
+            { name: 'music', title: 'Music', of: ['music_grid', 'release_spotlight', 'smart_links', 'discography_grid', 'credits_block', 'widget'] },
+            { name: 'media', title: 'Media', of: ['gallery_block', 'library_gallery', 'video_gallery', 'video_embed', 'shorts_wall', 'downloads_center'] },
+            { name: 'press', title: 'Press / EPK', of: ['section_tabs', 'press_grid', 'press_quotes', 'achievements_block', 'link_buttons', 'press_kit'] },
+            { name: 'community', title: 'Community', of: ['members_grid', 'tour_dates', 'fan_wall', 'poll_block', 'timeline', 'news_feed'] },
+            { name: 'layout', title: 'Layout', of: ['spacer', 'divider', 'marquee', 'lyric_highlight'] },
+            { name: 'advancedLegacy', title: 'Advanced / Legacy', of: ['hero', 'predebut_hero', 'testimonials', 'events', 'email_signup', 'contact_form', 'profile_header', 'link_stack'] },
+          ],
+        },
+      },
       of: [
         // ═══════════════════════════════════════
         //  HEROES — Large banners at the top
@@ -145,10 +168,20 @@ export default defineType({
         {
           type: 'object',
           name: 'intro',
-          title: 'Intro Section',
+          title: 'Intro Section / Bio',
           icon: IntroIcon,
-          description: 'Text with an optional image beside it.',
+          description: 'Use for page intros, artist bios, short descriptions, or text with an optional image.',
           fields: [
+            sectionIdField(),
+            defineField({ name: 'epkProfile', type: 'reference', title: 'EPK Profile Source', to: [{ type: 'epkProfile' }], description: 'Optional: use short or long bio from an EPK Profile when Body Text is empty.' }),
+            defineField({
+              name: 'bioVariant',
+              type: 'string',
+              title: 'EPK Bio Length',
+              description: 'Only used when an EPK Profile Source is selected and Body Text is empty.',
+              options: { list: [{ title: 'Short Bio', value: 'short' }, { title: 'Long Bio', value: 'long' }], layout: 'radio' },
+              initialValue: 'short',
+            }),
             defineField({ name: 'heading', type: 'string', title: 'Heading' }),
             defineField({ name: 'content', type: 'text', title: 'Body Text', rows: 5 }),
             defineField({ name: 'image', type: 'image', title: 'Photo', options: { hotspot: true } }),
@@ -188,10 +221,11 @@ export default defineType({
         {
           type: 'object',
           name: 'rich_text',
-          title: 'Text Block',
+          title: 'Text Block / Copy',
           icon: RichTextIcon,
-          description: 'A simple text area for paragraphs, announcements, or written content.',
+          description: 'Search terms: copy, paragraph, bio, announcement, plain text, written content.',
           fields: [
+            sectionIdField(),
             defineField({ name: 'body', type: 'text', title: 'Content', rows: 10 }),
           ],
           preview: {
@@ -204,9 +238,9 @@ export default defineType({
         {
           type: 'object',
           name: 'gallery_block',
-          title: 'Photo Gallery',
+          title: 'Photo Gallery / Images',
           icon: GalleryIcon,
-          description: 'A grid of photos.',
+          description: 'A grid of photos, images, press shots, artwork, or visual assets.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Gallery Title' }),
             defineField({
@@ -234,6 +268,30 @@ export default defineType({
             prepare({ title, images }) {
               const count = images?.length || 0
               return { title: title || 'Photo Gallery', subtitle: `${count} photo${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'library_gallery',
+          title: 'Library Gallery / Reusable Gallery',
+          icon: LibraryGalleryIcon,
+          description: 'Pull photos from the Galleries library instead of uploading images directly into this page.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title' }),
+            defineField({ name: 'gallery', type: 'reference', title: 'Gallery', to: [{ type: 'gallery' }], validation: (rule) => rule.required() }),
+            defineField({
+              name: 'columns',
+              type: 'number',
+              title: 'Layout',
+              options: { list: [{ title: '2 per row', value: 2 }, { title: '3 per row', value: 3 }, { title: '4 per row', value: 4 }] },
+              initialValue: 3,
+            }),
+          ],
+          preview: {
+            select: { title: 'title', galleryTitle: 'gallery.title' },
+            prepare({ title, galleryTitle }) {
+              return { title: title || galleryTitle || 'Library Gallery', subtitle: 'From Galleries library' }
             },
           },
         },
@@ -276,6 +334,38 @@ export default defineType({
             select: { title: 'heading', subtitle: 'button_text' },
             prepare({ title, subtitle }) {
               return { title: title || 'Promo Banner', subtitle: subtitle ? `Button: "${subtitle}"` : '' }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'link_buttons',
+          title: 'Link Buttons / CTA Links',
+          icon: LinkButtonsIcon,
+          description: 'A simple row or stack of buttons for internal pages, external URLs, email links, phone links, or file downloads.',
+          fields: [
+            defineField({ name: 'title', type: 'string', title: 'Section Title' }),
+            defineField({ name: 'intro', type: 'text', title: 'Intro Text', rows: 2 }),
+            defineField({
+              name: 'links',
+              type: 'array',
+              title: 'Links',
+              of: [{ type: 'link' }],
+              validation: (rule) => rule.min(1),
+            }),
+            defineField({
+              name: 'layout',
+              type: 'string',
+              title: 'Layout',
+              options: { list: [{ title: 'Centered Row', value: 'row' }, { title: 'Stacked', value: 'stack' }], layout: 'radio' },
+              initialValue: 'row',
+            }),
+          ],
+          preview: {
+            select: { title: 'title', links: 'links' },
+            prepare({ title, links }) {
+              const count = links?.length || 0
+              return { title: title || 'Link Buttons', subtitle: `${count} link${count !== 1 ? 's' : ''}` }
             },
           },
         },
@@ -332,9 +422,9 @@ export default defineType({
         {
           type: 'object',
           name: 'testimonials',
-          title: 'Press Quotes & Endorsements',
+          title: 'Advanced: Manual Quotes / Testimonials',
           icon: TestimonialIcon,
-          description: 'Showcase quotes from press, industry, or fans.',
+          description: 'Manual quote cards. Prefer Press Quotes / Endorsements when quotes should come from Press Mentions.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'What People Are Saying' }),
             defineField({
@@ -373,10 +463,11 @@ export default defineType({
         {
           type: 'object',
           name: 'release_spotlight',
-          title: 'Release Spotlight',
+          title: 'Release Spotlight / Featured Music',
           icon: ReleaseSpotlightIcon,
-          description: 'Feature a specific release with artwork, tracklist, and streaming links.',
+          description: 'Feature a specific release with artwork, tracklist, and streaming links. Good for EPK music sections.',
           fields: [
+            sectionIdField(),
             defineField({ name: 'release', type: 'reference', title: 'Release', to: [{ type: 'release' }], validation: (rule) => rule.required() }),
             defineField({ name: 'showTracklist', type: 'boolean', title: 'Show Tracklist', initialValue: true }),
             defineField({ name: 'showCredits', type: 'boolean', title: 'Show Credits', initialValue: false }),
@@ -392,9 +483,9 @@ export default defineType({
         {
           type: 'object',
           name: 'discography_grid',
-          title: 'Discography Grid',
+          title: 'Advanced: Discography Grid',
           icon: DiscographyGridIcon,
-          description: 'Show all releases in a filterable grid.',
+          description: 'Show all releases in a filterable grid. Use on archive/catalog pages; cards link to release detail pages.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Discography' }),
             defineField({ name: 'filtersEnabled', type: 'boolean', title: 'Show Filters', initialValue: true }),
@@ -414,10 +505,11 @@ export default defineType({
         {
           type: 'object',
           name: 'smart_links',
-          title: 'Smart Links',
+          title: 'Smart Links / Music Links',
           icon: SmartLinksIcon,
-          description: 'Platform buttons for a specific release.',
+          description: 'Platform buttons for a release. Search terms: music links, streaming links, Spotify, Apple Music, YouTube.',
           fields: [
+            sectionIdField(),
             defineField({ name: 'release', type: 'reference', title: 'Release', to: [{ type: 'release' }] }),
           ],
           preview: {
@@ -446,12 +538,15 @@ export default defineType({
         {
           type: 'object',
           name: 'video_gallery',
-          title: 'Video Gallery',
+          title: 'Video Gallery / YouTube Embeds',
           icon: VideoGalleryIcon,
-          description: 'Display multiple videos in a grid or carousel.',
+          description: 'Display multiple videos as embeds with YouTube links and embed-code copy tools.',
           fields: [
+            sectionIdField(),
             defineField({ name: 'title', type: 'string', title: 'Section Title' }),
+            defineField({ name: 'epkProfile', type: 'reference', title: 'EPK Profile Source', to: [{ type: 'epkProfile' }], description: 'Optional: use featured videos from an EPK Profile when no videos are selected.' }),
             defineField({ name: 'videos', type: 'array', title: 'Videos', of: [{ type: 'reference', to: [{ type: 'video' }] }] }),
+            defineField({ name: 'showCopyActions', type: 'boolean', title: 'Show YouTube Link & Embed Tools', initialValue: true }),
             defineField({
               name: 'layout',
               type: 'string',
@@ -494,9 +589,9 @@ export default defineType({
         {
           type: 'object',
           name: 'news_feed',
-          title: 'News Feed',
+          title: 'Advanced: News Feed',
           icon: NewsFeedIcon,
-          description: 'Display recent news posts.',
+          description: 'Display recent news posts. Use after creating News Post documents; cards link to news detail pages.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Latest News' }),
             defineField({ name: 'limit', type: 'number', title: 'Max Posts', initialValue: 6 }),
@@ -565,9 +660,9 @@ export default defineType({
         {
           type: 'object',
           name: 'press_grid',
-          title: 'Press Coverage',
+          title: 'Press Coverage / Reviews',
           icon: PressGridIcon,
-          description: 'Shows press mentions from the Press library.',
+          description: 'Shows press mentions, reviews, articles, media coverage, and interviews from the Press library.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Press' }),
           ],
@@ -579,11 +674,13 @@ export default defineType({
         {
           type: 'object',
           name: 'press_quotes',
-          title: 'Press Quotes',
+          title: 'Press Quotes / Endorsements',
           icon: PressCoverageIcon,
-          description: 'Feature specific press mentions with pull quotes.',
+          description: 'Feature specific press mentions, reviews, endorsements, testimonials, or pull quotes.',
           fields: [
+            sectionIdField(),
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'In the Press' }),
+            defineField({ name: 'epkProfile', type: 'reference', title: 'EPK Profile Source', to: [{ type: 'epkProfile' }], description: 'Optional: use featured press mentions from an EPK Profile when no mentions are selected.' }),
             defineField({ name: 'items', type: 'array', title: 'Mentions', of: [{ type: 'reference', to: [{ type: 'pressMention' }] }] }),
           ],
           preview: {
@@ -597,18 +694,221 @@ export default defineType({
         {
           type: 'object',
           name: 'downloads_center',
-          title: 'Downloads Center',
+          title: 'Downloads Center / Press Assets',
           icon: DownloadsCenterIcon,
-          description: 'Display downloadable assets (EPK, logos, photos, riders).',
+          description: 'Display downloadable assets: EPK PDF, bio PDF, press photos, album art, logos, riders, stage plots, and promo clips.',
           fields: [
+            sectionIdField(),
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Downloads' }),
+            defineField({ name: 'epkProfile', type: 'reference', title: 'EPK Profile Source', to: [{ type: 'epkProfile' }], description: 'Optional: use featured assets from an EPK Profile when no assets are selected.' }),
             defineField({ name: 'assets', type: 'array', title: 'Assets', of: [{ type: 'reference', to: [{ type: 'downloadableAsset' }] }] }),
+            defineField({ name: 'showCategoryFilters', type: 'boolean', title: 'Show Category Filters', initialValue: false }),
+            defineField({
+              name: 'visibleCategories',
+              type: 'array',
+              title: 'Visible Categories',
+              description: 'Leave empty to show all selected assets.',
+              of: [{
+                type: 'string',
+                options: {
+                  list: [
+                    { title: 'EPK PDF', value: 'epkPdf' },
+                    { title: 'Bio PDF', value: 'bioPdf' },
+                    { title: 'Press Photo', value: 'pressPhoto' },
+                    { title: 'Album Art', value: 'albumArt' },
+                    { title: 'Logo', value: 'logo' },
+                    { title: 'Tech Rider', value: 'rider' },
+                    { title: 'Stage Plot', value: 'stagePlot' },
+                    { title: 'Promo Clip', value: 'promoClip' },
+                    { title: 'Miscellaneous', value: 'misc' },
+                    { title: 'EPK (Legacy)', value: 'epk' },
+                    { title: 'Press Photo (Legacy)', value: 'photo' },
+                  ],
+                },
+              }],
+              options: { layout: 'tags' },
+            }),
           ],
           preview: {
             select: { title: 'title', assets: 'assets' },
             prepare({ title, assets }) {
               const count = assets?.length || 0
               return { title: title || 'Downloads', subtitle: `${count} file${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'achievements_block',
+          title: 'Achievements / Milestones',
+          icon: AchievementsBlockIcon,
+          description: 'Display milestones, stats, awards, press proof, reviews, and notable career moments.',
+          fields: [
+            sectionIdField(),
+            defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Achievements' }),
+            defineField({ name: 'epkProfile', type: 'reference', title: 'EPK Profile Source', to: [{ type: 'epkProfile' }], description: 'Optional: use featured achievements from an EPK Profile when no achievements are selected.' }),
+            defineField({ name: 'items', type: 'array', title: 'Achievements', of: [{ type: 'reference', to: [{ type: 'achievement' }] }] }),
+          ],
+          preview: {
+            select: { title: 'title', items: 'items' },
+            prepare({ title, items }) {
+              const count = items?.length || 0
+              return { title: title || 'Achievements', subtitle: `${count} item${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'press_kit',
+          title: 'Advanced: Press Kit / EPK Bento',
+          icon: PressKitIcon,
+          description: 'Compact teaser only. Use on /press to link people to /epk; do not use as the main EPK page.',
+          fields: [
+            sectionIdField(),
+            defineField({
+              name: 'layoutPreset',
+              type: 'string',
+              title: 'Layout',
+              description: 'Use the designed split layout, or stack the media before the cards.',
+              initialValue: 'cardsLeft',
+              options: {
+                list: [
+                  { title: 'Cards Left, Media Right', value: 'cardsLeft' },
+                  { title: 'Media Left, Cards Right', value: 'mediaLeft' },
+                ],
+                layout: 'radio',
+              },
+            }),
+            defineField({ name: 'bioHeading', type: 'string', title: 'Biography Heading', initialValue: 'BIOGRAPHY' }),
+            defineField({ name: 'bioText', type: 'text', title: 'Biography Text', rows: 6 }),
+            defineField({
+              name: 'facts',
+              type: 'array',
+              title: 'Key Facts',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({ name: 'label', type: 'string', title: 'Label' }),
+                    defineField({ name: 'value', type: 'string', title: 'Value' }),
+                  ],
+                  preview: {
+                    select: { title: 'label', subtitle: 'value' },
+                  },
+                },
+              ],
+            }),
+            defineField({
+              name: 'links',
+              type: 'array',
+              title: 'Links',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({ name: 'label', type: 'string', title: 'Label' }),
+                    defineField({ name: 'url', type: 'url', title: 'URL' }),
+                    defineField({
+                      name: 'icon',
+                      type: 'string',
+                      title: 'Icon',
+                      description: 'Simple Icons slug, for example: tiktok, instagram, spotify, youtube.',
+                    }),
+                  ],
+                  preview: {
+                    select: { title: 'label', subtitle: 'url' },
+                  },
+                },
+              ],
+            }),
+            defineField({ name: 'mediaHeading', type: 'string', title: 'EPK & Media Heading', initialValue: 'EPK & MEDIA' }),
+            defineField({
+              name: 'downloads',
+              type: 'array',
+              title: 'Download Buttons',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({ name: 'label', type: 'string', title: 'Button Label' }),
+                    defineField({ name: 'asset', type: 'reference', title: 'Downloadable Asset', to: [{ type: 'downloadableAsset' }] }),
+                    defineField({ name: 'url', type: 'url', title: 'Fallback URL' }),
+                  ],
+                  preview: {
+                    select: { title: 'label', assetTitle: 'asset.title' },
+                    prepare({ title, assetTitle }) {
+                      return { title: title || assetTitle || 'Download button' }
+                    },
+                  },
+                },
+              ],
+            }),
+            defineField({
+              name: 'mediaItems',
+              type: 'array',
+              title: 'Media Preview Cards',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({ name: 'title', type: 'string', title: 'Title' }),
+                    defineField({ name: 'image', type: 'image', title: 'Image', options: { hotspot: true } }),
+                    defineField({ name: 'asset', type: 'reference', title: 'Optional Downloadable Asset', to: [{ type: 'downloadableAsset' }] }),
+                  ],
+                  preview: {
+                    select: { title: 'title', media: 'image' },
+                    prepare({ title, media }) {
+                      return { title: title || 'Media preview', media }
+                    },
+                  },
+                },
+              ],
+            }),
+          ],
+          preview: {
+            select: { bioHeading: 'bioHeading', downloads: 'downloads', mediaItems: 'mediaItems' },
+            prepare({ bioHeading, downloads, mediaItems }) {
+              const downloadCount = downloads?.length || 0
+              const mediaCount = mediaItems?.length || 0
+              return { title: bioHeading || 'Press Kit', subtitle: `${downloadCount} download${downloadCount !== 1 ? 's' : ''}, ${mediaCount} media card${mediaCount !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+        {
+          type: 'object',
+          name: 'section_tabs',
+          title: 'Section Tabs / Jump Links',
+          icon: SectionTabsIcon,
+          description: 'Sticky jump links for long structured pages like the EPK. Search terms: tabs, anchor links, page navigation.',
+          fields: [
+            defineField({
+              name: 'items',
+              type: 'array',
+              title: 'Tabs',
+              of: [{
+                type: 'object',
+                fields: [
+                  defineField({ name: 'label', type: 'string', title: 'Label', validation: (rule) => rule.required() }),
+                  defineField({ name: 'targetId', type: 'string', title: 'Target Section ID', validation: (rule) => rule.required() }),
+                ],
+                preview: { select: { title: 'label', subtitle: 'targetId' } },
+              }],
+              initialValue: [
+                { label: 'Bio', targetId: 'bio' },
+                { label: 'Music', targetId: 'music' },
+                { label: 'Photos', targetId: 'photos' },
+                { label: 'Videos', targetId: 'videos' },
+                { label: 'Proof', targetId: 'proof' },
+                { label: 'Socials', targetId: 'socials' },
+                { label: 'Contact', targetId: 'contact' },
+              ],
+            }),
+          ],
+          preview: {
+            select: { items: 'items' },
+            prepare({ items }) {
+              const count = items?.length || 0
+              return { title: 'Section Tabs', subtitle: `${count} tab${count !== 1 ? 's' : ''}` }
             },
           },
         },
@@ -653,7 +953,7 @@ export default defineType({
         {
           type: 'object',
           name: 'events',
-          title: 'Events (Inline)',
+          title: 'Legacy: Events (Inline)',
           icon: EventsIcon,
           description: 'Inline event list — prefer Tour Dates block for new pages.',
           fields: [
@@ -753,9 +1053,9 @@ export default defineType({
         {
           type: 'object',
           name: 'email_signup',
-          title: 'Email Sign-Up',
+          title: 'Legacy: Email Sign-Up',
           icon: EmailSignupIcon,
-          description: 'Newsletter subscription form.',
+          description: 'Legacy newsletter form. Prefer Newsletter Sign-Up for new pages.',
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Stay Updated' }),
             defineField({ name: 'subtitle', type: 'text', title: 'Subtitle', rows: 2 }),
@@ -794,7 +1094,7 @@ export default defineType({
         {
           type: 'object',
           name: 'contact_form',
-          title: 'Contact Form',
+          title: 'Legacy: Contact Form',
           icon: ContactFormIcon,
           description: 'Legacy standalone contact form block. Prefer newsletter, fan-facing, or dedicated future form flows for new pages.',
           fields: [
@@ -808,10 +1108,12 @@ export default defineType({
         {
           type: 'object',
           name: 'contact_section',
-          title: 'Contact Info & Emails',
+          title: 'Contact Info & Emails / Industry Contact',
           icon: ContactInfoIcon,
-          description: 'Displays business contact cards and social links only. No form is rendered here.',
+          description: 'Displays management, press, booking, inquiries, business contact emails, and social links. No form is rendered here.',
           fields: [
+            sectionIdField(),
+            defineField({ name: 'epkProfile', type: 'reference', title: 'EPK Profile', to: [{ type: 'epkProfile' }], description: 'Optional: pull contact emails from an EPK Profile.' }),
             defineField({ name: 'title', type: 'string', title: 'Heading', initialValue: 'SAY HELLO' }),
             defineField({ name: 'subtitle', type: 'string', title: 'Subheading' }),
             defineField({ name: 'management_email', type: 'string', title: 'Management Email', initialValue: 'mgmt@weareamii.com' }),

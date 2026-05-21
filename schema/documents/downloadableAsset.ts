@@ -2,47 +2,52 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
     name: 'downloadableAsset',
-    title: 'Downloadable Asset',
+    title: 'Downloadable Asset / Press File',
     type: 'document',
     fields: [
         defineField({
             name: 'title',
-            title: 'Title',
+            title: 'Title / File Name',
             type: 'string',
             validation: (rule) => rule.required(),
         }),
         defineField({
             name: 'category',
-            title: 'Category',
+            title: 'Category / Asset Type',
             type: 'string',
             options: {
                 list: [
-                    { title: 'EPK (Press Kit)', value: 'epk' },
+                    { title: 'EPK PDF', value: 'epkPdf' },
+                    { title: 'Bio PDF', value: 'bioPdf' },
+                    { title: 'Press Photo', value: 'pressPhoto' },
+                    { title: 'Album Art', value: 'albumArt' },
                     { title: 'Logo', value: 'logo' },
-                    { title: 'Press Photo', value: 'photo' },
                     { title: 'Tech Rider', value: 'rider' },
                     { title: 'Stage Plot', value: 'stagePlot' },
+                    { title: 'Promo Clip', value: 'promoClip' },
                     { title: 'Miscellaneous', value: 'misc' },
+                    { title: 'EPK (Legacy)', value: 'epk' },
+                    { title: 'Press Photo (Legacy)', value: 'photo' },
                 ],
                 layout: 'dropdown',
             },
         }),
         defineField({
             name: 'file',
-            title: 'File',
+            title: 'File / Download',
             type: 'file',
             validation: (rule) => rule.required(),
         }),
         defineField({
             name: 'previewImage',
-            title: 'Preview Image',
+            title: 'Preview Image / Thumbnail',
             type: 'image',
             description: 'A thumbnail preview of the file.',
             options: { hotspot: true },
         }),
         defineField({
             name: 'usageRights',
-            title: 'Usage Rights',
+            title: 'Usage Rights / Licensing Notes',
             type: 'text',
             rows: 3,
             description: 'Any licensing or usage restrictions.',
@@ -51,7 +56,19 @@ export default defineType({
     preview: {
         select: { title: 'title', category: 'category', media: 'previewImage' },
         prepare({ title, category, media }) {
-            const labels: Record<string, string> = { epk: 'EPK', logo: 'Logo', photo: 'Photo', rider: 'Rider', stagePlot: 'Stage Plot', misc: 'Misc' }
+            const labels: Record<string, string> = {
+                epkPdf: 'EPK PDF',
+                bioPdf: 'Bio PDF',
+                pressPhoto: 'Press Photo',
+                albumArt: 'Album Art',
+                logo: 'Logo',
+                rider: 'Rider',
+                stagePlot: 'Stage Plot',
+                promoClip: 'Promo Clip',
+                misc: 'Misc',
+                epk: 'EPK',
+                photo: 'Photo',
+            }
             return {
                 title: title || 'Untitled Asset',
                 subtitle: labels[category || ''] || category || '',

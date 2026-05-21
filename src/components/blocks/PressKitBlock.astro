@@ -1,0 +1,449 @@
+---
+/**
+ * PressKitBlock — Designed EPK section with editable cards and media.
+ */
+import { Icon } from "astro-icon/components";
+import { urlFor } from "../../lib/sanity/image";
+import type { PressKitSection } from "../../lib/sanity/types";
+
+interface Props extends PressKitSection {}
+
+const {
+    layoutPreset = "cardsLeft",
+    bioHeading = "BIOGRAPHY",
+    bioText,
+    facts = [],
+    links = [],
+    mediaHeading = "EPK & MEDIA",
+    downloads = [],
+    mediaItems = [],
+} = Astro.props;
+
+const sectionClass = `press-kit press-kit--${layoutPreset}`;
+
+const getDownloadHref = (item: NonNullable<Props["downloads"]>[number]) =>
+    item.asset?.fileUrl || item.url || "#";
+
+const getMediaHref = (item: NonNullable<Props["mediaItems"]>[number]) =>
+    item.asset?.fileUrl || undefined;
+
+const getMediaImage = (item: NonNullable<Props["mediaItems"]>[number]) =>
+    item.image ? urlFor(item.image) : item.asset?.previewImage ? urlFor(item.asset.previewImage) : undefined;
+---
+
+<section class={sectionClass} aria-label={bioHeading || mediaHeading || "Press kit"}>
+    <div class="press-kit__inner">
+        <div class="press-kit__layout">
+            <div class="press-kit__bio-column">
+                {bioHeading && <h3 class="press-kit__eyebrow">{bioHeading}</h3>}
+
+                {bioText && (
+                    <article class="press-card press-card--bio">
+                        <p>{bioText}</p>
+                    </article>
+                )}
+
+                <div class="press-kit__mini-grid">
+                    {facts.length > 0 && (
+                        <article class="press-card press-card--facts">
+                            <h4>KEY FACTS</h4>
+                            <dl>
+                                {facts.map((fact) => (
+                                    <div>
+                                        {fact.label && <dt>{fact.label}:</dt>}
+                                        {fact.value && <dd>{fact.value}</dd>}
+                                    </div>
+                                ))}
+                            </dl>
+                        </article>
+                    )}
+
+                    {links.length > 0 && (
+                        <article class="press-card press-card--links">
+                            <h4>LINKS</h4>
+                            <ul>
+                                {links.map((link) => (
+                                    <li>
+                                        <a href={link.url || "#"} target="_blank" rel="noopener noreferrer">
+                                            <span>{link.label}</span>
+                                            {link.icon && (
+                                                <Icon
+                                                    name={`simple-icons:${link.icon}`}
+                                                    class="press-card__social-icon"
+                                                />
+                                            )}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </article>
+                    )}
+                </div>
+            </div>
+
+            <div class="press-kit__media-column">
+                {mediaHeading && <h3 class="press-kit__eyebrow">{mediaHeading}</h3>}
+
+                {downloads.length > 0 && (
+                    <div class="press-kit__downloads">
+                        {downloads.map((download) => (
+                            <a
+                                class="press-kit__download"
+                                href={getDownloadHref(download)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download
+                            >
+                                {download.label || download.asset?.title || "Download"}
+                            </a>
+                        ))}
+                    </div>
+                )}
+
+                {mediaItems.length > 0 && (
+                    <div class="press-kit__media-list">
+                        {mediaItems.map((item) => {
+                            const image = getMediaImage(item);
+                            const href = getMediaHref(item);
+                            const label = item.title || item.asset?.title || "Press image";
+                            const content = (
+                                <>
+                                    {image && <img src={image} alt={label} loading="lazy" />}
+                                    <span>{label}</span>
+                                </>
+                            );
+
+                            return href ? (
+                                <a
+                                    class="press-kit__media-card"
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download
+                                >
+                                    {content}
+                                </a>
+                            ) : (
+                                <figure class="press-kit__media-card">{content}</figure>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .press-kit {
+        color: var(--color-primary);
+        background: var(--bg-page);
+        padding: clamp(2rem, 5vw, 5rem) 0 clamp(4rem, 8vw, 8rem);
+    }
+
+    .press-kit__inner {
+        width: min(100%, 2560px);
+        margin: 0 auto;
+        padding-inline: max(2rem, var(--space-sm));
+    }
+
+    .press-kit__layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: clamp(3rem, 5vw, 7rem);
+        align-items: start;
+    }
+
+    .press-kit--mediaLeft .press-kit__media-column {
+        order: -1;
+    }
+
+    .press-kit__eyebrow,
+    .press-card h4 {
+        font-family: var(--font-heading);
+        color: var(--color-primary);
+        font-weight: var(--weight-regular);
+        line-height: 1;
+    }
+
+    .press-kit__eyebrow {
+        font-size: clamp(1.9rem, 2.1vw, 3.35rem);
+        margin-bottom: clamp(2rem, 2.5vw, 3rem);
+    }
+
+    .press-card {
+        background: color-mix(in srgb, var(--color-primary), transparent 82%);
+        border-radius: clamp(1.25rem, 1.5vw, 2rem);
+    }
+
+    .press-card--bio {
+        padding: clamp(2rem, 2.6vw, 4rem);
+        margin-bottom: clamp(2rem, 3vw, 4rem);
+    }
+
+    .press-card--bio p {
+        font-size: clamp(1.35rem, 1.65vw, 2.6rem);
+        line-height: 1.55;
+        color: var(--color-primary);
+    }
+
+    .press-kit__mini-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+        gap: clamp(1.5rem, 2vw, 3rem);
+        align-items: start;
+    }
+
+    .press-card--facts,
+    .press-card--links {
+        padding: clamp(1.65rem, 2vw, 3rem);
+    }
+
+    .press-card h4 {
+        font-size: clamp(1.5rem, 1.65vw, 2.6rem);
+        margin-bottom: clamp(1.5rem, 2vw, 2.5rem);
+    }
+
+    .press-card dl,
+    .press-card dd {
+        margin: 0;
+    }
+
+    .press-card dl {
+        display: grid;
+        gap: 0.2rem;
+    }
+
+    .press-card dl div {
+        color: var(--color-primary);
+        font-size: clamp(1.2rem, 1.45vw, 2.2rem);
+        line-height: 1.4;
+    }
+
+    .press-card dt {
+        display: inline;
+        font-weight: var(--weight-bold);
+    }
+
+    .press-card dd {
+        display: inline;
+    }
+
+    .press-card--links ul {
+        list-style: none;
+        display: grid;
+        gap: 0.2rem;
+    }
+
+    .press-card--links a {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 1.5em;
+        align-items: center;
+        gap: 1.25rem;
+        color: var(--color-primary);
+        text-decoration: none;
+        font-size: clamp(1.25rem, 1.5vw, 2.3rem);
+        font-weight: var(--weight-bold);
+        line-height: 1.35;
+    }
+
+    .press-card__social-icon {
+        width: 1em;
+        height: 1em;
+        justify-self: end;
+    }
+
+    .press-kit__media-column {
+        display: grid;
+        gap: clamp(2rem, 2.6vw, 3.25rem);
+    }
+
+    .press-kit__media-column .press-kit__eyebrow {
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    .press-kit__downloads,
+    .press-kit__media-list {
+        display: grid;
+        gap: clamp(1.5rem, 2vw, 2.5rem);
+    }
+
+    .press-kit__download {
+        display: flex;
+        min-height: clamp(4.6rem, 5vw, 6rem);
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        background: var(--color-primary);
+        color: var(--color-secondary);
+        font-size: clamp(1.05rem, 1.35vw, 2rem);
+        font-weight: var(--weight-bold);
+        letter-spacing: 0.28em;
+        line-height: 1.2;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .press-kit__download:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12);
+    }
+
+    .press-kit__media-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .press-kit__media-card {
+        position: relative;
+        overflow: hidden;
+        min-height: clamp(14rem, 16vw, 24rem);
+        border-radius: clamp(1rem, 1.2vw, 1.75rem);
+        color: var(--color-primary);
+        background: color-mix(in srgb, var(--color-primary), transparent 88%);
+        text-decoration: none;
+    }
+
+    .press-kit__media-card img {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+    }
+
+    .press-kit__media-card span {
+        position: absolute;
+        left: clamp(1rem, 1.5vw, 2rem);
+        right: clamp(1rem, 1.5vw, 2rem);
+        bottom: clamp(0.8rem, 1vw, 1.5rem);
+        color: color-mix(in srgb, var(--color-primary), white 8%);
+        font-size: clamp(0.95rem, 1.1vw, 1.65rem);
+        line-height: 1.2;
+        text-shadow: 0 1px 8px rgba(255, 255, 255, 0.3);
+    }
+
+    @media (max-width: 1150px) {
+        .press-kit__layout {
+            gap: clamp(2.5rem, 4vw, 4rem);
+        }
+
+        .press-kit__media-list {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .press-kit__inner {
+            padding-inline: 2.1rem;
+        }
+
+        .press-kit__layout {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .press-kit--mediaLeft .press-kit__media-column {
+            order: initial;
+        }
+
+        .press-kit__bio-column,
+        .press-kit__media-column {
+            width: 100%;
+        }
+
+        .press-kit__eyebrow {
+            text-align: center;
+            font-size: 1.65rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .press-card--bio {
+            padding: 1.65rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .press-card--bio p {
+            font-size: 1.28rem;
+            line-height: 1.45;
+        }
+
+        .press-kit__mini-grid {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1.5rem;
+        }
+
+        .press-card--facts,
+        .press-card--links {
+            padding: 1.5rem;
+        }
+
+        .press-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .press-card dl div,
+        .press-card--links a {
+            font-size: 1.08rem;
+        }
+
+        .press-card--links a {
+            grid-template-columns: minmax(0, 1fr) 1.15em;
+            gap: 0.55rem;
+        }
+
+        .press-kit__media-column {
+            gap: 1.55rem;
+        }
+
+        .press-kit__download {
+            min-height: 3.05rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.24em;
+            padding-inline: 1rem;
+        }
+
+        .press-kit__media-card {
+            min-height: auto;
+            border-radius: 1rem;
+        }
+
+        .press-kit__media-card img {
+            aspect-ratio: 4 / 3;
+        }
+
+        .press-kit__media-card span {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 430px) {
+        .press-kit__inner {
+            padding-inline: 1.35rem;
+        }
+
+        .press-kit__mini-grid {
+            gap: 1rem;
+        }
+
+        .press-card--facts,
+        .press-card--links {
+            padding: 1.2rem 1rem;
+        }
+
+        .press-card dl div,
+        .press-card--links a {
+            font-size: 0.98rem;
+        }
+
+        .press-kit__download {
+            font-size: 0.78rem;
+            letter-spacing: 0.2em;
+        }
+    }
+</style>

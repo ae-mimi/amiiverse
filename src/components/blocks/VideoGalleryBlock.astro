@@ -6,7 +6,38 @@ import type { VideoGallerySection } from "../../lib/sanity/types";
 
 interface Props extends VideoGallerySection {}
 
-const { title, videos = [], layout = "grid" } = Astro.props;
+const {
+    title,
+    videos: passedVideos = [],
+    epkProfile,
+    layout = "grid",
+    showCopyActions = true,
+} = Astro.props;
+const videos = passedVideos.length
+    ? passedVideos
+    : epkProfile?.featuredVideos || [];
+
+function getYoutubeEmbedUrl(url: string | undefined): string {
+    if (!url) return "";
+    if (url.includes("/embed/")) return url;
+    return url
+        .replace("watch?v=", "embed/")
+        .replace("youtu.be/", "youtube.com/embed/");
+}
+
+function getYoutubeWatchUrl(url: string | undefined): string {
+    if (!url) return "#";
+    const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
+    if (shortMatch?.[1]) return `https://www.youtube.com/watch?v=${shortMatch[1]}`;
+    const embedMatch = url.match(/youtube\.com\/embed\/([^?&]+)/);
+    if (embedMatch?.[1]) return `https://www.youtube.com/watch?v=${embedMatch[1]}`;
+    return url;
+}
+
+function getEmbedCode(video: NonNullable<Props["videos"]>[number]): string {
+    const embedUrl = video.embedUrl || getYoutubeEmbedUrl(video.youtubeUrl);
+    return `<iframe width="560" height="315" src="${embedUrl}" title="${video.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+}
 ---
 
 <section class="video-gallery" aria-label={title || "Videos"}>
@@ -24,12 +55,7 @@ const { title, videos = [], layout = "grid" } = Astro.props;
                         <div class="video-card">
                             <div class="video-card__embed">
                                 <iframe
-                                    src={v.youtubeUrl
-                                        ?.replace("watch?v=", "embed/")
-                                        .replace(
-                                            "youtu.be/",
-                                            "youtube.com/embed/",
-                                        )}
+                                    src={v.embedUrl || getYoutubeEmbedUrl(v.youtubeUrl)}
                                     title={v.title}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen
@@ -45,6 +71,37 @@ const { title, videos = [], layout = "grid" } = Astro.props;
                                             .trim()}
                                     </span>
                                 )}
+                                {v.description && (
+                                    <p class="video-card__description">
+                                        {v.description}
+                                    </p>
+                                )}
+                                {showCopyActions && (
+                                    <div class="video-card__actions">
+                                        <a
+                                            href={getYoutubeWatchUrl(v.youtubeUrl)}
+                                            class="video-card__action"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Watch on YouTube
+                                        </a>
+                                        <button
+                                            type="button"
+                                            class="video-card__action"
+                                            data-copy-value={getYoutubeWatchUrl(v.youtubeUrl)}
+                                        >
+                                            Copy Link
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="video-card__action"
+                                            data-copy-value={getEmbedCode(v)}
+                                        >
+                                            Copy Embed
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -53,6 +110,31 @@ const { title, videos = [], layout = "grid" } = Astro.props;
         }
     </div>
 </section>
+
+{
+    showCopyActions && (
+        <script>
+            document.addEventListener("click", async (event) => {
+                const target = event.target;
+                if (!(target instanceof HTMLElement)) return;
+                const button = target.closest("[data-copy-value]");
+                if (!(button instanceof HTMLButtonElement)) return;
+                const value = button.dataset.copyValue || "";
+                if (!value) return;
+                try {
+                    await navigator.clipboard.writeText(value);
+                    const original = button.textContent || "Copy";
+                    button.textContent = "Copied";
+                    window.setTimeout(() => {
+                        button.textContent = original;
+                    }, 1600);
+                } catch {
+                    button.textContent = "Copy failed";
+                }
+            });
+        </script>
+    )
+}
 
 <style>
     .video-gallery {
@@ -118,5 +200,31 @@ const { title, videos = [], layout = "grid" } = Astro.props;
         font-size: 0.75rem;
         text-transform: capitalize;
         opacity: 0.5;
+    }
+    .video-card__description {
+        margin: 0.5rem 0 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        opacity: 0.75;
+    }
+    .video-card__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.85rem;
+    }
+    .video-card__action {
+        border: 1px solid color-mix(in srgb, var(--color-primary), transparent 72%);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--color-primary);
+        padding: 0.45rem 0.75rem;
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+    .video-card__action:hover {
+        background: var(--color-primary);
+        color: var(--color-secondary);
     }
 </style>

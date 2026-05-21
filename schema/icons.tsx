@@ -18,6 +18,7 @@ export const SettingsIcon = lucide('settings')
 export const MusicIcon = lucide('disc-3')
 export const MemberIcon = lucide('users')
 export const PressIcon = lucide('newspaper')
+export const ShopIcon = lucide('shopping-bag')
 export const ThemeIcon = lucide('palette')
 export const ReleaseIcon = lucide('disc-3')
 export const TrackIcon = lucide('music')
@@ -32,6 +33,8 @@ export const PollIcon = lucide('bar-chart-3')
 export const CampaignIcon = lucide('rocket')
 export const RedirectIcon = lucide('arrow-right-left')
 export const PressMentionIcon = lucide('newspaper')
+export const EpkProfileIcon = lucide('badge-info')
+export const AchievementIcon = lucide('trophy')
 
 // ── Block icons ─────────────────────────────────────────
 // Heroes
@@ -55,6 +58,7 @@ export const TestimonialIcon = lucide('quote')
 export const MusicGridIcon = lucide('music')
 export const MembersGridIcon = lucide('users')
 export const PressGridIcon = lucide('newspaper')
+export const PressKitIcon = lucide('folder-kanban')
 export const EventsIcon = lucide('calendar-days')
 
 // New blocks
@@ -74,6 +78,10 @@ export const ShortsWallIcon = lucide('smartphone')
 export const NewsFeedIcon = lucide('file-text')
 export const PressCoverageIcon = lucide('file-search')
 export const PollBlockIcon = lucide('vote')
+export const SectionTabsIcon = lucide('list-tree')
+export const AchievementsBlockIcon = lucide('trophy')
+export const LinkButtonsIcon = lucide('mouse-pointer-click')
+export const LibraryGalleryIcon = lucide('images')
 
 // Widgets
 export const WidgetIcon = lucide('puzzle')

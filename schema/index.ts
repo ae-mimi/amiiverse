@@ -28,6 +28,8 @@ import poll from './documents/poll'
 import campaign from './documents/campaign'
 import redirect from './documents/redirect'
 import pressMention from './documents/pressMention'
+import achievement from './documents/achievement'
+import epkProfile from './documents/epkProfile'
 
 export const schemaTypes = [
     // Color input schema types (explicit registration)
@@ -58,6 +60,8 @@ export const schemaTypes = [
     event,
 
     // Press & Downloads
+    epkProfile,
+    achievement,
     pressMention,
     downloadableAsset,
 

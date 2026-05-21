@@ -1,0 +1,86 @@
+---
+interface TabItem {
+    label?: string;
+    targetId?: string;
+}
+
+interface Props {
+    items?: TabItem[];
+}
+
+const { items = [] } = Astro.props;
+const tabs = items.filter((item) => item.label && item.targetId);
+---
+
+{
+    tabs.length > 0 && (
+        <nav class="section-tabs" aria-label="EPK sections">
+            <div class="section-tabs__inner">
+                {tabs.map((item) => (
+                    <a href={`#${item.targetId}`} class="section-tabs__link">
+                        {item.label}
+                    </a>
+                ))}
+            </div>
+        </nav>
+    )
+}
+
+<style>
+    .section-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: color-mix(in srgb, var(--bg-page), transparent 8%);
+        border-block: 1px solid color-mix(in srgb, var(--color-primary), transparent 82%);
+        backdrop-filter: blur(12px);
+    }
+
+    .section-tabs__inner {
+        width: min(100%, 1200px);
+        margin-inline: auto;
+        padding: 0.85rem 1.25rem;
+        display: flex;
+        gap: 0.65rem;
+        justify-content: center;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .section-tabs__link {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.35rem;
+        padding: 0.45rem 1rem;
+        border: 1px solid color-mix(in srgb, var(--color-primary), transparent 68%);
+        border-radius: 999px;
+        color: var(--color-primary);
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: var(--weight-bold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .section-tabs__link:hover,
+    .section-tabs__link:focus-visible {
+        background: var(--color-primary);
+        color: var(--color-secondary);
+        outline: none;
+    }
+
+    @media (max-width: 760px) {
+        .section-tabs {
+            top: 0;
+        }
+
+        .section-tabs__inner {
+            justify-content: flex-start;
+            padding-inline: 1rem;
+        }
+    }
+</style>

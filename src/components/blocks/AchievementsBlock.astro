@@ -1,0 +1,138 @@
+---
+import { formatDate } from "../../lib/utils/format";
+import { fetchSanity } from "../../lib/sanity/client";
+import { FEATURED_ACHIEVEMENTS_QUERY } from "../../lib/sanity/queries";
+import type { Achievement } from "../../lib/sanity/types";
+
+interface Props {
+    title?: string;
+    items?: Achievement[];
+    epkProfile?: { featuredAchievements?: Achievement[] };
+}
+
+const { title = "Achievements", items: passedItems, epkProfile } = Astro.props;
+const items =
+    (passedItems?.length ? passedItems : undefined) ||
+    (epkProfile?.featuredAchievements?.length ? epkProfile.featuredAchievements : undefined) ||
+    (await fetchSanity<Achievement[]>(FEATURED_ACHIEVEMENTS_QUERY)) ||
+    [];
+
+const categoryLabels: Record<string, string> = {
+    milestone: "Milestone",
+    award: "Award",
+    stat: "Stat",
+    media: "Media",
+    other: "Note",
+};
+---
+
+<section class="achievements" aria-label={title}>
+    <div class="achievements__inner">
+        <h2 class="achievements__title">{title}</h2>
+
+        {
+            items.length === 0 ? (
+                <p class="achievements__empty">No achievements added yet.</p>
+            ) : (
+                <div class="achievements__grid">
+                    {items.map((item) => (
+                        <article class="achievement-card">
+                            <div class="achievement-card__meta">
+                                {item.category && (
+                                    <span>{categoryLabels[item.category] || item.category}</span>
+                                )}
+                                {item.date && <time datetime={item.date}>{formatDate(item.date)}</time>}
+                            </div>
+                            {item.metric && <p class="achievement-card__metric">{item.metric}</p>}
+                            <h3 class="achievement-card__title">{item.title}</h3>
+                            {item.description && <p class="achievement-card__description">{item.description}</p>}
+                            {item.url && (
+                                <a class="achievement-card__link" href={item.url} target="_blank" rel="noopener noreferrer">
+                                    View source
+                                </a>
+                            )}
+                        </article>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>
+
+<style>
+    .achievements {
+        padding: clamp(2rem, 5vw, 4rem) 0;
+        color: var(--color-primary);
+    }
+
+    .achievements__inner {
+        width: min(100%, 1200px);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    .achievements__title {
+        font-size: clamp(1.75rem, 3vw, 3rem);
+        margin-bottom: 1.75rem;
+        text-align: center;
+    }
+
+    .achievements__empty {
+        text-align: center;
+        opacity: 0.7;
+        padding: 2.5rem 0;
+    }
+
+    .achievements__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+        gap: 1rem;
+    }
+
+    .achievement-card {
+        padding: 1.25rem;
+        border: 1px solid color-mix(in srgb, var(--color-primary), transparent 72%);
+        border-radius: 0.75rem;
+        background: color-mix(in srgb, var(--color-primary), transparent 92%);
+    }
+
+    .achievement-card__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        font-size: 0.75rem;
+        font-weight: var(--weight-bold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.7;
+    }
+
+    .achievement-card__metric {
+        margin: 0 0 0.4rem;
+        font-size: clamp(1.55rem, 3vw, 2.3rem);
+        font-weight: var(--weight-bold);
+        line-height: 1;
+    }
+
+    .achievement-card__title {
+        font-family: var(--font-body);
+        font-size: 1.05rem;
+        font-weight: var(--weight-bold);
+        margin-bottom: 0.45rem;
+    }
+
+    .achievement-card__description {
+        margin: 0;
+        line-height: 1.55;
+        opacity: 0.84;
+    }
+
+    .achievement-card__link {
+        display: inline-flex;
+        margin-top: 0.9rem;
+        color: inherit;
+        font-weight: var(--weight-bold);
+    }
+</style>
