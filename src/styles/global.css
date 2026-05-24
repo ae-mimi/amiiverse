@@ -145,6 +145,11 @@ body {
   color: var(--text-main);
   transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
+  width: 100%;
+}
+
+html {
+  overflow-x: clip;
 }
 
 a {
@@ -178,6 +183,7 @@ h6 {
 
 p {
   font-weight: var(--weight-regular);
+  overflow-wrap: break-word;
 }
 
 img,
@@ -187,6 +193,15 @@ canvas,
 svg {
   display: block;
   max-width: 100%;
+}
+
+:where(main, section, article, aside, header, footer, nav, div, figure, form, ul, ol, li) {
+  min-width: 0;
+}
+
+:where(section, .page-container) {
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 button,
@@ -298,9 +313,9 @@ select {
 /* Utilities */
 .container {
   width: 100%;
-  max-width: 2560px;
+  max-width: min(2560px, 100%);
   margin-inline: auto;
-  padding-inline: max(16px, var(--space-sm));
+  padding-inline: clamp(16px, 4vw, var(--space-sm));
 }
 
 .text-center {

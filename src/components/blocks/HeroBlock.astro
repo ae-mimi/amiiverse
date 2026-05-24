@@ -1,33 +1,43 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
+import { cropPresetToAspectRatio, mediaWidthClass } from "../../lib/utils/mediaLayout";
 
 const {
     title,
     subtitle,
     description,
     image,
+    mediaWidth = "contained",
+    imageCropPreset = "natural",
+    contentOrder = ["image", "title", "subtitle", "description", "buttons"],
     cta_primary,
     cta_primary_link,
     cta_secondary,
     cta_secondary_link,
 } = Astro.props;
+
+const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
+const order = (key: string) => {
+    const index = Array.isArray(contentOrder) ? contentOrder.indexOf(key) : -1;
+    return index === -1 ? 99 : index + 1;
+};
 ---
 
-<section class="hero-section container text-center">
+<section class={mediaWidthClass("hero-section", mediaWidth)}>
     <!-- Main Graphic -->
     {
         image && (
-            <div class="hero-graphic">
-                <img src={urlFor(image)} alt={title} />
+            <div class="hero-graphic" style={`order: ${order("image")}`}>
+                <img src={urlFor(image)} alt={title} style={aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : undefined} />
             </div>
         )
     }
 
-    {title && <h1 class="hero-title">{title}</h1>}
-    {subtitle && <p class="hero-subtitle">{subtitle}</p>}
-    {description && <p class="hero-subtitle">{description}</p>}
+    {title && <h1 class="hero-title" style={`order: ${order("title")}`}>{title}</h1>}
+    {subtitle && <p class="hero-subtitle" style={`order: ${order("subtitle")}`}>{subtitle}</p>}
+    {description && <p class="hero-subtitle" style={`order: ${order("description")}`}>{description}</p>}
 
-    <div class="cta-group">
+    <div class="cta-group" style={`order: ${order("buttons")}`}>
         {
             cta_primary && (
                 <a href={cta_primary_link || "#"} class="btn btn-primary">
@@ -49,6 +59,23 @@ const {
     .hero-section {
         height: auto; /* Ensure it fits content */
         padding-block: var(--space-lg) var(--space-md);
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-inline: 1.5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-section--wide {
+        max-width: 1440px;
+    }
+
+    .hero-section--full {
+        max-width: none;
+        padding-inline: 0;
     }
 
     .hero-graphic {
@@ -58,10 +85,17 @@ const {
         justify-content: center;
     }
     .hero-graphic img {
-        max-height: 60vh; /* Increased from 50vh */
-        max-width: 90vw; /* Added fluid width constraint */
-        width: auto;
+        max-height: 70vh;
+        max-width: 100%;
+        width: 100%;
+        aspect-ratio: var(--media-aspect-ratio, auto);
+        object-fit: cover;
         margin-inline: auto;
+    }
+
+    .hero-section--contained .hero-graphic img {
+        width: auto;
+        max-width: 90vw;
     }
 
     .hero-title {

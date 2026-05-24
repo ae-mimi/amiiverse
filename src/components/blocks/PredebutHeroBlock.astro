@@ -1,31 +1,41 @@
 ---
 import { Icon } from "astro-icon/components";
 import { urlFor } from "../../lib/sanity/image";
+import { cropPresetToAspectRatio, mediaWidthClass } from "../../lib/utils/mediaLayout";
 
 const {
     top_text = "we are amii",
     image,
+    mediaWidth = "contained",
+    imageCropPreset = "natural",
+    contentOrder = ["topText", "image", "banner"],
     status_text = "LOADING...",
     cta_text = "JOIN THE QUEUE",
     cta_link = "#",
 } = Astro.props;
+
+const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
+const order = (key: string) => {
+    const index = Array.isArray(contentOrder) ? contentOrder.indexOf(key) : -1;
+    return index === -1 ? 99 : index + 1;
+};
 ---
 
 <section class="predebut-hero">
     <!-- Top Text -->
-    <div class="top-text">{top_text}</div>
+    <div class="top-text" style={`order: ${order("topText")}`}>{top_text}</div>
 
     <!-- Main Image -->
     {
         image && (
-            <div class="hero-image">
-                <img src={urlFor(image)} alt="Amii Avatars" />
+            <div class={mediaWidthClass("hero-image", mediaWidth)} style={`order: ${order("image")}`}>
+                <img src={urlFor(image)} alt="Amii Avatars" style={aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : undefined} />
             </div>
         )
     }
 
     <!-- Welcome Banner Container -->
-    <predebut-hero class="welcome-banner">
+    <predebut-hero class="welcome-banner" style={`order: ${order("banner")}`}>
         <!-- Loading Text -->
         <h1 class="loading-text" data-status={status_text}>
             {status_text}
@@ -81,23 +91,30 @@ const {
         line-height: 20px;
         text-align: center;
         text-transform: lowercase;
-        order: 0;
     }
 
     /* Hero Image */
     .hero-image {
-        order: 1;
         width: 100%;
-        max-width: 90vw; /* Scales with viewport width */
+        max-width: 1200px;
         display: flex;
         justify-content: center;
         position: relative;
     }
 
+    .hero-image--wide {
+        max-width: min(1440px, 92vw);
+    }
+
+    .hero-image--full {
+        max-width: none;
+    }
+
     .hero-image img {
         width: 100%;
+        aspect-ratio: var(--media-aspect-ratio, auto);
         height: auto;
-        object-fit: contain;
+        object-fit: cover;
         display: block;
     }
 
@@ -108,7 +125,6 @@ const {
         align-items: center;
         padding: 24px;
         gap: 24px;
-        order: 2;
         width: 100%;
         max-width: 100%; /* Allow text to expand fully */
     }

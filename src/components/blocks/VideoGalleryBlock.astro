@@ -12,6 +12,7 @@ const {
     epkProfile,
     layout = "grid",
     showCopyActions = true,
+    mediaWidth = "contained",
 } = Astro.props;
 const videos = passedVideos.length
     ? passedVideos
@@ -40,7 +41,7 @@ function getEmbedCode(video: NonNullable<Props["videos"]>[number]): string {
 }
 ---
 
-<section class="video-gallery" aria-label={title || "Videos"}>
+<section class={`video-gallery video-gallery--${mediaWidth}`} aria-label={title || "Videos"}>
     <div class="video-gallery__inner">
         {title && <h2 class="video-gallery__title">{title}</h2>}
 
@@ -145,6 +146,13 @@ function getEmbedCode(video: NonNullable<Props["videos"]>[number]): string {
         margin: 0 auto;
         padding: 0 1.5rem;
     }
+    .video-gallery--wide .video-gallery__inner {
+        max-width: 1440px;
+    }
+    .video-gallery--full .video-gallery__inner {
+        max-width: none;
+        padding-inline: 0;
+    }
     .video-gallery__title {
         font-size: clamp(1.5rem, 3vw, 2.5rem);
         font-weight: 800;
@@ -158,7 +166,7 @@ function getEmbedCode(video: NonNullable<Props["videos"]>[number]): string {
     }
     .video-gallery__items--grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
         gap: 1.5rem;
     }
     .video-gallery__items--carousel {
@@ -169,7 +177,7 @@ function getEmbedCode(video: NonNullable<Props["videos"]>[number]): string {
         padding-bottom: 1rem;
     }
     .video-gallery__items--carousel .video-card {
-        min-width: 320px;
+        min-width: min(86vw, 360px);
         scroll-snap-align: start;
         flex-shrink: 0;
     }

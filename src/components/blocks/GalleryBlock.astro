@@ -1,13 +1,24 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
+import { cropPresetToAspectRatio } from "../../lib/utils/mediaLayout";
 
-const { title, images, columns = 3 } = Astro.props;
+const {
+    title,
+    images,
+    columns = 3,
+    mediaWidth = "contained",
+    imageCropPreset = "square",
+} = Astro.props;
+const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "1 / 1";
 ---
 
-<section class="gallery-block">
-    <div class="container">
+<section class={`gallery-block gallery-block--${mediaWidth}`}>
+    <div class="container gallery-block__inner">
         {title && <h2 class="gallery-title">{title}</h2>}
-        <div class="gallery-grid" style={`--cols: ${columns}`}>
+        <div
+            class="gallery-grid"
+            style={`--cols: ${columns}; --gallery-aspect-ratio: ${aspectRatio}`}
+        >
             {
                 images?.map((img: any) => (
                     <figure class="gallery-item">
@@ -30,6 +41,19 @@ const { title, images, columns = 3 } = Astro.props;
         padding-block: var(--space-lg);
     }
 
+    .gallery-block__inner {
+        max-width: 1200px;
+    }
+
+    .gallery-block--wide .gallery-block__inner {
+        max-width: 1440px;
+    }
+
+    .gallery-block--full .gallery-block__inner {
+        max-width: none;
+        padding-inline: 0;
+    }
+
     .gallery-title {
         font-family: var(--font-heading, sans-serif);
         font-size: clamp(1.75rem, 3vw, 2.5rem);
@@ -40,7 +64,7 @@ const { title, images, columns = 3 } = Astro.props;
 
     .gallery-grid {
         display: grid;
-        grid-template-columns: repeat(var(--cols, 3), 1fr);
+        grid-template-columns: 1fr;
         gap: var(--space-sm);
     }
 
@@ -52,9 +76,9 @@ const { title, images, columns = 3 } = Astro.props;
 
     .gallery-item img {
         width: 100%;
-        height: 100%;
+        height: auto;
         object-fit: cover;
-        aspect-ratio: 1;
+        aspect-ratio: var(--gallery-aspect-ratio, 1 / 1);
         transition: transform 0.3s ease;
         display: block;
     }
@@ -70,15 +94,15 @@ const { title, images, columns = 3 } = Astro.props;
         color: var(--text-main);
     }
 
-    @media (max-width: 768px) {
+    @media (min-width: 640px) {
         .gallery-grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
 
-    @media (max-width: 480px) {
+    @media (min-width: 980px) {
         .gallery-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
         }
     }
 </style>

@@ -23,6 +23,86 @@ const sectionIdField = () =>
     description: 'Optional anchor for section tabs, e.g. bio, music, photos, videos, proof, socials, contact.',
   })
 
+const imageCropPresetField = (description = 'Controls the displayed image frame. "Free-form / natural" keeps the image crop from Sanity\'s image editor.') =>
+  defineField({
+    name: 'imageCropPreset',
+    type: 'string',
+    title: 'Image Crop / Aspect Ratio',
+    description,
+    options: {
+      list: [
+        { title: 'Free-form / Natural', value: 'natural' },
+        { title: 'Square (1:1)', value: 'square' },
+        { title: 'Portrait (4:5)', value: 'portrait45' },
+        { title: 'Portrait (3:4)', value: 'portrait34' },
+        { title: 'Story / Reel (9:16)', value: 'story916' },
+        { title: 'Landscape (4:3)', value: 'landscape43' },
+        { title: 'Video / Wide (16:9)', value: 'wide169' },
+        { title: 'Cinematic (21:9)', value: 'cinematic219' },
+        { title: 'Website Banner (3:1)', value: 'banner31' },
+      ],
+      layout: 'dropdown',
+    },
+    initialValue: 'natural',
+  })
+
+const mediaWidthField = (initialValue = 'contained') =>
+  defineField({
+    name: 'mediaWidth',
+    type: 'string',
+    title: 'Media Width',
+    description: 'Choose how wide the media should appear on the page.',
+    options: {
+      list: [
+        { title: 'Contained', value: 'contained' },
+        { title: 'Wide', value: 'wide' },
+        { title: 'Full Width', value: 'full' },
+      ],
+      layout: 'radio',
+    },
+    initialValue,
+  })
+
+const heroOrderField = () =>
+  defineField({
+    name: 'contentOrder',
+    type: 'array',
+    title: 'Content Order',
+    description: 'Drag these to choose the display order for the homepage banner content.',
+    of: [{
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Image', value: 'image' },
+          { title: 'Title', value: 'title' },
+          { title: 'Subtitle', value: 'subtitle' },
+          { title: 'Description', value: 'description' },
+          { title: 'Buttons', value: 'buttons' },
+        ],
+      },
+    }],
+    initialValue: ['image', 'title', 'subtitle', 'description', 'buttons'],
+  })
+
+const predebutOrderField = () =>
+  defineField({
+    name: 'contentOrder',
+    type: 'array',
+    title: 'Content Order',
+    description: 'Drag these to choose the display order for the pre-debut/home banner content.',
+    of: [{
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Top Text', value: 'topText' },
+          { title: 'Image', value: 'image' },
+          { title: 'Banner Text + Button', value: 'banner' },
+        ],
+      },
+    }],
+    initialValue: ['topText', 'image', 'banner'],
+  })
+
 export default defineType({
   name: 'page',
   title: 'Page',
@@ -112,6 +192,9 @@ export default defineType({
             defineField({ name: 'subtitle', type: 'string', title: 'Subtitle' }),
             defineField({ name: 'description', type: 'text', title: 'Description', rows: 3 }),
             defineField({ name: 'image', type: 'image', title: 'Banner Image', options: { hotspot: true } }),
+            mediaWidthField('contained'),
+            imageCropPresetField('Use this when the homepage banner image needs a fixed website crop like 16:9, 21:9, or full-width banner.'),
+            heroOrderField(),
             defineField({ name: 'cta_primary', type: 'string', title: 'Primary Button Text' }),
             defineField({ name: 'cta_primary_link', type: 'string', title: 'Primary Button Link' }),
             defineField({ name: 'cta_secondary', type: 'string', title: 'Secondary Button Text' }),
@@ -133,6 +216,9 @@ export default defineType({
           fields: [
             defineField({ name: 'top_text', type: 'string', title: 'Top Text', initialValue: 'we are amii' }),
             defineField({ name: 'image', type: 'image', title: 'Teaser Image', options: { hotspot: true } }),
+            mediaWidthField('contained'),
+            imageCropPresetField('Use Full Width + a wide crop for hero layouts like the Figma mockup.'),
+            predebutOrderField(),
             defineField({ name: 'status_text', type: 'string', title: 'Animated Status', initialValue: 'LOADING...' }),
             defineField({ name: 'cta_text', type: 'string', title: 'Button Text', initialValue: 'JOIN THE QUEUE' }),
             defineField({ name: 'cta_link', type: 'string', title: 'Button Link' }),
@@ -185,6 +271,7 @@ export default defineType({
             defineField({ name: 'heading', type: 'string', title: 'Heading' }),
             defineField({ name: 'content', type: 'text', title: 'Body Text', rows: 5 }),
             defineField({ name: 'image', type: 'image', title: 'Photo', options: { hotspot: true } }),
+            imageCropPresetField(),
           ],
           preview: {
             select: { title: 'heading' },
@@ -203,6 +290,8 @@ export default defineType({
             defineField({ name: 'heading', type: 'string', title: 'Heading' }),
             defineField({ name: 'content', type: 'text', title: 'Body Text', rows: 5 }),
             defineField({ name: 'image', type: 'image', title: 'Image', options: { hotspot: true } }),
+            mediaWidthField('contained'),
+            imageCropPresetField(),
             defineField({
               name: 'layout',
               type: 'string',
@@ -262,6 +351,8 @@ export default defineType({
               options: { list: [{ title: '2 per row', value: 2 }, { title: '3 per row', value: 3 }, { title: '4 per row', value: 4 }] },
               initialValue: 3,
             }),
+            mediaWidthField('contained'),
+            imageCropPresetField('Applies the selected crop ratio to every image in this gallery.'),
           ],
           preview: {
             select: { title: 'title', images: 'images' },
@@ -287,6 +378,8 @@ export default defineType({
               options: { list: [{ title: '2 per row', value: 2 }, { title: '3 per row', value: 3 }, { title: '4 per row', value: 4 }] },
               initialValue: 3,
             }),
+            mediaWidthField('contained'),
+            imageCropPresetField('Applies the selected crop ratio to every image in this reusable gallery.'),
           ],
           preview: {
             select: { title: 'title', galleryTitle: 'gallery.title' },
@@ -329,6 +422,8 @@ export default defineType({
             defineField({ name: 'button_text', type: 'string', title: 'Button Text', validation: (rule) => rule.required() }),
             defineField({ name: 'button_link', type: 'string', title: 'Button Link', validation: (rule) => rule.required() }),
             defineField({ name: 'bg_image', type: 'image', title: 'Background Photo', options: { hotspot: true } }),
+            mediaWidthField('full'),
+            imageCropPresetField('Controls the banner background frame. Use 16:9, 21:9, or 3:1 for website banners.'),
           ],
           preview: {
             select: { title: 'heading', subtitle: 'button_text' },
@@ -554,6 +649,7 @@ export default defineType({
               options: { list: [{ title: 'Grid', value: 'grid' }, { title: 'Carousel', value: 'carousel' }], layout: 'radio' },
               initialValue: 'grid',
             }),
+            mediaWidthField('contained'),
           ],
           preview: {
             select: { title: 'title', videos: 'videos' },
@@ -703,6 +799,7 @@ export default defineType({
             defineField({ name: 'epkProfile', type: 'reference', title: 'EPK Profile Source', to: [{ type: 'epkProfile' }], description: 'Optional: use featured assets from an EPK Profile when no assets are selected.' }),
             defineField({ name: 'assets', type: 'array', title: 'Assets', of: [{ type: 'reference', to: [{ type: 'downloadableAsset' }] }] }),
             defineField({ name: 'showCategoryFilters', type: 'boolean', title: 'Show Category Filters', initialValue: false }),
+            mediaWidthField('contained'),
             defineField({
               name: 'visibleCategories',
               type: 'array',

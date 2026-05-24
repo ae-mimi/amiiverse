@@ -132,7 +132,7 @@ const inquiriesEmail = contacts.inquiriesEmail || inquiries_email;
 
     .info-column {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
         gap: clamp(20px, 2vw, 32px);
         width: 100%;
     }

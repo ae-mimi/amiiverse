@@ -1,14 +1,23 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
+import { cropPresetToAspectRatio, mediaWidthClass } from "../../lib/utils/mediaLayout";
 
-const { heading, description, button_text, button_link, bg_image } =
-    Astro.props;
+const {
+    heading,
+    description,
+    button_text,
+    button_link,
+    bg_image,
+    mediaWidth = "full",
+    imageCropPreset = "natural",
+} = Astro.props;
 const bgUrl = bg_image ? urlFor(bg_image) : null;
+const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
 ---
 
 <section
-    class="cta-banner-block"
-    style={bgUrl ? `background-image: url(${bgUrl})` : undefined}
+    class={mediaWidthClass("cta-banner-block", mediaWidth)}
+    style={`${bgUrl ? `background-image: url(${bgUrl});` : ""}${aspectRatio ? `--media-aspect-ratio: ${aspectRatio};` : ""}`}
 >
     <div class="cta-overlay"></div>
     <div class="container cta-content">
@@ -27,12 +36,30 @@ const bgUrl = bg_image ? urlFor(bg_image) : null;
 <style>
     .cta-banner-block {
         position: relative;
+        width: 100%;
+        max-width: 1200px;
+        margin-inline: auto;
         padding-block: var(--space-xl, 4rem);
         text-align: center;
         background-size: cover;
         background-position: center;
         background-color: var(--color-text);
         overflow: hidden;
+    }
+
+    .cta-banner-block--wide {
+        max-width: 1440px;
+    }
+
+    .cta-banner-block--full {
+        max-width: none;
+    }
+
+    .cta-banner-block[style*="--media-aspect-ratio"] {
+        min-height: auto;
+        aspect-ratio: var(--media-aspect-ratio);
+        display: grid;
+        place-items: center;
     }
 
     .cta-overlay {

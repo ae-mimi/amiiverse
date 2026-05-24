@@ -13,6 +13,7 @@ interface Props {
     epkProfile?: { featuredAssets?: DownloadableAsset[] };
     showCategoryFilters?: boolean;
     visibleCategories?: DownloadableAsset["category"][];
+    mediaWidth?: "contained" | "wide" | "full";
 }
 
 const {
@@ -21,6 +22,7 @@ const {
     epkProfile,
     showCategoryFilters = false,
     visibleCategories = [],
+    mediaWidth = "contained",
 } = Astro.props;
 
 const allAssets =
@@ -54,7 +56,7 @@ const categories = Array.from(
 ) as string[];
 ---
 
-<section class="downloads-center" aria-label={title}>
+<section class={`downloads-center downloads-center--${mediaWidth}`} aria-label={title}>
     <div class="downloads-center__inner">
         <h2 class="downloads-center__title">{title}</h2>
 
@@ -150,6 +152,13 @@ const categories = Array.from(
         margin: 0 auto;
         padding: 0 1.5rem;
     }
+    .downloads-center--wide .downloads-center__inner {
+        max-width: 1440px;
+    }
+    .downloads-center--full .downloads-center__inner {
+        max-width: none;
+        padding-inline: 0;
+    }
     .downloads-center__title {
         font-size: clamp(1.5rem, 3vw, 2.5rem);
         font-weight: 800;
@@ -186,7 +195,7 @@ const categories = Array.from(
     }
     .downloads-center__grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
         gap: 1.5rem;
     }
     .download-card {

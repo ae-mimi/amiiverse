@@ -3,19 +3,30 @@
  * MediaTextBlock — Image + text side-by-side with configurable layout.
  */
 import { urlFor } from "../../lib/sanity/image";
+import { cropPresetToAspectRatio } from "../../lib/utils/mediaLayout";
 
 interface Props {
     heading?: string;
     content?: string;
     image?: any;
     layout?: "imageLeft" | "imageRight";
+    mediaWidth?: "contained" | "wide" | "full";
+    imageCropPreset?: any;
 }
 
-const { heading, content, image, layout = "imageLeft" } = Astro.props;
+const {
+    heading,
+    content,
+    image,
+    layout = "imageLeft",
+    mediaWidth = "contained",
+    imageCropPreset = "natural",
+} = Astro.props;
+const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
 ---
 
 <section
-    class={`media-text media-text--${layout}`}
+    class={`media-text media-text--${layout} media-text--${mediaWidth}`}
     aria-label={heading || "Media and text"}
 >
     <div class="media-text__inner">
@@ -26,6 +37,7 @@ const { heading, content, image, layout = "imageLeft" } = Astro.props;
                         src={urlFor(image)}
                         alt={heading || ""}
                         loading="lazy"
+                        style={aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : undefined}
                     />
                 </div>
             )
@@ -50,6 +62,13 @@ const { heading, content, image, layout = "imageLeft" } = Astro.props;
         gap: 2rem;
         align-items: center;
     }
+    .media-text--wide .media-text__inner {
+        max-width: 1440px;
+    }
+    .media-text--full .media-text__inner {
+        max-width: none;
+        padding-inline: 0;
+    }
     @media (min-width: 768px) {
         .media-text__inner {
             grid-template-columns: 1fr 1fr;
@@ -61,6 +80,8 @@ const { heading, content, image, layout = "imageLeft" } = Astro.props;
     }
     .media-text__media img {
         width: 100%;
+        aspect-ratio: var(--media-aspect-ratio, auto);
+        object-fit: cover;
         border-radius: 0.75rem;
     }
     .media-text__heading {

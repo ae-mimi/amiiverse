@@ -1,19 +1,33 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
 import type { Gallery } from "../../lib/sanity/types";
+import { cropPresetToAspectRatio } from "../../lib/utils/mediaLayout";
 
 interface Props {
     title?: string;
     gallery?: Gallery;
     columns?: 2 | 3 | 4;
+    mediaWidth?: "contained" | "wide" | "full";
+    imageCropPreset?: any;
 }
 
-const { title, gallery, columns = 3 } = Astro.props;
+const {
+    title,
+    gallery,
+    columns = 3,
+    mediaWidth = "contained",
+    imageCropPreset = "landscape43",
+} = Astro.props;
 const items = gallery?.items || [];
 const heading = title || gallery?.title;
+const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "4 / 3";
 ---
 
-<section class={`library-gallery library-gallery--${columns}`} aria-label={heading || "Gallery"}>
+<section
+    class={`library-gallery library-gallery--${columns} library-gallery--${mediaWidth}`}
+    aria-label={heading || "Gallery"}
+    style={`--gallery-aspect-ratio: ${aspectRatio}`}
+>
     <div class="library-gallery__inner">
         {heading && <h2 class="library-gallery__title">{heading}</h2>}
 
@@ -53,6 +67,15 @@ const heading = title || gallery?.title;
         max-width: 1180px;
         margin: 0 auto;
         padding: 0 1.5rem;
+    }
+
+    .library-gallery--wide .library-gallery__inner {
+        max-width: 1440px;
+    }
+
+    .library-gallery--full .library-gallery__inner {
+        max-width: none;
+        padding-inline: 0;
     }
 
     .library-gallery__title {
@@ -98,7 +121,7 @@ const heading = title || gallery?.title;
 
     .library-gallery__image {
         width: 100%;
-        aspect-ratio: 4 / 3;
+        aspect-ratio: var(--gallery-aspect-ratio, 4 / 3);
         object-fit: cover;
         border-radius: 0.75rem;
         display: block;
