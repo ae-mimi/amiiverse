@@ -8,15 +8,17 @@ interface Props extends VideoGallerySection {}
 
 const {
     title,
-    videos: passedVideos = [],
+    videos: passedVideos,
     epkProfile,
     layout = "grid",
     showCopyActions = true,
     mediaWidth = "contained",
 } = Astro.props;
-const videos = passedVideos.length
-    ? passedVideos
-    : epkProfile?.featuredVideos || [];
+const selectedVideos = Array.isArray(passedVideos) ? passedVideos : [];
+const profileVideos = Array.isArray(epkProfile?.featuredVideos)
+    ? epkProfile.featuredVideos
+    : [];
+const videos = selectedVideos.length ? selectedVideos : profileVideos;
 
 function getYoutubeEmbedUrl(url: string | undefined): string {
     if (!url) return "";
