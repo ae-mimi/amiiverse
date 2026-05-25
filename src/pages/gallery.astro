@@ -1,0 +1,214 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { fetchSanity } from "../lib/sanity/client";
+import { PUBLIC_GALLERIES_QUERY } from "../lib/sanity/queries";
+import { urlFor } from "../lib/sanity/image";
+import type { Gallery } from "../lib/sanity/types";
+
+const galleries = (await fetchSanity<Gallery[]>(PUBLIC_GALLERIES_QUERY)) || [];
+const photos = galleries.flatMap((gallery) =>
+    (gallery.items || []).map((item) => ({
+        ...item,
+        galleryTitle: gallery.title,
+        galleryCategory: gallery.category || "uncategorized",
+        galleryEra: gallery.era,
+        galleryDate: gallery.eventDate,
+        galleryCampaign: gallery.campaign?.title,
+    })),
+).filter((item) => item.image);
+
+const unique = (values: (string | undefined)[]) =>
+    Array.from(new Set(values.filter(Boolean) as string[])).sort((a, b) =>
+        a.localeCompare(b),
+    );
+
+const categories = unique(photos.map((photo) => photo.galleryCategory));
+const eras = unique(photos.map((photo) => photo.era || photo.galleryEra));
+const campaigns = unique(photos.map((photo) => photo.campaign?.title || photo.galleryCampaign));
+const members = unique(photos.flatMap((photo) => photo.members?.map((member) => member.name || "") || []));
+const years = unique(photos.map((photo) => (photo.date || photo.galleryDate || "").slice(0, 4)));
+---
+
+<BaseLayout title="Gallery">
+    <main class="public-gallery">
+        <header class="public-gallery__header">
+            <h1>Gallery</h1>
+            <p>Selected public photos from amii eras, campaigns, and moments.</p>
+        </header>
+
+        <section class="public-gallery__filters" aria-label="Gallery filters">
+            <select data-gallery-filter="category" aria-label="Category">
+                <option value="">All categories</option>
+                {categories.map((item) => <option value={item}>{item}</option>)}
+            </select>
+            <select data-gallery-filter="era" aria-label="Era">
+                <option value="">All eras</option>
+                {eras.map((item) => <option value={item}>{item}</option>)}
+            </select>
+            <select data-gallery-filter="campaign" aria-label="Campaign">
+                <option value="">All campaigns</option>
+                {campaigns.map((item) => <option value={item}>{item}</option>)}
+            </select>
+            <select data-gallery-filter="member" aria-label="Member">
+                <option value="">All members</option>
+                {members.map((item) => <option value={item}>{item}</option>)}
+            </select>
+            <select data-gallery-filter="year" aria-label="Year">
+                <option value="">All dates</option>
+                {years.map((item) => <option value={item}>{item}</option>)}
+            </select>
+        </section>
+
+        {
+            photos.length === 0 ? (
+                <p class="public-gallery__empty">No public photos yet.</p>
+            ) : (
+                <section class="public-gallery__grid" data-gallery-grid aria-label="Public photos">
+                    {photos.map((photo) => {
+                        const date = photo.date || photo.galleryDate || "";
+                        const era = photo.era || photo.galleryEra || "";
+                        const campaign = photo.campaign?.title || photo.galleryCampaign || "";
+                        const photoMembers = (photo.members || []).map((member) => member.name).filter(Boolean).join("|");
+                        return (
+                            <figure
+                                class="public-gallery__item"
+                                data-category={photo.galleryCategory}
+                                data-era={era}
+                                data-campaign={campaign}
+                                data-members={photoMembers}
+                                data-year={date.slice(0, 4)}
+                            >
+                                <img
+                                    src={urlFor(photo.image)}
+                                    alt={photo.alt || photo.caption || photo.galleryTitle || "Gallery photo"}
+                                    loading="lazy"
+                                />
+                                {(photo.caption || photo.galleryTitle || date) && (
+                                    <figcaption>
+                                        <strong>{photo.caption || photo.galleryTitle}</strong>
+                                        {date && <span>{date}</span>}
+                                    </figcaption>
+                                )}
+                            </figure>
+                        );
+                    })}
+                </section>
+            )
+        }
+    </main>
+
+    <script>
+        const filters = Array.from(document.querySelectorAll("[data-gallery-filter]"));
+        const items = Array.from(document.querySelectorAll(".public-gallery__item"));
+
+        function updateGallery() {
+            const values = Object.fromEntries(
+                filters.map((filter) => [filter.dataset.galleryFilter, filter.value]),
+            );
+
+            items.forEach((item) => {
+                const matchesCategory = !values.category || item.dataset.category === values.category;
+                const matchesEra = !values.era || item.dataset.era === values.era;
+                const matchesCampaign = !values.campaign || item.dataset.campaign === values.campaign;
+                const matchesMember = !values.member || (item.dataset.members || "").split("|").includes(values.member);
+                const matchesYear = !values.year || item.dataset.year === values.year;
+                item.hidden = !(matchesCategory && matchesEra && matchesCampaign && matchesMember && matchesYear);
+            });
+        }
+
+        filters.forEach((filter) => filter.addEventListener("change", updateGallery));
+    </script>
+</BaseLayout>
+
+<style>
+    .public-gallery {
+        padding: clamp(4rem, 8vw, 8rem) clamp(1rem, 4vw, 4rem);
+        background: var(--bg-page);
+        color: var(--text-main);
+    }
+
+    .public-gallery__header {
+        max-width: 72rem;
+        margin: 0 auto clamp(2rem, 4vw, 4rem);
+        text-align: center;
+    }
+
+    .public-gallery__header h1 {
+        margin: 0;
+        font-family: var(--font-heading);
+        color: var(--color-primary);
+        font-size: clamp(3rem, 10vw, 8rem);
+        line-height: 0.95;
+    }
+
+    .public-gallery__header p {
+        margin: 1rem auto 0;
+        max-width: 44rem;
+        color: var(--text-muted);
+        font-size: clamp(1rem, 2vw, 1.25rem);
+    }
+
+    .public-gallery__filters {
+        max-width: 88rem;
+        margin: 0 auto clamp(2rem, 4vw, 3rem);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+        gap: 0.75rem;
+    }
+
+    .public-gallery__filters select {
+        width: 100%;
+        border: 1px solid color-mix(in srgb, var(--color-primary), transparent 45%);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--color-primary);
+        padding: 0.8rem 1rem;
+        font-weight: 700;
+    }
+
+    .public-gallery__grid {
+        max-width: 96rem;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+        gap: clamp(1rem, 2vw, 1.5rem);
+    }
+
+    .public-gallery__item {
+        margin: 0;
+        border-radius: 18px;
+        overflow: hidden;
+        background: color-mix(in srgb, var(--color-primary), transparent 94%);
+    }
+
+    .public-gallery__item[hidden] {
+        display: none;
+    }
+
+    .public-gallery__item img {
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+        display: block;
+    }
+
+    .public-gallery__item figcaption {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.85rem 1rem;
+        color: var(--color-primary);
+        font-size: 0.9rem;
+    }
+
+    .public-gallery__item figcaption span {
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .public-gallery__empty {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 4rem 0;
+    }
+</style>

@@ -115,7 +115,22 @@ export interface Gallery {
     title: string;
     slug: SanitySlug;
     category?: string;
-    items: { image: SanityImage; alt?: string; caption?: string; credit?: string }[];
+    visibility?: "draft" | "public" | "archived";
+    era?: string;
+    eventDate?: string;
+    campaign?: { title?: string; slug?: SanitySlug };
+    items: {
+        image: SanityImage;
+        alt?: string;
+        caption?: string;
+        credit?: string;
+        visibility?: "draft" | "public" | "archived";
+        featured?: boolean;
+        date?: string;
+        era?: string;
+        campaign?: { title?: string; slug?: SanitySlug };
+        members?: { name?: string; slug?: SanitySlug }[];
+    }[];
 }
 
 export interface Member {
@@ -173,16 +188,51 @@ export interface PressMention {
 
 export type ImageCropPreset =
     | "natural"
+    | "original"
     | "square"
+    | "portrait916"
     | "portrait45"
+    | "landscape54"
     | "portrait34"
-    | "story916"
     | "landscape43"
+    | "portrait23"
+    | "landscape32"
+    | "portrait57"
+    | "landscape75"
+    | "portrait12"
+    | "landscape21"
+    | "panorama"
+    | "story916"
     | "wide169"
     | "cinematic219"
     | "banner31";
 
 export type MediaWidth = "contained" | "wide" | "full";
+export type ImageDisplayStyle = "boxed" | "fullWidthBleed" | "fullScreen" | "split" | "asymmetric" | "fixedBackground";
+
+export interface ImageEditorOptions {
+    imageDisplayStyle?: ImageDisplayStyle;
+    useBackgroundRemovedImage?: boolean;
+    backgroundRemovedImage?: SanityImage;
+    imageObjectPosition?: string;
+    imageRotate?: number;
+    imageFlipHorizontal?: boolean;
+    imageFlipVertical?: boolean;
+    imageSkewX?: number;
+    imageSkewY?: number;
+    imageFilterPreset?: string;
+    imageBrightness?: number;
+    imageExposure?: number;
+    imageContrast?: number;
+    imageSaturation?: number;
+    imageWarmth?: number;
+    imageTint?: number;
+    imageSharpness?: number;
+    imageVignette?: number;
+    imageOverlayColor?: string;
+    imageOverlayOpacity?: number;
+    imageMarkupText?: string;
+}
 
 export interface Achievement {
     _type: "achievement";
@@ -331,17 +381,17 @@ interface SectionBase {
     [key: string]: any;
 }
 
-export interface HeroSection extends SectionBase { _type: "hero"; title: string; subtitle?: string; description?: string; image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; contentOrder?: ("image" | "title" | "subtitle" | "description" | "buttons")[]; cta_primary?: string; cta_primary_link?: string; cta_secondary?: string; cta_secondary_link?: string; }
-export interface PredebutHeroSection extends SectionBase { _type: "predebut_hero"; top_text?: string; image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; contentOrder?: ("topText" | "image" | "banner")[]; status_text?: string; cta_text?: string; cta_link?: string; }
+export interface HeroSection extends SectionBase, ImageEditorOptions { _type: "hero"; title: string; subtitle?: string; description?: string; image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; contentOrder?: ("image" | "title" | "subtitle" | "description" | "buttons")[]; cta_primary?: string; cta_primary_link?: string; cta_secondary?: string; cta_secondary_link?: string; }
+export interface PredebutHeroSection extends SectionBase, ImageEditorOptions { _type: "predebut_hero"; top_text?: string; image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; contentOrder?: ("topText" | "image" | "banner")[]; status_text?: string; cta_text?: string; cta_link?: string; }
 export interface PageHeroSection extends SectionBase { _type: "page_hero"; title: string; subtitle?: string; }
 export interface SectionTabsSection extends SectionBase { _type: "section_tabs"; items?: { label?: string; targetId?: string }[]; }
-export interface IntroSection extends SectionBase { _type: "intro"; heading?: string; content?: string; image?: SanityImage; imageCropPreset?: ImageCropPreset; epkProfile?: EpkProfile; bioVariant?: "short" | "long"; }
-export interface MediaTextSection extends SectionBase { _type: "media_text"; heading?: string; content?: string; image?: SanityImage; layout?: "imageLeft" | "imageRight"; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; }
+export interface IntroSection extends SectionBase, ImageEditorOptions { _type: "intro"; heading?: string; content?: string; image?: SanityImage; imageCropPreset?: ImageCropPreset; epkProfile?: EpkProfile; bioVariant?: "short" | "long"; }
+export interface MediaTextSection extends SectionBase, ImageEditorOptions { _type: "media_text"; heading?: string; content?: string; image?: SanityImage; layout?: "imageLeft" | "imageRight" | "imageTop" | "imageBottom"; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; }
 export interface RichTextSection extends SectionBase { _type: "rich_text"; body?: string; }
-export interface GallerySection extends SectionBase { _type: "gallery_block"; title?: string; images?: (SanityImage & { alt?: string; caption?: string })[]; columns?: number; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; }
-export interface LibraryGallerySection extends SectionBase { _type: "library_gallery"; title?: string; gallery?: Gallery; columns?: 2 | 3 | 4; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; }
+export interface GallerySection extends SectionBase, ImageEditorOptions { _type: "gallery_block"; title?: string; images?: (SanityImage & { alt?: string; caption?: string })[]; columns?: number; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; teaserLimit?: number; showGalleryLink?: boolean; galleryLinkText?: string; }
+export interface LibraryGallerySection extends SectionBase, ImageEditorOptions { _type: "library_gallery"; title?: string; gallery?: Gallery; columns?: 2 | 3 | 4; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; teaserLimit?: number; showGalleryLink?: boolean; galleryLinkText?: string; }
 export interface VideoEmbedSection extends SectionBase { _type: "video_embed"; title?: string; video_url: string; caption?: string; }
-export interface CtaBannerSection extends SectionBase { _type: "cta_banner"; heading: string; description?: string; button_text: string; button_link: string; bg_image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; }
+export interface CtaBannerSection extends SectionBase, ImageEditorOptions { _type: "cta_banner"; heading: string; description?: string; button_text: string; button_link: string; bg_image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; }
 export interface LinkButtonsSection extends SectionBase { _type: "link_buttons"; title?: string; intro?: string; links?: LinkData[]; layout?: "row" | "stack"; }
 export interface CountdownSection extends SectionBase { _type: "countdown"; label: string; target_date: string; finished_text?: string; }
 export interface FaqSection extends SectionBase { _type: "faq"; title?: string; items: { question: string; answer: string }[]; }
@@ -355,7 +405,7 @@ export interface ShortsWallSection extends SectionBase { _type: "shorts_wall"; t
 export interface NewsFeedSection extends SectionBase { _type: "news_feed"; title?: string; limit?: number; }
 export interface TourDatesSection extends SectionBase { _type: "tour_dates"; title?: string; upcomingOnly?: boolean; showFilters?: boolean; }
 export interface MusicGridSection extends SectionBase { _type: "music_grid"; title?: string; }
-export interface MembersGridSection extends SectionBase { _type: "members_grid"; title?: string; members?: Member[]; }
+export interface MembersGridSection extends SectionBase, ImageEditorOptions { _type: "members_grid"; title?: string; members?: Member[]; imageCropPreset?: ImageCropPreset; }
 export interface PressGridSection extends SectionBase { _type: "press_grid"; title?: string; }
 export interface PressQuotesSection extends SectionBase { _type: "press_quotes"; title?: string; items?: PressMention[]; epkProfile?: EpkProfile; }
 export interface DownloadsCenterSection extends SectionBase { _type: "downloads_center"; title?: string; assets?: DownloadableAsset[]; epkProfile?: EpkProfile; showCategoryFilters?: boolean; mediaWidth?: MediaWidth; visibleCategories?: DownloadableAsset["category"][]; }

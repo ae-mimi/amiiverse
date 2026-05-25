@@ -1,6 +1,6 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-import { cropPresetToAspectRatio, mediaWidthClass } from "../../lib/utils/mediaLayout";
+import { cropPresetToAspectRatio, imageEditStyleVars, mediaWidthClass } from "../../lib/utils/mediaLayout";
 
 const {
     heading,
@@ -13,11 +13,13 @@ const {
 } = Astro.props;
 const bgUrl = bg_image ? urlFor(bg_image) : null;
 const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
+const editorStyles = imageEditStyleVars(Astro.props);
+const imageDisplayStyle = Astro.props.imageDisplayStyle || "boxed";
 ---
 
 <section
-    class={mediaWidthClass("cta-banner-block", mediaWidth)}
-    style={`${bgUrl ? `background-image: url(${bgUrl});` : ""}${aspectRatio ? `--media-aspect-ratio: ${aspectRatio};` : ""}`}
+    class={`${mediaWidthClass("cta-banner-block", mediaWidth)} cta-banner-block--${imageDisplayStyle}`}
+    style={`${bgUrl ? `background-image: url(${bgUrl});` : ""}${aspectRatio ? `--media-aspect-ratio: ${aspectRatio};` : ""}${editorStyles}`}
 >
     <div class="cta-overlay"></div>
     <div class="container cta-content">
@@ -42,9 +44,21 @@ const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
         padding-block: var(--space-xl, 4rem);
         text-align: center;
         background-size: cover;
-        background-position: center;
+        background-position: var(--image-object-position, center center);
         background-color: var(--color-text);
+        background-attachment: scroll;
+        border-radius: var(--image-frame-radius, 0);
+        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
+        box-shadow: var(--image-frame-shadow, none);
         overflow: hidden;
+    }
+
+    .cta-banner-block--fixedBackground {
+        background-attachment: fixed;
+    }
+
+    .cta-banner-block--fullScreen {
+        min-height: 100dvh;
     }
 
     .cta-banner-block--wide {
@@ -65,7 +79,8 @@ const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
     .cta-overlay {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: var(--image-overlay-color, #000);
+        opacity: var(--image-overlay-opacity, 0.5);
         pointer-events: none;
     }
 

@@ -34,6 +34,39 @@ export default defineType({
             },
         }),
         defineField({
+            name: 'visibility',
+            title: 'Gallery Visibility',
+            type: 'string',
+            description: 'Only Public galleries can appear on the public /gallery page.',
+            options: {
+                list: [
+                    { title: 'Draft / Internal', value: 'draft' },
+                    { title: 'Public', value: 'public' },
+                    { title: 'Archived', value: 'archived' },
+                ],
+                layout: 'radio',
+            },
+            initialValue: 'draft',
+        }),
+        defineField({
+            name: 'era',
+            title: 'Era / Phase',
+            type: 'string',
+            description: 'Examples: Pre-debut, Ordinary People, Tour, Press Run.',
+        }),
+        defineField({
+            name: 'campaign',
+            title: 'Campaign',
+            type: 'reference',
+            to: [{ type: 'campaign' }],
+        }),
+        defineField({
+            name: 'eventDate',
+            title: 'Gallery Date',
+            type: 'date',
+            description: 'Used for date sorting and filtering.',
+        }),
+        defineField({
             name: 'items',
             title: 'Photos',
             type: 'array',
@@ -45,11 +78,31 @@ export default defineType({
                     defineField({ name: 'alt', title: 'Alt Text', type: 'string', description: 'Describe the image for accessibility.' }),
                     defineField({ name: 'caption', title: 'Caption', type: 'string' }),
                     defineField({ name: 'credit', title: 'Photo Credit', type: 'string', description: 'Photographer or source.' }),
+                    defineField({
+                        name: 'visibility',
+                        title: 'Photo Visibility',
+                        type: 'string',
+                        description: 'Only Public photos inside Public galleries appear on /gallery.',
+                        options: {
+                            list: [
+                                { title: 'Draft / Internal', value: 'draft' },
+                                { title: 'Public', value: 'public' },
+                                { title: 'Archived', value: 'archived' },
+                            ],
+                            layout: 'radio',
+                        },
+                        initialValue: 'draft',
+                    }),
+                    defineField({ name: 'featured', title: 'Feature in Teasers', type: 'boolean', initialValue: false }),
+                    defineField({ name: 'date', title: 'Photo Date', type: 'date' }),
+                    defineField({ name: 'era', title: 'Era / Phase', type: 'string' }),
+                    defineField({ name: 'campaign', title: 'Campaign', type: 'reference', to: [{ type: 'campaign' }] }),
+                    defineField({ name: 'members', title: 'Members in Photo', type: 'array', of: [{ type: 'reference', to: [{ type: 'member' }] }] }),
                 ],
                 preview: {
-                    select: { media: 'image', caption: 'caption', alt: 'alt' },
-                    prepare({ media, caption, alt }) {
-                        return { title: caption || alt || 'Photo', media }
+                    select: { media: 'image', caption: 'caption', alt: 'alt', visibility: 'visibility' },
+                    prepare({ media, caption, alt, visibility }) {
+                        return { title: caption || alt || 'Photo', subtitle: visibility || 'draft', media }
                     },
                 },
             }],

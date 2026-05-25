@@ -1,7 +1,12 @@
 ---
 import { Icon } from "astro-icon/components";
 import { urlFor } from "../../lib/sanity/image";
-import { cropPresetToAspectRatio, mediaWidthClass } from "../../lib/utils/mediaLayout";
+import {
+    cropPresetToAspectRatio,
+    imageEditStyleVars,
+    mediaWidthClass,
+    resolveImageSource,
+} from "../../lib/utils/mediaLayout";
 
 const {
     top_text = "we are amii",
@@ -15,6 +20,15 @@ const {
 } = Astro.props;
 
 const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
+const displayImage = resolveImageSource(
+    image,
+    Astro.props.backgroundRemovedImage,
+    Astro.props.useBackgroundRemovedImage,
+);
+const imageStyles = [
+    aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : "",
+    imageEditStyleVars(Astro.props),
+].filter(Boolean).join("; ");
 const order = (key: string) => {
     const index = Array.isArray(contentOrder) ? contentOrder.indexOf(key) : -1;
     return index === -1 ? 99 : index + 1;
@@ -27,9 +41,14 @@ const order = (key: string) => {
 
     <!-- Main Image -->
     {
-        image && (
+        displayImage && (
             <div class={mediaWidthClass("hero-image", mediaWidth)} style={`order: ${order("image")}`}>
-                <img src={urlFor(image)} alt="Amii Avatars" style={aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : undefined} />
+                <img src={urlFor(displayImage)} alt="Amii Avatars" style={imageStyles || undefined} />
+                <span class="hero-image__overlay" aria-hidden="true"></span>
+                <span class="hero-image__vignette" aria-hidden="true"></span>
+                {Astro.props.imageMarkupText && (
+                    <span class="hero-image__markup">{Astro.props.imageMarkupText}</span>
+                )}
             </div>
         )
     }
@@ -100,6 +119,12 @@ const order = (key: string) => {
         display: flex;
         justify-content: center;
         position: relative;
+        overflow: hidden;
+        border-radius: var(--image-frame-radius, 0);
+        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
+        padding: var(--image-frame-padding, 0);
+        background: var(--image-frame-background, transparent);
+        box-shadow: var(--image-frame-shadow, none);
     }
 
     .hero-image--wide {
@@ -115,7 +140,39 @@ const order = (key: string) => {
         aspect-ratio: var(--media-aspect-ratio, auto);
         height: auto;
         object-fit: cover;
+        object-position: var(--image-object-position, center center);
+        transform: var(--image-transform, none);
+        filter: var(--image-filter, none);
+        border-radius: inherit;
         display: block;
+    }
+
+    .hero-image__overlay,
+    .hero-image__vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+    }
+    .hero-image__overlay {
+        background: var(--image-overlay-color, #000);
+        opacity: var(--image-overlay-opacity, 0);
+    }
+    .hero-image__vignette {
+        opacity: var(--image-vignette-opacity, 0);
+        background: radial-gradient(circle, transparent 48%, rgba(0, 0, 0, 0.74) 100%);
+    }
+    .hero-image__markup {
+        position: absolute;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 2;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.62);
+        color: #fff;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 700;
     }
 
     /* Welcome Banner Group */

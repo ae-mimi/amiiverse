@@ -1,6 +1,11 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-import { cropPresetToAspectRatio, mediaWidthClass } from "../../lib/utils/mediaLayout";
+import {
+    cropPresetToAspectRatio,
+    imageEditStyleVars,
+    mediaWidthClass,
+    resolveImageSource,
+} from "../../lib/utils/mediaLayout";
 
 const {
     title,
@@ -17,18 +22,34 @@ const {
 } = Astro.props;
 
 const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
+const imageDisplayStyle = Astro.props.imageDisplayStyle || "boxed";
+const displayImage = resolveImageSource(
+    image,
+    Astro.props.backgroundRemovedImage,
+    Astro.props.useBackgroundRemovedImage,
+);
+const imageStyles = [
+    aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : "",
+    displayImage ? `--media-background-image: url(${urlFor(displayImage)})` : "",
+    imageEditStyleVars(Astro.props),
+].filter(Boolean).join("; ");
 const order = (key: string) => {
     const index = Array.isArray(contentOrder) ? contentOrder.indexOf(key) : -1;
     return index === -1 ? 99 : index + 1;
 };
 ---
 
-<section class={mediaWidthClass("hero-section", mediaWidth)}>
+<section class={`${mediaWidthClass("hero-section", mediaWidth)} hero-section--display-${imageDisplayStyle}`}>
     <!-- Main Graphic -->
     {
-        image && (
+        displayImage && (
             <div class="hero-graphic" style={`order: ${order("image")}`}>
-                <img src={urlFor(image)} alt={title} style={aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : undefined} />
+                <img src={urlFor(displayImage)} alt={title} style={imageStyles || undefined} />
+                <span class="hero-graphic__overlay" aria-hidden="true"></span>
+                <span class="hero-graphic__vignette" aria-hidden="true"></span>
+                {Astro.props.imageMarkupText && (
+                    <span class="hero-graphic__markup">{Astro.props.imageMarkupText}</span>
+                )}
             </div>
         )
     }
@@ -78,11 +99,41 @@ const order = (key: string) => {
         padding-inline: 0;
     }
 
+    .hero-section--display-fullScreen {
+        min-height: 100dvh;
+        justify-content: center;
+    }
+
+    .hero-section--display-fullWidthBleed,
+    .hero-section--display-fixedBackground {
+        max-width: none;
+        padding-inline: 0;
+    }
+
+    .hero-section--display-fixedBackground .hero-graphic img {
+        opacity: 0;
+    }
+
+    .hero-section--display-fixedBackground .hero-graphic {
+        min-height: min(78vh, 860px);
+        background-image: var(--media-background-image);
+        background-size: cover;
+        background-position: var(--image-object-position, center center);
+        background-attachment: fixed;
+    }
+
     .hero-graphic {
         margin-bottom: var(--space-md);
         width: 100%;
         display: flex;
         justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--image-frame-radius, 0);
+        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
+        padding: var(--image-frame-padding, 0);
+        background: var(--image-frame-background, transparent);
+        box-shadow: var(--image-frame-shadow, none);
     }
     .hero-graphic img {
         max-height: 70vh;
@@ -90,7 +141,38 @@ const order = (key: string) => {
         width: 100%;
         aspect-ratio: var(--media-aspect-ratio, auto);
         object-fit: cover;
+        object-position: var(--image-object-position, center center);
+        transform: var(--image-transform, none);
+        filter: var(--image-filter, none);
         margin-inline: auto;
+        border-radius: inherit;
+        display: block;
+    }
+    .hero-graphic__overlay,
+    .hero-graphic__vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+    .hero-graphic__overlay {
+        background: var(--image-overlay-color, #000);
+        opacity: var(--image-overlay-opacity, 0);
+    }
+    .hero-graphic__vignette {
+        opacity: var(--image-vignette-opacity, 0);
+        background: radial-gradient(circle, transparent 48%, rgba(0, 0, 0, 0.74) 100%);
+    }
+    .hero-graphic__markup {
+        position: absolute;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 2;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.62);
+        color: #fff;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 700;
     }
 
     .hero-section--contained .hero-graphic img {

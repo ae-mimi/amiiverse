@@ -1,7 +1,7 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
 import type { Gallery } from "../../lib/sanity/types";
-import { cropPresetToAspectRatio } from "../../lib/utils/mediaLayout";
+import { cropPresetToAspectRatio, imageEditStyleVars } from "../../lib/utils/mediaLayout";
 
 interface Props {
     title?: string;
@@ -9,6 +9,9 @@ interface Props {
     columns?: 2 | 3 | 4;
     mediaWidth?: "contained" | "wide" | "full";
     imageCropPreset?: any;
+    teaserLimit?: number;
+    showGalleryLink?: boolean;
+    galleryLinkText?: string;
 }
 
 const {
@@ -17,16 +20,24 @@ const {
     columns = 3,
     mediaWidth = "contained",
     imageCropPreset = "landscape43",
+    teaserLimit,
+    showGalleryLink = false,
+    galleryLinkText = "View the gallery",
 } = Astro.props;
-const items = gallery?.items || [];
+const allItems = gallery?.items || [];
+const items = typeof teaserLimit === "number" && teaserLimit > 0
+    ? allItems.slice(0, teaserLimit)
+    : allItems;
+const hasMore = allItems.length > items.length;
 const heading = title || gallery?.title;
 const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "4 / 3";
+const imageStyles = imageEditStyleVars(Astro.props);
 ---
 
 <section
     class={`library-gallery library-gallery--${columns} library-gallery--${mediaWidth}`}
     aria-label={heading || "Gallery"}
-    style={`--gallery-aspect-ratio: ${aspectRatio}`}
+    style={`--gallery-aspect-ratio: ${aspectRatio}; ${imageStyles}`}
 >
     <div class="library-gallery__inner">
         {heading && <h2 class="library-gallery__title">{heading}</h2>}
@@ -52,6 +63,11 @@ const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "4 / 3";
                             )}
                         </figure>
                     ))}
+                    {showGalleryLink && hasMore && (
+                        <a href="/gallery" class="library-gallery__more">
+                            <span>{galleryLinkText}</span>
+                        </a>
+                    )}
                 </div>
             )
         }
@@ -117,13 +133,22 @@ const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "4 / 3";
 
     .library-gallery__item {
         margin: 0;
+        overflow: hidden;
+        border-radius: var(--image-frame-radius, 0.75rem);
+        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
+        padding: var(--image-frame-padding, 0);
+        background: var(--image-frame-background, transparent);
+        box-shadow: var(--image-frame-shadow, none);
     }
 
     .library-gallery__image {
         width: 100%;
         aspect-ratio: var(--gallery-aspect-ratio, 4 / 3);
         object-fit: cover;
-        border-radius: 0.75rem;
+        object-position: var(--image-object-position, center center);
+        transform: var(--image-transform, none);
+        filter: var(--image-filter, none);
+        border-radius: inherit;
         display: block;
     }
 
@@ -132,5 +157,25 @@ const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "4 / 3";
         font-size: 0.85rem;
         color: var(--text-muted);
         line-height: 1.4;
+    }
+
+    .library-gallery__more {
+        min-height: 12rem;
+        border: 2px solid var(--color-primary);
+        border-radius: var(--image-frame-radius, 0.75rem);
+        color: var(--color-primary);
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        font-family: var(--font-heading);
+        font-size: clamp(1.25rem, 3vw, 2rem);
+        background: color-mix(in srgb, var(--color-primary), transparent 94%);
+    }
+
+    .library-gallery__more:hover {
+        background: var(--color-primary);
+        color: var(--color-secondary);
     }
 </style>

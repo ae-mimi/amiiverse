@@ -23,21 +23,30 @@ const sectionIdField = () =>
     description: 'Optional anchor for section tabs, e.g. bio, music, photos, videos, proof, socials, contact.',
   })
 
-const imageCropPresetField = (description = 'Controls the displayed image frame. "Free-form / natural" keeps the image crop from Sanity\'s image editor.') =>
+const imageCropPresetField = (description = 'Choose a photo-editor style crop ratio for the displayed image. Use Sanity\'s built-in crop/hotspot editor on the image itself to choose the exact crop area.') =>
   defineField({
     name: 'imageCropPreset',
     type: 'string',
-    title: 'Image Crop / Aspect Ratio',
+    title: 'Crop Preset',
     description,
     options: {
       list: [
-        { title: 'Free-form / Natural', value: 'natural' },
+        { title: 'Free', value: 'natural' },
+        { title: 'Original', value: 'original' },
         { title: 'Square (1:1)', value: 'square' },
-        { title: 'Portrait (4:5)', value: 'portrait45' },
-        { title: 'Portrait (3:4)', value: 'portrait34' },
-        { title: 'Story / Reel (9:16)', value: 'story916' },
-        { title: 'Landscape (4:3)', value: 'landscape43' },
-        { title: 'Video / Wide (16:9)', value: 'wide169' },
+        { title: '9:16', value: 'portrait916' },
+        { title: '16:9', value: 'wide169' },
+        { title: '4:5', value: 'portrait45' },
+        { title: '5:4', value: 'landscape54' },
+        { title: '3:4', value: 'portrait34' },
+        { title: '4:3', value: 'landscape43' },
+        { title: '2:3', value: 'portrait23' },
+        { title: '3:2', value: 'landscape32' },
+        { title: '5:7', value: 'portrait57' },
+        { title: '7:5', value: 'landscape75' },
+        { title: '1:2', value: 'portrait12' },
+        { title: '2:1', value: 'landscape21' },
+        { title: 'Panorama', value: 'panorama' },
         { title: 'Cinematic (21:9)', value: 'cinematic219' },
         { title: 'Website Banner (3:1)', value: 'banner31' },
       ],
@@ -45,6 +54,125 @@ const imageCropPresetField = (description = 'Controls the displayed image frame.
     },
     initialValue: 'natural',
   })
+
+const imageLayoutStyleField = (initialValue = 'boxed') =>
+  defineField({
+    name: 'imageDisplayStyle',
+    type: 'string',
+    title: 'Image Layout Type',
+    description: 'Website display style for the image area.',
+    options: {
+      list: [
+        { title: 'Card / Boxed', value: 'boxed' },
+        { title: 'Full-Width (Bleed)', value: 'fullWidthBleed' },
+        { title: 'Full-Screen (Viewport)', value: 'fullScreen' },
+        { title: 'Half-and-Half (Split)', value: 'split' },
+        { title: 'Asymmetric / Off-Center', value: 'asymmetric' },
+        { title: 'Fixed Background (Parallax)', value: 'fixedBackground' },
+      ],
+      layout: 'dropdown',
+    },
+    initialValue,
+  })
+
+const imageEditorFields = () => [
+  imageLayoutStyleField(),
+  defineField({ name: 'useBackgroundRemovedImage', type: 'boolean', title: 'Use Background-Removed Version', initialValue: false }),
+  defineField({ name: 'backgroundRemovedImage', type: 'image', title: 'Background-Removed Image', description: 'Upload a cutout/transparent PNG here. Automatic removal requires an external image service.', options: { hotspot: true } }),
+  defineField({
+    name: 'imageObjectPosition',
+    type: 'string',
+    title: 'Image Position',
+    description: 'Controls which part of the photo stays visible inside the crop.',
+    options: {
+      list: [
+        { title: 'Center', value: 'center center' },
+        { title: 'Top', value: 'center top' },
+        { title: 'Bottom', value: 'center bottom' },
+        { title: 'Left', value: 'left center' },
+        { title: 'Right', value: 'right center' },
+      ],
+      layout: 'dropdown',
+    },
+    initialValue: 'center center',
+  }),
+  defineField({ name: 'imageRotate', type: 'number', title: 'Rotate', description: 'Degrees. Similar to the rotate control in Photos.', initialValue: 0 }),
+  defineField({ name: 'imageFlipHorizontal', type: 'boolean', title: 'Flip Horizontal', initialValue: false }),
+  defineField({ name: 'imageFlipVertical', type: 'boolean', title: 'Flip Vertical', initialValue: false }),
+  defineField({ name: 'imageSkewX', type: 'number', title: 'Skew X', initialValue: 0 }),
+  defineField({ name: 'imageSkewY', type: 'number', title: 'Skew Y', initialValue: 0 }),
+  defineField({
+    name: 'imageFilterPreset',
+    type: 'string',
+    title: 'Filter',
+    options: {
+      list: [
+        { title: 'Original', value: 'original' },
+        { title: 'Punch', value: 'punch' },
+        { title: 'Golden', value: 'golden' },
+        { title: 'Radiate', value: 'radiate' },
+        { title: 'Warm Contrast', value: 'warmContrast' },
+        { title: 'Calm', value: 'calm' },
+        { title: 'Cool Light', value: 'coolLight' },
+        { title: 'Vivid Cool', value: 'vividCool' },
+        { title: 'Dramatic Cool', value: 'dramaticCool' },
+        { title: 'Black & White', value: 'blackAndWhite' },
+        { title: 'Sepia', value: 'sepia' },
+      ],
+      layout: 'dropdown',
+    },
+    initialValue: 'original',
+  }),
+  defineField({ name: 'imageBrightness', type: 'number', title: 'Brightness', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
+  defineField({ name: 'imageExposure', type: 'number', title: 'Exposure', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
+  defineField({ name: 'imageContrast', type: 'number', title: 'Contrast', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
+  defineField({ name: 'imageSaturation', type: 'number', title: 'Saturation', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
+  defineField({ name: 'imageWarmth', type: 'number', title: 'Warmth', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
+  defineField({ name: 'imageTint', type: 'number', title: 'Tint', initialValue: 0, validation: (rule) => rule.min(-180).max(180) }),
+  defineField({ name: 'imageSharpness', type: 'number', title: 'Sharpness', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
+  defineField({ name: 'imageVignette', type: 'number', title: 'Vignette', initialValue: 0, validation: (rule) => rule.min(0).max(100) }),
+  defineField({ name: 'imageOverlayColor', type: 'string', title: 'Gradient / Overlay Color', description: 'Hex color used as a readability overlay, e.g. #000000.', initialValue: '#000000' }),
+  defineField({ name: 'imageOverlayOpacity', type: 'number', title: 'Overlay Opacity', initialValue: 0, validation: (rule) => rule.min(0).max(100) }),
+  defineField({ name: 'imageMarkupText', type: 'string', title: 'Markup Text', description: 'Simple on-image annotation. Freehand drawing needs a custom editor integration.' }),
+  defineField({
+    name: 'imageFrameShape',
+    type: 'string',
+    title: 'Frame Shape',
+    description: 'Use Oval/Circle for the rounded Figma-style portrait frames.',
+    options: {
+      list: [
+        { title: 'None', value: 'none' },
+        { title: 'Rounded Rectangle', value: 'rounded' },
+        { title: 'Soft Rounded', value: 'softRounded' },
+        { title: 'Pill / Oval', value: 'oval' },
+        { title: 'Circle', value: 'circle' },
+        { title: 'Arch', value: 'arch' },
+        { title: 'Card / Boxed', value: 'card' },
+      ],
+      layout: 'dropdown',
+    },
+    initialValue: 'none',
+  }),
+  defineField({ name: 'imageFrameBorderColor', type: 'string', title: 'Frame Border Color', description: 'Hex color, e.g. #174ea6 or #ff3ba7.', initialValue: 'transparent' }),
+  defineField({ name: 'imageFrameBorderWidth', type: 'number', title: 'Frame Border Width', initialValue: 0, validation: (rule) => rule.min(0).max(40) }),
+  defineField({ name: 'imageFramePadding', type: 'number', title: 'Frame Padding', description: 'Adds space between the frame edge and image.', initialValue: 0, validation: (rule) => rule.min(0).max(120) }),
+  defineField({ name: 'imageFrameBackgroundColor', type: 'string', title: 'Frame Background Color', description: 'Hex color behind the image when padding is used.', initialValue: 'transparent' }),
+  defineField({
+    name: 'imageFrameShadow',
+    type: 'string',
+    title: 'Frame Shadow',
+    options: {
+      list: [
+        { title: 'None', value: 'none' },
+        { title: 'Soft', value: 'soft' },
+        { title: 'Lifted', value: 'lifted' },
+        { title: 'Glow', value: 'glow' },
+      ],
+      layout: 'dropdown',
+    },
+    initialValue: 'none',
+  }),
+]
 
 const mediaWidthField = (initialValue = 'contained') =>
   defineField({
@@ -194,6 +322,7 @@ export default defineType({
             defineField({ name: 'image', type: 'image', title: 'Banner Image', options: { hotspot: true } }),
             mediaWidthField('contained'),
             imageCropPresetField('Use this when the homepage banner image needs a fixed website crop like 16:9, 21:9, or full-width banner.'),
+            ...imageEditorFields(),
             heroOrderField(),
             defineField({ name: 'cta_primary', type: 'string', title: 'Primary Button Text' }),
             defineField({ name: 'cta_primary_link', type: 'string', title: 'Primary Button Link' }),
@@ -218,6 +347,7 @@ export default defineType({
             defineField({ name: 'image', type: 'image', title: 'Teaser Image', options: { hotspot: true } }),
             mediaWidthField('contained'),
             imageCropPresetField('Use Full Width + a wide crop for hero layouts like the Figma mockup.'),
+            ...imageEditorFields(),
             predebutOrderField(),
             defineField({ name: 'status_text', type: 'string', title: 'Animated Status', initialValue: 'LOADING...' }),
             defineField({ name: 'cta_text', type: 'string', title: 'Button Text', initialValue: 'JOIN THE QUEUE' }),
@@ -272,6 +402,7 @@ export default defineType({
             defineField({ name: 'content', type: 'text', title: 'Body Text', rows: 5 }),
             defineField({ name: 'image', type: 'image', title: 'Photo', options: { hotspot: true } }),
             imageCropPresetField(),
+            ...imageEditorFields(),
           ],
           preview: {
             select: { title: 'heading' },
@@ -292,11 +423,12 @@ export default defineType({
             defineField({ name: 'image', type: 'image', title: 'Image', options: { hotspot: true } }),
             mediaWidthField('contained'),
             imageCropPresetField(),
+            ...imageEditorFields(),
             defineField({
               name: 'layout',
               type: 'string',
               title: 'Layout',
-              options: { list: [{ title: 'Image Left', value: 'imageLeft' }, { title: 'Image Right', value: 'imageRight' }], layout: 'radio' },
+              options: { list: [{ title: 'Image Left', value: 'imageLeft' }, { title: 'Image Right', value: 'imageRight' }, { title: 'Image Top', value: 'imageTop' }, { title: 'Image Bottom', value: 'imageBottom' }], layout: 'radio' },
               initialValue: 'imageLeft',
             }),
           ],
@@ -353,6 +485,10 @@ export default defineType({
             }),
             mediaWidthField('contained'),
             imageCropPresetField('Applies the selected crop ratio to every image in this gallery.'),
+            ...imageEditorFields(),
+            defineField({ name: 'teaserLimit', type: 'number', title: 'Images to Show Before Gallery Link', description: 'Use 3 or 4 on public pages to avoid clutter. Leave empty to show all images.', initialValue: 3 }),
+            defineField({ name: 'showGalleryLink', type: 'boolean', title: 'Show Public Gallery Link Card', initialValue: true }),
+            defineField({ name: 'galleryLinkText', type: 'string', title: 'Gallery Link Text', initialValue: 'View the gallery' }),
           ],
           preview: {
             select: { title: 'title', images: 'images' },
@@ -380,6 +516,10 @@ export default defineType({
             }),
             mediaWidthField('contained'),
             imageCropPresetField('Applies the selected crop ratio to every image in this reusable gallery.'),
+            ...imageEditorFields(),
+            defineField({ name: 'teaserLimit', type: 'number', title: 'Images to Show Before Gallery Link', description: 'Use 3 or 4 on public pages to avoid clutter. Leave empty to show all images.', initialValue: 3 }),
+            defineField({ name: 'showGalleryLink', type: 'boolean', title: 'Show Public Gallery Link Card', initialValue: true }),
+            defineField({ name: 'galleryLinkText', type: 'string', title: 'Gallery Link Text', initialValue: 'View the gallery' }),
           ],
           preview: {
             select: { title: 'title', galleryTitle: 'gallery.title' },
@@ -424,6 +564,7 @@ export default defineType({
             defineField({ name: 'bg_image', type: 'image', title: 'Background Photo', options: { hotspot: true } }),
             mediaWidthField('full'),
             imageCropPresetField('Controls the banner background frame. Use 16:9, 21:9, or 3:1 for website banners.'),
+            ...imageEditorFields(),
           ],
           preview: {
             select: { title: 'heading', subtitle: 'button_text' },
@@ -744,6 +885,8 @@ export default defineType({
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Section Title', initialValue: 'Members' }),
             defineField({ name: 'members', type: 'array', title: 'Specific Members (optional)', of: [{ type: 'reference', to: [{ type: 'member' }] }], description: 'Leave empty to show all members.' }),
+            imageCropPresetField('Applies the selected crop ratio to all member photos in this block.'),
+            ...imageEditorFields(),
           ],
           preview: {
             select: { title: 'title' },

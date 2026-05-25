@@ -25,7 +25,7 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
     },
     _type == "library_gallery" => {
       ...,
-      gallery->{ title, slug, category, items[]{ image, alt, caption, credit } }
+      gallery->{ title, slug, category, visibility, era, eventDate, campaign->{title}, items[]{ image, alt, caption, credit, visibility, featured, date, era, campaign->{title}, members[]->{name, slug} } }
     },
     _type == "link_buttons" => {
       ...,
@@ -301,6 +301,26 @@ export const POST_QUERY = `*[_type == "post" && slug.current == $slug][0]{
 
 export const ALL_DOWNLOADS_QUERY = `*[_type == "downloadableAsset"] | order(_createdAt desc) {
   title, category, "fileUrl": file.asset->url, previewImage, usageRights
+}`;
+
+export const PUBLIC_GALLERIES_QUERY = `*[_type == "gallery" && visibility == "public"] | order(coalesce(eventDate, _createdAt) desc) {
+  title,
+  slug,
+  category,
+  era,
+  eventDate,
+  campaign->{ title, slug },
+  items[visibility == "public"]{
+    image,
+    alt,
+    caption,
+    credit,
+    featured,
+    "date": coalesce(date, ^.eventDate),
+    "era": coalesce(era, ^.era),
+    campaign->{ title, slug },
+    members[]->{ name, slug }
+  }
 }`;
 
 // ── Fan Submissions ─────────────────────────────────────
