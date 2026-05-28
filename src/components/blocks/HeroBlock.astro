@@ -37,10 +37,14 @@ const order = (key: string) => {
     const index = Array.isArray(contentOrder) ? contentOrder.indexOf(key) : -1;
     return index === -1 ? 99 : index + 1;
 };
+const copyKeys = ["title", "subtitle", "description", "buttons"];
+const copyOrder = Math.min(...copyKeys.map(order));
 ---
 
-<section class={`${mediaWidthClass("hero-section", mediaWidth)} hero-section--display-${imageDisplayStyle}`}>
-    <!-- Main Graphic -->
+<section
+    class={`${mediaWidthClass("hero-section", mediaWidth)} hero-section--display-${imageDisplayStyle}`}
+    style={imageStyles || undefined}
+>
     {
         displayImage && (
             <div class="hero-graphic" style={`order: ${order("image")}`}>
@@ -54,40 +58,42 @@ const order = (key: string) => {
         )
     }
 
-    {title && <h1 class="hero-title" style={`order: ${order("title")}`}>{title}</h1>}
-    {subtitle && <p class="hero-subtitle" style={`order: ${order("subtitle")}`}>{subtitle}</p>}
-    {description && <p class="hero-subtitle" style={`order: ${order("description")}`}>{description}</p>}
+    <div class="hero-copy" style={`order: ${copyOrder}`}>
+        {title && <h1 class="hero-title" style={`order: ${order("title")}`}>{title}</h1>}
+        {subtitle && <p class="hero-subtitle" style={`order: ${order("subtitle")}`}>{subtitle}</p>}
+        {description && <p class="hero-subtitle" style={`order: ${order("description")}`}>{description}</p>}
 
-    <div class="cta-group" style={`order: ${order("buttons")}`}>
-        {
-            cta_primary && (
-                <a href={cta_primary_link || "#"} class="btn btn-primary">
-                    {cta_primary}
-                </a>
-            )
-        }
-        {
-            cta_secondary && (
-                <a href={cta_secondary_link || "#"} class="btn-text-link">
-                    {cta_secondary}
-                </a>
-            )
-        }
+        <div class="cta-group" style={`order: ${order("buttons")}`}>
+            {
+                cta_primary && (
+                    <a href={cta_primary_link || "#"} class="btn btn-primary">
+                        {cta_primary}
+                    </a>
+                )
+            }
+            {
+                cta_secondary && (
+                    <a href={cta_secondary_link || "#"} class="btn-text-link">
+                        {cta_secondary}
+                    </a>
+                )
+            }
+        </div>
     </div>
 </section>
 
 <style>
     .hero-section {
-        height: auto; /* Ensure it fits content */
-        padding-block: var(--space-lg) var(--space-md);
         width: 100%;
         max-width: 1200px;
         margin: 0 auto;
-        padding-inline: 1.5rem;
+        padding: 3rem 1.25rem;
         text-align: center;
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 1.5rem;
+        overflow: clip;
     }
 
     .hero-section--wide {
@@ -99,31 +105,7 @@ const order = (key: string) => {
         padding-inline: 0;
     }
 
-    .hero-section--display-fullScreen {
-        min-height: 100dvh;
-        justify-content: center;
-    }
-
-    .hero-section--display-fullWidthBleed,
-    .hero-section--display-fixedBackground {
-        max-width: none;
-        padding-inline: 0;
-    }
-
-    .hero-section--display-fixedBackground .hero-graphic img {
-        opacity: 0;
-    }
-
-    .hero-section--display-fixedBackground .hero-graphic {
-        min-height: min(78vh, 860px);
-        background-image: var(--media-background-image);
-        background-size: cover;
-        background-position: var(--image-object-position, center center);
-        background-attachment: fixed;
-    }
-
     .hero-graphic {
-        margin-bottom: var(--space-md);
         width: 100%;
         display: flex;
         justify-content: center;
@@ -135,10 +117,11 @@ const order = (key: string) => {
         background: var(--image-frame-background, transparent);
         box-shadow: var(--image-frame-shadow, none);
     }
+
     .hero-graphic img {
-        max-height: 70vh;
-        max-width: 100%;
         width: 100%;
+        max-width: 100%;
+        max-height: 70vh;
         aspect-ratio: var(--media-aspect-ratio, auto);
         object-fit: cover;
         object-position: var(--image-object-position, center center);
@@ -148,6 +131,7 @@ const order = (key: string) => {
         border-radius: inherit;
         display: block;
     }
+
     .hero-graphic__overlay,
     .hero-graphic__vignette {
         position: absolute;
@@ -175,31 +159,41 @@ const order = (key: string) => {
         font-weight: 700;
     }
 
+    .hero-copy {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.85rem;
+        width: min(100%, 64rem);
+        position: relative;
+        z-index: 2;
+    }
+
     .hero-section--contained .hero-graphic img {
         width: auto;
         max-width: 90vw;
     }
 
     .hero-title {
-        font-size: clamp(3rem, 10vw, 8rem); /* Massive scaling for 4K */
+        font-size: 3rem;
         color: var(--color-primary);
         text-transform: uppercase;
         line-height: 0.9;
-        margin-bottom: 1rem;
+        margin: 0;
     }
 
     .hero-subtitle {
         max-width: 60ch;
-        width: 90%; /* Ensure it doesn't touch edges on small screens */
+        width: 100%;
         margin-inline: auto;
-        margin-bottom: 0.5rem;
+        margin-block: 0;
         color: var(--color-primary);
-        font-size: clamp(1rem, 1.5vw, 1.5rem); /* Fluid subtitle */
+        font-size: 1rem;
         line-height: 1.5;
     }
 
     .cta-group {
-        margin-top: var(--space-md);
+        margin-top: 0.4rem;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -211,6 +205,193 @@ const order = (key: string) => {
         font-weight: 900;
         text-transform: uppercase;
         text-decoration: underline;
-        font-size: clamp(0.8rem, 1vw, 1.2rem); /* Fluid link text */
+        font-size: 0.9rem;
+    }
+
+    .hero-section--display-fullWidthBleed,
+    .hero-section--display-fullScreen,
+    .hero-section--display-fixedBackground {
+        max-width: none;
+        padding-inline: 0;
+    }
+
+    .hero-section--display-fullWidthBleed .hero-graphic,
+    .hero-section--display-fullScreen .hero-graphic,
+    .hero-section--display-fixedBackground .hero-graphic {
+        border-radius: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    .hero-section--display-fullWidthBleed .hero-graphic img {
+        width: 100%;
+        max-height: 36rem;
+        aspect-ratio: var(--media-aspect-ratio, 16 / 9);
+    }
+
+    .hero-section--display-fullWidthBleed .hero-copy {
+        padding-inline: 1.25rem;
+    }
+
+    .hero-section--display-fullScreen {
+        min-height: 100dvh;
+        justify-content: center;
+        display: grid;
+        grid-template: "stack" 1fr / 1fr;
+        padding-block: 0;
+        isolation: isolate;
+    }
+
+    .hero-section--display-fullScreen .hero-graphic,
+    .hero-section--display-fullScreen .hero-copy {
+        grid-area: stack;
+    }
+
+    .hero-section--display-fullScreen .hero-graphic {
+        height: 100%;
+        min-height: 100dvh;
+    }
+
+    .hero-section--display-fullScreen .hero-graphic img {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        aspect-ratio: auto;
+    }
+
+    .hero-section--display-fullScreen .hero-copy {
+        align-self: end;
+        justify-self: center;
+        width: min(100% - 2rem, 62rem);
+        padding: 6rem 1rem 4rem;
+        color: #fff;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.42);
+    }
+
+    .hero-section--display-fullScreen .hero-title,
+    .hero-section--display-fullScreen .hero-subtitle,
+    .hero-section--display-fixedBackground .hero-title,
+    .hero-section--display-fixedBackground .hero-subtitle {
+        color: #fff;
+    }
+
+    .hero-section--display-fixedBackground {
+        min-height: min(90dvh, 58rem);
+        justify-content: center;
+        background-image: linear-gradient(rgba(0, 0, 0, var(--image-overlay-opacity, 0)), rgba(0, 0, 0, var(--image-overlay-opacity, 0))), var(--media-background-image);
+        background-size: cover;
+        background-position: var(--image-object-position, center center);
+        background-attachment: scroll;
+        padding-block: 6rem;
+    }
+
+    .hero-section--display-fixedBackground .hero-graphic {
+        display: none;
+    }
+
+    .hero-section--display-fixedBackground .hero-copy {
+        width: min(100% - 2rem, 64rem);
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.42);
+    }
+
+    .hero-section--display-split,
+    .hero-section--display-asymmetric {
+        align-items: stretch;
+        text-align: left;
+        padding-inline: 1.25rem;
+    }
+
+    .hero-section--display-split .hero-copy,
+    .hero-section--display-asymmetric .hero-copy {
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .hero-section--display-split .hero-subtitle,
+    .hero-section--display-asymmetric .hero-subtitle {
+        margin-inline: 0;
+    }
+
+    .hero-section--display-split .cta-group,
+    .hero-section--display-asymmetric .cta-group {
+        align-items: flex-start;
+    }
+
+    .hero-section--display-split .hero-graphic img {
+        width: 100%;
+        max-height: none;
+        aspect-ratio: var(--media-aspect-ratio, 4 / 5);
+    }
+
+    .hero-section--display-asymmetric .hero-graphic {
+        width: min(100%, 42rem);
+    }
+
+    .hero-section--display-asymmetric .hero-graphic img {
+        max-height: 36rem;
+        aspect-ratio: var(--media-aspect-ratio, 4 / 5);
+    }
+
+    @media (min-width: 48rem) {
+        .hero-title {
+            font-size: 4.75rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+
+        .cta-group {
+            flex-direction: row;
+            justify-content: center;
+        }
+    }
+
+    @media (min-width: 64rem) {
+        .hero-section {
+            padding: 5rem 2rem;
+            gap: 2rem;
+        }
+
+        .hero-title {
+            font-size: 6.75rem;
+        }
+
+        .hero-section--display-split {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 3rem;
+            align-items: center;
+            max-width: 1280px;
+        }
+
+        .hero-section--display-asymmetric {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+            gap: 0;
+            align-items: center;
+            max-width: 1320px;
+        }
+
+        .hero-section--display-asymmetric .hero-copy {
+            margin-left: -4rem;
+            padding: 2.25rem;
+            border-radius: 1.5rem;
+            background: color-mix(in srgb, var(--body-bg, #fff), transparent 16%);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+        }
+    }
+
+    @media (min-width: 80rem) {
+        .hero-title {
+            font-size: 8rem;
+        }
+    }
+
+    @media (min-width: 64rem) and (hover: hover) {
+        .hero-section--display-fixedBackground {
+            background-attachment: fixed;
+        }
     }
 </style>

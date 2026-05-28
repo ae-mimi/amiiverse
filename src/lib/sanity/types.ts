@@ -381,7 +381,7 @@ interface SectionBase {
     [key: string]: any;
 }
 
-export interface HeroSection extends SectionBase, ImageEditorOptions { _type: "hero"; title: string; subtitle?: string; description?: string; image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; contentOrder?: ("image" | "title" | "subtitle" | "description" | "buttons")[]; cta_primary?: string; cta_primary_link?: string; cta_secondary?: string; cta_secondary_link?: string; }
+export interface HeroSection extends SectionBase, ImageEditorOptions { _type: "hero"; title: string; subtitle?: string; description?: string; image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; imageDisplayStyle?: ImageDisplayStyle; contentOrder?: ("image" | "title" | "subtitle" | "description" | "buttons")[]; cta_primary?: string; cta_primary_link?: string; cta_secondary?: string; cta_secondary_link?: string; }
 export interface PredebutHeroSection extends SectionBase, ImageEditorOptions { _type: "predebut_hero"; top_text?: string; image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; contentOrder?: ("topText" | "image" | "banner")[]; status_text?: string; cta_text?: string; cta_link?: string; }
 export interface PageHeroSection extends SectionBase { _type: "page_hero"; title: string; subtitle?: string; }
 export interface SectionTabsSection extends SectionBase { _type: "section_tabs"; items?: { label?: string; targetId?: string }[]; }
