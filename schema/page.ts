@@ -23,12 +23,13 @@ const sectionIdField = () =>
     description: 'Optional anchor for section tabs, e.g. bio, music, photos, videos, proof, socials, contact.',
   })
 
-const imageCropPresetField = (description = 'Choose a photo-editor style crop ratio for the displayed image. Use Sanity\'s built-in crop/hotspot editor on the image itself to choose the exact crop area.') =>
+const imageCropPresetField = (description = 'Choose a photo-editor style crop ratio for the displayed image. Use Sanity\'s built-in crop/hotspot editor on the image itself to choose the exact crop area.', fieldset?: string) =>
   defineField({
     name: 'imageCropPreset',
     type: 'string',
     title: 'Crop Preset',
     description,
+    ...(fieldset ? { fieldset } : {}),
     options: {
       list: [
         { title: 'Free', value: 'natural' },
@@ -55,12 +56,13 @@ const imageCropPresetField = (description = 'Choose a photo-editor style crop ra
     initialValue: 'natural',
   })
 
-const imageLayoutStyleField = (initialValue = 'boxed') =>
+const imageLayoutStyleField = (initialValue = 'boxed', fieldset?: string) =>
   defineField({
     name: 'imageDisplayStyle',
     type: 'string',
     title: 'Image Layout',
     description: 'Choose how the photo should sit in this section. These are common website layout styles.',
+    ...(fieldset ? { fieldset } : {}),
     options: {
       list: [
         { title: 'Boxed photo with margins', value: 'boxed' },
@@ -75,15 +77,16 @@ const imageLayoutStyleField = (initialValue = 'boxed') =>
     initialValue,
   })
 
-const imageEditorFields = () => [
-  imageLayoutStyleField(),
-  defineField({ name: 'useBackgroundRemovedImage', type: 'boolean', title: 'Use Background-Removed Version', initialValue: false }),
-  defineField({ name: 'backgroundRemovedImage', type: 'image', title: 'Background-Removed Image', description: 'Upload a cutout/transparent PNG here. Automatic removal requires an external image service.', options: { hotspot: true } }),
+const imageEditorFields = (fieldset?: string) => [
+  imageLayoutStyleField('boxed', fieldset),
+  defineField({ name: 'useBackgroundRemovedImage', type: 'boolean', title: 'Use Background-Removed Version', initialValue: false, ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'backgroundRemovedImage', type: 'image', title: 'Background-Removed Image', description: 'Upload a cutout/transparent PNG here. Automatic removal requires an external image service.', options: { hotspot: true }, ...(fieldset ? { fieldset } : {}) }),
   defineField({
     name: 'imageObjectPosition',
     type: 'string',
     title: 'Image Position',
     description: 'Controls which part of the photo stays visible inside the crop.',
+    ...(fieldset ? { fieldset } : {}),
     options: {
       list: [
         { title: 'Center', value: 'center center' },
@@ -96,15 +99,16 @@ const imageEditorFields = () => [
     },
     initialValue: 'center center',
   }),
-  defineField({ name: 'imageRotate', type: 'number', title: 'Rotate', description: 'Degrees. Similar to the rotate control in Photos.', initialValue: 0 }),
-  defineField({ name: 'imageFlipHorizontal', type: 'boolean', title: 'Flip Horizontal', initialValue: false }),
-  defineField({ name: 'imageFlipVertical', type: 'boolean', title: 'Flip Vertical', initialValue: false }),
-  defineField({ name: 'imageSkewX', type: 'number', title: 'Skew X', initialValue: 0 }),
-  defineField({ name: 'imageSkewY', type: 'number', title: 'Skew Y', initialValue: 0 }),
+  defineField({ name: 'imageRotate', type: 'number', title: 'Rotate', description: 'Degrees. Similar to the rotate control in Photos.', initialValue: 0, ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageFlipHorizontal', type: 'boolean', title: 'Flip Horizontal', initialValue: false, ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageFlipVertical', type: 'boolean', title: 'Flip Vertical', initialValue: false, ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageSkewX', type: 'number', title: 'Skew X', initialValue: 0, ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageSkewY', type: 'number', title: 'Skew Y', initialValue: 0, ...(fieldset ? { fieldset } : {}) }),
   defineField({
     name: 'imageFilterPreset',
     type: 'string',
     title: 'Filter',
+    ...(fieldset ? { fieldset } : {}),
     options: {
       list: [
         { title: 'Original', value: 'original' },
@@ -123,22 +127,23 @@ const imageEditorFields = () => [
     },
     initialValue: 'original',
   }),
-  defineField({ name: 'imageBrightness', type: 'number', title: 'Brightness', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
-  defineField({ name: 'imageExposure', type: 'number', title: 'Exposure', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
-  defineField({ name: 'imageContrast', type: 'number', title: 'Contrast', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
-  defineField({ name: 'imageSaturation', type: 'number', title: 'Saturation', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
-  defineField({ name: 'imageWarmth', type: 'number', title: 'Warmth', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
-  defineField({ name: 'imageTint', type: 'number', title: 'Tint', initialValue: 0, validation: (rule) => rule.min(-180).max(180) }),
-  defineField({ name: 'imageSharpness', type: 'number', title: 'Sharpness', initialValue: 0, validation: (rule) => rule.min(-100).max(100) }),
-  defineField({ name: 'imageVignette', type: 'number', title: 'Vignette', initialValue: 0, validation: (rule) => rule.min(0).max(100) }),
-  defineField({ name: 'imageOverlayColor', type: 'string', title: 'Gradient / Overlay Color', description: 'Hex color used as a readability overlay, e.g. #000000.', initialValue: '#000000' }),
-  defineField({ name: 'imageOverlayOpacity', type: 'number', title: 'Overlay Opacity', initialValue: 0, validation: (rule) => rule.min(0).max(100) }),
-  defineField({ name: 'imageMarkupText', type: 'string', title: 'Markup Text', description: 'Simple on-image annotation. Freehand drawing needs a custom editor integration.' }),
+  defineField({ name: 'imageBrightness', type: 'number', title: 'Brightness', initialValue: 0, validation: (rule) => rule.min(-100).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageExposure', type: 'number', title: 'Exposure', initialValue: 0, validation: (rule) => rule.min(-100).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageContrast', type: 'number', title: 'Contrast', initialValue: 0, validation: (rule) => rule.min(-100).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageSaturation', type: 'number', title: 'Saturation', initialValue: 0, validation: (rule) => rule.min(-100).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageWarmth', type: 'number', title: 'Warmth', initialValue: 0, validation: (rule) => rule.min(-100).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageTint', type: 'number', title: 'Tint', initialValue: 0, validation: (rule) => rule.min(-180).max(180), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageSharpness', type: 'number', title: 'Sharpness', initialValue: 0, validation: (rule) => rule.min(-100).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageVignette', type: 'number', title: 'Vignette', initialValue: 0, validation: (rule) => rule.min(0).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageOverlayColor', type: 'string', title: 'Gradient / Overlay Color', description: 'Hex color used as a readability overlay, e.g. #000000.', initialValue: '#000000', ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageOverlayOpacity', type: 'number', title: 'Overlay Opacity', initialValue: 0, validation: (rule) => rule.min(0).max(100), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageMarkupText', type: 'string', title: 'Markup Text', description: 'Simple on-image annotation. Freehand drawing needs a custom editor integration.', ...(fieldset ? { fieldset } : {}) }),
   defineField({
     name: 'imageFrameShape',
     type: 'string',
     title: 'Frame Shape',
     description: 'Use Oval/Circle for the rounded Figma-style portrait frames.',
+    ...(fieldset ? { fieldset } : {}),
     options: {
       list: [
         { title: 'None', value: 'none' },
@@ -153,14 +158,15 @@ const imageEditorFields = () => [
     },
     initialValue: 'none',
   }),
-  defineField({ name: 'imageFrameBorderColor', type: 'string', title: 'Frame Border Color', description: 'Hex color, e.g. #174ea6 or #ff3ba7.', initialValue: 'transparent' }),
-  defineField({ name: 'imageFrameBorderWidth', type: 'number', title: 'Frame Border Width', initialValue: 0, validation: (rule) => rule.min(0).max(40) }),
-  defineField({ name: 'imageFramePadding', type: 'number', title: 'Frame Padding', description: 'Adds space between the frame edge and image.', initialValue: 0, validation: (rule) => rule.min(0).max(120) }),
-  defineField({ name: 'imageFrameBackgroundColor', type: 'string', title: 'Frame Background Color', description: 'Hex color behind the image when padding is used.', initialValue: 'transparent' }),
+  defineField({ name: 'imageFrameBorderColor', type: 'string', title: 'Frame Border Color', description: 'Hex color, e.g. #174ea6 or #ff3ba7.', initialValue: 'transparent', ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageFrameBorderWidth', type: 'number', title: 'Frame Border Width', initialValue: 0, validation: (rule) => rule.min(0).max(40), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageFramePadding', type: 'number', title: 'Frame Padding', description: 'Adds space between the frame edge and image.', initialValue: 0, validation: (rule) => rule.min(0).max(120), ...(fieldset ? { fieldset } : {}) }),
+  defineField({ name: 'imageFrameBackgroundColor', type: 'string', title: 'Frame Background Color', description: 'Hex color behind the image when padding is used.', initialValue: 'transparent', ...(fieldset ? { fieldset } : {}) }),
   defineField({
     name: 'imageFrameShadow',
     type: 'string',
     title: 'Frame Shadow',
+    ...(fieldset ? { fieldset } : {}),
     options: {
       list: [
         { title: 'None', value: 'none' },
@@ -178,8 +184,8 @@ const mediaWidthField = (initialValue = 'contained') =>
   defineField({
     name: 'mediaWidth',
     type: 'string',
-    title: 'Media Width',
-    description: 'Choose how wide the media should appear on the page.',
+    title: 'Section Width',
+    description: 'Choose how much horizontal space this section can use. This is different from the photo layout.',
     options: {
       list: [
         { title: 'Contained', value: 'contained' },
@@ -315,19 +321,38 @@ export default defineType({
           title: 'Hero / Main Homepage Banner',
           icon: HeroHomeIcon,
           description: 'Use this for the big first section visitors see on the Home page.',
+          fieldsets: [
+            {
+              name: 'photoSettings',
+              title: 'Photo settings',
+              description: 'Crop, position, layout, filters, overlay, and frame controls for the main photo.',
+              options: { collapsible: true, collapsed: true },
+            },
+            {
+              name: 'buttonSettings',
+              title: 'Button settings',
+              description: 'Button labels and links.',
+              options: { collapsible: true, collapsed: true },
+            },
+            {
+              name: 'contentSettings',
+              title: 'Content order',
+              description: 'Move the photo, text, and buttons into the order you want.',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
           fields: [
             defineField({ name: 'title', type: 'string', title: 'Big Heading', description: 'The main words people should notice first.', validation: (rule) => rule.required() }),
             defineField({ name: 'subtitle', type: 'string', title: 'Small Heading', description: 'Optional short line above or below the big heading.' }),
             defineField({ name: 'description', type: 'text', title: 'Supporting Text', description: 'A short sentence or two that explains the hero.', rows: 3 }),
-            defineField({ name: 'image', type: 'image', title: 'Main Photo', description: 'The main image for this hero. Use crop/hotspot to choose the most important area.', options: { hotspot: true } }),
-            mediaWidthField('contained'),
-            imageCropPresetField('Use this when the homepage banner image needs a fixed website crop like 16:9, 21:9, or full-width banner.'),
-            ...imageEditorFields(),
-            heroOrderField(),
-            defineField({ name: 'cta_primary', type: 'string', title: 'Main Button Text', description: 'Example: Listen Now, Join Us, Watch Video.' }),
-            defineField({ name: 'cta_primary_link', type: 'string', title: 'Main Button Link', description: 'Paste a page URL, social link, music link, or email link.' }),
-            defineField({ name: 'cta_secondary', type: 'string', title: 'Second Button Text', description: 'Optional smaller follow-up action.' }),
-            defineField({ name: 'cta_secondary_link', type: 'string', title: 'Second Button Link', description: 'Where the second button should go.' }),
+            defineField({ name: 'image', type: 'image', title: 'Main Photo', description: 'The main image for this hero. Use crop/hotspot to choose the most important area.', options: { hotspot: true }, fieldset: 'photoSettings' }),
+            imageCropPresetField('Choose the shape of the photo area, like square, 16:9, or wide banner. Use the crop/hotspot editor on the photo to choose the exact crop.', 'photoSettings'),
+            ...imageEditorFields('photoSettings'),
+            { ...heroOrderField(), fieldset: 'contentSettings' },
+            defineField({ name: 'cta_primary', type: 'string', title: 'Main Button Text', description: 'Example: Listen Now, Join Us, Watch Video.', fieldset: 'buttonSettings' }),
+            defineField({ name: 'cta_primary_link', type: 'string', title: 'Main Button Link', description: 'Paste a page URL, social link, music link, or email link.', fieldset: 'buttonSettings' }),
+            defineField({ name: 'cta_secondary', type: 'string', title: 'Second Button Text', description: 'Optional smaller follow-up action.', fieldset: 'buttonSettings' }),
+            defineField({ name: 'cta_secondary_link', type: 'string', title: 'Second Button Link', description: 'Where the second button should go.', fieldset: 'buttonSettings' }),
           ],
           preview: {
             select: { title: 'title', subtitle: 'subtitle' },
