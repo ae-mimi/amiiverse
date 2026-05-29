@@ -35,6 +35,23 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
         "fileUrl": file.asset->url
       }
     },
+    _type == "link_hub" => {
+      ...,
+      featuredLink{
+        ...,
+        internalRef->{ "slug": slug },
+        "fileUrl": file.asset->url
+      },
+      groups[]{
+        ...,
+        links[]{
+          ...,
+          internalRef->{ "slug": slug },
+          "fileUrl": file.asset->url
+        }
+      },
+      release->{ title, platformLinks, smartLinkUrl }
+    },
     _type == "widget" => {
       ...,
       music_item->{
@@ -43,9 +60,9 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
         "performed_by": credits[role match "Performed by"][0].name,
         "lyrics": credits[role match "Written by" || role match "Lyrics"][0].name,
         "producer": credits[role match "Produced by" || role match "Prod."][0].name,
-        "spotify": platformLinks.spotify,
-        "apple_music": platformLinks.apple,
-        "youtube_music": platformLinks.youtube,
+        platformLinks,
+        "releasePlatformLinks": release->platformLinks,
+        "smartLinkUrl": release->smartLinkUrl,
         "audio_url": previewUrl
       }
     },

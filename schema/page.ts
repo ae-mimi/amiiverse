@@ -12,7 +12,7 @@ import {
   TimelineBlockIcon, MediaTextIcon, SmartLinksIcon, CreditsIcon,
   ShortsWallIcon, NewsFeedIcon, PressCoverageIcon, PollBlockIcon,
   NewsletterSignupIcon, SectionTabsIcon, AchievementsBlockIcon,
-  LinkButtonsIcon, LibraryGalleryIcon,
+  LinkButtonsIcon, LibraryGalleryIcon, LinkStackIcon,
 } from './icons'
 
 const sectionIdField = () =>
@@ -301,7 +301,7 @@ export default defineType({
         insertMenu: {
           showIcons: true,
           groups: [
-            { name: 'essentials', title: 'Essentials', of: ['hero', 'page_hero', 'intro', 'rich_text', 'media_text', 'cta_banner', 'newsletter_signup', 'contact_section'] },
+            { name: 'essentials', title: 'Essentials', of: ['hero', 'page_hero', 'intro', 'rich_text', 'media_text', 'link_hub', 'cta_banner', 'newsletter_signup', 'contact_section'] },
             { name: 'music', title: 'Music', of: ['music_grid', 'release_spotlight', 'smart_links', 'discography_grid', 'credits_block', 'widget'] },
             { name: 'media', title: 'Media', of: ['gallery_block', 'library_gallery', 'video_gallery', 'video_embed', 'shorts_wall', 'downloads_center'] },
             { name: 'press', title: 'Press / EPK', of: ['section_tabs', 'press_grid', 'press_quotes', 'achievements_block', 'link_buttons', 'press_kit'] },
@@ -632,6 +632,136 @@ export default defineType({
         },
         {
           type: 'object',
+          name: 'link_hub',
+          title: 'Link in Bio / Link Hub',
+          icon: LinkStackIcon,
+          description: 'A Linktree-style page section for Instagram, TikTok, YouTube bios, campaigns, music, signups, and important links.',
+          fieldsets: [
+            {
+              name: 'profile',
+              title: 'Profile header',
+              description: 'The top part of the link-in-bio page.',
+              options: { collapsible: true, collapsed: false },
+            },
+            {
+              name: 'featured',
+              title: 'Featured button',
+              description: 'Optional main button shown above the other links.',
+              options: { collapsible: true, collapsed: true },
+            },
+            {
+              name: 'music',
+              title: 'Music links',
+              description: 'Optionally pull streaming buttons from one release.',
+              options: { collapsible: true, collapsed: true },
+            },
+            {
+              name: 'style',
+              title: 'Button settings',
+              description: 'Choose the look of the link buttons.',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
+          fields: [
+            sectionIdField(),
+            defineField({ name: 'avatar', type: 'image', title: 'Profile Photo or Logo', description: 'Small image shown at the top of the link-in-bio page.', options: { hotspot: true }, fieldset: 'profile' }),
+            defineField({ name: 'title', type: 'string', title: 'Name / Heading', description: 'Example: @weareamii or amii Links.', fieldset: 'profile' }),
+            defineField({ name: 'subtitle', type: 'string', title: 'Short Welcome Text', description: 'A short line under the name.', fieldset: 'profile' }),
+            defineField({ name: 'featuredLink', type: 'link', title: 'Featured Button', description: 'The most important link right now.', fieldset: 'featured' }),
+            defineField({
+              name: 'release',
+              type: 'reference',
+              title: 'Release for Music Buttons',
+              description: 'Optional: choose a release to automatically show its streaming links.',
+              to: [{ type: 'release' }],
+              fieldset: 'music',
+            }),
+            defineField({
+              name: 'showReleaseTitle',
+              type: 'boolean',
+              title: 'Show Release Title',
+              description: 'Shows the release name above the streaming buttons.',
+              initialValue: true,
+              fieldset: 'music',
+            }),
+            defineField({
+              name: 'groups',
+              type: 'array',
+              title: 'Link Sections',
+              description: 'Group links by purpose, like Latest, Music, Videos, Socials, Shop, or Newsletter.',
+              of: [{
+                type: 'object',
+                name: 'linkHubGroup',
+                title: 'Link Section',
+                fields: [
+                  defineField({ name: 'title', type: 'string', title: 'Section Title', description: 'Example: Music, Videos, Socials, Shop.' }),
+                  defineField({
+                    name: 'links',
+                    type: 'array',
+                    title: 'Links',
+                    of: [{ type: 'link' }],
+                    validation: (rule) => rule.min(1),
+                  }),
+                ],
+                preview: {
+                  select: { title: 'title', links: 'links' },
+                  prepare({ title, links }) {
+                    const count = links?.length || 0
+                    return { title: title || 'Link Section', subtitle: `${count} link${count !== 1 ? 's' : ''}` }
+                  },
+                },
+              }],
+            }),
+            defineField({
+              name: 'buttonStyle',
+              type: 'string',
+              title: 'Button Style',
+              description: 'Use filled brand buttons to match the rest of the website.',
+              fieldset: 'style',
+              options: {
+                list: [
+                  { title: 'Filled brand buttons', value: 'filled' },
+                  { title: 'Outlined buttons', value: 'outline' },
+                  { title: 'Soft tinted buttons', value: 'soft' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'filled',
+            }),
+            defineField({
+              name: 'buttonShape',
+              type: 'string',
+              title: 'Button Shape',
+              fieldset: 'style',
+              options: {
+                list: [
+                  { title: 'Rounded', value: 'rounded' },
+                  { title: 'Pill', value: 'pill' },
+                  { title: 'Square corners', value: 'square' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'rounded',
+            }),
+            defineField({
+              name: 'showIcons',
+              type: 'boolean',
+              title: 'Show Link Type Labels',
+              description: 'Adds small labels like Music, Website, Email, or Download when available.',
+              fieldset: 'style',
+              initialValue: false,
+            }),
+          ],
+          preview: {
+            select: { title: 'title', groups: 'groups' },
+            prepare({ title, groups }) {
+              const count = groups?.length || 0
+              return { title: title || 'Link in Bio / Link Hub', subtitle: `${count} section${count !== 1 ? 's' : ''}` }
+            },
+          },
+        },
+        {
+          type: 'object',
           name: 'countdown',
           title: 'Countdown Timer',
           icon: CountdownIcon,
@@ -766,9 +896,9 @@ export default defineType({
         {
           type: 'object',
           name: 'smart_links',
-          title: 'Smart Links / Music Links',
+          title: 'Music Streaming Links',
           icon: SmartLinksIcon,
-          description: 'Platform buttons for a release. Search terms: music links, streaming links, Spotify, Apple Music, YouTube.',
+          description: 'Streaming buttons for one release. Use Link in Bio / Link Hub when you need a full social bio page with music, videos, socials, shop, and signup links.',
           fieldsets: [
             {
               name: 'buttonSettings',
@@ -831,7 +961,7 @@ export default defineType({
           ],
           preview: {
             select: { release: 'release.title' },
-            prepare({ release }) { return { title: `Smart Links: ${release || 'None'}` } },
+            prepare({ release }) { return { title: `Music Streaming Links: ${release || 'None'}` } },
           },
         },
         {

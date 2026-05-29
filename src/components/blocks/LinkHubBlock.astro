@@ -1,0 +1,279 @@
+---
+import { urlFor } from "../../lib/sanity/image";
+import { getActivePlatforms } from "../../lib/utils/platforms";
+import type { LinkData, LinkHubSection } from "../../lib/sanity/types";
+
+interface Props extends LinkHubSection {}
+
+const {
+    avatar,
+    title,
+    subtitle,
+    featuredLink,
+    release,
+    showReleaseTitle = true,
+    groups = [],
+    buttonStyle = "filled",
+    buttonShape = "rounded",
+    showIcons = false,
+} = Astro.props;
+
+const platforms = getActivePlatforms(release?.platformLinks as any);
+
+function normalizeHref(link?: LinkData & { fileUrl?: string }) {
+    if (!link) return "#";
+    if (link.type === "internal") {
+        const slug = link.internalRef?.slug?.current || "";
+        return slug === "home" ? "/" : `/${slug}`;
+    }
+    if (link.type === "download") return link.fileUrl || link.file?.asset?.url || "#";
+    if (link.type === "email") {
+        const value = link.url || "";
+        return value.startsWith("mailto:") ? value : `mailto:${value}`;
+    }
+    if (link.type === "phone") {
+        const value = link.url || "";
+        return value.startsWith("tel:") ? value : `tel:${value.replace(/\s+/g, "")}`;
+    }
+    return link.url || "#";
+}
+
+function isExternal(link?: LinkData) {
+    return Boolean(link?.newTab || link?.type === "external" || link?.type === "download");
+}
+
+function typeLabel(link?: LinkData) {
+    const labels: Record<string, string> = {
+        internal: "Website",
+        external: "Link",
+        download: "Download",
+        email: "Email",
+        phone: "Phone",
+    };
+    return link?.type ? labels[link.type] : "";
+}
+---
+
+<section
+    class={`link-hub link-hub--${buttonStyle} link-hub--${buttonShape}`}
+    aria-label={title || "Link in bio"}
+>
+    <div class="link-hub__inner">
+        <header class="link-hub__header">
+            {
+                avatar && (
+                    <img
+                        class="link-hub__avatar"
+                        src={urlFor(avatar)}
+                        alt={title ? `${title} profile photo` : "Profile photo"}
+                        loading="lazy"
+                    />
+                )
+            }
+            {title && <h2 class="link-hub__title">{title}</h2>}
+            {subtitle && <p class="link-hub__subtitle">{subtitle}</p>}
+        </header>
+
+        {
+            featuredLink?.label && (
+                <a
+                    class="link-hub__button link-hub__button--featured"
+                    href={normalizeHref(featuredLink)}
+                    target={isExternal(featuredLink) ? "_blank" : undefined}
+                    rel={isExternal(featuredLink) ? "noopener noreferrer" : undefined}
+                    download={featuredLink.type === "download" ? true : undefined}
+                >
+                    {showIcons && typeLabel(featuredLink) && <span class="link-hub__type">{typeLabel(featuredLink)}</span>}
+                    <span>{featuredLink.label}</span>
+                </a>
+            )
+        }
+
+        {
+            release && platforms.length > 0 && (
+                <section class="link-hub__group" aria-label={`${release.title} music links`}>
+                    {showReleaseTitle && <h3 class="link-hub__group-title">{release.title}</h3>}
+                    <div class="link-hub__list">
+                        {release.smartLinkUrl && (
+                            <a class="link-hub__button" href={release.smartLinkUrl} target="_blank" rel="noopener noreferrer">
+                                {showIcons && <span class="link-hub__type">Music</span>}
+                                <span>Listen Now</span>
+                            </a>
+                        )}
+                        {platforms.map((platform) => (
+                            <a class="link-hub__button" href={platform.url} target="_blank" rel="noopener noreferrer">
+                                {showIcons && <span class="link-hub__type">Music</span>}
+                                <span>{platform.label}</span>
+                            </a>
+                        ))}
+                    </div>
+                </section>
+            )
+        }
+
+        {
+            groups.map((group) => (
+                <section class="link-hub__group" aria-label={group.title || "Links"}>
+                    {group.title && <h3 class="link-hub__group-title">{group.title}</h3>}
+                    <div class="link-hub__list">
+                        {(group.links || []).map((link) => (
+                            <a
+                                class="link-hub__button"
+                                href={normalizeHref(link)}
+                                target={isExternal(link) ? "_blank" : undefined}
+                                rel={isExternal(link) ? "noopener noreferrer" : undefined}
+                                download={link.type === "download" ? true : undefined}
+                            >
+                                {showIcons && typeLabel(link) && <span class="link-hub__type">{typeLabel(link)}</span>}
+                                <span>{link.label || "Open Link"}</span>
+                            </a>
+                        ))}
+                    </div>
+                </section>
+            ))
+        }
+    </div>
+</section>
+
+<style>
+    .link-hub {
+        padding: clamp(2.5rem, 7vw, 5rem) 0;
+    }
+
+    .link-hub__inner {
+        width: min(100% - 2rem, 38rem);
+        margin: 0 auto;
+        display: grid;
+        gap: 1.25rem;
+        text-align: center;
+    }
+
+    .link-hub__header {
+        display: grid;
+        justify-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .link-hub__avatar {
+        width: clamp(6rem, 18vw, 9rem);
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid var(--color-primary);
+    }
+
+    .link-hub__title {
+        margin: 0;
+        font-family: var(--font-heading);
+        font-size: clamp(2rem, 6vw, 4rem);
+        color: var(--color-primary);
+        line-height: 0.95;
+    }
+
+    .link-hub__subtitle {
+        margin: 0;
+        color: var(--color-primary);
+        font-size: clamp(1rem, 2.2vw, 1.25rem);
+        line-height: 1.5;
+    }
+
+    .link-hub__group {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .link-hub__group-title {
+        margin: 1.25rem 0 0.15rem;
+        font-family: var(--font-heading);
+        font-size: clamp(1.6rem, 5vw, 3rem);
+        color: var(--color-primary);
+        text-transform: uppercase;
+    }
+
+    .link-hub__list {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .link-hub__button {
+        min-height: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0.95rem 1.25rem;
+        border: 2px solid var(--link-hub-border);
+        border-radius: var(--link-hub-radius);
+        background: var(--link-hub-bg);
+        color: var(--link-hub-color);
+        text-decoration: none;
+        font-weight: 900;
+        line-height: 1.2;
+        transition:
+            transform 0.18s ease,
+            background 0.18s ease,
+            color 0.18s ease,
+            border-color 0.18s ease;
+    }
+
+    .link-hub__button:hover {
+        transform: translateY(-2px);
+        background: var(--link-hub-hover-bg);
+        color: var(--link-hub-hover-color);
+        border-color: var(--link-hub-hover-border);
+    }
+
+    .link-hub__button--featured {
+        min-height: 4.5rem;
+        font-size: 1.05rem;
+    }
+
+    .link-hub__type {
+        border-radius: 999px;
+        border: 1px solid currentColor;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .link-hub--filled {
+        --link-hub-bg: var(--color-primary);
+        --link-hub-color: var(--color-secondary);
+        --link-hub-border: var(--color-primary);
+        --link-hub-hover-bg: color-mix(in srgb, var(--color-primary), black 10%);
+        --link-hub-hover-color: var(--color-secondary);
+        --link-hub-hover-border: color-mix(in srgb, var(--color-primary), black 10%);
+    }
+
+    .link-hub--outline {
+        --link-hub-bg: transparent;
+        --link-hub-color: var(--color-primary);
+        --link-hub-border: color-mix(in srgb, var(--color-primary), transparent 35%);
+        --link-hub-hover-bg: var(--color-primary);
+        --link-hub-hover-color: var(--color-secondary);
+        --link-hub-hover-border: var(--color-primary);
+    }
+
+    .link-hub--soft {
+        --link-hub-bg: color-mix(in srgb, var(--color-primary), transparent 92%);
+        --link-hub-color: var(--color-primary);
+        --link-hub-border: color-mix(in srgb, var(--color-primary), transparent 72%);
+        --link-hub-hover-bg: color-mix(in srgb, var(--color-primary), transparent 84%);
+        --link-hub-hover-color: var(--color-primary);
+        --link-hub-hover-border: color-mix(in srgb, var(--color-primary), transparent 48%);
+    }
+
+    .link-hub--rounded {
+        --link-hub-radius: 0.75rem;
+    }
+
+    .link-hub--pill {
+        --link-hub-radius: 999px;
+    }
+
+    .link-hub--square {
+        --link-hub-radius: 0;
+    }
+</style>

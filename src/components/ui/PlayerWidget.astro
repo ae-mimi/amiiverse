@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import { getActivePlatforms } from "../../lib/utils/platforms";
 
 const { track: propTrack } = Astro.props;
 
@@ -12,9 +13,9 @@ const defaultTrack = {
         performed: "MO, BASI, NINAH",
     },
     cover: "", // No hardcoded fallback
-    spotify: "#",
-    apple_music: "#",
-    youtube_music: "#",
+    platformLinks: {},
+    releasePlatformLinks: {},
+    smartLinkUrl: "",
     audio_url: "",
 };
 
@@ -30,25 +31,51 @@ const track = propTrack
               performed: propTrack.performed_by || "",
           },
           cover: propTrack.cover ? urlFor(propTrack.cover) : defaultTrack.cover,
-          spotify: propTrack.spotify || defaultTrack.spotify,
-          apple_music: propTrack.apple_music || defaultTrack.apple_music,
-          youtube_music: propTrack.youtube_music || defaultTrack.youtube_music,
+          platformLinks: propTrack.platformLinks || defaultTrack.platformLinks,
+          releasePlatformLinks: propTrack.releasePlatformLinks || defaultTrack.releasePlatformLinks,
+          smartLinkUrl: propTrack.smartLinkUrl || defaultTrack.smartLinkUrl,
           audio_url: propTrack.audio_url || "",
       }
     : defaultTrack;
 
 const hasAudio = !!track.audio_url;
+const trackPlatforms = getActivePlatforms(track.platformLinks as any);
+const releasePlatforms = getActivePlatforms(track.releasePlatformLinks as any);
+const platforms = trackPlatforms.length > 0 ? trackPlatforms : releasePlatforms;
+const spotify = platforms.find((platform) => platform.key === "spotify");
+const hasPlatformLinks = platforms.length > 0 || Boolean(track.smartLinkUrl);
 ---
 
 <div class="music-player-container">
-    <div class="streaming-links">
-        <a href={track.spotify} target="_blank" class="btn-spotify">
-            <span>LISTEN ON SPOTIFY</span>
-        </a>
-        <a href="#" class="btn-platforms">
-            <span>SEE ALL PLATFORMS</span>
-        </a>
-    </div>
+    {
+        hasPlatformLinks && (
+            <div class="streaming-links">
+                {spotify && (
+                    <a href={spotify.url} target="_blank" rel="noopener noreferrer" class="btn-spotify">
+                        <span>LISTEN ON SPOTIFY</span>
+                    </a>
+                )}
+                <details class="platform-menu">
+                    <summary class="btn-platforms">
+                        <span>SEE ALL PLATFORMS</span>
+                    </summary>
+                    <div class="platform-menu__panel">
+                        {track.smartLinkUrl && (
+                            <a href={track.smartLinkUrl} target="_blank" rel="noopener noreferrer">
+                                <span>Choose Platform</span>
+                            </a>
+                        )}
+                        {platforms.map((platform) => (
+                            <a href={platform.url} target="_blank" rel="noopener noreferrer">
+                                <Icon name={platform.icon} />
+                                <span>{platform.label}</span>
+                            </a>
+                        ))}
+                    </div>
+                </details>
+            </div>
+        )
+    }
 
     <div class="player-card">
         <div class="player-left">
@@ -132,23 +159,11 @@ const hasAudio = !!track.audio_url;
             </div>
 
             <div class="platform-icons">
-                <a href={track.spotify} target="_blank" aria-label="Spotify">
-                    <Icon name="simple-icons:spotify" />
-                </a>
-                <a
-                    href={track.apple_music}
-                    target="_blank"
-                    aria-label="Apple Music"
-                >
-                    <Icon name="simple-icons:apple" />
-                </a>
-                <a
-                    href={track.youtube_music}
-                    target="_blank"
-                    aria-label="YouTube Music"
-                >
-                    <Icon name="simple-icons:youtubemusic" />
-                </a>
+                {platforms.map((platform) => (
+                    <a href={platform.url} target="_blank" rel="noopener noreferrer" aria-label={platform.label}>
+                        <Icon name={platform.icon} />
+                    </a>
+                ))}
             </div>
         </div>
     </div>
@@ -292,6 +307,7 @@ const hasAudio = !!track.audio_url;
         flex-wrap: wrap;
         gap: 24px;
         justify-content: center;
+        position: relative;
     }
 
     .btn-spotify,
@@ -323,6 +339,12 @@ const hasAudio = !!track.audio_url;
         background: transparent;
         color: var(--color-primary);
         border: 1px solid transparent;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .btn-platforms::-webkit-details-marker {
+        display: none;
     }
 
     .btn-spotify:hover,
@@ -333,6 +355,51 @@ const hasAudio = !!track.audio_url;
     .btn-spotify:active,
     .btn-platforms:active {
         transform: translateY(0);
+    }
+
+    .platform-menu {
+        position: relative;
+    }
+
+    .platform-menu__panel {
+        position: absolute;
+        z-index: 4;
+        top: calc(100% + 0.65rem);
+        right: 0;
+        width: min(18rem, calc(100vw - 2rem));
+        padding: 0.6rem;
+        display: grid;
+        gap: 0.45rem;
+        border: 2px solid var(--color-primary);
+        border-radius: 14px;
+        background: var(--color-secondary);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .platform-menu__panel a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        min-height: 2.85rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: 10px;
+        color: var(--color-primary);
+        font-weight: 800;
+        text-decoration: none;
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .platform-menu__panel a:hover {
+        background: color-mix(in srgb, var(--color-primary), transparent 90%);
+        transform: translateY(-1px);
+    }
+
+    .platform-menu__panel [data-icon] {
+        width: 1.1rem;
+        height: 1.1rem;
     }
 
     .player-card {

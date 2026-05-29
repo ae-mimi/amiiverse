@@ -340,6 +340,7 @@ export type PageSection =
     | VideoEmbedSection
     | CtaBannerSection
     | LinkButtonsSection
+    | LinkHubSection
     | CountdownSection
     | FaqSection
     | TestimonialsSection
@@ -393,6 +394,19 @@ export interface LibraryGallerySection extends SectionBase, ImageEditorOptions {
 export interface VideoEmbedSection extends SectionBase { _type: "video_embed"; title?: string; video_url: string; caption?: string; }
 export interface CtaBannerSection extends SectionBase, ImageEditorOptions { _type: "cta_banner"; heading: string; description?: string; button_text: string; button_link: string; bg_image?: SanityImage; mediaWidth?: MediaWidth; imageCropPreset?: ImageCropPreset; }
 export interface LinkButtonsSection extends SectionBase { _type: "link_buttons"; title?: string; intro?: string; links?: LinkData[]; layout?: "row" | "stack"; }
+export interface LinkHubSection extends SectionBase {
+    _type: "link_hub";
+    avatar?: SanityImage;
+    title?: string;
+    subtitle?: string;
+    featuredLink?: LinkData;
+    release?: { title: string; platformLinks?: PlatformLinksData; smartLinkUrl?: string };
+    showReleaseTitle?: boolean;
+    groups?: { title?: string; links?: LinkData[] }[];
+    buttonStyle?: "filled" | "outline" | "soft";
+    buttonShape?: "rounded" | "pill" | "square";
+    showIcons?: boolean;
+}
 export interface CountdownSection extends SectionBase { _type: "countdown"; label: string; target_date: string; finished_text?: string; }
 export interface FaqSection extends SectionBase { _type: "faq"; title?: string; items: { question: string; answer: string }[]; }
 export interface TestimonialsSection extends SectionBase { _type: "testimonials"; title?: string; quotes: { quote: string; author?: string; source?: string }[]; }
