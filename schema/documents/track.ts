@@ -48,7 +48,15 @@ export default defineType({
             name: 'previewUrl',
             title: 'Audio Preview URL',
             type: 'url',
-            description: 'Link to a short preview clip.',
+            description: 'Direct audio file URL for the Music Player, such as an MP3, WAV, M4A, OGG, or WebM file. Put Spotify, Apple Music, YouTube, and other streaming page links in Streaming Links instead.',
+            validation: (rule) => rule.custom((value) => {
+                if (!value) return true
+                const directAudio = /\.(mp3|m4a|aac|wav|ogg|webm)(\?.*)?$/i.test(value)
+                if (!directAudio) {
+                    return 'Use a direct audio file URL here. Streaming page links belong in Streaming Links.'
+                }
+                return true
+            }).warning(),
         }),
         defineField({
             name: 'lyrics',

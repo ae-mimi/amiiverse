@@ -57,9 +57,7 @@ export const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
       music_item->{
         title,
         "cover": release->artwork,
-        "performed_by": credits[role match "Performed by"][0].name,
-        "lyrics": credits[role match "Written by" || role match "Lyrics"][0].name,
-        "producer": credits[role match "Produced by" || role match "Prod."][0].name,
+        credits,
         platformLinks,
         "releasePlatformLinks": release->platformLinks,
         "smartLinkUrl": release->smartLinkUrl,

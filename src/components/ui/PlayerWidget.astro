@@ -7,11 +7,7 @@ const { track: propTrack } = Astro.props;
 // Fallback / Placeholder if no data provided from CMS
 const defaultTrack = {
     title: "Ordinary People - amii",
-    credits: {
-        lyrics: "BASI",
-        prod: "DeBola",
-        performed: "MO, BASI, NINAH",
-    },
+    credits: [],
     cover: "", // No hardcoded fallback
     platformLinks: {},
     releasePlatformLinks: {},
@@ -25,11 +21,9 @@ import { urlFor } from "../../lib/sanity/image";
 const track = propTrack
     ? {
           title: propTrack.title || defaultTrack.title,
-          credits: {
-              lyrics: propTrack.lyrics || "",
-              prod: propTrack.producer || "",
-              performed: propTrack.performed_by || "",
-          },
+          credits: Array.isArray(propTrack.credits)
+              ? propTrack.credits
+              : defaultTrack.credits,
           cover: propTrack.cover ? urlFor(propTrack.cover) : defaultTrack.cover,
           platformLinks: propTrack.platformLinks || defaultTrack.platformLinks,
           releasePlatformLinks: propTrack.releasePlatformLinks || defaultTrack.releasePlatformLinks,
@@ -38,7 +32,14 @@ const track = propTrack
       }
     : defaultTrack;
 
-const hasAudio = !!track.audio_url;
+const playableAudioPattern = /\.(mp3|m4a|aac|wav|ogg|webm)(\?.*)?$/i;
+const hasPlayableAudio =
+    typeof track.audio_url === "string" && playableAudioPattern.test(track.audio_url);
+const hasAudioUrl = Boolean(track.audio_url);
+const audioNotice =
+    hasAudioUrl && !hasPlayableAudio
+        ? "Audio preview needs a direct audio file URL, like an MP3, WAV, M4A, OGG, or WebM file. Streaming page links should go in Streaming Links."
+        : "Audio coming soon.";
 const trackPlatforms = getActivePlatforms(track.platformLinks as any);
 const releasePlatforms = getActivePlatforms(track.releasePlatformLinks as any);
 const platforms = trackPlatforms.length > 0 ? trackPlatforms : releasePlatforms;
@@ -84,7 +85,7 @@ const hasPlatformLinks = platforms.length > 0 || Boolean(track.smartLinkUrl);
             </div>
 
             {
-                hasAudio ? (
+                hasPlayableAudio ? (
                     <div class="controls-wrapper" data-player>
                         <audio
                             src={track.audio_url}
@@ -128,7 +129,7 @@ const hasPlatformLinks = platforms.length > 0 || Boolean(track.smartLinkUrl);
                     </div>
                 ) : (
                     <div class="controls-wrapper controls-wrapper--empty">
-                        <p class="audio-fallback">🎵 Audio coming soon.</p>
+                        <p class="audio-fallback">{audioNotice}</p>
                     </div>
                 )
             }
@@ -141,18 +142,14 @@ const hasPlatformLinks = platforms.length > 0 || Boolean(track.smartLinkUrl);
                 <h4>Credits</h4>
                 <div class="credits-text">
                     {
-                        track.credits.lyrics && (
-                            <p>Lyrics: {track.credits.lyrics}</p>
-                        )
-                    }
-                    {
-                        track.credits.prod && (
-                            <p>Prod. by: {track.credits.prod}</p>
-                        )
-                    }
-                    {
-                        track.credits.performed && (
-                            <p>Performed by: {track.credits.performed}</p>
+                        track.credits.length > 0 ? (
+                            track.credits.map((credit) => (
+                                <p>
+                                    <span>{credit.role}:</span> {credit.name}
+                                </p>
+                            ))
+                        ) : (
+                            <p>Credits coming soon.</p>
                         )
                     }
                 </div>
