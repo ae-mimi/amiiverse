@@ -769,9 +769,65 @@ export default defineType({
           title: 'Smart Links / Music Links',
           icon: SmartLinksIcon,
           description: 'Platform buttons for a release. Search terms: music links, streaming links, Spotify, Apple Music, YouTube.',
+          fieldsets: [
+            {
+              name: 'buttonSettings',
+              title: 'Button settings',
+              description: 'Choose how the music buttons should look.',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
           fields: [
             sectionIdField(),
-            defineField({ name: 'release', type: 'reference', title: 'Release', to: [{ type: 'release' }] }),
+            defineField({ name: 'release', type: 'reference', title: 'Release', description: 'Choose which release these streaming links should use.', to: [{ type: 'release' }] }),
+            defineField({
+              name: 'buttonStyle',
+              type: 'string',
+              title: 'Button Style',
+              description: 'Use “Filled brand buttons” when this block should match the main website buttons.',
+              fieldset: 'buttonSettings',
+              options: {
+                list: [
+                  { title: 'Filled brand buttons', value: 'filled' },
+                  { title: 'Outlined buttons', value: 'outline' },
+                  { title: 'Soft tinted buttons', value: 'soft' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'filled',
+            }),
+            defineField({
+              name: 'buttonShape',
+              type: 'string',
+              title: 'Button Shape',
+              description: 'Pick rounded for the normal website button look.',
+              fieldset: 'buttonSettings',
+              options: {
+                list: [
+                  { title: 'Rounded', value: 'rounded' },
+                  { title: 'Pill', value: 'pill' },
+                  { title: 'Square corners', value: 'square' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'rounded',
+            }),
+            defineField({
+              name: 'showUniversalLink',
+              type: 'boolean',
+              title: 'Show Main Listen Button',
+              description: 'Shows the main smart-link button above the platform buttons when the release has one.',
+              fieldset: 'buttonSettings',
+              initialValue: true,
+            }),
+            defineField({
+              name: 'universalLinkLabel',
+              type: 'string',
+              title: 'Main Listen Button Text',
+              description: 'Example: Listen Now, Stream Ordinary People.',
+              fieldset: 'buttonSettings',
+              initialValue: 'Listen Now',
+            }),
           ],
           preview: {
             select: { release: 'release.title' },

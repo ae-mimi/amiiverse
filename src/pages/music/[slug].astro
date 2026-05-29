@@ -4,6 +4,7 @@ import { fetchSanity } from "../../lib/sanity/client";
 import { RELEASE_QUERY } from "../../lib/sanity/queries";
 import { urlFor } from "../../lib/sanity/image";
 import { formatDate } from "../../lib/utils/format";
+import { getActivePlatforms } from "../../lib/utils/platforms";
 import type { Release } from "../../lib/sanity/types";
 
 const { slug } = Astro.params;
@@ -13,20 +14,7 @@ if (!release) {
     Astro.response.status = 404;
 }
 
-const platformLabels: Record<string, string> = {
-    spotify: "Spotify",
-    appleMusic: "Apple Music",
-    youtubeMusic: "YouTube Music",
-    audiomack: "Audiomack",
-    boomplay: "Boomplay",
-    soundcloud: "SoundCloud",
-    deezer: "Deezer",
-    tidal: "Tidal",
-};
-
-const platformLinks = release?.platformLinks
-    ? Object.entries(release.platformLinks).filter(([, url]) => Boolean(url))
-    : [];
+const platformLinks = getActivePlatforms(release?.platformLinks as any);
 ---
 
 <BaseLayout title={release?.title || "Release Not Found"}>
@@ -46,9 +34,9 @@ const platformLinks = release?.platformLinks
                         {release.story && <p class="release-hero__story">{release.story}</p>}
                         {platformLinks.length > 0 && (
                             <div class="release-links" aria-label="Streaming links">
-                                {platformLinks.map(([platform, url]) => (
-                                    <a href={url as string} target="_blank" rel="noopener noreferrer">
-                                        {platformLabels[platform] || platform}
+                                {platformLinks.map((platform) => (
+                                    <a href={platform.url} target="_blank" rel="noopener noreferrer">
+                                        {platform.label}
                                     </a>
                                 ))}
                             </div>

@@ -12,21 +12,28 @@ const { release } = Astro.props;
 if (!release) return null;
 
 const platforms = getActivePlatforms(release.platformLinks as any);
+const buttonStyle = Astro.props.buttonStyle || "filled";
+const buttonShape = Astro.props.buttonShape || "rounded";
+const showUniversalLink = Astro.props.showUniversalLink !== false;
+const universalLinkLabel = Astro.props.universalLinkLabel || "Listen Now";
 ---
 
-<section class="smart-links" aria-label={`Listen to ${release.title}`}>
+<section
+    class={`smart-links smart-links--${buttonStyle} smart-links--${buttonShape}`}
+    aria-label={`Listen to ${release.title}`}
+>
     <div class="smart-links__inner">
         <h2 class="smart-links__title">{release.title}</h2>
 
         {
-            release.smartLinkUrl && (
+            showUniversalLink && release.smartLinkUrl && (
                 <a
                     href={release.smartLinkUrl}
                     class="smart-links__universal"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    Listen Now →
+                    {universalLinkLabel}
                 </a>
             )
         }
@@ -67,23 +74,33 @@ const platforms = getActivePlatforms(release.platformLinks as any);
         padding: 0 1.5rem;
     }
     .smart-links__title {
-        font-size: clamp(1.25rem, 2.5vw, 2rem);
+        font-family: var(--font-heading);
+        font-size: clamp(2rem, 5vw, 4rem);
         font-weight: 800;
-        margin-bottom: 1rem;
+        margin: 0 0 1.5rem;
+        color: var(--color-primary);
+        text-transform: uppercase;
     }
     .smart-links__universal {
         display: inline-block;
-        padding: 0.75rem 2rem;
-        background: var(--color-accent);
-        color: #fff;
-        border-radius: 0.5rem;
+        padding: 0.9rem 2.2rem;
+        background: var(--color-primary);
+        color: var(--color-secondary);
+        border: 2px solid var(--color-primary);
+        border-radius: var(--smart-link-radius);
         text-decoration: none;
-        font-weight: 600;
+        font-family: var(--font-body);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
         margin-bottom: 1.5rem;
-        transition: opacity 0.2s;
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease,
+            color 0.2s ease;
     }
     .smart-links__universal:hover {
-        opacity: 0.85;
+        transform: translateY(-2px);
     }
     .smart-links__grid {
         display: flex;
@@ -95,18 +112,66 @@ const platforms = getActivePlatforms(release.platformLinks as any);
         align-items: center;
         justify-content: center;
         gap: 0.75rem;
-        padding: 0.85rem;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 0.5rem;
+        min-height: 4rem;
+        padding: 0.95rem 1.25rem;
+        border: 2px solid var(--smart-link-border);
+        border-radius: var(--smart-link-radius);
+        background: var(--smart-link-bg);
         text-decoration: none;
-        color: inherit;
-        transition: background 0.2s;
+        color: var(--smart-link-color);
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease,
+            color 0.2s ease,
+            border-color 0.2s ease;
     }
     .smart-link:hover {
-        background: rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+        background: var(--smart-link-hover-bg);
+        color: var(--smart-link-hover-color);
+        border-color: var(--smart-link-hover-border);
     }
     .smart-link__label {
-        font-weight: 600;
-        font-size: 0.95rem;
+        font-weight: 900;
+        font-size: 1rem;
+    }
+
+    .smart-links--filled {
+        --smart-link-bg: var(--color-primary);
+        --smart-link-color: var(--color-secondary);
+        --smart-link-border: var(--color-primary);
+        --smart-link-hover-bg: color-mix(in srgb, var(--color-primary), black 10%);
+        --smart-link-hover-color: var(--color-secondary);
+        --smart-link-hover-border: color-mix(in srgb, var(--color-primary), black 10%);
+    }
+
+    .smart-links--outline {
+        --smart-link-bg: transparent;
+        --smart-link-color: var(--color-primary);
+        --smart-link-border: color-mix(in srgb, var(--color-primary), transparent 35%);
+        --smart-link-hover-bg: var(--color-primary);
+        --smart-link-hover-color: var(--color-secondary);
+        --smart-link-hover-border: var(--color-primary);
+    }
+
+    .smart-links--soft {
+        --smart-link-bg: color-mix(in srgb, var(--color-primary), transparent 92%);
+        --smart-link-color: var(--color-primary);
+        --smart-link-border: color-mix(in srgb, var(--color-primary), transparent 72%);
+        --smart-link-hover-bg: color-mix(in srgb, var(--color-primary), transparent 84%);
+        --smart-link-hover-color: var(--color-primary);
+        --smart-link-hover-border: color-mix(in srgb, var(--color-primary), transparent 48%);
+    }
+
+    .smart-links--rounded {
+        --smart-link-radius: 0.75rem;
+    }
+
+    .smart-links--pill {
+        --smart-link-radius: 999px;
+    }
+
+    .smart-links--square {
+        --smart-link-radius: 0;
     }
 </style>

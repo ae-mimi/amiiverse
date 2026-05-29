@@ -28,10 +28,10 @@ export function getActivePlatforms(
 ): { key: string; url: string; label: string; icon: string; color: string }[] {
     if (!links) return [];
     return Object.entries(links)
-        .filter(([, url]) => !!url)
+        .filter(([key, url]) => key in PLATFORMS && typeof url === "string" && /^https?:\/\//i.test(url))
         .map(([key, url]) => ({
             key,
             url: url!,
-            ...(PLATFORMS[key] || { label: key, icon: "lucide:link", color: "#888" }),
+            ...PLATFORMS[key],
         }));
 }

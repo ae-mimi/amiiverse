@@ -398,7 +398,7 @@ export interface FaqSection extends SectionBase { _type: "faq"; title?: string; 
 export interface TestimonialsSection extends SectionBase { _type: "testimonials"; title?: string; quotes: { quote: string; author?: string; source?: string }[]; }
 export interface ReleaseSpotlightSection extends SectionBase { _type: "release_spotlight"; release?: Release; showTracklist?: boolean; showCredits?: boolean; showPreSave?: boolean; }
 export interface DiscographyGridSection extends SectionBase { _type: "discography_grid"; title?: string; filtersEnabled?: boolean; defaultFilter?: string; }
-export interface SmartLinksSection extends SectionBase { _type: "smart_links"; release?: { title: string; platformLinks?: PlatformLinksData; smartLinkUrl?: string }; }
+export interface SmartLinksSection extends SectionBase { _type: "smart_links"; release?: { title: string; platformLinks?: PlatformLinksData; smartLinkUrl?: string }; buttonStyle?: "filled" | "outline" | "soft"; buttonShape?: "rounded" | "pill" | "square"; showUniversalLink?: boolean; universalLinkLabel?: string; }
 export interface CreditsBlockSection extends SectionBase { _type: "credits_block"; release?: { title: string; credits?: Credit[] }; }
 export interface VideoGallerySection extends SectionBase { _type: "video_gallery"; title?: string; videos?: Video[]; epkProfile?: EpkProfile; layout?: "grid" | "carousel"; showCopyActions?: boolean; mediaWidth?: MediaWidth; }
 export interface ShortsWallSection extends SectionBase { _type: "shorts_wall"; title?: string; embeds?: string[]; }
