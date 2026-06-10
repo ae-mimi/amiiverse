@@ -1,6 +1,6 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-import { cropPresetToAspectRatio, imageEditStyleVars, mediaWidthClass } from "../../lib/utils/mediaLayout";
+import { mediaWidthClass } from "../../lib/utils/mediaLayout";
 
 const {
     heading,
@@ -9,17 +9,13 @@ const {
     button_link,
     bg_image,
     mediaWidth = "full",
-    imageCropPreset = "natural",
 } = Astro.props;
 const bgUrl = bg_image ? urlFor(bg_image) : null;
-const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
-const editorStyles = imageEditStyleVars(Astro.props);
-const imageDisplayStyle = Astro.props.imageDisplayStyle || "boxed";
 ---
 
 <section
-    class={`${mediaWidthClass("cta-banner-block", mediaWidth)} cta-banner-block--${imageDisplayStyle}`}
-    style={`${bgUrl ? `background-image: url(${bgUrl});` : ""}${aspectRatio ? `--media-aspect-ratio: ${aspectRatio};` : ""}${editorStyles}`}
+    class={mediaWidthClass("cta-banner-block", mediaWidth)}
+    style={bgUrl ? `background-image: url(${bgUrl});` : undefined}
 >
     <div class="cta-overlay"></div>
     <div class="container cta-content">
@@ -44,21 +40,11 @@ const imageDisplayStyle = Astro.props.imageDisplayStyle || "boxed";
         padding-block: var(--space-xl, 4rem);
         text-align: center;
         background-size: cover;
-        background-position: var(--image-object-position, center center);
+        background-position: center center;
         background-color: var(--color-text);
         background-attachment: scroll;
-        border-radius: var(--image-frame-radius, 0);
-        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
-        box-shadow: var(--image-frame-shadow, none);
+        border-radius: 0;
         overflow: hidden;
-    }
-
-    .cta-banner-block--fixedBackground {
-        background-attachment: fixed;
-    }
-
-    .cta-banner-block--fullScreen {
-        min-height: 100dvh;
     }
 
     .cta-banner-block--wide {
@@ -69,18 +55,11 @@ const imageDisplayStyle = Astro.props.imageDisplayStyle || "boxed";
         max-width: none;
     }
 
-    .cta-banner-block[style*="--media-aspect-ratio"] {
-        min-height: auto;
-        aspect-ratio: var(--media-aspect-ratio);
-        display: grid;
-        place-items: center;
-    }
-
     .cta-overlay {
         position: absolute;
         inset: 0;
-        background: var(--image-overlay-color, #000);
-        opacity: var(--image-overlay-opacity, 0.5);
+        background: #000;
+        opacity: 0.5;
         pointer-events: none;
     }
 

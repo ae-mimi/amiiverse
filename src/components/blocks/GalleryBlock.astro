@@ -1,13 +1,11 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-import { cropPresetToAspectRatio, imageEditStyleVars } from "../../lib/utils/mediaLayout";
 
 const {
     title,
     images,
     columns = 3,
     mediaWidth = "contained",
-    imageCropPreset = "square",
     teaserLimit,
     showGalleryLink = false,
     galleryLinkText = "View the gallery",
@@ -17,8 +15,6 @@ const visibleImages = typeof teaserLimit === "number" && teaserLimit > 0
     ? allImages.slice(0, teaserLimit)
     : allImages;
 const hasMore = allImages.length > visibleImages.length;
-const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "1 / 1";
-const imageStyles = imageEditStyleVars(Astro.props);
 ---
 
 <section class={`gallery-block gallery-block--${mediaWidth}`}>
@@ -26,7 +22,7 @@ const imageStyles = imageEditStyleVars(Astro.props);
         {title && <h2 class="gallery-title">{title}</h2>}
         <div
             class="gallery-grid"
-            style={`--cols: ${columns}; --gallery-aspect-ratio: ${aspectRatio}; ${imageStyles}`}
+            style={`--cols: ${columns};`}
         >
             {
                 visibleImages?.map((img: any) => (
@@ -86,28 +82,21 @@ const imageStyles = imageEditStyleVars(Astro.props);
         margin: 0;
         overflow: hidden;
         border-radius: 8px;
-        border-radius: var(--image-frame-radius, 8px);
-        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
-        padding: var(--image-frame-padding, 0);
-        background: var(--image-frame-background, transparent);
-        box-shadow: var(--image-frame-shadow, none);
     }
 
     .gallery-item img {
         width: 100%;
         height: auto;
         object-fit: cover;
-        object-position: var(--image-object-position, center center);
-        aspect-ratio: var(--gallery-aspect-ratio, 1 / 1);
-        transform: var(--image-transform, none);
-        filter: var(--image-filter, none);
+        object-position: center center;
+        aspect-ratio: 1 / 1;
         border-radius: inherit;
         transition: transform 0.3s ease;
         display: block;
     }
 
     .gallery-item:hover img {
-        transform: var(--image-transform, none) scale(1.05);
+        transform: scale(1.05);
     }
 
     .gallery-item figcaption {
@@ -120,7 +109,7 @@ const imageStyles = imageEditStyleVars(Astro.props);
     .gallery-more {
         min-height: 12rem;
         border: 2px solid var(--color-primary);
-        border-radius: var(--image-frame-radius, 8px);
+        border-radius: 8px;
         color: var(--color-primary);
         display: grid;
         place-items: center;

@@ -1,22 +1,16 @@
 ---
 import { fetchSanity as getSanityContent } from "../../lib/sanity/client";
 import { ALL_MEMBERS_QUERY } from "../../lib/sanity/queries";
-import { cropPresetToAspectRatio, imageEditStyleVars } from "../../lib/utils/mediaLayout";
 import MemberCard from "../ui/MemberCard.astro";
 
-const { title, members: selectedMembers, imageCropPreset = "square" } = Astro.props;
+const { title, members: selectedMembers } = Astro.props;
 const members = selectedMembers?.length
     ? selectedMembers
     : (await getSanityContent(ALL_MEMBERS_QUERY)) || [];
-const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "1 / 1";
-const imageStyles = [
-    `--member-image-aspect-ratio: ${aspectRatio}`,
-    imageEditStyleVars(Astro.props),
-].join("; ");
 ---
 
 <section class="members-grid-block">
-    <div class="container" style={imageStyles}>
+    <div class="container">
         {title && <h2 class="section-title">{title}</h2>}
         <div class="members-grid">
             {members.map((member: any) => <MemberCard member={member} />)}

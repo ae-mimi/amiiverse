@@ -1,11 +1,6 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-import {
-    cropPresetToAspectRatio,
-    imageEditStyleVars,
-    mediaWidthClass,
-    resolveImageSource,
-} from "../../lib/utils/mediaLayout";
+import { mediaWidthClass } from "../../lib/utils/mediaLayout";
 
 const {
     title,
@@ -13,7 +8,6 @@ const {
     description,
     image,
     mediaWidth = "contained",
-    imageCropPreset = "natural",
     contentOrder = ["image", "title", "subtitle", "description", "buttons"],
     cta_primary,
     cta_primary_link,
@@ -21,18 +15,6 @@ const {
     cta_secondary_link,
 } = Astro.props;
 
-const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
-const imageDisplayStyle = Astro.props.imageDisplayStyle || "boxed";
-const displayImage = resolveImageSource(
-    image,
-    Astro.props.backgroundRemovedImage,
-    Astro.props.useBackgroundRemovedImage,
-);
-const imageStyles = [
-    aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : "",
-    displayImage ? `--media-background-image: url(${urlFor(displayImage)})` : "",
-    imageEditStyleVars(Astro.props),
-].filter(Boolean).join("; ");
 const order = (key: string) => {
     const index = Array.isArray(contentOrder) ? contentOrder.indexOf(key) : -1;
     return index === -1 ? 99 : index + 1;
@@ -42,18 +24,12 @@ const copyOrder = Math.min(...copyKeys.map(order));
 ---
 
 <section
-    class={`${mediaWidthClass("hero-section", mediaWidth)} hero-section--display-${imageDisplayStyle}`}
-    style={imageStyles || undefined}
+    class={mediaWidthClass("hero-section", mediaWidth)}
 >
     {
-        displayImage && (
+        image && (
             <div class="hero-graphic" style={`order: ${order("image")}`}>
-                <img src={urlFor(displayImage)} alt={title} style={imageStyles || undefined} />
-                <span class="hero-graphic__overlay" aria-hidden="true"></span>
-                <span class="hero-graphic__vignette" aria-hidden="true"></span>
-                {Astro.props.imageMarkupText && (
-                    <span class="hero-graphic__markup">{Astro.props.imageMarkupText}</span>
-                )}
+                <img src={urlFor(image)} alt={title} />
             </div>
         )
     }
@@ -111,52 +87,19 @@ const copyOrder = Math.min(...copyKeys.map(order));
         justify-content: center;
         position: relative;
         overflow: hidden;
-        border-radius: var(--image-frame-radius, 0);
-        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
-        padding: var(--image-frame-padding, 0);
-        background: var(--image-frame-background, transparent);
-        box-shadow: var(--image-frame-shadow, none);
+        border-radius: 0;
     }
 
     .hero-graphic img {
         width: 100%;
         max-width: 100%;
         max-height: 70vh;
-        aspect-ratio: var(--media-aspect-ratio, auto);
+        aspect-ratio: auto;
         object-fit: cover;
-        object-position: var(--image-object-position, center center);
-        transform: var(--image-transform, none);
-        filter: var(--image-filter, none);
+        object-position: center center;
         margin-inline: auto;
         border-radius: inherit;
         display: block;
-    }
-
-    .hero-graphic__overlay,
-    .hero-graphic__vignette {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-    }
-    .hero-graphic__overlay {
-        background: var(--image-overlay-color, #000);
-        opacity: var(--image-overlay-opacity, 0);
-    }
-    .hero-graphic__vignette {
-        opacity: var(--image-vignette-opacity, 0);
-        background: radial-gradient(circle, transparent 48%, rgba(0, 0, 0, 0.74) 100%);
-    }
-    .hero-graphic__markup {
-        position: absolute;
-        right: 1rem;
-        bottom: 1rem;
-        z-index: 2;
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.62);
-        color: #fff;
-        padding: 0.45rem 0.75rem;
-        font-size: 0.85rem;
-        font-weight: 700;
     }
 
     .hero-copy {
@@ -208,142 +151,6 @@ const copyOrder = Math.min(...copyKeys.map(order));
         font-size: 0.9rem;
     }
 
-    .hero-section--display-fullWidthBleed,
-    .hero-section--display-fullScreen,
-    .hero-section--display-fixedBackground {
-        max-width: none;
-        padding-inline: 0;
-    }
-
-    .hero-section--display-fullWidthBleed .hero-graphic,
-    .hero-section--display-fullScreen .hero-graphic,
-    .hero-section--display-fixedBackground .hero-graphic {
-        border-radius: 0;
-        padding: 0;
-        border: 0;
-    }
-
-    .hero-section--display-fullWidthBleed .hero-graphic img {
-        width: 100%;
-        max-height: 36rem;
-        aspect-ratio: var(--media-aspect-ratio, 16 / 9);
-    }
-
-    .hero-section--display-fullWidthBleed .hero-copy {
-        padding-inline: 1.25rem;
-    }
-
-    .hero-section--display-fullScreen {
-        min-height: 100dvh;
-        justify-content: center;
-        display: grid;
-        grid-template: "stack" 1fr / 1fr;
-        padding-block: 0;
-        isolation: isolate;
-    }
-
-    .hero-section--display-fullScreen .hero-graphic,
-    .hero-section--display-fullScreen .hero-copy {
-        grid-area: stack;
-    }
-
-    .hero-section--display-fullScreen .hero-graphic {
-        height: 100%;
-        min-height: 100dvh;
-    }
-
-    .hero-section--display-fullScreen .hero-graphic img {
-        width: 100%;
-        height: 100%;
-        max-height: none;
-        aspect-ratio: auto;
-    }
-
-    .hero-section--display-fullScreen .hero-copy {
-        align-self: end;
-        justify-self: center;
-        width: min(100% - 2rem, 62rem);
-        padding: 6rem 1rem 4rem;
-        text-shadow: 0 2px 18px rgba(0, 0, 0, 0.42);
-    }
-
-    .hero-section--display-fullScreen .hero-title,
-    .hero-section--display-fixedBackground .hero-title {
-        color: var(--color-primary);
-        text-shadow:
-            0 2px 0 color-mix(in srgb, var(--color-secondary), transparent 18%),
-            0 10px 28px rgba(0, 0, 0, 0.42);
-    }
-
-    .hero-section--display-fullScreen .hero-subtitle,
-    .hero-section--display-fixedBackground .hero-subtitle {
-        color: var(--color-secondary);
-    }
-
-    .hero-section--display-fullScreen .btn-text-link,
-    .hero-section--display-fixedBackground .btn-text-link {
-        color: var(--color-secondary);
-        text-decoration-color: currentColor;
-        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
-    }
-
-    .hero-section--display-fixedBackground {
-        min-height: min(90dvh, 58rem);
-        justify-content: center;
-        background-image: linear-gradient(rgba(0, 0, 0, var(--image-overlay-opacity, 0)), rgba(0, 0, 0, var(--image-overlay-opacity, 0))), var(--media-background-image);
-        background-size: cover;
-        background-position: var(--image-object-position, center center);
-        background-attachment: scroll;
-        padding-block: 6rem;
-    }
-
-    .hero-section--display-fixedBackground .hero-graphic {
-        display: none;
-    }
-
-    .hero-section--display-fixedBackground .hero-copy {
-        width: min(100% - 2rem, 64rem);
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.42);
-    }
-
-    .hero-section--display-split,
-    .hero-section--display-asymmetric {
-        align-items: stretch;
-        text-align: left;
-        padding-inline: 1.25rem;
-    }
-
-    .hero-section--display-split .hero-copy,
-    .hero-section--display-asymmetric .hero-copy {
-        align-items: flex-start;
-        justify-content: center;
-    }
-
-    .hero-section--display-split .hero-subtitle,
-    .hero-section--display-asymmetric .hero-subtitle {
-        margin-inline: 0;
-    }
-
-    .hero-section--display-split .cta-group,
-    .hero-section--display-asymmetric .cta-group {
-        align-items: flex-start;
-    }
-
-    .hero-section--display-split .hero-graphic img {
-        width: 100%;
-        max-height: none;
-        aspect-ratio: var(--media-aspect-ratio, 4 / 5);
-    }
-
-    .hero-section--display-asymmetric .hero-graphic {
-        width: min(100%, 42rem);
-    }
-
-    .hero-section--display-asymmetric .hero-graphic img {
-        max-height: 36rem;
-        aspect-ratio: var(--media-aspect-ratio, 4 / 5);
-    }
-
     @media (min-width: 48rem) {
         .hero-title {
             font-size: 4.75rem;
@@ -369,41 +176,11 @@ const copyOrder = Math.min(...copyKeys.map(order));
             font-size: 6.75rem;
         }
 
-        .hero-section--display-split {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 3rem;
-            align-items: center;
-            max-width: 1280px;
-        }
-
-        .hero-section--display-asymmetric {
-            display: grid;
-            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-            gap: 0;
-            align-items: center;
-            max-width: 1320px;
-        }
-
-        .hero-section--display-asymmetric .hero-copy {
-            margin-left: -4rem;
-            padding: 2.25rem;
-            border-radius: 1.5rem;
-            background: color-mix(in srgb, var(--body-bg, #fff), transparent 16%);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
-        }
     }
 
     @media (min-width: 80rem) {
         .hero-title {
             font-size: 8rem;
-        }
-    }
-
-    @media (min-width: 64rem) and (hover: hover) {
-        .hero-section--display-fixedBackground {
-            background-attachment: fixed;
         }
     }
 </style>

@@ -1,14 +1,12 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
 import type { Gallery } from "../../lib/sanity/types";
-import { cropPresetToAspectRatio, imageEditStyleVars } from "../../lib/utils/mediaLayout";
 
 interface Props {
     title?: string;
     gallery?: Gallery;
     columns?: 2 | 3 | 4;
     mediaWidth?: "contained" | "wide" | "full";
-    imageCropPreset?: any;
     teaserLimit?: number;
     showGalleryLink?: boolean;
     galleryLinkText?: string;
@@ -19,7 +17,6 @@ const {
     gallery,
     columns = 3,
     mediaWidth = "contained",
-    imageCropPreset = "landscape43",
     teaserLimit,
     showGalleryLink = false,
     galleryLinkText = "View the gallery",
@@ -30,14 +27,11 @@ const items = typeof teaserLimit === "number" && teaserLimit > 0
     : allItems;
 const hasMore = allItems.length > items.length;
 const heading = title || gallery?.title;
-const aspectRatio = cropPresetToAspectRatio(imageCropPreset) || "4 / 3";
-const imageStyles = imageEditStyleVars(Astro.props);
 ---
 
 <section
     class={`library-gallery library-gallery--${columns} library-gallery--${mediaWidth}`}
     aria-label={heading || "Gallery"}
-    style={`--gallery-aspect-ratio: ${aspectRatio}; ${imageStyles}`}
 >
     <div class="library-gallery__inner">
         {heading && <h2 class="library-gallery__title">{heading}</h2>}
@@ -134,20 +128,14 @@ const imageStyles = imageEditStyleVars(Astro.props);
     .library-gallery__item {
         margin: 0;
         overflow: hidden;
-        border-radius: var(--image-frame-radius, 0.75rem);
-        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
-        padding: var(--image-frame-padding, 0);
-        background: var(--image-frame-background, transparent);
-        box-shadow: var(--image-frame-shadow, none);
+        border-radius: 0.75rem;
     }
 
     .library-gallery__image {
         width: 100%;
-        aspect-ratio: var(--gallery-aspect-ratio, 4 / 3);
+        aspect-ratio: 4 / 3;
         object-fit: cover;
-        object-position: var(--image-object-position, center center);
-        transform: var(--image-transform, none);
-        filter: var(--image-filter, none);
+        object-position: center center;
         border-radius: inherit;
         display: block;
     }
@@ -162,7 +150,7 @@ const imageStyles = imageEditStyleVars(Astro.props);
     .library-gallery__more {
         min-height: 12rem;
         border: 2px solid var(--color-primary);
-        border-radius: var(--image-frame-radius, 0.75rem);
+        border-radius: 0.75rem;
         color: var(--color-primary);
         display: grid;
         place-items: center;

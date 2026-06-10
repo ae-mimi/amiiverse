@@ -1,10 +1,5 @@
 ---
 import { urlFor } from "../../lib/sanity/image";
-import {
-    cropPresetToAspectRatio,
-    imageEditStyleVars,
-    resolveImageSource,
-} from "../../lib/utils/mediaLayout";
 
 const {
     heading,
@@ -12,29 +7,18 @@ const {
     image,
     epkProfile,
     bioVariant = "short",
-    imageCropPreset = "natural",
 } = Astro.props;
 
 const profileBio =
     bioVariant === "long" ? epkProfile?.longBio : epkProfile?.shortBio;
 const body = content || profileBio;
-const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
-const displayImage = resolveImageSource(
-    image,
-    Astro.props.backgroundRemovedImage,
-    Astro.props.useBackgroundRemovedImage,
-);
-const imageStyles = [
-    aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : "",
-    imageEditStyleVars(Astro.props),
-].filter(Boolean).join("; ");
 ---
 
 <section class="intro-section container text-center">
     {
-        displayImage && (
+        image && (
             <div class="oval-graphic">
-                <img src={urlFor(displayImage)} alt={heading} style={imageStyles || undefined} />
+                <img src={urlFor(image)} alt={heading} />
             </div>
         )
     }
@@ -74,21 +58,15 @@ const imageStyles = [
         width: 100%;
         max-width: clamp(300px, 30vw, 600px); /* Fluid graphic size */
         margin-inline: auto;
-        border-radius: var(--image-frame-radius, 50%);
+        border-radius: 50%;
         overflow: hidden;
-        border: var(--image-frame-border-width, 4px) solid var(--image-frame-border-color, var(--color-primary));
-        padding: var(--image-frame-padding, 0);
-        background: var(--image-frame-background, transparent);
-        box-shadow: var(--image-frame-shadow, none);
     }
 
     .oval-graphic img {
         width: 100%;
-        aspect-ratio: var(--media-aspect-ratio, 1 / 1);
+        aspect-ratio: 1 / 1;
         object-fit: cover;
-        object-position: var(--image-object-position, center center);
-        transform: var(--image-transform, none);
-        filter: var(--image-filter, none);
+        object-position: center center;
         border-radius: inherit;
         display: block;
     }

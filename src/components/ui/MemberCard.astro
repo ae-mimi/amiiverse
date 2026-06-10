@@ -25,17 +25,11 @@ const { member } = Astro.props;
     }
     .member-image img {
         width: 100%;
-        aspect-ratio: var(--member-image-aspect-ratio, 1 / 1);
-        border-radius: var(--image-frame-radius, 50%);
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
         object-fit: cover;
-        object-position: var(--image-object-position, center center);
-        transform: var(--image-transform, none);
-        filter: var(--image-filter, none);
+        object-position: center center;
         margin-bottom: 20px;
-        border: var(--image-frame-border-width, 4px) solid var(--image-frame-border-color, var(--text-main));
-        padding: var(--image-frame-padding, 0);
-        background: var(--image-frame-background, transparent);
-        box-shadow: var(--image-frame-shadow, none);
     }
     .member-name {
         font-family: var(--font-heading);

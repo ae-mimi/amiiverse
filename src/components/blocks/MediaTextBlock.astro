@@ -3,11 +3,6 @@
  * MediaTextBlock — Image + text side-by-side with configurable layout.
  */
 import { urlFor } from "../../lib/sanity/image";
-import {
-    cropPresetToAspectRatio,
-    imageEditStyleVars,
-    resolveImageSource,
-} from "../../lib/utils/mediaLayout";
 
 interface Props {
     heading?: string;
@@ -15,7 +10,6 @@ interface Props {
     image?: any;
     layout?: "imageLeft" | "imageRight" | "imageTop" | "imageBottom";
     mediaWidth?: "contained" | "wide" | "full";
-    imageCropPreset?: any;
 }
 
 const {
@@ -24,41 +18,22 @@ const {
     image,
     layout = "imageLeft",
     mediaWidth = "contained",
-    imageCropPreset = "natural",
 } = Astro.props;
-const imageDisplayStyle = Astro.props.imageDisplayStyle || "boxed";
-const aspectRatio = cropPresetToAspectRatio(imageCropPreset);
-const displayImage = resolveImageSource(
-    image,
-    Astro.props.backgroundRemovedImage,
-    Astro.props.useBackgroundRemovedImage,
-);
-const imageStyles = [
-    aspectRatio ? `--media-aspect-ratio: ${aspectRatio}` : "",
-    displayImage ? `--media-background-image: url(${urlFor(displayImage)})` : "",
-    imageEditStyleVars(Astro.props),
-].filter(Boolean).join("; ");
 ---
 
 <section
-    class={`media-text media-text--${layout} media-text--${mediaWidth} media-text--display-${imageDisplayStyle}`}
+    class={`media-text media-text--${layout} media-text--${mediaWidth}`}
     aria-label={heading || "Media and text"}
 >
     <div class="media-text__inner">
         {
-            displayImage && (
+            image && (
                 <div class="media-text__media">
                     <img
-                        src={urlFor(displayImage)}
+                        src={urlFor(image)}
                         alt={heading || ""}
                         loading="lazy"
-                        style={imageStyles || undefined}
                     />
-                    <span class="media-text__overlay" aria-hidden="true"></span>
-                    <span class="media-text__vignette" aria-hidden="true"></span>
-                    {Astro.props.imageMarkupText && (
-                        <span class="media-text__markup">{Astro.props.imageMarkupText}</span>
-                    )}
                 </div>
             )
         }
@@ -89,31 +64,6 @@ const imageStyles = [
         max-width: none;
         padding-inline: 0;
     }
-    .media-text--display-fullWidthBleed .media-text__inner {
-        max-width: none;
-        padding-inline: 0;
-    }
-    .media-text--display-fullScreen {
-        min-height: 100dvh;
-        display: grid;
-        align-items: center;
-    }
-    .media-text--display-fullScreen .media-text__inner {
-        min-height: 100dvh;
-    }
-    .media-text--display-asymmetric .media-text__inner {
-        grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-    }
-    .media-text--display-fixedBackground .media-text__media img {
-        opacity: 0;
-    }
-    .media-text--display-fixedBackground .media-text__media {
-        min-height: min(70vh, 720px);
-        background-image: var(--media-background-image);
-        background-size: cover;
-        background-position: var(--image-object-position, center center);
-        background-attachment: fixed;
-    }
     @media (min-width: 768px) {
         .media-text__inner {
             grid-template-columns: 1fr 1fr;
@@ -125,49 +75,16 @@ const imageStyles = [
     }
     .media-text__media img {
         width: 100%;
-        aspect-ratio: var(--media-aspect-ratio, auto);
+        aspect-ratio: auto;
         object-fit: cover;
-        object-position: var(--image-object-position, center center);
+        object-position: center center;
         border-radius: inherit;
-        transform: var(--image-transform, none);
-        filter: var(--image-filter, none);
         display: block;
     }
     .media-text__media {
         position: relative;
         overflow: hidden;
-        border-radius: var(--image-frame-radius, 0.75rem);
-        border: var(--image-frame-border-width, 0) solid var(--image-frame-border-color, transparent);
-        padding: var(--image-frame-padding, 0);
-        background: var(--image-frame-background, transparent);
-        box-shadow: var(--image-frame-shadow, none);
-    }
-    .media-text__overlay,
-    .media-text__vignette {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        border-radius: inherit;
-    }
-    .media-text__overlay {
-        background: var(--image-overlay-color, #000);
-        opacity: var(--image-overlay-opacity, 0);
-    }
-    .media-text__vignette {
-        opacity: var(--image-vignette-opacity, 0);
-        background: radial-gradient(circle, transparent 48%, rgba(0, 0, 0, 0.74) 100%);
-    }
-    .media-text__markup {
-        position: absolute;
-        inset: auto 1rem 1rem auto;
-        z-index: 2;
-        max-width: min(24rem, 75%);
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.62);
-        color: #fff;
-        padding: 0.45rem 0.75rem;
-        font-size: 0.85rem;
-        font-weight: 700;
+        border-radius: 0.75rem;
     }
     .media-text--imageTop .media-text__inner,
     .media-text--imageBottom .media-text__inner {
